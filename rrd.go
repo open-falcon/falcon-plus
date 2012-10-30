@@ -2,10 +2,15 @@
 package rrd
 
 import (
-	"fmt"
 	"strings"
 	"time"
 )
+
+type Error string
+
+func (e Error) Error() string {
+	return string(e)
+}
 
 type Create struct {
 	filename string
