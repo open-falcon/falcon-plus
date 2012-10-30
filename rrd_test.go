@@ -38,8 +38,4 @@ func TestAll(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = u.Update()
-	if err != nil {
-		t.Fatal(err)
-	}
 }
