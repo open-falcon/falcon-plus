@@ -6,8 +6,9 @@ package rrd
 #cgo LDFLAGS: -lrrd_th
 */
 import "C"
-import "time"
-import "unsafe"
+import (
+	"unsafe"
+)
 
 func makeArgs(args []string) []*C.char {
 	ret := make([]*C.char, len(args))
@@ -32,10 +33,11 @@ func makeError(e *C.char) error {
 	if e == null {
 		return nil
 	}
+	defer freeCString(e)
 	return Error(C.GoString(e))
 }
 
-func (c *Create) create() error {
+func (c *Creater) create() error {
 	filename := C.CString(c.filename)
 	defer freeCString(filename)
 	args := makeArgs(c.args)
@@ -43,7 +45,7 @@ func (c *Create) create() error {
 
 	e := C.rrdCreate(
 		filename,
-		C.ulong((c.step+time.Second/2)/time.Second),
+		C.ulong(c.step),
 		C.time_t(c.start.Unix()),
 		C.int(len(args)),
 		&args[0],
@@ -51,5 +53,12 @@ func (c *Create) create() error {
 	return makeError(e)
 }
 
-/*fmt.Sprint(start.Unix())
-a[4], a[5] = "--step", fmt.Sprint((int64(step)+0.5e9)/1e9)*/
+func (u *Updater) update(args []unsafe.Pointer) error {
+	e := C.rrdUpdate(
+		(*C.char)(u.filename.p()),
+		(*C.char)(u.template.p()),
+		C.int(len(args)),
+		(**C.char)(unsafe.Pointer(&args[0])),
+	)
+	return makeError(e)
+}
