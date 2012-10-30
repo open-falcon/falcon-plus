@@ -32,7 +32,7 @@ func TestAll(t *testing.T) {
 	// Update with cache
 	for i := 10; i < 20; i++ {
 		time.Sleep(time.Second)
-		u.Cache(time.Now(), i, 1.5*float64(i))
+		u.Cache(time.Now(), i, 2*float64(i))
 	}
 	err = u.Update()
 	if err != nil {
