@@ -49,35 +49,35 @@ func join(args []interface{}) string {
 	return strings.Join(sa, ":")
 }
 
-type Creater struct {
+type Creator struct {
 	filename string
 	start    time.Time
 	step     uint
 	args     []string
 }
 
-// NewCreate returns new Creater object. You need to call Create to really
+// NewCreate returns new Creator object. You need to call Create to really
 // create database file.
 //	filename - name of database file
 //	start    - don't accept any data timed before or at time specified
 //	step     - base interval in seconds with which data will be fed into RRD
-func NewCreater(filename string, start time.Time, step uint) *Creater {
-	return &Creater{
+func NewCreator(filename string, start time.Time, step uint) *Creator {
+	return &Creator{
 		filename: filename,
 		start:    start,
 		step:     step,
 	}
 }
 
-func (c *Creater) DS(name, compute string, args ...interface{}) {
+func (c *Creator) DS(name, compute string, args ...interface{}) {
 	c.args = append(c.args, "DS:"+name+":"+compute+":"+join(args))
 }
 
-func (c *Creater) RRA(cf string, args ...interface{}) {
+func (c *Creator) RRA(cf string, args ...interface{}) {
 	c.args = append(c.args, "RRA:"+cf+":"+join(args))
 }
 
-func (c *Creater) Create(overwrite bool) error {
+func (c *Creator) Create(overwrite bool) error {
 	if !overwrite {
 		f, err := os.OpenFile(
 			c.filename,

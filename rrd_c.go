@@ -37,7 +37,7 @@ func makeError(e *C.char) error {
 	return Error(C.GoString(e))
 }
 
-func (c *Creater) create() error {
+func (c *Creator) create() error {
 	filename := C.CString(c.filename)
 	defer freeCString(filename)
 	args := makeArgs(c.args)

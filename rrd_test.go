@@ -9,7 +9,7 @@ func TestAll(t *testing.T) {
 	const dbfile = "/tmp/test.rrd"
 
 	// Create
-	c := NewCreater(dbfile, time.Now(), 1)
+	c := NewCreator(dbfile, time.Now(), 1)
 	c.RRA("AVERAGE", 0.5, 1, 100)
 	c.RRA("AVERAGE", 0.5, 5, 100)
 	c.DS("cnt", "COUNTER", 10, 0, 100)
