@@ -157,7 +157,7 @@ func (g *Grapher) SetTitle(title string) {
 	g.title = title
 }
 
-func (g *Grapher) SetVlabel(vlabel string) {
+func (g *Grapher) SetVLabel(vlabel string) {
 	g.vlabel = vlabel
 }
 

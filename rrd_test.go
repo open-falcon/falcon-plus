@@ -45,7 +45,7 @@ func TestAll(t *testing.T) {
 	// Graph
 	g := NewGrapher()
 	g.SetTitle("Test")
-	g.SetVlabel("some variable")
+	g.SetVLabel("some variable")
 	g.SetSize(800, 300)
 	g.Def("v1", dbfile, "g", "AVERAGE")
 	g.Def("v2", dbfile, "cnt", "AVERAGE")
