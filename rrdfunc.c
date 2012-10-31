@@ -27,3 +27,9 @@ char *rrdUpdate(const char *filename, const char *template, int argc, const char
 	rrd_update_r(filename, template, argc, argv);
 	return rrdError();
 }
+
+char *rrdGraph(rrd_info_t **ret, int argc, char **argv) {
+	rrd_clear_error();
+	*ret = rrd_graph_v(argc, argv);
+	return rrdError();
+}

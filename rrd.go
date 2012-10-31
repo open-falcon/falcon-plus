@@ -3,8 +3,10 @@ package rrd
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"strings"
+	"sync"
 	"time"
 	"unsafe"
 )
@@ -129,5 +131,63 @@ func (u *Updater) Update(args ...interface{}) error {
 		u.args = nil
 		return err
 	}
+	return nil
+}
+
+type GraphInfo struct {
+	Print         string
+	Width, Hieght int
+	Xmin, Ymin    int
+}
+
+type Grapher struct {
+	m      sync.Mutex
+	title  string
+	vlabel string
+	width  uint
+	height uint
+	args   []string
+}
+
+func NewGrapher() *Grapher {
+	return new(Grapher)
+}
+
+func (g *Grapher) SetTitle(title string) {
+	g.title = title
+}
+
+func (g *Grapher) SetVlabel(vlabel string) {
+	g.vlabel = vlabel
+}
+
+func (g *Grapher) SetSize(width, height uint) {
+	g.width = width
+	g.height = height
+}
+
+func (g *Grapher) push(cmd string, options []string) {
+	if len(options) > 0 {
+		cmd += ":" + strings.Join(options, ":")
+	}
+	g.args = append(g.args, cmd)
+}
+
+func (g *Grapher) Def(vname, rrdfile, dsname, cf string, options ...string) {
+	g.push(
+		fmt.Sprintf("DEF:%s=%s:%s:%s", vname, rrdfile, dsname, cf),
+		options,
+	)
+}
+
+func (g *Grapher) Line(width float32, value, color string, options ...string) {
+	line := fmt.Sprintf("LINE%f:%s", width, value)
+	if color != "" {
+		line += "#" + color
+	}
+	g.push(line, options)
+}
+
+func (g *Grapher) WriteGraph(w io.Writer) error {
 	return nil
 }
