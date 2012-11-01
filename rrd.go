@@ -3,7 +3,6 @@ package rrd
 
 import (
 	"fmt"
-	"io"
 	"os"
 	"strings"
 	"sync"
@@ -135,9 +134,9 @@ func (u *Updater) Update(args ...interface{}) error {
 }
 
 type GraphInfo struct {
-	Print         string
-	Width, Hieght int
-	Xmin, Ymin    int
+	Print         []string
+	Width, Height uint
+	Ymin, Ymax    float64
 }
 
 type Grapher struct {
@@ -188,6 +187,13 @@ func (g *Grapher) Line(width float32, value, color string, options ...string) {
 	g.push(line, options)
 }
 
-func (g *Grapher) WriteGraph(w io.Writer) error {
-	return nil
+// Graph returns GraphInfo and image as []byte or error
+func (g *Grapher) Graph(start, end time.Time) (GraphInfo, []byte, error) {
+	return g.graph("-", start, end)
+}
+
+// SaveGraph saves image to file and returns GraphInfo or error
+func (g *Grapher) SaveGraph(filename string, start, end time.Time) (GraphInfo, error) {
+	gi, _, err := g.graph("-", start, end)
+	return gi, err
 }
