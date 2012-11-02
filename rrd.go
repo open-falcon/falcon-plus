@@ -118,8 +118,7 @@ func (u *Updater) Cache(args ...interface{}) {
 
 // Update saves data in RRDB.
 // Without args Update saves all subsequent updates buffered by Cache method.
-// If you specify args it saves them immediately (this is thread-safe
-// operation).
+// If you specify args it saves them immediately.
 func (u *Updater) Update(args ...interface{}) error {
 	if len(args) != 0 {
 		a := make([]unsafe.Pointer, 1)
