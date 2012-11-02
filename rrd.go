@@ -179,12 +179,35 @@ func (g *Grapher) Def(vname, rrdfile, dsname, cf string, options ...string) {
 	)
 }
 
+func (g *Grapher) VDef(vname, rpn string) {
+	g.push("VDEF:"+vname+"="+rpn, nil)
+}
+
+func (g *Grapher) CDef(vname, rpn string) {
+	g.push("CDEF:"+vname+"="+rpn, nil)
+}
+
 func (g *Grapher) Line(width float32, value, color string, options ...string) {
 	line := fmt.Sprintf("LINE%f:%s", width, value)
 	if color != "" {
 		line += "#" + color
 	}
 	g.push(line, options)
+}
+
+func (g *Grapher) Print(vname, format string) {
+	g.push("PRINT:"+vname+":"+format, nil)
+}
+
+func (g *Grapher) PrintT(vname, format string) {
+	g.push("PRINT:"+vname+":"+format+":strftime", nil)
+}
+func (g *Grapher) GPrint(vname, format string) {
+	g.push("GPRINT:"+vname+":"+format, nil)
+}
+
+func (g *Grapher) GPrintT(vname, format string) {
+	g.push("GPRINT:"+vname+":"+format+":strftime", nil)
 }
 
 // Graph returns GraphInfo and image as []byte or error
@@ -194,6 +217,6 @@ func (g *Grapher) Graph(start, end time.Time) (GraphInfo, []byte, error) {
 
 // SaveGraph saves image to file and returns GraphInfo or error
 func (g *Grapher) SaveGraph(filename string, start, end time.Time) (GraphInfo, error) {
-	gi, _, err := g.graph("-", start, end)
+	gi, _, err := g.graph(filename, start, end)
 	return gi, err
 }

@@ -105,21 +105,22 @@ func parseRRDInfo(i *C.rrd_info_t) (gi GraphInfo, img []byte) {
 		}
 	}
 	for w := (*C.struct_rrd_info_t)(i); w != nil; w = w.next {
-		switch C.GoString(w.key) {
-		case "image_width":
+		k := C.GoString(w.key)
+		switch {
+		case k == "image_width":
 			gi.Width = uint(*(*C.ulong)(unsafe.Pointer(&w.value[0])))
-		case "image_height":
+		case k == "image_height":
 			gi.Height = uint(*(*C.ulong)(unsafe.Pointer(&w.value[0])))
-		case "value_min":
+		case k == "value_min":
 			gi.Ymin = float64(*(*C.rrd_value_t)(unsafe.Pointer(&w.value[0])))
-		case "value_max":
+		case k == "value_max":
 			gi.Ymax = float64(*(*C.rrd_value_t)(unsafe.Pointer(&w.value[0])))
-		case "print":
+		case k[:5] == "print":
 			gi.Print = append(
 				gi.Print,
 				C.GoString(*(**C.char)(unsafe.Pointer(&w.value[0]))),
 			)
-		case "image":
+		case k == "image":
 			blob := *(*C.rrd_blob_t)(unsafe.Pointer(&w.value[0]))
 			buf := C.GoBytes(unsafe.Pointer(blob.ptr), C.int(blob.size))
 			img = append(img, buf...)
@@ -132,7 +133,6 @@ func parseRRDInfo(i *C.rrd_info_t) (gi GraphInfo, img []byte) {
 func (g *Grapher) graph(filename string, start, end time.Time) (GraphInfo, []byte, error) {
 	var i *C.rrd_info_t
 	args := g.makeArgs(filename, start, end)
-	fmt.Println(args)
 
 	g.m.Lock() // rrd_graph_v isn't thread safe
 	err := makeError(C.rrdGraph(
