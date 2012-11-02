@@ -54,7 +54,7 @@ func TestAll(t *testing.T) {
 	g.VDef("max1", "v1,MAXIMUM")
 	g.VDef("avg2", "v2,AVERAGE")
 	g.Line(1, "v1", "ff0000", "var 1")
-	g.Line(1.5, "v2", "0000ff", "var 2")
+	g.Area("v2", "0000ff", "var 2")
 	g.GPrintT("max1", "max1 at %c")
 	g.GPrint("avg2", "avg2=%lf")
 	g.PrintT("max1", "max1 at %c")

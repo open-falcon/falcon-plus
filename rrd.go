@@ -187,14 +187,6 @@ func (g *Grapher) CDef(vname, rpn string) {
 	g.push("CDEF:"+vname+"="+rpn, nil)
 }
 
-func (g *Grapher) Line(width float32, value, color string, options ...string) {
-	line := fmt.Sprintf("LINE%f:%s", width, value)
-	if color != "" {
-		line += "#" + color
-	}
-	g.push(line, options)
-}
-
 func (g *Grapher) Print(vname, format string) {
 	g.push("PRINT:"+vname+":"+format, nil)
 }
@@ -208,6 +200,59 @@ func (g *Grapher) GPrint(vname, format string) {
 
 func (g *Grapher) GPrintT(vname, format string) {
 	g.push("GPRINT:"+vname+":"+format+":strftime", nil)
+}
+
+func (g *Grapher) Comment(s string) {
+	g.push("COMMENT:"+s, nil)
+}
+
+func (g *Grapher) VRule(t interface{}, color string, options ...string) {
+	if v, ok := t.(time.Time); ok {
+		t = v.Unix()
+	}
+	vr := fmt.Sprintf("VRULE:%s#%s", t, color)
+	g.push(vr, options)
+}
+
+func (g *Grapher) HRule(value, color string, options ...string) {
+	hr := "HRULE:" + value + "#" + color
+	g.push(hr, options)
+}
+
+func (g *Grapher) Line(width float32, value, color string, options ...string) {
+	line := fmt.Sprintf("LINE%f:%s", width, value)
+	if color != "" {
+		line += "#" + color
+	}
+	g.push(line, options)
+}
+
+func (g *Grapher) Area(value, color string, options ...string) {
+	area := "AREA:" + value
+	if color != "" {
+		area += "#" + color
+	}
+	g.push(area, options)
+}
+
+func (g *Grapher) Tick(vname, color string, options ...string) {
+	tick := "TICK:" + vname
+	if color != "" {
+		tick += "#" + color
+	}
+	g.push(tick, options)
+}
+
+func (g *Grapher) Shift(vname string, offset interface{}) {
+	if v, ok := offset.(time.Duration); ok {
+		offset = int64((v + time.Second/2) / time.Second)
+	}
+	shift := fmt.Sprintf("SHIFT:%s:%s", offset)
+	g.push(shift, nil)
+}
+
+func (g *Grapher) TextAlign(align string) {
+	g.push("TEXTALIGN:"+align, nil)
 }
 
 // Graph returns GraphInfo and image as []byte or error
