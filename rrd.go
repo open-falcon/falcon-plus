@@ -3,6 +3,7 @@ package rrd
 
 import (
 	"fmt"
+	"math"
 	"os"
 	"strings"
 	"sync"
@@ -139,16 +140,36 @@ type GraphInfo struct {
 }
 
 type Grapher struct {
-	m      sync.Mutex
-	title  string
-	vlabel string
-	width  uint
-	height uint
-	args   []string
+	m               sync.Mutex
+	title           string
+	vlabel          string
+	width, height   uint
+	upperLimit      float64
+	lowerLimit      float64
+	rigid           bool
+	altAutoscale    bool
+	altAutoscaleMin bool
+	altAutoscaleMax bool
+	noGridFit       bool
+
+	logarithmic bool
+
+	noLegand bool
+
+	lazy bool
+
+	color string
+
+	slopeMode bool
+
+	args []string
 }
 
 func NewGrapher() *Grapher {
-	return new(Grapher)
+	return &Grapher{
+		upperLimit: -math.MaxFloat64,
+		lowerLimit: math.MaxFloat64,
+	}
 }
 
 func (g *Grapher) SetTitle(title string) {
@@ -162,6 +183,55 @@ func (g *Grapher) SetVLabel(vlabel string) {
 func (g *Grapher) SetSize(width, height uint) {
 	g.width = width
 	g.height = height
+}
+
+func (g *Grapher) SetLowerLimit(limit float64) {
+	g.lowerLimit = limit
+}
+
+func (g *Grapher) SetUpperLimit(limit float64) {
+	g.upperLimit = limit
+}
+
+func (g *Grapher) SetRigid() {
+	g.rigid = true
+}
+
+func (g *Grapher) SetAltAutoscale() {
+	g.altAutoscale = true
+}
+
+func (g *Grapher) SetAltAutoscaleMin() {
+	g.altAutoscaleMin = true
+}
+
+func (g *Grapher) SetAltAutoscaleMax() {
+
+	g.altAutoscaleMax = true
+}
+
+func (g *Grapher) SetNoGridFit() {
+	g.noGridFit = true
+}
+
+func (g *Grapher) SetLogarithmic() {
+	g.logarithmic = true
+}
+
+func (g *Grapher) SetNoLegand() {
+	g.noLegand = true
+}
+
+func (g *Grapher) SetLazy() {
+	g.lazy = true
+}
+
+func (g *Grapher) SetColor(colortag, color string) {
+	g.color = colortag + "#" + color
+}
+
+func (g *Grapher) SetSlopeMode() {
+	g.slopeMode = true
 }
 
 func (g *Grapher) push(cmd string, options []string) {

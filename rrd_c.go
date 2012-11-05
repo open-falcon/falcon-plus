@@ -9,6 +9,7 @@ package rrd
 import "C"
 import (
 	"fmt"
+	"math"
 	"time"
 	"unsafe"
 )
@@ -67,13 +68,30 @@ func (u *Updater) update(args []unsafe.Pointer) error {
 }
 
 var (
-	graphv  = C.CString("graphv")
-	oStart  = C.CString("-s")
-	oEnd    = C.CString("-e")
-	oTitle  = C.CString("-t")
-	oVlabel = C.CString("-v")
-	oWidth  = C.CString("-w")
-	oHeight = C.CString("-h")
+	graphv           = C.CString("graphv")
+	oStart           = C.CString("-s")
+	oEnd             = C.CString("-e")
+	oTitle           = C.CString("-t")
+	oVlabel          = C.CString("-v")
+	oWidth           = C.CString("-w")
+	oHeight          = C.CString("-h")
+	oUpperLimit      = C.CString("-u")
+	oLowerLimit      = C.CString("-l")
+	oRigid           = C.CString("-r")
+	oAltAutoscale    = C.CString("-A")
+	oAltAutoscaleMin = C.CString("-J")
+	oAltAutoscaleMax = C.CString("-M")
+	oNoGridFit       = C.CString("-N")
+
+	oLogarithmic = C.CString("-o")
+
+	oNoLegand = C.CString("-g")
+
+	oLazy = C.CString("-z")
+
+	oColor = C.CString("-c")
+
+	oSlopeMode = C.CString("-E")
 )
 
 func (g *Grapher) makeArgs(filename string, start, end time.Time) []*C.char {
@@ -89,6 +107,42 @@ func (g *Grapher) makeArgs(filename string, start, end time.Time) []*C.char {
 	}
 	if g.height != 0 {
 		args = append(args, oHeight, C.CString(fmt.Sprint(g.height)))
+	}
+	if g.upperLimit != -math.MaxFloat64 {
+		args = append(args, oUpperLimit, C.CString(fmt.Sprint(g.upperLimit)))
+	}
+	if g.lowerLimit != math.MaxFloat64 {
+		args = append(args, oLowerLimit, C.CString(fmt.Sprint(g.lowerLimit)))
+	}
+	if g.rigid {
+		args = append(args, oRigid)
+	}
+	if g.altAutoscale {
+		args = append(args, oAltAutoscale)
+	}
+	if g.altAutoscaleMax {
+		args = append(args, oAltAutoscaleMax)
+	}
+	if g.altAutoscaleMin {
+		args = append(args, oAltAutoscaleMin)
+	}
+	if g.noGridFit {
+		args = append(args, oNoGridFit)
+	}
+	if g.logarithmic {
+		args = append(args, oLogarithmic)
+	}
+	if g.noLegand {
+		args = append(args, oNoLegand)
+	}
+	if g.lazy {
+		args = append(args, oLazy)
+	}
+	if g.color != "" {
+		args = append(args, oColor, C.CString(g.color))
+	}
+	if g.slopeMode {
+		args = append(args, oSlopeMode)
 	}
 	return append(args, makeArgs(g.args)...)
 }
