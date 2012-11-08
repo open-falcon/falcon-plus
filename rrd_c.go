@@ -10,6 +10,8 @@ import "C"
 import (
 	"fmt"
 	"math"
+	"strconv"
+	"strings"
 	"time"
 	"unsafe"
 )
@@ -147,31 +149,83 @@ func (g *Grapher) makeArgs(filename string, start, end time.Time) []*C.char {
 	return append(args, makeArgs(g.args)...)
 }
 
+func parseInfoKey(ik string) (kname, kkey string, kid int) {
+	kid = -1
+	o := strings.IndexRune(ik, '[')
+	if o == -1 {
+		kname = ik
+		return
+	}
+	c := strings.IndexRune(ik[o+1:], ']')
+	if c == -1 {
+		kname = ik
+		return
+	}
+	c += o + 1
+	kname = ik[:o] + ik[c+1:]
+	kkey = ik[o+1 : c]
+	if id, err := strconv.Atoi(kkey); err == nil && id >= 0 {
+		kid = id
+	}
+	return
+}
+
+func updateInfoValue(i *C.struct_rrd_info_t, v interface{}) interface{} {
+	switch i._type {
+	case C.RD_I_VAL:
+		return float64(*(*C.rrd_value_t)(unsafe.Pointer(&i.value[0])))
+	case C.RD_I_CNT:
+		return uint(*(*C.ulong)(unsafe.Pointer(&i.value[0])))
+	case C.RD_I_STR:
+		return C.GoString(*(**C.char)(unsafe.Pointer(&i.value[0])))
+	case C.RD_I_INT:
+		return int(*(*C.int)(unsafe.Pointer(&i.value[0])))
+	case C.RD_I_BLO:
+		blob := *(*C.rrd_blob_t)(unsafe.Pointer(&i.value[0]))
+		b := C.GoBytes(unsafe.Pointer(blob.ptr), C.int(blob.size))
+		if v == nil {
+			return b
+		}
+		return append(v.([]byte), b...)
+	}
+
+	return nil
+}
+
 func parseRRDInfo(i *C.rrd_info_t) map[string]interface{} {
 	defer C.rrd_info_free(i)
 
 	r := make(map[string]interface{})
 	for w := (*C.struct_rrd_info_t)(i); w != nil; w = w.next {
-		k := C.GoString(w.key)
-		switch w._type {
-		case C.RD_I_VAL:
-			r[k] = float64(*(*C.rrd_value_t)(unsafe.Pointer(&w.value[0])))
-		case C.RD_I_CNT:
-			r[k] = uint(*(*C.ulong)(unsafe.Pointer(&w.value[0])))
-		case C.RD_I_STR:
-			s := C.GoString(*(**C.char)(unsafe.Pointer(&w.value[0])))
-			r[k] = s
-		case C.RD_I_INT:
-			r[k] = int(*(*C.int)(unsafe.Pointer(&w.value[0])))
-		case C.RD_I_BLO:
-			blob := *(*C.rrd_blob_t)(unsafe.Pointer(&w.value[0]))
-			b := C.GoBytes(unsafe.Pointer(blob.ptr), C.int(blob.size))
-			if v, ok := r[k]; ok {
-				r[k] = append(v.([]byte), b...)
-			} else {
-				r[k] = b
+		kname, kkey, kid := parseInfoKey(C.GoString(w.key))
+		v, ok := r[kname]
+		switch {
+		case kid != -1:
+			var a []interface{}
+			if ok {
+				a = v.([]interface{})
 			}
+			if len(a) < kid+1 {
+				oldA := a
+				a = make([]interface{}, kid+1)
+				copy(a, oldA)
+			}
+			a[kid] = updateInfoValue(w, a[kid])
+			v = a
+		case kkey != "":
+			var m map[string]interface{}
+			if ok {
+				m = v.(map[string]interface{})
+			} else {
+				m = make(map[string]interface{})
+			}
+			old, _ := m[kkey]
+			m[kkey] = updateInfoValue(w, old)
+			v = m
+		default:
+			v = updateInfoValue(w, v)
 		}
+		r[kname] = v
 	}
 	return r
 }
@@ -182,8 +236,10 @@ func parseGraphInfo(i *C.rrd_info_t) (gi GraphInfo, img []byte) {
 		gi.Print = append(gi.Print, v.(string))
 	}
 	for k, v := range inf {
-		if k[:5] == "print" {
-			gi.Print = append(gi.Print, v.(string))
+		if k == "print" {
+			for _, line := range v.([]interface{}) {
+				gi.Print = append(gi.Print, line.(string))
+			}
 		}
 	}
 	if v, ok := inf["image_width"]; ok {
