@@ -147,40 +147,60 @@ func (g *Grapher) makeArgs(filename string, start, end time.Time) []*C.char {
 	return append(args, makeArgs(g.args)...)
 }
 
-func parseRRDInfo(i *C.rrd_info_t) (gi GraphInfo, img []byte) {
+func parseRRDInfo(i *C.rrd_info_t) map[string]interface{} {
 	defer C.rrd_info_free(i)
 
-	for w := (*C.struct_rrd_info_t)(i); w != nil; w = w.next {
-		if C.GoString(w.key) == "image_info" {
-			gi.Print = append(
-				gi.Print,
-				C.GoString(*(**C.char)(unsafe.Pointer(&w.value[0]))),
-			)
-		}
-	}
+	r := make(map[string]interface{})
 	for w := (*C.struct_rrd_info_t)(i); w != nil; w = w.next {
 		k := C.GoString(w.key)
-		switch {
-		case k == "image_width":
-			gi.Width = uint(*(*C.ulong)(unsafe.Pointer(&w.value[0])))
-		case k == "image_height":
-			gi.Height = uint(*(*C.ulong)(unsafe.Pointer(&w.value[0])))
-		case k == "value_min":
-			gi.Ymin = float64(*(*C.rrd_value_t)(unsafe.Pointer(&w.value[0])))
-		case k == "value_max":
-			gi.Ymax = float64(*(*C.rrd_value_t)(unsafe.Pointer(&w.value[0])))
-		case k[:5] == "print":
-			gi.Print = append(
-				gi.Print,
-				C.GoString(*(**C.char)(unsafe.Pointer(&w.value[0]))),
-			)
-		case k == "image":
+		switch w._type {
+		case C.RD_I_VAL:
+			r[k] = float64(*(*C.rrd_value_t)(unsafe.Pointer(&w.value[0])))
+		case C.RD_I_CNT:
+			r[k] = uint(*(*C.ulong)(unsafe.Pointer(&w.value[0])))
+		case C.RD_I_STR:
+			s := C.GoString(*(**C.char)(unsafe.Pointer(&w.value[0])))
+			r[k] = s
+		case C.RD_I_INT:
+			r[k] = int(*(*C.int)(unsafe.Pointer(&w.value[0])))
+		case C.RD_I_BLO:
 			blob := *(*C.rrd_blob_t)(unsafe.Pointer(&w.value[0]))
-			buf := C.GoBytes(unsafe.Pointer(blob.ptr), C.int(blob.size))
-			img = append(img, buf...)
+			b := C.GoBytes(unsafe.Pointer(blob.ptr), C.int(blob.size))
+			if v, ok := r[k]; ok {
+				r[k] = append(v.([]byte), b...)
+			} else {
+				r[k] = b
+			}
 		}
 	}
+	return r
+}
 
+func parseGraphInfo(i *C.rrd_info_t) (gi GraphInfo, img []byte) {
+	inf := parseRRDInfo(i)
+	if v, ok := inf["image_info"]; ok {
+		gi.Print = append(gi.Print, v.(string))
+	}
+	for k, v := range inf {
+		if k[:5] == "print" {
+			gi.Print = append(gi.Print, v.(string))
+		}
+	}
+	if v, ok := inf["image_width"]; ok {
+		gi.Width = v.(uint)
+	}
+	if v, ok := inf["image_height"]; ok {
+		gi.Height = v.(uint)
+	}
+	if v, ok := inf["value_min"]; ok {
+		gi.Ymin = v.(float64)
+	}
+	if v, ok := inf["value_max"]; ok {
+		gi.Ymax = v.(float64)
+	}
+	if v, ok := inf["image"]; ok {
+		img = v.([]byte)
+	}
 	return
 }
 
@@ -199,7 +219,18 @@ func (g *Grapher) graph(filename string, start, end time.Time) (GraphInfo, []byt
 	if err != nil {
 		return GraphInfo{}, nil, err
 	}
-	gi, img := parseRRDInfo(i)
+	gi, img := parseGraphInfo(i)
 
 	return gi, img, nil
+}
+
+func Info(filename string) (map[string]interface{}, error) {
+	fn := C.CString(filename)
+	defer freeCString(fn)
+	var i *C.rrd_info_t
+	err := makeError(C.rrdInfo(&i, fn))
+	if err != nil {
+		return nil, err
+	}
+	return parseRRDInfo(i), nil
 }

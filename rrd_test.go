@@ -44,6 +44,15 @@ func TestAll(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	// Info
+	inf, err := Info(dbfile)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for k, v := range inf {
+		fmt.Printf("%s: %v\n", k, v)
+	}
+
 	// Graph
 	g := NewGrapher()
 	g.SetTitle("Test")
@@ -62,12 +71,12 @@ func TestAll(t *testing.T) {
 	now := time.Now()
 
 	i, err := g.SaveGraph("/tmp/test_rrd1.png", now.Add(-20*time.Second), now)
-	fmt.Printf("%#v\n", i)
+	fmt.Printf("%+v\n", i)
 	if err != nil {
 		t.Fatal(err)
 	}
 	i, buf, err := g.Graph(now.Add(-20*time.Second), now)
-	fmt.Printf("%#v\n", i)
+	fmt.Printf("%+v\n", i)
 	if err != nil {
 		t.Fatal(err)
 	}
