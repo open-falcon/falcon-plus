@@ -224,6 +224,7 @@ func (g *Grapher) graph(filename string, start, end time.Time) (GraphInfo, []byt
 	return gi, img, nil
 }
 
+// Info returns information about RRD file.
 func Info(filename string) (map[string]interface{}, error) {
 	fn := C.CString(filename)
 	defer freeCString(fn)
