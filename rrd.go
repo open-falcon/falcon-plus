@@ -162,7 +162,10 @@ type Grapher struct {
 
 	slopeMode bool
 
-	watermark string
+	watermark   string
+	base        uint
+	imageFormat string
+	interlaced  bool
 
 	args []string
 }
@@ -238,6 +241,18 @@ func (g *Grapher) SetSlopeMode() {
 
 func (g *Grapher) SetWatermark(watermark string) {
 	g.watermark = watermark
+}
+
+func (g *Grapher) SetImageFormat(format string) {
+	g.imageFormat = format
+}
+
+func (g *Grapher) SetInterlaced() {
+	g.interlaced = true
+}
+
+func (g *Grapher) SetBase(base uint) {
+	g.base = base
 }
 
 func (g *Grapher) push(cmd string, options []string) {
