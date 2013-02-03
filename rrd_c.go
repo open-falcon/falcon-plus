@@ -87,7 +87,7 @@ var (
 
 	oLogarithmic = C.CString("-o")
 
-	oNoLegand = C.CString("-g")
+	oNoLegend = C.CString("-g")
 
 	oLazy = C.CString("-z")
 
@@ -136,8 +136,8 @@ func (g *Grapher) makeArgs(filename string, start, end time.Time) []*C.char {
 	if g.logarithmic {
 		args = append(args, oLogarithmic)
 	}
-	if g.noLegand {
-		args = append(args, oNoLegand)
+	if g.noLegend {
+		args = append(args, oNoLegend)
 	}
 	if g.lazy {
 		args = append(args, oLazy)

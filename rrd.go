@@ -154,7 +154,7 @@ type Grapher struct {
 
 	logarithmic bool
 
-	noLegand bool
+	noLegend bool
 
 	lazy bool
 
@@ -220,8 +220,8 @@ func (g *Grapher) SetLogarithmic() {
 	g.logarithmic = true
 }
 
-func (g *Grapher) SetNoLegand() {
-	g.noLegand = true
+func (g *Grapher) SetNoLegend() {
+	g.noLegend = true
 }
 
 func (g *Grapher) SetLazy() {
