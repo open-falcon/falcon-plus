@@ -58,6 +58,7 @@ func TestAll(t *testing.T) {
 	g.SetTitle("Test")
 	g.SetVLabel("some variable")
 	g.SetSize(800, 300)
+	g.SetWatermark("some watermark")
 	g.Def("v1", dbfile, "g", "AVERAGE")
 	g.Def("v2", dbfile, "cnt", "AVERAGE")
 	g.VDef("max1", "v1,MAXIMUM")
