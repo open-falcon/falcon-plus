@@ -162,6 +162,8 @@ type Grapher struct {
 
 	slopeMode bool
 
+	watermark string
+
 	args []string
 }
 
@@ -232,6 +234,10 @@ func (g *Grapher) SetColor(colortag, color string) {
 
 func (g *Grapher) SetSlopeMode() {
 	g.slopeMode = true
+}
+
+func (g *Grapher) SetWatermark(watermark string) {
+	g.watermark = watermark
 }
 
 func (g *Grapher) push(cmd string, options []string) {

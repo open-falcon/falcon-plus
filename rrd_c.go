@@ -94,6 +94,8 @@ var (
 	oColor = C.CString("-c")
 
 	oSlopeMode = C.CString("-E")
+
+	oWatermark = C.CString("-W")
 )
 
 func (g *Grapher) makeArgs(filename string, start, end time.Time) []*C.char {
@@ -145,6 +147,9 @@ func (g *Grapher) makeArgs(filename string, start, end time.Time) []*C.char {
 	}
 	if g.slopeMode {
 		args = append(args, oSlopeMode)
+	}
+	if g.watermark != "" {
+		args = append(args, oWatermark, C.CString(g.watermark))
 	}
 	return append(args, makeArgs(g.args)...)
 }
