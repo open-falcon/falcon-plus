@@ -94,11 +94,11 @@ var (
 	oColor = C.CString("-c")
 
 	oSlopeMode = C.CString("-E")
-
-	oWatermark   = C.CString("-W")
 	oImageFormat = C.CString("-a")
 	oInterlaced  = C.CString("-i")
+
 	oBase        = C.CString("-b")
+	oWatermark   = C.CString("-W")
 )
 
 func (g *Grapher) makeArgs(filename string, start, end time.Time) []*C.char {
@@ -151,9 +151,6 @@ func (g *Grapher) makeArgs(filename string, start, end time.Time) []*C.char {
 	if g.slopeMode {
 		args = append(args, oSlopeMode)
 	}
-	if g.watermark != "" {
-		args = append(args, oWatermark, C.CString(g.watermark))
-	}
 	if g.imageFormat != "" {
 		args = append(args, oImageFormat, C.CString(g.imageFormat))
 	}
@@ -162,6 +159,9 @@ func (g *Grapher) makeArgs(filename string, start, end time.Time) []*C.char {
 	}
 	if g.base != 0 {
 		args = append(args, oInterlaced, C.CString(fmt.Sprint(g.base)))
+	}
+	if g.watermark != "" {
+		args = append(args, oWatermark, C.CString(g.watermark))
 	}
 	return append(args, makeArgs(g.args)...)
 }

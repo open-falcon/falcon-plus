@@ -239,10 +239,6 @@ func (g *Grapher) SetSlopeMode() {
 	g.slopeMode = true
 }
 
-func (g *Grapher) SetWatermark(watermark string) {
-	g.watermark = watermark
-}
-
 func (g *Grapher) SetImageFormat(format string) {
 	g.imageFormat = format
 }
@@ -253,6 +249,10 @@ func (g *Grapher) SetInterlaced() {
 
 func (g *Grapher) SetBase(base uint) {
 	g.base = base
+}
+
+func (g *Grapher) SetWatermark(watermark string) {
+	g.watermark = watermark
 }
 
 func (g *Grapher) push(cmd string, options []string) {
