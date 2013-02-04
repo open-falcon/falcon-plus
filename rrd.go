@@ -154,13 +154,18 @@ type Grapher struct {
 
 	logarithmic bool
 
-	noLegand bool
+	noLegend bool
 
 	lazy bool
 
 	color string
 
 	slopeMode bool
+
+	watermark   string
+	base        uint
+	imageFormat string
+	interlaced  bool
 
 	args []string
 }
@@ -218,8 +223,8 @@ func (g *Grapher) SetLogarithmic() {
 	g.logarithmic = true
 }
 
-func (g *Grapher) SetNoLegand() {
-	g.noLegand = true
+func (g *Grapher) SetNoLegend() {
+	g.noLegend = true
 }
 
 func (g *Grapher) SetLazy() {
@@ -232,6 +237,22 @@ func (g *Grapher) SetColor(colortag, color string) {
 
 func (g *Grapher) SetSlopeMode() {
 	g.slopeMode = true
+}
+
+func (g *Grapher) SetWatermark(watermark string) {
+	g.watermark = watermark
+}
+
+func (g *Grapher) SetImageFormat(format string) {
+	g.imageFormat = format
+}
+
+func (g *Grapher) SetInterlaced() {
+	g.interlaced = true
+}
+
+func (g *Grapher) SetBase(base uint) {
+	g.base = base
 }
 
 func (g *Grapher) push(cmd string, options []string) {
