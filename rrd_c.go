@@ -12,6 +12,7 @@ import (
 	"math"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 	"unsafe"
 )
@@ -85,7 +86,9 @@ var (
 	oAltAutoscaleMax = C.CString("-M")
 	oNoGridFit       = C.CString("-N")
 
-	oLogarithmic = C.CString("-o")
+	oLogarithmic   = C.CString("-o")
+	oUnitsExponent = C.CString("-X")
+	oUnitsLength   = C.CString("-L")
 
 	oNoLegend = C.CString("-g")
 
@@ -93,12 +96,12 @@ var (
 
 	oColor = C.CString("-c")
 
-	oSlopeMode = C.CString("-E")
+	oSlopeMode   = C.CString("-E")
 	oImageFormat = C.CString("-a")
 	oInterlaced  = C.CString("-i")
 
-	oBase        = C.CString("-b")
-	oWatermark   = C.CString("-W")
+	oBase      = C.CString("-b")
+	oWatermark = C.CString("-W")
 )
 
 func (g *Grapher) makeArgs(filename string, start, end time.Time) []*C.char {
@@ -138,6 +141,18 @@ func (g *Grapher) makeArgs(filename string, start, end time.Time) []*C.char {
 	}
 	if g.logarithmic {
 		args = append(args, oLogarithmic)
+	}
+	if g.unitsExponent != minInt {
+		args = append(
+			args,
+			oUnitsExponent, C.CString(fmt.Sprint(g.unitsExponent)),
+		)
+	}
+	if g.unitsLength != 0 {
+		args = append(
+			args,
+			oUnitsLength, C.CString(fmt.Sprint(g.unitsLength)),
+		)
 	}
 	if g.noLegend {
 		args = append(args, oNoLegend)
@@ -277,17 +292,20 @@ func parseGraphInfo(i *C.rrd_info_t) (gi GraphInfo, img []byte) {
 	return
 }
 
+var graphMutex sync.Mutex
+
 func (g *Grapher) graph(filename string, start, end time.Time) (GraphInfo, []byte, error) {
 	var i *C.rrd_info_t
 	args := g.makeArgs(filename, start, end)
 
-	g.m.Lock() // rrd_graph_v isn't thread safe
+	graphMutex.Lock() // rrd_graph_v isn't thread safe
+	defer graphMutex.Unlock()
+
 	err := makeError(C.rrdGraph(
 		&i,
 		C.int(len(args)),
 		&args[0],
 	))
-	g.m.Unlock()
 
 	if err != nil {
 		return GraphInfo{}, nil, err

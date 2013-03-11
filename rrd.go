@@ -6,7 +6,6 @@ import (
 	"math"
 	"os"
 	"strings"
-	"sync"
 	"time"
 	"unsafe"
 )
@@ -143,7 +142,6 @@ type GraphInfo struct {
 }
 
 type Grapher struct {
-	m               sync.Mutex
 	title           string
 	vlabel          string
 	width, height   uint
@@ -155,7 +153,9 @@ type Grapher struct {
 	altAutoscaleMax bool
 	noGridFit       bool
 
-	logarithmic bool
+	logarithmic   bool
+	unitsExponent int
+	unitsLength   uint
 
 	noLegend bool
 
@@ -173,10 +173,17 @@ type Grapher struct {
 	args []string
 }
 
+const (
+	maxUint = ^uint(0)
+	maxInt  = int(maxUint >> 1)
+	minInt  = -maxInt - 1
+)
+
 func NewGrapher() *Grapher {
 	return &Grapher{
-		upperLimit: -math.MaxFloat64,
-		lowerLimit: math.MaxFloat64,
+		upperLimit:    -math.MaxFloat64,
+		lowerLimit:    math.MaxFloat64,
+		unitsExponent: minInt,
 	}
 }
 
@@ -224,6 +231,14 @@ func (g *Grapher) SetNoGridFit() {
 
 func (g *Grapher) SetLogarithmic() {
 	g.logarithmic = true
+}
+
+func (g *Grapher) SetUnitsExponent(e int) {
+	g.unitsExponent = e
+}
+
+func (g *Grapher) SetUnitsLength(l uint) {
+	g.unitsLength = l
 }
 
 func (g *Grapher) SetNoLegend() {
