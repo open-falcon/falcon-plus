@@ -8,7 +8,6 @@ package rrd
 */
 import "C"
 import (
-	"fmt"
 	"math"
 	"strconv"
 	"strings"
@@ -90,6 +89,9 @@ var (
 	oUnitsExponent = C.CString("-X")
 	oUnitsLength   = C.CString("-L")
 
+	oRightAxis      = C.CString("--right-axis")
+	oRightAxisLabel = C.CString("--right-axis-label")
+
 	oNoLegend = C.CString("-g")
 
 	oLazy = C.CString("-z")
@@ -104,25 +106,64 @@ var (
 	oWatermark = C.CString("-W")
 )
 
+func ftoa(f float64) string {
+	return strconv.FormatFloat(f, 'e', 10, 64)
+}
+
+func ftoc(f float64) *C.char {
+	return C.CString(ftoa(f))
+}
+
+func i64toa(i int64) string {
+	return strconv.FormatInt(i, 10)
+}
+
+func i64toc(i int64) *C.char {
+	return C.CString(i64toa(i))
+}
+
+func u64toa(u uint64) string {
+	return strconv.FormatUint(u, 10)
+}
+
+func u64toc(u uint64) *C.char {
+	return C.CString(u64toa(u))
+}
+func itoa(i int) string {
+	return i64toa(int64(i))
+}
+
+func itoc(i int) *C.char {
+	return i64toc(int64(i))
+}
+
+func utoa(u uint) string {
+	return u64toa(uint64(u))
+}
+
+func utoc(u uint) *C.char {
+	return u64toc(uint64(u))
+}
+
 func (g *Grapher) makeArgs(filename string, start, end time.Time) []*C.char {
 	args := []*C.char{
 		graphv, C.CString(filename),
-		oStart, C.CString(fmt.Sprint(start.Unix())),
-		oEnd, C.CString(fmt.Sprint(end.Unix())),
+		oStart, i64toc(start.Unix()),
+		oEnd, i64toc(end.Unix()),
 		oTitle, C.CString(g.title),
 		oVlabel, C.CString(g.vlabel),
 	}
 	if g.width != 0 {
-		args = append(args, oWidth, C.CString(fmt.Sprint(g.width)))
+		args = append(args, oWidth, utoc(g.width))
 	}
 	if g.height != 0 {
-		args = append(args, oHeight, C.CString(fmt.Sprint(g.height)))
+		args = append(args, oHeight, utoc(g.height))
 	}
 	if g.upperLimit != -math.MaxFloat64 {
-		args = append(args, oUpperLimit, C.CString(fmt.Sprint(g.upperLimit)))
+		args = append(args, oUpperLimit, ftoc(g.upperLimit))
 	}
 	if g.lowerLimit != math.MaxFloat64 {
-		args = append(args, oLowerLimit, C.CString(fmt.Sprint(g.lowerLimit)))
+		args = append(args, oLowerLimit, ftoc(g.lowerLimit))
 	}
 	if g.rigid {
 		args = append(args, oRigid)
@@ -145,13 +186,26 @@ func (g *Grapher) makeArgs(filename string, start, end time.Time) []*C.char {
 	if g.unitsExponent != minInt {
 		args = append(
 			args,
-			oUnitsExponent, C.CString(fmt.Sprint(g.unitsExponent)),
+			oUnitsExponent, itoc(g.unitsExponent),
 		)
 	}
 	if g.unitsLength != 0 {
 		args = append(
 			args,
-			oUnitsLength, C.CString(fmt.Sprint(g.unitsLength)),
+			oUnitsLength, utoc(g.unitsLength),
+		)
+	}
+	if g.rightAxisScale != 0 {
+		args = append(
+			args,
+			oRightAxis,
+			C.CString(ftoa(g.rightAxisScale)+":"+ftoa(g.rightAxisShift)),
+		)
+	}
+	if g.rightAxisLabel != "" {
+		args = append(
+			args,
+			oRightAxisLabel, C.CString(g.rightAxisLabel),
 		)
 	}
 	if g.noLegend {
@@ -173,7 +227,7 @@ func (g *Grapher) makeArgs(filename string, start, end time.Time) []*C.char {
 		args = append(args, oInterlaced)
 	}
 	if g.base != 0 {
-		args = append(args, oInterlaced, C.CString(fmt.Sprint(g.base)))
+		args = append(args, oInterlaced, utoc(g.base))
 	}
 	if g.watermark != "" {
 		args = append(args, oWatermark, C.CString(g.watermark))

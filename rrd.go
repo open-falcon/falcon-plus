@@ -41,7 +41,7 @@ func join(args []interface{}) string {
 		var s string
 		switch v := a.(type) {
 		case time.Time:
-			s = fmt.Sprint(v.Unix())
+			s = i64toa(v.Unix())
 		default:
 			s = fmt.Sprint(v)
 		}
@@ -157,6 +157,10 @@ type Grapher struct {
 	unitsExponent int
 	unitsLength   uint
 
+	rightAxisScale float64
+	rightAxisShift float64
+	rightAxisLabel string
+
 	noLegend bool
 
 	lazy bool
@@ -239,6 +243,15 @@ func (g *Grapher) SetUnitsExponent(e int) {
 
 func (g *Grapher) SetUnitsLength(l uint) {
 	g.unitsLength = l
+}
+
+func (g *Grapher) SetRightAxis(scale, shift float64) {
+	g.rightAxisScale = scale
+	g.rightAxisShift = shift
+}
+
+func (g *Grapher) SetRightAxisLabel(label string) {
+	g.rightAxisLabel = label
 }
 
 func (g *Grapher) SetNoLegend() {
