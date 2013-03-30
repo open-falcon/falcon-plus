@@ -380,3 +380,47 @@ func Info(filename string) (map[string]interface{}, error) {
 	}
 	return parseRRDInfo(i), nil
 }
+
+// Fetch retrieves data from RRD file.
+func Fetch(filename, cf string, start, end time.Time, step uint64) (FetchResult, error) {
+	fn := C.CString(filename)
+	defer freeCString(fn)
+	cCf := C.CString(cf)
+	defer freeCString(cCf)
+	var ret C.int
+	var cStart C.time_t
+	var cEnd C.time_t
+	var cStep C.ulong
+	var cDsCnt C.ulong
+	var cDsNames **C.char
+	var cData *C.double
+	cStart = C.time_t(start.Unix())
+	cEnd = C.time_t(end.Unix())
+	cStep = C.ulong(step)
+	err := makeError(C.rrdFetch(&ret, fn, cCf, &cStart, &cEnd, &cStep, &cDsCnt, &cDsNames, &cData))
+	if err != nil {
+		return FetchResult{filename, cf, start, end, step, nil, nil}, err
+	}
+
+	start = time.Unix(int64(cStart), 0)
+	end = time.Unix(int64(cEnd), 0)
+	step = uint64(cStep)
+	dsCnt := int(cDsCnt)
+
+	rowLen := (int(cEnd) - int(cStart)) / int(cStep) + 1
+	dsNames := make([]string, dsCnt)
+	rows := make([][]float64, dsCnt)
+	for i := 0; i < dsCnt; i++ {
+		dsName := C.arrayGetCString(cDsNames, C.int(i))
+		dsNames[i] = C.GoString(dsName)
+		C.free(unsafe.Pointer(dsName))
+
+		rows[i] = make([]float64, rowLen)
+		for j := 0; j < rowLen; j++ {
+			rows[i][j] = float64(C.arrayGetDouble(cData, C.int(i * rowLen + j)))
+		}
+	}
+	C.free(unsafe.Pointer(cDsNames))
+	C.free(unsafe.Pointer(cData))
+	return FetchResult{filename, cf, start, end, step, dsNames, rows}, nil
+}

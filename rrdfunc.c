@@ -39,3 +39,17 @@ char *rrdInfo(rrd_info_t **ret, char *filename) {
 	*ret = rrd_info_r(filename);
 	return rrdError();
 }
+
+char *rrdFetch(int *ret, char *filename, const char *cf, time_t *start, time_t *end, unsigned long *step, unsigned long *ds_cnt, char ***ds_namv, double **data) {
+	rrd_clear_error();
+	*ret = rrd_fetch_r(filename, cf, start, end, step, ds_cnt, ds_namv, data);
+	return rrdError();
+}
+
+char *arrayGetCString(char **values, int i) {
+	return values[i];
+}
+
+double arrayGetDouble(double *values, int i) {
+	return values[i];
+}

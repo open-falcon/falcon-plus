@@ -386,3 +386,13 @@ func (g *Grapher) SaveGraph(filename string, start, end time.Time) (GraphInfo, e
 	gi, _, err := g.graph(filename, start, end)
 	return gi, err
 }
+
+type FetchResult struct {
+	Filename string
+	Cf       string
+	Start    time.Time
+	End      time.Time
+	Step     uint64
+	DsNames  []string
+	Values   [][]float64
+}
