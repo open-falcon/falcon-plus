@@ -9,6 +9,7 @@ package rrd
 import "C"
 import (
 	"math"
+	"reflect"
 	"strconv"
 	"strings"
 	"sync"
@@ -382,7 +383,7 @@ func Info(filename string) (map[string]interface{}, error) {
 }
 
 // Fetch retrieves data from RRD file.
-func Fetch(filename, cf string, start, end time.Time, step uint64) (FetchResult, error) {
+func Fetch(filename, cf string, start, end time.Time, step time.Duration) (FetchResult, error) {
 	fn := C.CString(filename)
 	defer freeCString(fn)
 	cCf := C.CString(cf)
@@ -396,31 +397,37 @@ func Fetch(filename, cf string, start, end time.Time, step uint64) (FetchResult,
 	var cData *C.double
 	cStart = C.time_t(start.Unix())
 	cEnd = C.time_t(end.Unix())
-	cStep = C.ulong(step)
+	cStep = C.ulong(step.Seconds())
 	err := makeError(C.rrdFetch(&ret, fn, cCf, &cStart, &cEnd, &cStep, &cDsCnt, &cDsNames, &cData))
 	if err != nil {
-		return FetchResult{filename, cf, start, end, step, nil, nil}, err
+		return FetchResult{filename, cf, start, end, step, nil, 0, nil}, err
 	}
 
 	start = time.Unix(int64(cStart), 0)
 	end = time.Unix(int64(cEnd), 0)
-	step = uint64(cStep)
+	step = time.Duration(cStep) * time.Second
 	dsCnt := int(cDsCnt)
 
-	rowLen := (int(cEnd) - int(cStart)) / int(cStep) + 1
 	dsNames := make([]string, dsCnt)
-	rows := make([][]float64, dsCnt)
 	for i := 0; i < dsCnt; i++ {
 		dsName := C.arrayGetCString(cDsNames, C.int(i))
 		dsNames[i] = C.GoString(dsName)
 		C.free(unsafe.Pointer(dsName))
-
-		rows[i] = make([]float64, rowLen)
-		for j := 0; j < rowLen; j++ {
-			rows[i][j] = float64(C.arrayGetDouble(cData, C.int(i * rowLen + j)))
-		}
 	}
 	C.free(unsafe.Pointer(cDsNames))
-	C.free(unsafe.Pointer(cData))
-	return FetchResult{filename, cf, start, end, step, dsNames, rows}, nil
+
+	rowLen := (int(cEnd)-int(cStart))/int(cStep) + 1
+	valuesLen := dsCnt * rowLen
+	values := make([]float64, valuesLen)
+	sliceHeader := (*reflect.SliceHeader)((unsafe.Pointer(&values)))
+	sliceHeader.Cap = valuesLen
+	sliceHeader.Len = valuesLen
+	sliceHeader.Data = uintptr(unsafe.Pointer(cData))
+	return FetchResult{filename, cf, start, end, step, dsNames, rowLen, values}, nil
+}
+
+// free values memory allocated by C.
+func (r *FetchResult) FreeValues() {
+	sliceHeader := (*reflect.SliceHeader)((unsafe.Pointer(&r.values)))
+	C.free(unsafe.Pointer(sliceHeader.Data))
 }

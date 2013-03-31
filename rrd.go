@@ -392,7 +392,12 @@ type FetchResult struct {
 	Cf       string
 	Start    time.Time
 	End      time.Time
-	Step     uint64
+	Step     time.Duration
 	DsNames  []string
-	Values   [][]float64
+	RowLen   int
+	values   []float64
+}
+
+func (r *FetchResult) ValueAt(dsIndex, rowIndex int) float64 {
+	return r.values[dsIndex*r.RowLen+rowIndex]
 }

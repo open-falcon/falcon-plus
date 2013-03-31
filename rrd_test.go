@@ -87,16 +87,18 @@ func TestAll(t *testing.T) {
 	}
 
 	// Fetch
-	now := time.Now()
-	res, err := Fetch(dbfile, "AVERAGE", now.Add(-20*time.Second), now, 1)
+	end := time.Now()
+	res, err := Fetch(dbfile, "AVERAGE", end.Add(-20*time.Second), end, time.Second)
 	if err != nil {
 		t.Fatal(err)
 	}
+	defer res.FreeValues()
 	for i, dsName := range res.DsNames {
 		fmt.Printf("datasource: %s\n", dsName)
-		for j, value := range res.Values[i] {
-			t := res.Start.Add(time.Duration(int(res.Step) * j) * time.Second)
-			fmt.Printf("%s %e\n", t, value)
+		t := res.Start
+		for j := 0; j < res.RowLen; j++ {
+			fmt.Printf("%s %e\n", t, res.ValueAt(i, j))
+			t = t.Add(res.Step)
 		}
 	}
 }
