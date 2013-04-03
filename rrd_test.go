@@ -50,7 +50,7 @@ func TestAll(t *testing.T) {
 		t.Fatal(err)
 	}
 	for k, v := range inf {
-		fmt.Printf("%s: %v\n", k, v)
+		fmt.Printf("%s (%T): %v\n", k, v, v)
 	}
 
 	// Graph
@@ -69,6 +69,7 @@ func TestAll(t *testing.T) {
 	g.GPrint("avg2", "avg2=%lf")
 	g.PrintT("max1", "max1 at %c")
 	g.Print("avg2", "avg2=%lf")
+
 	now := time.Now()
 
 	i, err := g.SaveGraph("/tmp/test_rrd1.png", now.Add(-20*time.Second), now)
@@ -87,7 +88,7 @@ func TestAll(t *testing.T) {
 	}
 
 	// Fetch
-	end := time.Now()
+	end := time.Unix(int64(inf["last_update"].(uint)), 0)
 	res, err := Fetch(dbfile, "AVERAGE", end.Add(-20*time.Second), end, time.Second)
 	if err != nil {
 		t.Fatal(err)

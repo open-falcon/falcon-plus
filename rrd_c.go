@@ -388,16 +388,15 @@ func Fetch(filename, cf string, start, end time.Time, step time.Duration) (Fetch
 	defer freeCString(fn)
 	cCf := C.CString(cf)
 	defer freeCString(cCf)
-	var ret C.int
-	var cStart C.time_t
-	var cEnd C.time_t
-	var cStep C.ulong
-	var cDsCnt C.ulong
-	var cDsNames **C.char
-	var cData *C.double
-	cStart = C.time_t(start.Unix())
-	cEnd = C.time_t(end.Unix())
-	cStep = C.ulong(step.Seconds())
+	cStart := C.time_t(start.Unix())
+	cEnd := C.time_t(end.Unix())
+	cStep := C.ulong(step.Seconds())
+	var (
+		ret      C.int
+		cDsCnt   C.ulong
+		cDsNames **C.char
+		cData    *C.double
+	)
 	err := makeError(C.rrdFetch(&ret, fn, cCf, &cStart, &cEnd, &cStep, &cDsCnt, &cDsNames, &cData))
 	if err != nil {
 		return FetchResult{filename, cf, start, end, step, nil, 0, nil}, err
@@ -426,7 +425,7 @@ func Fetch(filename, cf string, start, end time.Time, step time.Duration) (Fetch
 	return FetchResult{filename, cf, start, end, step, dsNames, rowLen, values}, nil
 }
 
-// free values memory allocated by C.
+// FreeValues free values memory allocated by C.
 func (r *FetchResult) FreeValues() {
 	sliceHeader := (*reflect.SliceHeader)((unsafe.Pointer(&r.values)))
 	C.free(unsafe.Pointer(sliceHeader.Data))
