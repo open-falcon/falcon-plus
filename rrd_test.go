@@ -3,7 +3,6 @@ package rrd
 import (
 	"fmt"
 	"io/ioutil"
-	"math"
 	"testing"
 	"time"
 )
@@ -90,21 +89,33 @@ func TestAll(t *testing.T) {
 
 	// Fetch
 	end := time.Unix(int64(inf["last_update"].(uint)), 0)
-	res, err := Fetch(dbfile, "AVERAGE", end.Add(-20*time.Second), end, time.Second)
+	start := end.Add(-20 * step * time.Second)
+	fmt.Printf("Fetch Params:\n")
+	fmt.Printf("Start: %s\n", start)
+	fmt.Printf("End: %s\n", end)
+	fmt.Printf("Step: %s\n", step * time.Second)
+	res, err := Fetch(dbfile, "AVERAGE", start, end, step * time.Second)
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer res.FreeValues()
-	for i, dsName := range res.DsNames {
-		fmt.Printf("datasource: %s\n", dsName)
-		t := res.Start
-		for j := 0; j < res.RowLen; j++ {
-			t = t.Add(res.Step)
-			v := res.ValueAt(i, j)
-			if j > 0 && math.IsNaN(v) {
-				break
-			}
-			fmt.Printf("%s %e\n", t, v)
+	fmt.Printf("FetchResult:\n")
+	fmt.Printf("Start: %s\n", res.Start)
+	fmt.Printf("End: %s\n", res.End)
+	fmt.Printf("Step: %s\n", res.Step)
+	for _, dsName := range res.DsNames {
+		fmt.Printf("\t%s", dsName)
+	}
+	fmt.Printf("\n")
+
+	tm := res.Start
+	for row := 0; row < res.RowLen; row++ {
+		tm = tm.Add(res.Step)
+		fmt.Printf("%s / %d", tm, tm.Unix())
+		for i := 0; i < len(res.DsNames); i++ {
+			v := res.ValueAt(i, row)
+			fmt.Printf("\t%e", v)
 		}
+		fmt.Printf("\n")
 	}
 }
