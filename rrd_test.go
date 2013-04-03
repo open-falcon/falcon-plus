@@ -3,6 +3,7 @@ package rrd
 import (
 	"fmt"
 	"io/ioutil"
+	"math"
 	"testing"
 	"time"
 )
@@ -98,8 +99,12 @@ func TestAll(t *testing.T) {
 		fmt.Printf("datasource: %s\n", dsName)
 		t := res.Start
 		for j := 0; j < res.RowLen; j++ {
-			fmt.Printf("%s %e\n", t, res.ValueAt(i, j))
 			t = t.Add(res.Step)
+			v := res.ValueAt(i, j)
+			if j > 0 && math.IsNaN(v) {
+				break
+			}
+			fmt.Printf("%s %e\n", t, v)
 		}
 	}
 }

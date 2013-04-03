@@ -399,5 +399,5 @@ type FetchResult struct {
 }
 
 func (r *FetchResult) ValueAt(dsIndex, rowIndex int) float64 {
-	return r.values[dsIndex*r.RowLen+rowIndex]
+	return r.values[len(r.DsNames)*rowIndex+dsIndex]
 }
