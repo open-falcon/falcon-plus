@@ -9,6 +9,7 @@ package rrd
 import "C"
 import (
 	"math"
+	"reflect"
 	"strconv"
 	"strings"
 	"sync"
@@ -379,4 +380,54 @@ func Info(filename string) (map[string]interface{}, error) {
 		return nil, err
 	}
 	return parseRRDInfo(i), nil
+}
+
+// Fetch retrieves data from RRD file.
+func Fetch(filename, cf string, start, end time.Time, step time.Duration) (FetchResult, error) {
+	fn := C.CString(filename)
+	defer freeCString(fn)
+	cCf := C.CString(cf)
+	defer freeCString(cCf)
+	var ret C.int
+	var cStart C.time_t
+	var cEnd C.time_t
+	var cStep C.ulong
+	var cDsCnt C.ulong
+	var cDsNames **C.char
+	var cData *C.double
+	cStart = C.time_t(start.Unix())
+	cEnd = C.time_t(end.Unix())
+	cStep = C.ulong(step.Seconds())
+	err := makeError(C.rrdFetch(&ret, fn, cCf, &cStart, &cEnd, &cStep, &cDsCnt, &cDsNames, &cData))
+	if err != nil {
+		return FetchResult{filename, cf, start, end, step, nil, 0, nil}, err
+	}
+
+	start = time.Unix(int64(cStart), 0)
+	end = time.Unix(int64(cEnd), 0)
+	step = time.Duration(cStep) * time.Second
+	dsCnt := int(cDsCnt)
+
+	dsNames := make([]string, dsCnt)
+	for i := 0; i < dsCnt; i++ {
+		dsName := C.arrayGetCString(cDsNames, C.int(i))
+		dsNames[i] = C.GoString(dsName)
+		C.free(unsafe.Pointer(dsName))
+	}
+	C.free(unsafe.Pointer(cDsNames))
+
+	rowLen := (int(cEnd)-int(cStart))/int(cStep) + 1
+	valuesLen := dsCnt * rowLen
+	values := make([]float64, valuesLen)
+	sliceHeader := (*reflect.SliceHeader)((unsafe.Pointer(&values)))
+	sliceHeader.Cap = valuesLen
+	sliceHeader.Len = valuesLen
+	sliceHeader.Data = uintptr(unsafe.Pointer(cData))
+	return FetchResult{filename, cf, start, end, step, dsNames, rowLen, values}, nil
+}
+
+// free values memory allocated by C.
+func (r *FetchResult) FreeValues() {
+	sliceHeader := (*reflect.SliceHeader)((unsafe.Pointer(&r.values)))
+	C.free(unsafe.Pointer(sliceHeader.Data))
 }

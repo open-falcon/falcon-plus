@@ -85,4 +85,20 @@ func TestAll(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	// Fetch
+	end := time.Now()
+	res, err := Fetch(dbfile, "AVERAGE", end.Add(-20*time.Second), end, time.Second)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer res.FreeValues()
+	for i, dsName := range res.DsNames {
+		fmt.Printf("datasource: %s\n", dsName)
+		t := res.Start
+		for j := 0; j < res.RowLen; j++ {
+			fmt.Printf("%s %e\n", t, res.ValueAt(i, j))
+			t = t.Add(res.Step)
+		}
+	}
 }
