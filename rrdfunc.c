@@ -49,7 +49,3 @@ char *rrdFetch(int *ret, char *filename, const char *cf, time_t *start, time_t *
 char *arrayGetCString(char **values, int i) {
 	return values[i];
 }
-
-double arrayGetDouble(double *values, int i) {
-	return values[i];
-}
