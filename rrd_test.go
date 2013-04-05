@@ -108,14 +108,16 @@ func TestAll(t *testing.T) {
 	}
 	fmt.Printf("\n")
 
-	tm := res.Start
-	for row := 0; row < res.RowLen; row++ {
-		tm = tm.Add(res.Step)
-		fmt.Printf("%s / %d", tm, tm.Unix())
+	row := 0
+	for ti := res.Start.Add(res.Step);
+		ti.Before(end) || ti.Equal(end);
+		ti = ti.Add(res.Step) {
+		fmt.Printf("%s / %d", ti, ti.Unix())
 		for i := 0; i < len(res.DsNames); i++ {
 			v := res.ValueAt(i, row)
 			fmt.Printf("\t%e", v)
 		}
 		fmt.Printf("\n")
+		row++
 	}
 }

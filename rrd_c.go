@@ -415,14 +415,14 @@ func Fetch(filename, cf string, start, end time.Time, step time.Duration) (Fetch
 	}
 	C.free(unsafe.Pointer(cDsNames))
 
-	rowLen := (int(cEnd)-int(cStart))/int(cStep) + 1
-	valuesLen := dsCnt * rowLen
+	rowCnt := (int(cEnd)-int(cStart))/int(cStep) + 1
+	valuesLen := dsCnt * rowCnt
 	values := make([]float64, valuesLen)
 	sliceHeader := (*reflect.SliceHeader)((unsafe.Pointer(&values)))
 	sliceHeader.Cap = valuesLen
 	sliceHeader.Len = valuesLen
 	sliceHeader.Data = uintptr(unsafe.Pointer(cData))
-	return FetchResult{filename, cf, start, end, step, dsNames, rowLen, values}, nil
+	return FetchResult{filename, cf, start, end, step, dsNames, rowCnt, values}, nil
 }
 
 // FreeValues free values memory allocated by C.
