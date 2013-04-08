@@ -394,7 +394,7 @@ type FetchResult struct {
 	End      time.Time
 	Step     time.Duration
 	DsNames  []string
-	RowLen   int
+	RowCnt   int
 	values   []float64
 }
 
