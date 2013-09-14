@@ -46,6 +46,12 @@ char *rrdFetch(int *ret, char *filename, const char *cf, time_t *start, time_t *
 	return rrdError();
 }
 
+char *rrdXport(int *ret, int argc, char **argv, int *xsize, time_t *start, time_t *end, unsigned long *step, unsigned long *col_cnt, char ***legend_v, double **data) {
+	rrd_clear_error();
+	*ret = rrd_xport(argc, argv, xsize, start, end, step, col_cnt, legend_v, data);
+	return rrdError();
+}
+
 char *arrayGetCString(char **values, int i) {
 	return values[i];
 }
