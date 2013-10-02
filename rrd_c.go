@@ -108,6 +108,7 @@ var (
 	oBase      = C.CString("-b")
 	oWatermark = C.CString("-W")
 
+	oStep    = C.CString("--step")
 	oMaxRows = C.CString("-m")
 )
 
@@ -240,11 +241,12 @@ func (g *Grapher) makeArgs(filename string, start, end time.Time) []*C.char {
 	return append(args, makeArgs(g.args)...)
 }
 
-func (e *Exporter) makeArgs(start, end time.Time) []*C.char {
+func (e *Exporter) makeArgs(start, end time.Time, step time.Duration) []*C.char {
 	args := []*C.char{
 		xport,
 		oStart, i64toc(start.Unix()),
 		oEnd, i64toc(end.Unix()),
+		oStep, i64toc(int64(step.Seconds())),
 	}
 	if e.maxRows != 0 {
 		args = append(args, oMaxRows, utoc(e.maxRows))
@@ -452,7 +454,7 @@ func (e *Exporter) xport(start, end time.Time, step time.Duration) (XportResult,
 	cStart := C.time_t(start.Unix())
 	cEnd := C.time_t(end.Unix())
 	cStep := C.ulong(step.Seconds())
-	args := e.makeArgs(start, end)
+	args := e.makeArgs(start, end, step)
 	var (
 		ret      C.int
 		cXSize   C.int
