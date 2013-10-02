@@ -17,6 +17,8 @@ import (
 	"unsafe"
 )
 
+var mutex sync.Mutex
+
 func makeArgs(args []string) []*C.char {
 	ret := make([]*C.char, len(args))
 	for i, s := range args {
@@ -365,14 +367,12 @@ func parseGraphInfo(i *C.rrd_info_t) (gi GraphInfo, img []byte) {
 	return
 }
 
-var graphMutex sync.Mutex
-
 func (g *Grapher) graph(filename string, start, end time.Time) (GraphInfo, []byte, error) {
 	var i *C.rrd_info_t
 	args := g.makeArgs(filename, start, end)
 
-	graphMutex.Lock() // rrd_graph_v isn't thread safe
-	defer graphMutex.Unlock()
+	mutex.Lock() // rrd_graph_v isn't thread safe
+	defer mutex.Unlock()
 
 	err := makeError(C.rrdGraph(
 		&i,
@@ -455,6 +455,10 @@ func (e *Exporter) xport(start, end time.Time, step time.Duration) (XportResult,
 	cEnd := C.time_t(end.Unix())
 	cStep := C.ulong(step.Seconds())
 	args := e.makeArgs(start, end, step)
+
+	mutex.Lock()
+	defer mutex.Unlock()
+
 	var (
 		ret      C.int
 		cXSize   C.int
