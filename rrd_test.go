@@ -14,6 +14,7 @@ func TestAll(t *testing.T) {
 		step      = 1
 		heartbeat = 2 * step
 	)
+
 	c := NewCreator(dbfile, time.Now(), step)
 	c.RRA("AVERAGE", 0.5, 1, 100)
 	c.RRA("AVERAGE", 0.5, 5, 100)
@@ -93,28 +94,67 @@ func TestAll(t *testing.T) {
 	fmt.Printf("Fetch Params:\n")
 	fmt.Printf("Start: %s\n", start)
 	fmt.Printf("End: %s\n", end)
-	fmt.Printf("Step: %s\n", step * time.Second)
-	res, err := Fetch(dbfile, "AVERAGE", start, end, step * time.Second)
+	fmt.Printf("Step: %s\n", step*time.Second)
+	fetchRes, err := Fetch(dbfile, "AVERAGE", start, end, step*time.Second)
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer res.FreeValues()
+	defer fetchRes.FreeValues()
 	fmt.Printf("FetchResult:\n")
-	fmt.Printf("Start: %s\n", res.Start)
-	fmt.Printf("End: %s\n", res.End)
-	fmt.Printf("Step: %s\n", res.Step)
-	for _, dsName := range res.DsNames {
+	fmt.Printf("Start: %s\n", fetchRes.Start)
+	fmt.Printf("End: %s\n", fetchRes.End)
+	fmt.Printf("Step: %s\n", fetchRes.Step)
+	for _, dsName := range fetchRes.DsNames {
 		fmt.Printf("\t%s", dsName)
 	}
 	fmt.Printf("\n")
 
 	row := 0
-	for ti := res.Start.Add(res.Step);
-		ti.Before(end) || ti.Equal(end);
-		ti = ti.Add(res.Step) {
+	for ti := fetchRes.Start.Add(fetchRes.Step); ti.Before(end) || ti.Equal(end); ti = ti.Add(fetchRes.Step) {
 		fmt.Printf("%s / %d", ti, ti.Unix())
-		for i := 0; i < len(res.DsNames); i++ {
-			v := res.ValueAt(i, row)
+		for i := 0; i < len(fetchRes.DsNames); i++ {
+			v := fetchRes.ValueAt(i, row)
+			fmt.Printf("\t%e", v)
+		}
+		fmt.Printf("\n")
+		row++
+	}
+
+	// Xport
+	end = time.Unix(int64(inf["last_update"].(uint)), 0)
+	start = end.Add(-20 * step * time.Second)
+	fmt.Printf("Xport Params:\n")
+	fmt.Printf("Start: %s\n", start)
+	fmt.Printf("End: %s\n", end)
+	fmt.Printf("Step: %s\n", step*time.Second)
+
+	e := NewExporter()
+	e.Def("def1", dbfile, "cnt", "AVERAGE")
+	e.Def("def2", dbfile, "g", "AVERAGE")
+	e.CDef("vdef1", "def1,def2,+")
+	e.XportDef("def1", "cnt")
+	e.XportDef("def2", "g")
+	e.XportDef("vdef1", "sum")
+
+	xportRes, err := e.Xport(start, end, step*time.Second)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer xportRes.FreeValues()
+	fmt.Printf("XportResult:\n")
+	fmt.Printf("Start: %s\n", xportRes.Start)
+	fmt.Printf("End: %s\n", xportRes.End)
+	fmt.Printf("Step: %s\n", xportRes.Step)
+	for _, legend := range xportRes.Legends {
+		fmt.Printf("\t%s", legend)
+	}
+	fmt.Printf("\n")
+
+	row = 0
+	for ti := xportRes.Start.Add(xportRes.Step); ti.Before(end) || ti.Equal(end); ti = ti.Add(xportRes.Step) {
+		fmt.Printf("%s / %d", ti, ti.Unix())
+		for i := 0; i < len(xportRes.Legends); i++ {
+			v := xportRes.ValueAt(i, row)
 			fmt.Printf("\t%e", v)
 		}
 		fmt.Printf("\n")
