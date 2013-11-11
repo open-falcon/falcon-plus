@@ -12,7 +12,7 @@ Install rrd with:
 
 ## Usage
 
-See [GoDoc](http://gopkgdoc.appspot.com/pkg/github.com/ziutek/rrd) for documentation.
+See [GoDoc](http://godoc.org/github.com/ziutek/rrd) for documentation.
 
 ## Example 
 See [rrd_test.go](https://github.com/ziutek/rrd/blob/master/rrd_test.go) for an example of using this package.
