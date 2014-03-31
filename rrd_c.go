@@ -235,7 +235,7 @@ func (g *Grapher) makeArgs(filename string, start, end time.Time) []*C.char {
 		args = append(args, oInterlaced)
 	}
 	if g.base != 0 {
-		args = append(args, oInterlaced, utoc(g.base))
+		args = append(args, oBase, utoc(g.base))
 	}
 	if g.watermark != "" {
 		args = append(args, oWatermark, C.CString(g.watermark))
