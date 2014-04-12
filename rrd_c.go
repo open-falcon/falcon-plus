@@ -97,6 +97,8 @@ var (
 	oRightAxis      = C.CString("--right-axis")
 	oRightAxisLabel = C.CString("--right-axis-label")
 
+	oDaemon = C.CString("--daemon")
+
 	oNoLegend = C.CString("-g")
 
 	oLazy = C.CString("-z")
@@ -240,6 +242,9 @@ func (g *Grapher) makeArgs(filename string, start, end time.Time) []*C.char {
 	if g.watermark != "" {
 		args = append(args, oWatermark, C.CString(g.watermark))
 	}
+	if g.daemon != "" {
+		args = append(args, oDaemon, C.CString(g.daemon))
+	}
 	return append(args, makeArgs(g.args)...)
 }
 
@@ -252,6 +257,9 @@ func (e *Exporter) makeArgs(start, end time.Time, step time.Duration) []*C.char 
 	}
 	if e.maxRows != 0 {
 		args = append(args, oMaxRows, utoc(e.maxRows))
+	}
+	if e.daemon != "" {
+		args = append(args, oDaemon, C.CString(e.daemon))
 	}
 	return append(args, makeArgs(e.args)...)
 }
