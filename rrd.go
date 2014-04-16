@@ -174,6 +174,8 @@ type Grapher struct {
 	imageFormat string
 	interlaced  bool
 
+	daemon string
+
 	args []string
 }
 
@@ -284,6 +286,10 @@ func (g *Grapher) SetBase(base uint) {
 
 func (g *Grapher) SetWatermark(watermark string) {
 	g.watermark = watermark
+}
+
+func (g *Grapher) SetDaemon(daemon string) {
+	g.daemon = daemon
 }
 
 func (g *Grapher) push(cmd string, options []string) {
@@ -405,6 +411,8 @@ func (r *FetchResult) ValueAt(dsIndex, rowIndex int) float64 {
 type Exporter struct {
 	maxRows uint
 
+	daemon string
+
 	args []string
 }
 
@@ -440,6 +448,10 @@ func (e *Exporter) XportDef(vname, label string) {
 
 func (e *Exporter) Xport(start, end time.Time, step time.Duration) (XportResult, error) {
 	return e.xport(start, end, step)
+}
+
+func (e *Exporter) SetDaemon(daemon string) {
+	e.daemon = daemon
 }
 
 type XportResult struct {
