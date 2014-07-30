@@ -279,7 +279,9 @@ func parseInfoKey(ik string) (kname, kkey string, kid int) {
 	c += o + 1
 	kname = ik[:o] + ik[c+1:]
 	kkey = ik[o+1 : c]
-	if id, err := strconv.Atoi(kkey); err == nil && id >= 0 {
+	if strings.HasPrefix(kname, "ds.") {
+		return
+	} else if id, err := strconv.Atoi(kkey); err == nil && id >= 0 {
 		kid = id
 	}
 	return
