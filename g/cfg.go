@@ -42,18 +42,18 @@ type GlobalConfig struct {
 
 var (
 	config *GlobalConfig
-	rwlock = new(sync.RWMutex)
+	lock   = new(sync.RWMutex)
 )
 
 func GetConfig() *GlobalConfig {
-	rwlock.RLock()
-	defer rwlock.RUnlock()
+	lock.RLock()
+	defer lock.RUnlock()
 	return config
 }
 
 func ParseConfig(cfg string) {
-	rwlock.Lock()
-	defer rwlock.Unlock()
+	lock.Lock()
+	defer lock.Unlock()
 	if !file.IsExist(cfg) {
 		log.Fatalln("config file:", cfg, "is not existent")
 	}
