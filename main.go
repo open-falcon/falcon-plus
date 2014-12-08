@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"github.com/open-falcon/agent/g"
 	"log"
 )
 
@@ -15,4 +16,6 @@ func main() {
 	}
 
 	g.ParseConfig(cfg)
+
+	log.Println(g.GetConfig().Heartbeat.Addr)
 }

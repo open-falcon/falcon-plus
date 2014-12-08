@@ -15,6 +15,7 @@
 	"transfer": {
 		"enabled": false,
 		"addr": "",
+		"interval": 60,
 		"timeout": 1000
 	},
 	"http": {
