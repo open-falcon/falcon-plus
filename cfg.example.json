@@ -1,0 +1,23 @@
+{
+	"debug": true,
+	"hostname": "falcon-demo01.bj",
+	"plugin": {
+		"dir": "~/plugin",
+		"git": "https://coding.net/ulricqin/plugin.git",
+		"logs": "~/logs"
+	},
+	"heartbeat": {
+		"enabled": false,
+		"addr": "",
+		"interval": 60,
+		"timeout": 1000
+	},
+	"transfer": {
+		"enabled": false,
+		"addr": "",
+		"timeout": 1000
+	},
+	"http": {
+		"port": 1988
+	}
+}
