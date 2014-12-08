@@ -28,7 +28,8 @@ type TransferConfig struct {
 }
 
 type HttpConfig struct {
-	Port int `json:"port"`
+	Enabled bool `json:"enabled"`
+	Port    int  `json:"port"`
 }
 
 type GlobalConfig struct {
