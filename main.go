@@ -21,6 +21,9 @@ func main() {
 	}
 
 	g.ParseConfig(*cfg)
+	g.InitVars()
+
+	log.Println(g.LocalIps)
 
 	log.Println(g.Config().Http.Port)
 }
