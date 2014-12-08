@@ -11,10 +11,6 @@ func main() {
 	flag.StringVar(&cfg, "c", "", "configuration file")
 	flag.Parse()
 
-	if cfg == "" {
-		log.Fatalln("use -c to specify configuration file")
-	}
-
 	g.ParseConfig(cfg)
 
 	log.Println(g.Config().Http.Port)

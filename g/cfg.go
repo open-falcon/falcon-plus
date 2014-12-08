@@ -52,8 +52,10 @@ func Config() *GlobalConfig {
 }
 
 func ParseConfig(cfg string) {
-	lock.Lock()
-	defer lock.Unlock()
+	if cfg == "" {
+		log.Fatalln("use -c to specify configuration file")
+	}
+
 	if !file.IsExist(cfg) {
 		log.Fatalln("config file:", cfg, "is not existent")
 	}
@@ -68,6 +70,9 @@ func ParseConfig(cfg string) {
 	if err != nil {
 		log.Fatalln("parse config file:", cfg, "fail:", err)
 	}
+
+	lock.Lock()
+	defer lock.Unlock()
 
 	config = &c
 
