@@ -17,5 +17,5 @@ func main() {
 
 	g.ParseConfig(cfg)
 
-	log.Println(g.GetConfig().Heartbeat.Addr)
+	log.Println(g.Config().Http.Port)
 }

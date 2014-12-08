@@ -45,7 +45,7 @@ var (
 	lock   = new(sync.RWMutex)
 )
 
-func GetConfig() *GlobalConfig {
+func Config() *GlobalConfig {
 	lock.RLock()
 	defer lock.RUnlock()
 	return config
