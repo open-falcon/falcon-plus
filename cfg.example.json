@@ -19,6 +19,7 @@
 		"timeout": 1000
 	},
 	"http": {
+		"enabled": true,
 		"port": 1988
 	}
 }
