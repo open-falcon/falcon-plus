@@ -11,16 +11,19 @@ func KernelMetrics() []*g.MetricValue {
 	maxFiles, err := nux.KernelMaxFiles()
 	if err != nil {
 		log.Println(err)
+		return []*g.MetricValue{}
 	}
 
 	maxProc, err := nux.KernelMaxProc()
 	if err != nil {
 		log.Println(err)
+		return []*g.MetricValue{}
 	}
 
 	allocateFiles, err := nux.KernelAllocateFiles()
 	if err != nil {
 		log.Println(err)
+		return []*g.MetricValue{}
 	}
 
 	return []*g.MetricValue{
