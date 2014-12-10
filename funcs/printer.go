@@ -62,5 +62,9 @@ func PrintAll() {
 		p(item)
 	}
 
+	for _, item := range NetstatMetrics() {
+		p(item)
+	}
+
 	fmt.Println("all metric collector successfully")
 }
