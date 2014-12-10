@@ -74,6 +74,7 @@ func PrintAll() {
 		p(item)
 	}
 
+	fmt.Print("Listening ports: ")
 	fmt.Println(nux.ListeningPorts())
 
 	procs, err := nux.AllProcs()

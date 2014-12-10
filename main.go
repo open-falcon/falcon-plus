@@ -28,5 +28,6 @@ func main() {
 
 	g.ParseConfig(*cfg)
 	g.InitVars()
+	funcs.BuildMappers()
 
 }
