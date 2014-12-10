@@ -7,7 +7,7 @@ import (
 )
 
 func p(item *g.MetricValue) {
-	fmt.Printf("%s=%v\n", item.Metric, item.Value)
+	fmt.Printf("%s=%v[tags:%s]\n", item.Metric, item.Value, item.Tags)
 }
 
 func PrintAll() {
@@ -16,6 +16,10 @@ func PrintAll() {
 	}
 
 	for _, item := range KernelMetrics() {
+		p(item)
+	}
+
+	for _, item := range DeviceMetrics() {
 		p(item)
 	}
 
