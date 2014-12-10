@@ -23,6 +23,14 @@ func PrintAll() {
 		p(item)
 	}
 
+	for _, item := range CoreNetMetrics([]string{}) {
+		p(item)
+	}
+
+	for _, item := range LoadAvgMetrics() {
+		p(item)
+	}
+
 	err := UpdateCpuStat()
 	if err != nil {
 		fmt.Println(err)
@@ -49,4 +57,10 @@ func PrintAll() {
 	for _, item := range IOStatsMetrics() {
 		p(item)
 	}
+
+	for _, item := range MemMetrics() {
+		p(item)
+	}
+
+	fmt.Println("all metric collector successfully")
 }

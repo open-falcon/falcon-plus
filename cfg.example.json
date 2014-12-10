@@ -21,5 +21,8 @@
 	"http": {
 		"enabled": true,
 		"port": 1988
+	},
+	"collector": {
+		"ifacePrefix": ["eth"]
 	}
 }

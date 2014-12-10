@@ -32,6 +32,10 @@ type HttpConfig struct {
 	Port    int  `json:"port"`
 }
 
+type CollectorConfig struct {
+	IfacePrefix []string `json:"ifacePrefix"`
+}
+
 type GlobalConfig struct {
 	Debug     bool             `json:"debug"`
 	Hostname  string           `json:"hostname"`
@@ -39,6 +43,7 @@ type GlobalConfig struct {
 	Heartbeat *HeartbeatConfig `json:"heartbeat"`
 	Transfer  *TransferConfig  `json:"transfer"`
 	Http      *HttpConfig      `json:"http"`
+	Collector *CollectorConfig `json:"collector"`
 }
 
 var (
