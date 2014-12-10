@@ -12,7 +12,7 @@ const (
 
 var (
 	procStatHistory [historyCount]*nux.ProcStat
-	lock            = new(sync.RWMutex)
+	psLock          = new(sync.RWMutex)
 )
 
 func UpdateCpuStat() error {
@@ -21,8 +21,8 @@ func UpdateCpuStat() error {
 		return err
 	}
 
-	lock.Lock()
-	defer lock.Unlock()
+	psLock.Lock()
+	defer psLock.Unlock()
 	for i := historyCount - 1; i > 0; i-- {
 		procStatHistory[i] = procStatHistory[i-1]
 	}
@@ -39,8 +39,8 @@ func deltaTotal() uint64 {
 }
 
 func CpuIdle() float64 {
-	lock.RLock()
-	defer lock.RUnlock()
+	psLock.RLock()
+	defer psLock.RUnlock()
 	dt := deltaTotal()
 	if dt == 0 {
 		return 0.0
@@ -50,8 +50,8 @@ func CpuIdle() float64 {
 }
 
 func CpuUser() float64 {
-	lock.RLock()
-	defer lock.RUnlock()
+	psLock.RLock()
+	defer psLock.RUnlock()
 	dt := deltaTotal()
 	if dt == 0 {
 		return 0.0
@@ -61,8 +61,8 @@ func CpuUser() float64 {
 }
 
 func CpuNice() float64 {
-	lock.RLock()
-	defer lock.RUnlock()
+	psLock.RLock()
+	defer psLock.RUnlock()
 	dt := deltaTotal()
 	if dt == 0 {
 		return 0.0
@@ -72,8 +72,8 @@ func CpuNice() float64 {
 }
 
 func CpuSystem() float64 {
-	lock.RLock()
-	defer lock.RUnlock()
+	psLock.RLock()
+	defer psLock.RUnlock()
 	dt := deltaTotal()
 	if dt == 0 {
 		return 0.0
@@ -83,8 +83,8 @@ func CpuSystem() float64 {
 }
 
 func CpuIowait() float64 {
-	lock.RLock()
-	defer lock.RUnlock()
+	psLock.RLock()
+	defer psLock.RUnlock()
 	dt := deltaTotal()
 	if dt == 0 {
 		return 0.0
@@ -94,8 +94,8 @@ func CpuIowait() float64 {
 }
 
 func CpuIrq() float64 {
-	lock.RLock()
-	defer lock.RUnlock()
+	psLock.RLock()
+	defer psLock.RUnlock()
 	dt := deltaTotal()
 	if dt == 0 {
 		return 0.0
@@ -105,8 +105,8 @@ func CpuIrq() float64 {
 }
 
 func CpuSoftIrq() float64 {
-	lock.RLock()
-	defer lock.RUnlock()
+	psLock.RLock()
+	defer psLock.RUnlock()
 	dt := deltaTotal()
 	if dt == 0 {
 		return 0.0
@@ -116,8 +116,8 @@ func CpuSoftIrq() float64 {
 }
 
 func CpuSteal() float64 {
-	lock.RLock()
-	defer lock.RUnlock()
+	psLock.RLock()
+	defer psLock.RUnlock()
 	dt := deltaTotal()
 	if dt == 0 {
 		return 0.0
@@ -127,8 +127,8 @@ func CpuSteal() float64 {
 }
 
 func CpuGuest() float64 {
-	lock.RLock()
-	defer lock.RUnlock()
+	psLock.RLock()
+	defer psLock.RUnlock()
 	dt := deltaTotal()
 	if dt == 0 {
 		return 0.0
@@ -138,14 +138,14 @@ func CpuGuest() float64 {
 }
 
 func CurrentCpuSwitches() uint64 {
-	lock.RLock()
-	defer lock.RUnlock()
+	psLock.RLock()
+	defer psLock.RUnlock()
 	return procStatHistory[0].Ctxt
 }
 
 func Prepared() bool {
-	lock.RLock()
-	defer lock.RUnlock()
+	psLock.RLock()
+	defer psLock.RUnlock()
 	return procStatHistory[1] != nil
 }
 

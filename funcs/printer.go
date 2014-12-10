@@ -28,10 +28,25 @@ func PrintAll() {
 		fmt.Println(err)
 	}
 
+	err = UpdateDiskStats()
+	if err != nil {
+		fmt.Println(err)
+	}
+
 	time.Sleep(time.Second)
+
 	UpdateCpuStat()
+	UpdateDiskStats()
 
 	for _, item := range CpuMetrics() {
+		p(item)
+	}
+
+	for _, item := range DiskIOMetrics() {
+		p(item)
+	}
+
+	for _, item := range IOStatsMetrics() {
 		p(item)
 	}
 }
