@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/open-falcon/agent/g"
 	"github.com/toolkits/nux"
+	"os"
 	"time"
 )
 
@@ -35,11 +36,13 @@ func PrintAll() {
 	err := UpdateCpuStat()
 	if err != nil {
 		fmt.Println(err)
+		os.Exit(1)
 	}
 
 	err = UpdateDiskStats()
 	if err != nil {
 		fmt.Println(err)
+		os.Exit(1)
 	}
 
 	time.Sleep(time.Second)
@@ -67,7 +70,27 @@ func PrintAll() {
 		p(item)
 	}
 
+	for _, item := range SocketStatSummaryMetrics() {
+		p(item)
+	}
+
 	fmt.Println(nux.ListeningPorts())
+
+	procs, err := nux.AllProcs()
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	cnt := 0
+	for _, item := range procs {
+		fmt.Println(item)
+		cnt++
+		if cnt == 10 {
+			fmt.Println("...")
+			break
+		}
+	}
 
 	fmt.Println("all metric collector successfully")
 }

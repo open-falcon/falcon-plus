@@ -31,3 +31,22 @@ func ReportPorts() []int64 {
 	}
 	return theClone
 }
+
+var (
+	// tags => {1=>name, 2=>cmdline}
+	// e.g. 'name=falcon-agent'=>{1=>falcon-agent}
+	// e.g. 'cmdline=xx'=>{2=>xx}
+	reportProcs     map[string]map[int]string
+	reportProcsLock = new(sync.RWMutex)
+)
+
+func ReportProcs() map[string]map[int]string {
+	reportProcsLock.RLock()
+	defer reportProcsLock.RUnlock()
+	sz := len(reportProcs)
+	theClone := make(map[string]map[int]string, sz)
+	for k, v := range reportProcs {
+		theClone[k] = v
+	}
+	return theClone
+}
