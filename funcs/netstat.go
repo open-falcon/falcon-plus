@@ -32,27 +32,25 @@ var USES = map[string]struct{}{
 	"TCPMinTTLDrop":      struct{}{},
 }
 
-func NetstatMetrics() []*g.MetricValue {
+func NetstatMetrics() (L []*g.MetricValue) {
 	tcpExts, err := nux.Netstat("TcpExt")
-
-	ret := make([]*g.MetricValue, 0)
 
 	if err != nil {
 		log.Println(err)
-		return ret
+		return
 	}
 
 	cnt := len(tcpExts)
 	if cnt == 0 {
-		return ret
+		return
 	}
 
 	for key, val := range tcpExts {
 		if _, ok := USES[key]; !ok {
 			continue
 		}
-		ret = append(ret, CounterValue("TcpExt."+key, val))
+		L = append(L, CounterValue("TcpExt."+key, val))
 	}
 
-	return ret
+	return
 }

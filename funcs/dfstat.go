@@ -7,15 +7,14 @@ import (
 	"log"
 )
 
-func DeviceMetrics() []*g.MetricValue {
+func DeviceMetrics() (L []*g.MetricValue) {
 	mountPoints, err := nux.ListMountPoint()
 
 	if err != nil {
 		log.Println(err)
-		return nil
+		return
 	}
 
-	var ret []*g.MetricValue = make([]*g.MetricValue, 0)
 	for idx := range mountPoints {
 		var du *nux.DeviceUsage
 		du, err = nux.BuildDeviceUsage(mountPoints[idx][0], mountPoints[idx][1], mountPoints[idx][2])
@@ -25,18 +24,18 @@ func DeviceMetrics() []*g.MetricValue {
 		}
 
 		tags := fmt.Sprintf("mount=%s,fstype=%s", du.FsFile, du.FsVfstype)
-		ret = append(ret, GaugeValue("df.bytes.total", du.BlocksAll, tags))
-		ret = append(ret, GaugeValue("df.bytes.used", du.BlocksUsed, tags))
-		ret = append(ret, GaugeValue("df.bytes.free", du.BlocksFree, tags))
-		ret = append(ret, GaugeValue("df.bytes.used.percent", du.BlocksUsedPercent, tags))
-		ret = append(ret, GaugeValue("df.bytes.free.percent", du.BlocksFreePercent, tags))
-		ret = append(ret, GaugeValue("df.inodes.total", du.InodesAll, tags))
-		ret = append(ret, GaugeValue("df.inodes.used", du.InodesUsed, tags))
-		ret = append(ret, GaugeValue("df.inodes.free", du.InodesFree, tags))
-		ret = append(ret, GaugeValue("df.inodes.used.percent", du.InodesUsedPercent, tags))
-		ret = append(ret, GaugeValue("df.inodes.free.percent", du.InodesFreePercent, tags))
+		L = append(L, GaugeValue("df.bytes.total", du.BlocksAll, tags))
+		L = append(L, GaugeValue("df.bytes.used", du.BlocksUsed, tags))
+		L = append(L, GaugeValue("df.bytes.free", du.BlocksFree, tags))
+		L = append(L, GaugeValue("df.bytes.used.percent", du.BlocksUsedPercent, tags))
+		L = append(L, GaugeValue("df.bytes.free.percent", du.BlocksFreePercent, tags))
+		L = append(L, GaugeValue("df.inodes.total", du.InodesAll, tags))
+		L = append(L, GaugeValue("df.inodes.used", du.InodesUsed, tags))
+		L = append(L, GaugeValue("df.inodes.free", du.InodesFree, tags))
+		L = append(L, GaugeValue("df.inodes.used.percent", du.InodesUsedPercent, tags))
+		L = append(L, GaugeValue("df.inodes.free.percent", du.InodesFreePercent, tags))
 
 	}
 
-	return ret
+	return
 }

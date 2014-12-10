@@ -80,14 +80,12 @@ func IODelta(device string, f func([2]*nux.DiskStats) uint64) uint64 {
 	return f(val)
 }
 
-func DiskIOMetrics() []*g.MetricValue {
-
-	ret := make([]*g.MetricValue, 0)
+func DiskIOMetrics() (L []*g.MetricValue) {
 
 	dsList, err := nux.ListDiskStats()
 	if err != nil {
 		log.Println(err)
-		return ret
+		return
 	}
 
 	for _, ds := range dsList {
@@ -97,24 +95,22 @@ func DiskIOMetrics() []*g.MetricValue {
 
 		device := "device=" + ds.Device
 
-		ret = append(ret, CounterValue("disk.io.read_requests", ds.ReadRequests, device))
-		ret = append(ret, CounterValue("disk.io.read_merged", ds.ReadMerged, device))
-		ret = append(ret, CounterValue("disk.io.read_sectors", ds.ReadSectors, device))
-		ret = append(ret, CounterValue("disk.io.msec_read", ds.MsecRead, device))
-		ret = append(ret, CounterValue("disk.io.write_requests", ds.WriteRequests, device))
-		ret = append(ret, CounterValue("disk.io.write_merged", ds.WriteMerged, device))
-		ret = append(ret, CounterValue("disk.io.write_sectors", ds.WriteSectors, device))
-		ret = append(ret, CounterValue("disk.io.msec_write", ds.MsecWrite, device))
-		ret = append(ret, CounterValue("disk.io.ios_in_progress", ds.IosInProgress, device))
-		ret = append(ret, CounterValue("disk.io.msec_total", ds.MsecTotal, device))
-		ret = append(ret, CounterValue("disk.io.msec_weighted_total", ds.MsecWeightedTotal, device))
+		L = append(L, CounterValue("disk.io.read_requests", ds.ReadRequests, device))
+		L = append(L, CounterValue("disk.io.read_merged", ds.ReadMerged, device))
+		L = append(L, CounterValue("disk.io.read_sectors", ds.ReadSectors, device))
+		L = append(L, CounterValue("disk.io.msec_read", ds.MsecRead, device))
+		L = append(L, CounterValue("disk.io.write_requests", ds.WriteRequests, device))
+		L = append(L, CounterValue("disk.io.write_merged", ds.WriteMerged, device))
+		L = append(L, CounterValue("disk.io.write_sectors", ds.WriteSectors, device))
+		L = append(L, CounterValue("disk.io.msec_write", ds.MsecWrite, device))
+		L = append(L, CounterValue("disk.io.ios_in_progress", ds.IosInProgress, device))
+		L = append(L, CounterValue("disk.io.msec_total", ds.MsecTotal, device))
+		L = append(L, CounterValue("disk.io.msec_weighted_total", ds.MsecWeightedTotal, device))
 	}
-	return ret
+	return
 }
 
-func IOStatsMetrics() []*g.MetricValue {
-	ret := make([]*g.MetricValue, 0)
-
+func IOStatsMetrics() (L []*g.MetricValue) {
 	dsLock.RLock()
 	defer dsLock.RUnlock()
 
@@ -141,16 +137,16 @@ func IOStatsMetrics() []*g.MetricValue {
 			svctm = float64(use) / float64(n_io)
 		}
 
-		ret = append(ret, GaugeValue("disk.io.read_bytes", float64(delta_rsec)*512.0, tags))
-		ret = append(ret, GaugeValue("disk.io.write_bytes", float64(delta_wsec)*512.0, tags))
-		ret = append(ret, GaugeValue("disk.io.avgrq_sz", avgrq_sz, tags))
-		ret = append(ret, GaugeValue("disk.io.avgqu-sz", float64(IODelta(device, IOMsecWeightedTotal))/1000.0, tags))
-		ret = append(ret, GaugeValue("disk.io.await", await, tags))
-		ret = append(ret, GaugeValue("disk.io.svctm", svctm, tags))
-		ret = append(ret, GaugeValue("disk.io.util", float64(use)/10.0, tags))
+		L = append(L, GaugeValue("disk.io.read_bytes", float64(delta_rsec)*512.0, tags))
+		L = append(L, GaugeValue("disk.io.write_bytes", float64(delta_wsec)*512.0, tags))
+		L = append(L, GaugeValue("disk.io.avgrq_sz", avgrq_sz, tags))
+		L = append(L, GaugeValue("disk.io.avgqu-sz", float64(IODelta(device, IOMsecWeightedTotal))/1000.0, tags))
+		L = append(L, GaugeValue("disk.io.await", await, tags))
+		L = append(L, GaugeValue("disk.io.svctm", svctm, tags))
+		L = append(L, GaugeValue("disk.io.util", float64(use)/10.0, tags))
 	}
 
-	return ret
+	return
 }
 
 func shouldHandle(device string) bool {

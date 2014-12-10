@@ -6,33 +6,31 @@ import (
 	"log"
 )
 
-func KernelMetrics() []*g.MetricValue {
-
-	ret := []*g.MetricValue{}
+func KernelMetrics() (L []*g.MetricValue) {
 
 	maxFiles, err := nux.KernelMaxFiles()
 	if err != nil {
 		log.Println(err)
-		return ret
+		return
 	}
 
-	ret = append(ret, GaugeValue("kernel.maxfiles", maxFiles))
+	L = append(L, GaugeValue("kernel.maxfiles", maxFiles))
 
 	maxProc, err := nux.KernelMaxProc()
 	if err != nil {
 		log.Println(err)
-		return ret
+		return
 	}
 
-	ret = append(ret, GaugeValue("kernel.maxproc", maxProc))
+	L = append(L, GaugeValue("kernel.maxproc", maxProc))
 
 	allocateFiles, err := nux.KernelAllocateFiles()
 	if err != nil {
 		log.Println(err)
-		return ret
+		return
 	}
 
-	ret = append(ret, GaugeValue("kernel.files.allocated", allocateFiles))
-	ret = append(ret, GaugeValue("kernel.files.left", maxFiles-allocateFiles))
-	return ret
+	L = append(L, GaugeValue("kernel.files.allocated", allocateFiles))
+	L = append(L, GaugeValue("kernel.files.left", maxFiles-allocateFiles))
+	return
 }

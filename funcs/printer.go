@@ -3,6 +3,7 @@ package funcs
 import (
 	"fmt"
 	"github.com/open-falcon/agent/g"
+	"github.com/toolkits/nux"
 	"time"
 )
 
@@ -65,6 +66,8 @@ func PrintAll() {
 	for _, item := range NetstatMetrics() {
 		p(item)
 	}
+
+	fmt.Println(nux.ListeningPorts())
 
 	fmt.Println("all metric collector successfully")
 }
