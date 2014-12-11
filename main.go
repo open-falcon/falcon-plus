@@ -12,7 +12,7 @@ func main() {
 
 	cfg := flag.String("c", "cfg.json", "configuration file")
 	version := flag.Bool("v", false, "show version")
-	print := flag.Bool("check", false, "check collector")
+	check := flag.Bool("check", false, "check collector")
 
 	flag.Parse()
 
@@ -21,7 +21,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	if *print {
+	if *check {
 		funcs.CheckCollector()
 		os.Exit(0)
 	}
