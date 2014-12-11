@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/open-falcon/agent/cron"
 	"github.com/open-falcon/agent/funcs"
 	"github.com/open-falcon/agent/g"
 	"os"
@@ -29,5 +30,9 @@ func main() {
 	g.ParseConfig(*cfg)
 	g.InitVars()
 	funcs.BuildMappers()
+
+	go cron.InitDataHistory()
+
+	select {}
 
 }
