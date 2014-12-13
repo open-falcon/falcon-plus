@@ -35,9 +35,12 @@ func main() {
 	funcs.BuildMappers()
 
 	go cron.InitDataHistory()
+
 	cron.Report()
 	cron.SyncPlugin()
 	cron.SyncBuiltinItems()
+	cron.SyncWhiteIPs()
+	cron.Collect()
 
 	select {}
 
