@@ -37,6 +37,7 @@ func main() {
 	go cron.InitDataHistory()
 	cron.Report()
 	cron.SyncPlugin()
+	cron.SyncBuiltinItems()
 
 	select {}
 

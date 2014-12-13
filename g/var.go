@@ -73,6 +73,12 @@ func ReportPorts() []int64 {
 	return theClone
 }
 
+func SetReportPorts(ports []int64) {
+	reportPortsLock.Lock()
+	defer reportPortsLock.Unlock()
+	reportPorts = ports
+}
+
 var (
 	// tags => {1=>name, 2=>cmdline}
 	// e.g. 'name=falcon-agent'=>{1=>falcon-agent}
@@ -90,4 +96,10 @@ func ReportProcs() map[string]map[int]string {
 		theClone[k] = v
 	}
 	return theClone
+}
+
+func SetReportProcs(procs map[string]map[int]string) {
+	reportProcsLock.Lock()
+	defer reportProcsLock.Unlock()
+	reportProcs = procs
 }

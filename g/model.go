@@ -72,3 +72,24 @@ type AgentPluginsResp struct {
 	Checksum  string
 	Timestamp int64
 }
+
+type WhiteIP struct {
+	Ip string
+}
+
+type IpWhiteListResp struct {
+	Ips       []*WhiteIP
+	Checksum  string
+	Timestamp int64
+}
+
+type BuiltinItem struct {
+	Metric string
+	Tags   string
+}
+
+type BuiltinItemResp struct {
+	Items     []*BuiltinItem
+	Checksum  string
+	Timestamp int64
+}
