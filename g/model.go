@@ -37,3 +37,38 @@ func (this *TransferResp) String() string {
 		this.Latency,
 		this.Msg)
 }
+
+type AgentReportReq struct {
+	HostName      string
+	Version       string
+	Meta          string
+	PluginVersion string
+}
+
+type AgentReportResp struct {
+	Status bool
+	Msg    string
+}
+
+type Plugin struct {
+	Path string
+}
+
+type Host struct {
+	HostId   int
+	HostName string
+	Pause    int
+	Uuid     string
+}
+
+type AgentReq struct {
+	Host
+	Checksum string
+}
+
+type AgentPluginsResp struct {
+	Plugins   []*Plugin
+	HostName  string
+	Checksum  string
+	Timestamp int64
+}

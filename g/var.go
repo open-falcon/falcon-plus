@@ -26,14 +26,14 @@ func InitRpcClients() {
 	if Config().Heartbeat.Enabled {
 		HbsClient = &SingleConnRpcClient{
 			RpcServer: Config().Heartbeat.Addr,
-			Timeout:   time.Duration(int64(Config().Heartbeat.Timeout)) * time.Millisecond,
+			Timeout:   time.Duration(Config().Heartbeat.Timeout) * time.Millisecond,
 		}
 	}
 
 	if Config().Transfer.Enabled {
 		TransferClient = &SingleConnRpcClient{
 			RpcServer: Config().Transfer.Addr,
-			Timeout:   time.Duration(int64(Config().Transfer.Timeout)) * time.Millisecond,
+			Timeout:   time.Duration(Config().Transfer.Timeout) * time.Millisecond,
 		}
 	}
 }

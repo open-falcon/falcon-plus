@@ -2,6 +2,7 @@
 	"debug": true,
 	"hostname": "falcon-demo01.bj",
 	"plugin": {
+		"enabled": false,
 		"dir": "~/plugin",
 		"git": "https://coding.net/ulricqin/plugin.git",
 		"logs": "~/logs"

@@ -35,6 +35,7 @@ func main() {
 	funcs.BuildMappers()
 
 	go cron.InitDataHistory()
+	cron.Report()
 
 	select {}
 
