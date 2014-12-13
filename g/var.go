@@ -38,6 +38,25 @@ func InitRpcClients() {
 	}
 }
 
+func SendToTransfer(metrics []*MetricValue) {
+	if len(metrics) == 0 {
+		return
+	}
+
+	debug := Config().Debug
+
+	if debug {
+		log.Println("=>", metrics[0])
+	}
+
+	var resp TransferResp
+	TransferClient.Call("Transfer.Update", metrics, &resp)
+
+	if debug {
+		log.Println("<=", &resp)
+	}
+}
+
 var (
 	reportPorts     []int64
 	reportPortsLock = new(sync.RWMutex)

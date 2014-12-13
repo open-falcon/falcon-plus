@@ -2,15 +2,17 @@ package cron
 
 import (
 	"github.com/open-falcon/agent/g"
+	"github.com/open-falcon/agent/plugins"
 	"log"
 	"os"
+	"strings"
 	"time"
 )
 
 var (
 	localCheckSum  string
 	localTimestamp int64
-	desiredPlugins []*g.Plugin
+	pluginPaths    []*g.Plugin
 )
 
 func SyncPlugin() {
@@ -67,9 +69,27 @@ func syncPlugin() {
 			goto REST
 		}
 
-		desiredPlugins = resp.Plugins
+		pluginPaths = resp.Plugins
 		localTimestamp = resp.Timestamp
 		localCheckSum = resp.Checksum
+
+		if len(pluginPaths) == 0 {
+			plugins.ClearAllPlugins()
+		}
+
+		desiredAll := make(map[string]*plugins.Plugin)
+
+		pluginVersion := GetCurrPluginVersion()
+
+		for _, p := range pluginPaths {
+			underOneDir := plugins.PluginsUnder(strings.Trim(p.Path, "/"), pluginVersion)
+			for k, v := range underOneDir {
+				desiredAll[k] = v
+			}
+		}
+
+		plugins.DelNoUsePlugins(desiredAll)
+		plugins.AddNewPlugins(desiredAll)
 
 	}
 }
