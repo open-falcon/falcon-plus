@@ -4,15 +4,37 @@ import (
 	"github.com/toolkits/net"
 	"log"
 	"sync"
+	"time"
 )
 
 var LocalIps []string
 
-func InitVars() {
+func InitLocalIps() {
 	var err error
 	LocalIps, err = net.IntranetIP()
 	if err != nil {
 		log.Fatalln("get intranet ip fail:", err)
+	}
+}
+
+var (
+	HbsClient      *SingleConnRpcClient
+	TransferClient *SingleConnRpcClient
+)
+
+func InitRpcClients() {
+	if Config().Heartbeat.Enabled {
+		HbsClient = &SingleConnRpcClient{
+			RpcServer: Config().Heartbeat.Addr,
+			Timeout:   time.Duration(int64(Config().Heartbeat.Timeout)) * time.Millisecond,
+		}
+	}
+
+	if Config().Transfer.Enabled {
+		TransferClient = &SingleConnRpcClient{
+			RpcServer: Config().Transfer.Addr,
+			Timeout:   time.Duration(int64(Config().Transfer.Timeout)) * time.Millisecond,
+		}
 	}
 }
 

@@ -28,7 +28,10 @@ func main() {
 	}
 
 	g.ParseConfig(*cfg)
-	g.InitVars()
+
+	g.InitLocalIps()
+	g.InitRpcClients()
+
 	funcs.BuildMappers()
 
 	go cron.InitDataHistory()
