@@ -63,11 +63,6 @@ func (this *SingleConnRpcClient) Call(method string, args interface{}, reply int
 	err := this.rpcClient.Call(method, args, reply)
 	if err != nil {
 		this.close()
-		log.Printf("[RPC-CALL][%s][%v]", method, err)
-	}
-
-	if Config().Debug {
-		log.Printf("[RPC-CALL][%s][resp: %v]", method, reply)
 	}
 
 	return err
