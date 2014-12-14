@@ -22,6 +22,8 @@ func init() {
 	configMemoryRoutes()
 	configPostRoutes()
 	configSystemRoutes()
+	configPluginRoutes()
+	configRunRoutes()
 }
 
 func RenderJson(w http.ResponseWriter, v interface{}) {
