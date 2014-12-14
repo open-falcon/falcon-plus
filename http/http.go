@@ -14,9 +14,9 @@ type Dto struct {
 }
 
 func init() {
-	initHealthRoutes()
-	initAdminRoutes()
-	initKernelRoutes()
+	configHealthRoutes()
+	configAdminRoutes()
+	configKernelRoutes()
 }
 
 func RenderJson(w http.ResponseWriter, v interface{}) {
@@ -36,6 +36,15 @@ func RenderDataJson(w http.ResponseWriter, data interface{}) {
 
 func RenderMsgJson(w http.ResponseWriter, msg string) {
 	RenderJson(w, map[string]string{"msg": msg})
+}
+
+func AutoRender(w http.ResponseWriter, data interface{}, err error) {
+	if err != nil {
+		RenderMsgJson(w, err.Error())
+		return
+	}
+
+	RenderDataJson(w, data)
 }
 
 func Start() {
