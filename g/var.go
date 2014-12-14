@@ -3,10 +3,21 @@ package g
 import (
 	"github.com/toolkits/net"
 	"log"
+	"os"
 	"strings"
 	"sync"
 	"time"
 )
+
+var Root string
+
+func InitRootDir() {
+	var err error
+	Root, err = os.Getwd()
+	if err != nil {
+		log.Fatalln("getwd fail:", err)
+	}
+}
 
 var LocalIps []string
 

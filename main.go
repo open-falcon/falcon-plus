@@ -30,6 +30,7 @@ func main() {
 
 	g.ParseConfig(*cfg)
 
+	g.InitRootDir()
 	g.InitLocalIps()
 	g.InitRpcClients()
 

@@ -21,6 +21,7 @@ func init() {
 	configIoStatRoutes()
 	configKernelRoutes()
 	configMemoryRoutes()
+	configPageRoutes()
 	configPluginRoutes()
 	configPushRoutes()
 	configRunRoutes()
