@@ -6,6 +6,7 @@ import (
 	"github.com/open-falcon/agent/cron"
 	"github.com/open-falcon/agent/funcs"
 	"github.com/open-falcon/agent/g"
+	"github.com/open-falcon/agent/http"
 	"os"
 )
 
@@ -41,6 +42,8 @@ func main() {
 	cron.SyncBuiltinItems()
 	cron.SyncWhiteIPs()
 	cron.Collect()
+
+	go http.Start()
 
 	select {}
 

@@ -29,8 +29,8 @@ type TransferConfig struct {
 }
 
 type HttpConfig struct {
-	Enabled bool `json:"enabled"`
-	Port    int  `json:"port"`
+	Enabled bool   `json:"enabled"`
+	Listen  string `json:"listen"`
 }
 
 type CollectorConfig struct {
