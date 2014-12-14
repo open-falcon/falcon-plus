@@ -65,12 +65,7 @@ var (
 func ReportPorts() []int64 {
 	reportPortsLock.RLock()
 	defer reportPortsLock.RUnlock()
-	sz := len(reportPorts)
-	theClone := make([]int64, sz)
-	for i := 0; i < sz; i++ {
-		theClone[i] = reportPorts[i]
-	}
-	return theClone
+	return reportPorts
 }
 
 func SetReportPorts(ports []int64) {
@@ -90,16 +85,28 @@ var (
 func ReportProcs() map[string]map[int]string {
 	reportProcsLock.RLock()
 	defer reportProcsLock.RUnlock()
-	sz := len(reportProcs)
-	theClone := make(map[string]map[int]string, sz)
-	for k, v := range reportProcs {
-		theClone[k] = v
-	}
-	return theClone
+	return reportProcs
 }
 
 func SetReportProcs(procs map[string]map[int]string) {
 	reportProcsLock.Lock()
 	defer reportProcsLock.Unlock()
 	reportProcs = procs
+}
+
+var (
+	whiteIPs    []*WhiteIP
+	whiteIpLock = new(sync.Mutex)
+)
+
+func WhiteIps() []*WhiteIP {
+	whiteIpLock.Lock()
+	defer whiteIpLock.Unlock()
+	return whiteIPs
+}
+
+func SetWhiteIps(ips []*WhiteIP) {
+	whiteIpLock.Lock()
+	defer whiteIpLock.Unlock()
+	whiteIPs = ips
 }

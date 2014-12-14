@@ -9,12 +9,6 @@ import (
 	"time"
 )
 
-var (
-	localCheckSum  string
-	localTimestamp int64
-	pluginPaths    []*g.Plugin
-)
-
 func SyncPlugin() {
 	if !g.Config().Plugin.Enabled {
 		return
@@ -32,7 +26,15 @@ func SyncPlugin() {
 }
 
 func syncPlugin() {
+
+	var (
+		localCheckSum  string
+		localTimestamp int64
+		pluginPaths    []*g.Plugin
+	)
+
 	duration := time.Duration(g.Config().Heartbeat.Interval) * time.Second
+
 	for {
 	REST:
 		time.Sleep(duration)

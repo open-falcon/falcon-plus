@@ -4,26 +4,8 @@ import (
 	"github.com/open-falcon/agent/g"
 	"log"
 	"os"
-	"sync"
 	"time"
 )
-
-var (
-	whiteIPs    []*g.WhiteIP
-	whiteIpLock = new(sync.Mutex)
-)
-
-func WhiteIps() []*g.WhiteIP {
-	whiteIpLock.Lock()
-	defer whiteIpLock.Unlock()
-	return whiteIPs
-}
-
-func setWhiteIps(ips []*g.WhiteIP) {
-	whiteIpLock.Lock()
-	defer whiteIpLock.Unlock()
-	whiteIPs = ips
-}
 
 func SyncWhiteIPs() {
 	if g.Config().Heartbeat.Enabled && g.Config().Heartbeat.Addr != "" {
@@ -74,7 +56,7 @@ func syncWhiteIPs() {
 			goto REST
 		}
 
-		setWhiteIps(resp.Ips)
+		g.SetWhiteIps(resp.Ips)
 		ipsTimestamp = resp.Timestamp
 		ipsChecksum = resp.Checksum
 	}
