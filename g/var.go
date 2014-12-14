@@ -3,6 +3,7 @@ package g
 import (
 	"github.com/toolkits/net"
 	"log"
+	"strings"
 	"sync"
 	"time"
 )
@@ -109,4 +110,20 @@ func SetWhiteIps(ips []*WhiteIP) {
 	whiteIpLock.Lock()
 	defer whiteIpLock.Unlock()
 	whiteIPs = ips
+}
+
+func InWhiteIPs(remoteAddr string) bool {
+	ip := remoteAddr
+	idx := strings.LastIndex(remoteAddr, ":")
+	if idx > 0 {
+		ip = remoteAddr[0:idx]
+	}
+
+	list := WhiteIps()
+	for _, white := range list {
+		if white.Ip == ip {
+			return true
+		}
+	}
+	return false
 }
