@@ -2,6 +2,7 @@ package http
 
 import (
 	"github.com/open-falcon/agent/g"
+	"github.com/toolkits/file"
 	"net/http"
 	"os"
 	"time"
@@ -18,5 +19,18 @@ func configAdminRoutes() {
 		} else {
 			w.Write([]byte("no privilege"))
 		}
+	})
+
+	http.HandleFunc("/config/reload", func(w http.ResponseWriter, r *http.Request) {
+		if g.InWhiteIPs(r.RemoteAddr) {
+			g.ParseConfig(g.ConfigFile)
+			RenderDataJson(w, g.Config())
+		} else {
+			w.Write([]byte("no privilege"))
+		}
+	})
+
+	http.HandleFunc("/workdir", func(w http.ResponseWriter, r *http.Request) {
+		RenderDataJson(w, file.SelfDir())
 	})
 }

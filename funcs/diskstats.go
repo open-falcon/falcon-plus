@@ -1,6 +1,7 @@
 package funcs
 
 import (
+	"fmt"
 	"github.com/open-falcon/agent/g"
 	"github.com/toolkits/nux"
 	"log"
@@ -89,7 +90,7 @@ func DiskIOMetrics() (L []*g.MetricValue) {
 	}
 
 	for _, ds := range dsList {
-		if !shouldHandle(ds.Device) {
+		if !ShouldHandleDevice(ds.Device) {
 			continue
 		}
 
@@ -115,7 +116,7 @@ func IOStatsMetrics() (L []*g.MetricValue) {
 	defer dsLock.RUnlock()
 
 	for device, _ := range diskStatsMap {
-		if !shouldHandle(device) {
+		if !ShouldHandleDevice(device) {
 			continue
 		}
 
@@ -149,7 +150,55 @@ func IOStatsMetrics() (L []*g.MetricValue) {
 	return
 }
 
-func shouldHandle(device string) bool {
+func IOStatsForPage() (L [][]string) {
+	dsLock.RLock()
+	defer dsLock.RUnlock()
+
+	for device, _ := range diskStatsMap {
+		if !ShouldHandleDevice(device) {
+			continue
+		}
+
+		rio := IODelta(device, IOReadRequests)
+		wio := IODelta(device, IOWriteRequests)
+
+		delta_rsec := IODelta(device, IOReadSectors)
+		delta_wsec := IODelta(device, IOWriteSectors)
+
+		ruse := IODelta(device, IOMsecRead)
+		wuse := IODelta(device, IOMsecWrite)
+		use := IODelta(device, IOMsecTotal)
+		n_io := rio + wio
+		avgrq_sz := 0.0
+		await := 0.0
+		svctm := 0.0
+		if n_io != 0 {
+			avgrq_sz = float64(delta_rsec+delta_wsec) / float64(n_io)
+			await = float64(ruse+wuse) / float64(n_io)
+			svctm = float64(use) / float64(n_io)
+		}
+
+		item := []string{
+			device,
+			fmt.Sprintf("%d", IODelta(device, IOReadMerged)),
+			fmt.Sprintf("%d", IODelta(device, IOWriteMerged)),
+			fmt.Sprintf("%d", rio),
+			fmt.Sprintf("%d", wio),
+			fmt.Sprintf("%.2f", float64(delta_rsec)/2.0),
+			fmt.Sprintf("%.2f", float64(delta_wsec)/2.0),
+			fmt.Sprintf("%.2f", avgrq_sz),                                             // avgrq-sz: delta(rsect+wsect)/delta(rio+wio)
+			fmt.Sprintf("%.2f", float64(IODelta(device, IOMsecWeightedTotal))/1000.0), // avgqu-sz: delta(aveq)/s/1000
+			fmt.Sprintf("%.2f", await),                                                // await: delta(ruse+wuse)/delta(rio+wio)
+			fmt.Sprintf("%.2f", svctm),                                                // svctm: delta(use)/delta(rio+wio)
+			fmt.Sprintf("%.2f%%", float64(use)/10.0),                                  // %util: delta(use)/s/1000 * 100%
+		}
+		L = append(L, item)
+	}
+
+	return
+}
+
+func ShouldHandleDevice(device string) bool {
 	normal := len(device) == 3 && (strings.HasPrefix(device, "sd") || strings.HasPrefix(device, "vd"))
 	aws := len(device) == 4 && strings.HasPrefix(device, "xvd")
 	return normal || aws

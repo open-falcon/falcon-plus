@@ -48,8 +48,9 @@ type GlobalConfig struct {
 }
 
 var (
-	config *GlobalConfig
-	lock   = new(sync.RWMutex)
+	ConfigFile string
+	config     *GlobalConfig
+	lock       = new(sync.RWMutex)
 )
 
 func Config() *GlobalConfig {
@@ -66,6 +67,8 @@ func ParseConfig(cfg string) {
 	if !file.IsExist(cfg) {
 		log.Fatalln("config file:", cfg, "is not existent")
 	}
+
+	ConfigFile = cfg
 
 	configContent, err := file.ToTrimString(cfg)
 	if err != nil {

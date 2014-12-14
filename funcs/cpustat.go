@@ -143,14 +143,14 @@ func CurrentCpuSwitches() uint64 {
 	return procStatHistory[0].Ctxt
 }
 
-func Prepared() bool {
+func CpuPrepared() bool {
 	psLock.RLock()
 	defer psLock.RUnlock()
 	return procStatHistory[1] != nil
 }
 
 func CpuMetrics() []*g.MetricValue {
-	if !Prepared() {
+	if !CpuPrepared() {
 		return []*g.MetricValue{}
 	}
 

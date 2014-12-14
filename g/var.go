@@ -119,6 +119,10 @@ func InWhiteIPs(remoteAddr string) bool {
 		ip = remoteAddr[0:idx]
 	}
 
+	if ip == "127.0.0.1" {
+		return true
+	}
+
 	list := WhiteIps()
 	for _, white := range list {
 		if white.Ip == ip {

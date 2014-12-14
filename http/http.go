@@ -17,6 +17,11 @@ func init() {
 	configHealthRoutes()
 	configAdminRoutes()
 	configKernelRoutes()
+	configDfRoutes()
+	configIoStatRoutes()
+	configMemoryRoutes()
+	configPostRoutes()
+	configSystemRoutes()
 }
 
 func RenderJson(w http.ResponseWriter, v interface{}) {
