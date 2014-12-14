@@ -14,16 +14,17 @@ type Dto struct {
 }
 
 func init() {
-	configHealthRoutes()
 	configAdminRoutes()
-	configKernelRoutes()
+	configCpuRoutes()
 	configDfRoutes()
+	configHealthRoutes()
 	configIoStatRoutes()
+	configKernelRoutes()
 	configMemoryRoutes()
-	configPostRoutes()
-	configSystemRoutes()
 	configPluginRoutes()
+	configPushRoutes()
 	configRunRoutes()
+	configSystemRoutes()
 }
 
 func RenderJson(w http.ResponseWriter, v interface{}) {

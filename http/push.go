@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func configPostRoutes() {
+func configPushRoutes() {
 	http.HandleFunc("/v1/push", func(w http.ResponseWriter, req *http.Request) {
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 		m := map[string]interface{}{
