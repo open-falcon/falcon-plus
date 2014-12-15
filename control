@@ -12,6 +12,7 @@ pidfile=var/app.pid
 logfile=var/app.log
 
 [[ -f $app ]] || mv $module $app
+[[ -f $conf ]] || cp cfg.example.json $conf
 
 function check_pid() {
     if [ -f $pidfile ];then
