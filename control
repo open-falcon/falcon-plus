@@ -11,6 +11,8 @@ conf=cfg.json
 pidfile=var/app.pid
 logfile=var/app.log
 
+[[ -f $app ]] || mv $module $app
+
 function check_pid() {
     if [ -f $pidfile ];then
         pid=`cat $pidfile`
