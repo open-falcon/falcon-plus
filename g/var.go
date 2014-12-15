@@ -58,7 +58,7 @@ func SendToTransfer(metrics []*MetricValue) {
 	debug := Config().Debug
 
 	if debug {
-		log.Println("=>", metrics[0])
+		log.Printf("=> <Total=%d> %v\n", len(metrics), metrics[0])
 	}
 
 	var resp TransferResp
