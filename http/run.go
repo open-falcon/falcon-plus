@@ -24,7 +24,7 @@ func configRunRoutes() {
 			}
 
 			body := string(bs)
-			out, err := sys.CmdOutBytes("/bin/bash", "-c", body)
+			out, err := sys.CmdOutBytes("sh", "-c", body)
 			if err != nil {
 				w.Write([]byte("exec fail: " + err.Error()))
 				return
