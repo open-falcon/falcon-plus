@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/toolkits/file"
 	"log"
+	"os"
 	"sync"
 )
 
@@ -57,6 +58,15 @@ func Config() *GlobalConfig {
 	lock.RLock()
 	defer lock.RUnlock()
 	return config
+}
+
+func Hostname() (string, error) {
+	hostname := Config().Hostname
+	if hostname != "" {
+		return hostname, nil
+	}
+
+	return os.Hostname()
 }
 
 func ParseConfig(cfg string) {

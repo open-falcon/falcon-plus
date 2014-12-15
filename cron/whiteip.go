@@ -3,7 +3,6 @@ package cron
 import (
 	"github.com/open-falcon/agent/g"
 	"log"
-	"os"
 	"time"
 )
 
@@ -23,9 +22,9 @@ func syncWhiteIPs() {
 	REST:
 		time.Sleep(duration)
 
-		hostname, err := os.Hostname()
+		hostname, err := g.Hostname()
 		if err != nil {
-			log.Println("[ERROR] os.Hostname() fail:", err)
+			log.Println("[ERROR] g.Hostname() fail:", err)
 			goto REST
 		}
 

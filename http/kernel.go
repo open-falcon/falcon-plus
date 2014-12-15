@@ -1,15 +1,15 @@
 package http
 
 import (
+	"github.com/open-falcon/agent/g"
 	"github.com/toolkits/nux"
 	"github.com/toolkits/sys"
 	"net/http"
-	"os"
 )
 
 func configKernelRoutes() {
 	http.HandleFunc("/proc/kernel/hostname", func(w http.ResponseWriter, r *http.Request) {
-		data, err := os.Hostname()
+		data, err := g.Hostname()
 		AutoRender(w, data, err)
 	})
 

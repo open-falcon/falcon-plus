@@ -3,7 +3,6 @@ package cron
 import (
 	"fmt"
 	"github.com/open-falcon/agent/g"
-	"os"
 	"time"
 )
 
@@ -19,7 +18,7 @@ func report(interval time.Duration) {
 		ip = g.LocalIps[0]
 	}
 
-	hostname, err := os.Hostname()
+	hostname, err := g.Hostname()
 	if err != nil {
 		hostname = fmt.Sprintf("error:%s", err.Error())
 	}

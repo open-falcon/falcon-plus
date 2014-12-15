@@ -3,7 +3,6 @@ package cron
 import (
 	"github.com/open-falcon/agent/g"
 	"log"
-	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -29,9 +28,9 @@ func syncBuiltinItems() {
 		var ports = []int64{}
 		var procs = make(map[string]map[int]string)
 
-		hostname, err := os.Hostname()
+		hostname, err := g.Hostname()
 		if err != nil {
-			log.Println("[ERROR] os.Hostname() fail:", err)
+			log.Println("[ERROR] g.Hostname() fail:", err)
 			goto REST
 		}
 

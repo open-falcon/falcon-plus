@@ -4,7 +4,6 @@ import (
 	"github.com/open-falcon/agent/g"
 	"github.com/open-falcon/agent/plugins"
 	"log"
-	"os"
 	"strings"
 	"time"
 )
@@ -39,7 +38,7 @@ func syncPlugin() {
 	REST:
 		time.Sleep(duration)
 
-		hostname, err := os.Hostname()
+		hostname, err := g.Hostname()
 		if err != nil {
 			log.Println("[ERROR]", err)
 			goto REST

@@ -4,7 +4,6 @@ import (
 	"github.com/open-falcon/agent/funcs"
 	"github.com/open-falcon/agent/g"
 	"log"
-	"os"
 	"time"
 )
 
@@ -37,9 +36,9 @@ func collect(sec int64, fns []func() []*g.MetricValue) {
 	REST:
 		time.Sleep(time.Duration(sec) * time.Second)
 
-		hostname, err := os.Hostname()
+		hostname, err := g.Hostname()
 		if err != nil {
-			log.Println("os.Hostname() fail:", err)
+			log.Println("g.Hostname() fail:", err)
 			goto REST
 		}
 
