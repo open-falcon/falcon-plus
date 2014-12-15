@@ -2,3 +2,10 @@
 *.swo
 /cfg.json
 /agent
+/var
+/falcon-agent
+/falcon_agent
+.DS_Store
+*.iml
+*.idea
+
