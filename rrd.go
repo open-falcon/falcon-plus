@@ -337,7 +337,7 @@ func (g *Grapher) VRule(t interface{}, color string, options ...string) {
 	if v, ok := t.(time.Time); ok {
 		t = v.Unix()
 	}
-	vr := fmt.Sprintf("VRULE:%s#%s", t, color)
+	vr := fmt.Sprintf("VRULE:%v#%s", t, color)
 	g.push(vr, options)
 }
 
@@ -374,7 +374,7 @@ func (g *Grapher) Shift(vname string, offset interface{}) {
 	if v, ok := offset.(time.Duration); ok {
 		offset = int64((v + time.Second/2) / time.Second)
 	}
-	shift := fmt.Sprintf("SHIFT:%s:%s", offset)
+	shift := fmt.Sprintf("SHIFT:%s:%v", vname, offset)
 	g.push(shift, nil)
 }
 
