@@ -5,6 +5,6 @@ import (
 )
 
 const (
-	VERSION          = "3.0.3"
+	VERSION          = "3.0.4"
 	COLLECT_INTERVAL = time.Second
 )
