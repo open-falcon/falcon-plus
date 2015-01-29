@@ -21,14 +21,14 @@ func DelNoUsePlugins(newPlugins map[string]*Plugin) {
 }
 
 func AddNewPlugins(newPlugins map[string]*Plugin) {
-	for key, val := range newPlugins {
-		if _, ok := Plugins[key]; ok {
+	for fpath, newPlugin := range newPlugins {
+		if _, ok := Plugins[fpath]; ok && newPlugin.MTime == Plugins[fpath].MTime {
 			continue
 		}
 
-		Plugins[key] = val
-		sch := NewPluginScheduler(val)
-		PluginsWithScheduler[key] = sch
+		Plugins[fpath] = newPlugin
+		sch := NewPluginScheduler(newPlugin)
+		PluginsWithScheduler[fpath] = sch
 		sch.Schedule()
 	}
 }

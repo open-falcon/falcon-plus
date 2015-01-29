@@ -3,6 +3,7 @@ package http
 import (
 	"fmt"
 	"github.com/open-falcon/agent/g"
+	"github.com/open-falcon/agent/plugins"
 	"github.com/toolkits/file"
 	"net/http"
 	"os/exec"
@@ -60,5 +61,9 @@ func configPluginRoutes() {
 			}
 		}
 		w.Write([]byte("success"))
+	})
+
+	http.HandleFunc("/plugins", func(w http.ResponseWriter, r *http.Request) {
+		RenderDataJson(w, plugins.Plugins)
 	})
 }
