@@ -150,7 +150,11 @@ func IOStatsMetrics() (L []*g.MetricValue) {
 		L = append(L, GaugeValue("disk.io.avgqu-sz", float64(IODelta(device, IOMsecWeightedTotal))/1000.0, tags))
 		L = append(L, GaugeValue("disk.io.await", await, tags))
 		L = append(L, GaugeValue("disk.io.svctm", svctm, tags))
-		L = append(L, GaugeValue("disk.io.util", float64(use)*100.0/float64(duration), tags))
+		tmp := float64(use) * 100.0 / float64(duration)
+		if tmp > 100.0 {
+			tmp = 100.0
+		}
+		L = append(L, GaugeValue("disk.io.util", tmp, tags))
 	}
 
 	return
