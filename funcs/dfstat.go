@@ -46,7 +46,7 @@ func DeviceMetrics() (L []*g.MetricValue) {
 	if len(L) > 0 && diskTotal > 0 {
 		L = append(L, GaugeValue("df.statistics.total", diskTotal))
 		L = append(L, GaugeValue("df.statistics.used", diskUsed))
-		L = append(L, GaugeValue("df.statistics.used.percent", float64(diskUsed)/float64(diskTotal)))
+		L = append(L, GaugeValue("df.statistics.used.percent", float64(diskUsed)*100.0/float64(diskTotal)))
 	}
 
 	return
