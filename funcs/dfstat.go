@@ -15,6 +15,9 @@ func DeviceMetrics() (L []*g.MetricValue) {
 		return
 	}
 
+	var diskTotal uint64 = 0
+	var diskUsed uint64 = 0
+
 	for idx := range mountPoints {
 		var du *nux.DeviceUsage
 		du, err = nux.BuildDeviceUsage(mountPoints[idx][0], mountPoints[idx][1], mountPoints[idx][2])
@@ -22,6 +25,9 @@ func DeviceMetrics() (L []*g.MetricValue) {
 			log.Println(err)
 			continue
 		}
+
+		diskTotal += du.BlocksAll
+		diskUsed += du.BlocksUsed
 
 		tags := fmt.Sprintf("mount=%s,fstype=%s", du.FsFile, du.FsVfstype)
 		L = append(L, GaugeValue("df.bytes.total", du.BlocksAll, tags))
@@ -35,6 +41,12 @@ func DeviceMetrics() (L []*g.MetricValue) {
 		L = append(L, GaugeValue("df.inodes.used.percent", du.InodesUsedPercent, tags))
 		L = append(L, GaugeValue("df.inodes.free.percent", du.InodesFreePercent, tags))
 
+	}
+
+	if len(L) > 0 && diskTotal > 0 {
+		L = append(L, GaugeValue("df.statistics.total", diskTotal))
+		L = append(L, GaugeValue("df.statistics.used", diskUsed))
+		L = append(L, GaugeValue("df.statistics.used.percent", float64(diskUsed)/float64(diskTotal)))
 	}
 
 	return
