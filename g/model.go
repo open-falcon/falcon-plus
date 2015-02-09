@@ -26,15 +26,17 @@ func (this *MetricValue) String() string {
 }
 
 type TransferResp struct {
-	Msg     string
-	Total   int
-	Latency int64
+	Msg        string
+	Total      int
+	ErrInvalid int
+	Latency    int64
 }
 
 func (this *TransferResp) String() string {
-	return fmt.Sprintf("<Total=%v, Latency=%vms, Msg:%s>",
+	return fmt.Sprintf("<Total=%v, Latency=%vms, Invalid:%v, Msg:%s>",
 		this.Total,
 		this.Latency,
+		this.ErrInvalid,
 		this.Msg)
 }
 

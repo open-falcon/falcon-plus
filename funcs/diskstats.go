@@ -69,6 +69,10 @@ func IOMsecWeightedTotal(arr [2]*nux.DiskStats) uint64 {
 	return arr[0].MsecWeightedTotal - arr[1].MsecWeightedTotal
 }
 
+func TS(arr [2]*nux.DiskStats) uint64 {
+	return uint64(arr[0].TS.Sub(arr[1].TS).Nanoseconds() / 1000000)
+}
+
 func IODelta(device string, f func([2]*nux.DiskStats) uint64) uint64 {
 	val, ok := diskStatsMap[device]
 	if !ok {
@@ -138,13 +142,19 @@ func IOStatsMetrics() (L []*g.MetricValue) {
 			svctm = float64(use) / float64(n_io)
 		}
 
+		duration := IODelta(device, TS)
+
 		L = append(L, GaugeValue("disk.io.read_bytes", float64(delta_rsec)*512.0, tags))
 		L = append(L, GaugeValue("disk.io.write_bytes", float64(delta_wsec)*512.0, tags))
 		L = append(L, GaugeValue("disk.io.avgrq_sz", avgrq_sz, tags))
 		L = append(L, GaugeValue("disk.io.avgqu-sz", float64(IODelta(device, IOMsecWeightedTotal))/1000.0, tags))
 		L = append(L, GaugeValue("disk.io.await", await, tags))
 		L = append(L, GaugeValue("disk.io.svctm", svctm, tags))
-		L = append(L, GaugeValue("disk.io.util", float64(use)/10.0, tags))
+		tmp := float64(use) * 100.0 / float64(duration)
+		if tmp > 100.0 {
+			tmp = 100.0
+		}
+		L = append(L, GaugeValue("disk.io.util", tmp, tags))
 	}
 
 	return
