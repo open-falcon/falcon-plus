@@ -60,10 +60,24 @@ func (this *SingleConnRpcClient) Call(method string, args interface{}, reply int
 
 	this.insureConn()
 
-	err := this.rpcClient.Call(method, args, reply)
-	if err != nil {
+	timeout := time.Duration(30 * time.Second)
+	done := make(chan error)
+
+	go func() {
+		err := this.rpcClient.Call(method, args, reply)
+		done <- err
+	}()
+
+	select {
+	case <-time.After(timeout):
+		log.Printf("[WARN] rpc call timeout %v => %v", this.rpcClient, this.RpcServer)
 		this.close()
+	case err := <-done:
+		if err != nil {
+			this.close()
+			return err
+		}
 	}
 
-	return err
+	return nil
 }
