@@ -1,6 +1,6 @@
 {
 	"debug": true,
-	"hostname": "falcon-demo01.bj",
+	"hostname": "",
 	"plugin": {
 		"enabled": false,
 		"dir": "~/plugin",
