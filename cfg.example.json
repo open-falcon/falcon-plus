@@ -3,9 +3,9 @@
 	"hostname": "",
 	"plugin": {
 		"enabled": false,
-		"dir": "~/plugin",
+		"dir": "/home/work/plugin",
 		"git": "https://coding.net/ulricqin/plugin.git",
-		"logs": "~/logs"
+		"logs": "/home/work/logs"
 	},
 	"heartbeat": {
 		"enabled": false,
@@ -24,6 +24,6 @@
 		"listen": ":1988"
 	},
 	"collector": {
-		"ifacePrefix": ["eth"]
+		"ifacePrefix": ["eth", "em"]
 	}
 }

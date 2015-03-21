@@ -11,9 +11,6 @@ conf=cfg.json
 pidfile=var/app.pid
 logfile=var/app.log
 
-[[ -f $app ]] || mv $module $app
-[[ -f $conf ]] || cp cfg.example.json $conf
-
 function check_pid() {
     if [ -f $pidfile ];then
         pid=`cat $pidfile`
@@ -40,7 +37,8 @@ function start() {
 }
 
 function stop() {
-    pgrep $app | xargs kill &>/dev/null
+    pid=`cat $pidfile`
+    kill $pid
     echo "$app stoped..."
 }
 
@@ -61,8 +59,28 @@ function status() {
     fi
 }
 
+function tailf() {
+    tail -f $logfile
+}
+
+function build() {
+    go build
+    if [ $? -ne 0 ]; then
+        exit $?
+    fi
+    mv $module $app
+    ./$app -v
+}
+
+function pack() {
+    build
+    version=`./$app -v`
+    [ -f cfg.json ] || cp cfg.example.json cfg.json
+    tar zcvf $app-$version.tar.gz public control cfg.json $app
+}
+
 function help() {
-    echo "$0 start|stop|restart|status"
+    echo "$0 build|pack|start|stop|restart|status|tail"
 }
 
 if [ "$1" == "" ]; then
@@ -75,6 +93,12 @@ elif [ "$1" == "restart" ];then
     restart
 elif [ "$1" == "status" ];then
     status
+elif [ "$1" == "tail" ];then
+    tailf
+elif [ "$1" == "build" ];then
+    build
+elif [ "$1" == "pack" ];then
+    pack
 else
     help
 fi

@@ -3,7 +3,7 @@
 /cfg.json
 /agent
 /var
-/falcon-agent
+/falcon-agent*
 /falcon_agent
 .DS_Store
 *.iml
