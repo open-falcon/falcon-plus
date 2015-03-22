@@ -9,12 +9,13 @@ This is a linux monitor agent. Just like zabbix-agent and tcollector.
 It is a golang classic project
 
 ```bash
+# set $GOPATH and $GOROOT
 mkdir -p $GOPATH/src/github.com/open-falcon
 cd $GOPATH/src/github.com/open-falcon
 git clone https://github.com/open-falcon/agent.git
 cd agent
 go get ./...
-go build
+./control build
 ./control start
 
 # goto http://localhost:1988

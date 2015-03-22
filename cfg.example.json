@@ -3,9 +3,9 @@
 	"hostname": "",
 	"plugin": {
 		"enabled": false,
-		"dir": "/home/work/plugin",
+		"dir": "./plugin",
 		"git": "https://coding.net/ulricqin/plugin.git",
-		"logs": "/home/work/logs"
+		"logs": "./logs"
 	},
 	"heartbeat": {
 		"enabled": false,
