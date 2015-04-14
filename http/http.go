@@ -26,6 +26,7 @@ func StartHttp() {
 	// init url mapping
 	configCommonRoutes()
 	configProcHttpRoutes()
+	configIndexHttpRoutes()
 
 	s := &http.Server{
 		Addr:           addr,

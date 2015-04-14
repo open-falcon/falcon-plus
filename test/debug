@@ -34,6 +34,11 @@ function stop(){
     $control stop
 }
 
+## index
+function index_delete(){
+    curl -s "$httpprex/index/delete" | python -m json.tool
+}
+
 action=$1
 case $action in
     "build")
@@ -50,6 +55,9 @@ case $action in
         ;;
     "stop")
         stop
+        ;;
+    "index")
+        index_delete
         ;;
     *)
         statistics
