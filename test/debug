@@ -1,0 +1,58 @@
+#!/bin/bash
+## test home
+testdir=$(cd $(dirname $0)/; pwd)
+## word home
+workdir=$(dirname $testdir)
+cd $workdir
+
+module=task
+app=falcon-$module
+pidfile=var/app.pid
+logfile=var/app.log
+control=./control
+httpprex="127.0.0.1:8001"
+
+## statistics
+function statistics(){
+    curl -s "$httpprex/statistics/all" | python -m json.tool
+}
+
+## build && install
+function install(){
+    $control stop && git pull && $control build && $control start
+    [ $? -eq 0 ] && echo -e "install ok" || { echo -e "install error"; exit 1; }
+}
+function build(){
+    #$control build && git pull && git add -A  && git commit -a -m "transfer, auto build" && git push
+    $control build
+    [ $? -eq 0 ] && echo -e "build ok" || { echo -e "build error"; exit 1; }
+}
+function start(){
+    $control start
+}
+function stop(){
+    $control stop
+}
+
+action=$1
+case $action in
+    "build")
+        build
+        ;;
+    "install")
+        install
+        ;;
+    "restart")
+        stop && build && start
+        ;;
+    "start")
+        start
+        ;;
+    "stop")
+        stop
+        ;;
+    *)
+        statistics
+        ;;
+esac
+
