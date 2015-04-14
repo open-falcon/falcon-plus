@@ -3,5 +3,10 @@
     "http": {
         "enabled": true,
         "listen": "0.0.0.0:8001"
+    },
+    "db": {
+        "dsn": "work:work123!@#@tcp(11.11.0.12:3306)/graph2?loc=Local&parseTime=true",
+        "maxIdle": 4,
+        "interval": 300
     }
 }

@@ -3,8 +3,10 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/open-falcon/task/db"
 	"github.com/open-falcon/task/g"
 	"github.com/open-falcon/task/http"
+	"github.com/open-falcon/task/index"
 	"github.com/open-falcon/task/proc"
 	"os"
 	"os/signal"
@@ -30,11 +32,17 @@ func main() {
 	// global config
 	g.ParseConfig(*cfg)
 
+	// db
+	db.InitDB()
+
 	// http
 	http.StartHttp()
 
 	// proc
 	proc.InitProc()
+
+	// graph index
+	index.StartIndex()
 
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)

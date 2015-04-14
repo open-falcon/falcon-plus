@@ -12,9 +12,16 @@ type HttpConfig struct {
 	Listen  string `json:"listen"`
 }
 
+type DBConfig struct {
+	Dsn      string `json:"dsn"`
+	MaxIdle  int    `json:"maxIdle"`
+	Interval int    `json:"interval"`
+}
+
 type GlobalConfig struct {
 	Debug bool        `json:"debug"`
 	Http  *HttpConfig `json:"http"`
+	DB    *DBConfig   `json:"db"`
 }
 
 var (
