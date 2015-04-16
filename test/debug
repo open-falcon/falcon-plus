@@ -16,6 +16,9 @@ httpprex="127.0.0.1:8001"
 function statistics(){
     curl -s "$httpprex/statistics/all" | python -m json.tool
 }
+function statistics_config(){
+    curl -s "$httpprex/statistics/config" | python -m json.tool
+}
 
 ## build && install
 function install(){
@@ -55,6 +58,9 @@ case $action in
         ;;
     "stop")
         stop
+        ;;
+    "config")
+        statistics_config
         ;;
     "index")
         index_delete

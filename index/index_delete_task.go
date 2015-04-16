@@ -12,7 +12,7 @@ import (
 
 const (
 	indexDeleteCronSpec = "0 0 3 * * ?" //"0 0 3 * * ?" //索引垃圾清理的cron周期描述
-	deteleStepInSec     = 2 * 24 * 3600 //48 * 3600        // 索引的最大生存周期, sec
+	deteleStepInSec     = 1             //48 * 3600        // 索引的最大生存周期, sec
 )
 
 var (
@@ -43,10 +43,12 @@ func DeleteIndex() {
 	log.Printf("deleteIndex, startTs %s, time-consuming %d sec\n", proc.FmtUnixTs(startTs), endTs-startTs)
 
 	// statistics
-	proc.IndexDeleteCnt.PutOther("lastStartTs", proc.FmtUnixTs(startTs))
-	proc.IndexDeleteCnt.PutOther("lastTimeConsumingInSec", endTs-startTs)
+	proc.IndexDelete.Incr()
+	proc.IndexDelete.PutOther("lastStartTs", proc.FmtUnixTs(startTs))
+	proc.IndexDelete.PutOther("lastTimeConsumingInSec", endTs-startTs)
 }
 
+// 先select 得到可能被删除的index的信息, 然后以相同的条件delete. select和delete不是原子操作,可能有一些不一致,但不影响正确性
 func deleteIndex() error {
 	dbConn, err := db.GetDbConn()
 	if err != nil {

@@ -2,12 +2,12 @@ package proc
 
 import (
 	P "github.com/open-falcon/model/proc"
-	"github.com/open-falcon/task/g"
 	"time"
 )
 
 // 索引垃圾清理
 var (
+	IndexDelete    = P.NewSCounterQps("IndexDelete")
 	IndexDeleteCnt = P.NewSCounterBase("IndexDeleteCnt")
 )
 
@@ -17,10 +17,8 @@ func InitProc() {
 func GetAll() []interface{} {
 	ret := make([]interface{}, 0)
 
-	// g.config
-	ret = append(ret, g.Config())
-
 	// index
+	ret = append(ret, IndexDelete)
 	ret = append(ret, IndexDeleteCnt)
 
 	return ret
