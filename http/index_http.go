@@ -8,6 +8,6 @@ import (
 func configIndexHttpRoutes() {
 	http.HandleFunc("/index/delete", func(w http.ResponseWriter, r *http.Request) {
 		index.DeleteIndex()
-		RenderDataJson(w, "done")
+		RenderDataJson(w, "ok")
 	})
 }

@@ -34,6 +34,11 @@ func StopIndexDeleteTask() {
 
 // 索引的全量更新
 func DeleteIndex() {
+	// 组织多个访问,高并发时无效
+	if semaIndexDelete.AvailablePermits() <= 0 {
+		return
+	}
+
 	semaIndexDelete.Acquire()
 	defer semaIndexDelete.Release()
 
