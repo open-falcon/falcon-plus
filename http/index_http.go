@@ -1,7 +1,7 @@
 package http
 
 import (
-	"github.com/falcon/task/index"
+	"github.com/open-falcon/task/index"
 	"net/http"
 )
 
