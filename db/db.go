@@ -2,8 +2,8 @@ package db
 
 import (
 	"database/sql"
+	"github.com/falcon/task/g"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/open-falcon/task/g"
 	"log"
 )
 

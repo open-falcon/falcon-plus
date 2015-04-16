@@ -1,7 +1,7 @@
 package proc
 
 import (
-	P "github.com/open-falcon/model/proc"
+	P "github.com/falcon/model/proc"
 	"time"
 )
 

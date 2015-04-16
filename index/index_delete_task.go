@@ -1,10 +1,10 @@
 package index
 
 import (
+	Mdb "github.com/falcon/model/db"
+	"github.com/falcon/task/db"
+	"github.com/falcon/task/proc"
 	cron "github.com/niean/cron"
-	Mdb "github.com/open-falcon/model/db"
-	"github.com/open-falcon/task/db"
-	"github.com/open-falcon/task/proc"
 	TSemaphore "github.com/toolkits/concurrent/semaphore"
 	"log"
 	"time"
