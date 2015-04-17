@@ -11,8 +11,8 @@ import (
 )
 
 const (
-	indexDeleteCronSpec = "0 0 3 * * ?" //"0 0 3 * * ?" //索引垃圾清理的cron周期描述
-	deteleStepInSec     = 1             //48 * 3600        // 索引的最大生存周期, sec
+	indexDeleteCronSpec = "0 40 * * * ?" //"0 0 3 * * ?" //索引垃圾清理的cron周期描述
+	deteleStepInSec     = 2 * 24 * 3600  // 索引的最大生存周期, sec
 )
 
 var (
@@ -34,7 +34,7 @@ func StopIndexDeleteTask() {
 
 // 索引的全量更新
 func DeleteIndex() {
-	// 组织多个访问,高并发时无效
+	// 阻止多个并发的访问,高并发时可能无效
 	if semaIndexDelete.AvailablePermits() <= 0 {
 		return
 	}
