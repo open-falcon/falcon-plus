@@ -11,8 +11,8 @@ import (
 )
 
 const (
-	indexDeleteCronSpec = "0 20 * * * ?" //"0 0 3 * * ?" //索引垃圾清理的cron周期描述
-	deteleStepInSec     = 2 * 24 * 3600  // 索引的最大生存周期, sec
+	indexDeleteCronSpec = "0 0 3 * * ?" //"0 0 3 * * ?" //索引垃圾清理的cron周期描述
+	deteleStepInSec     = 2 * 24 * 3600 // 索引的最大生存周期, sec
 )
 
 var (

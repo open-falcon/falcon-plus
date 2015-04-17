@@ -36,10 +36,12 @@ func main() {
 
 	// db
 	db.Init()
-	// http
-	http.Start()
 	// graph index
 	index.Start()
+
+	// http
+	// ENSURE starting httpServer to be the final step
+	http.Start()
 
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
