@@ -13,7 +13,10 @@ type Dto struct {
 }
 
 // start http server
-func StartHttp() {
+func Start() {
+	go startHttpServer()
+}
+func startHttpServer() {
 	if !g.Config().Http.Enabled {
 		return
 	}
@@ -33,7 +36,7 @@ func StartHttp() {
 		MaxHeaderBytes: 1 << 30,
 	}
 
-	log.Println("StartHttp, ok, listening addr: ", addr)
+	log.Println("http:startHttpServer, ok, listening ", addr)
 	log.Fatalln(s.ListenAndServe())
 }
 

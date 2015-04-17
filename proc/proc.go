@@ -12,8 +12,8 @@ var (
 	IndexDeleteCnt = P.NewSCounterBase("IndexDeleteCnt")
 )
 
-func InitProc() {
-	log.Println("InitProc, ok")
+func Init() {
+	log.Println("proc:Init, ok")
 }
 
 func GetAll() []interface{} {

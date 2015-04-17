@@ -32,14 +32,14 @@ func main() {
 	// global config
 	g.ParseConfig(*cfg)
 	// proc
-	proc.InitProc()
+	proc.Init()
 
 	// db
-	db.InitDB()
+	db.Init()
 	// http
-	http.StartHttp()
+	http.Start()
 	// graph index
-	index.StartIndex()
+	index.Start()
 
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)

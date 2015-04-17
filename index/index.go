@@ -5,7 +5,7 @@ import (
 )
 
 // 初始化索引功能模块
-func StartIndex() {
-	go StartIndexDeleteTask()
-	log.Println("StartIndex, ok")
+func Start() {
+	StartIndexDeleteTask()
+	log.Println("index:Start, ok")
 }

@@ -9,13 +9,13 @@ import (
 
 var DB *sql.DB
 
-func InitDB() {
+func Init() {
 	var err error
 	DB, err = GetDbConn()
 	if err != nil {
-		log.Fatalln("get db conn fail", err)
+		log.Fatalln("db:Init, get db conn fail", err)
 	} else {
-		log.Println("InitDB, ok")
+		log.Println("db:Init, ok")
 	}
 }
 
