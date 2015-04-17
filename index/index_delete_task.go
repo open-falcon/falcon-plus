@@ -36,6 +36,7 @@ func StopIndexDeleteTask() {
 func DeleteIndex() {
 	// 阻止多个并发的访问,高并发时可能无效
 	if semaIndexDelete.AvailablePermits() <= 0 {
+		log.Printf("deleteIndex, concurrent not avaiable")
 		return
 	}
 

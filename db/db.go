@@ -14,6 +14,8 @@ func InitDB() {
 	DB, err = GetDbConn()
 	if err != nil {
 		log.Fatalln("get db conn fail", err)
+	} else {
+		log.Println("InitDB, ok")
 	}
 }
 

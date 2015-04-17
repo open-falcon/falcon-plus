@@ -62,5 +62,5 @@ func ParseConfig(cfg string) {
 	defer configLock.Unlock()
 	config = &c
 
-	log.Println("read config file:", cfg, "successfully")
+	log.Println("ParseConfig, ok, file: ", cfg)
 }

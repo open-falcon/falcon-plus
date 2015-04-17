@@ -37,7 +37,7 @@ function start() {
 
 function stop() {
     pid=`cat $pidfile`
-    kill $pid
+    kill -9 $pid
     echo "$app stoped..."
 }
 

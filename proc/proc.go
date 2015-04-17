@@ -2,6 +2,7 @@ package proc
 
 import (
 	P "github.com/open-falcon/model/proc"
+	"log"
 	"time"
 )
 
@@ -12,6 +13,7 @@ var (
 )
 
 func InitProc() {
+	log.Println("InitProc, ok")
 }
 
 func GetAll() []interface{} {

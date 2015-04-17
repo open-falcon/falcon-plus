@@ -31,16 +31,13 @@ func main() {
 
 	// global config
 	g.ParseConfig(*cfg)
-
-	// db
-	db.InitDB()
-
-	// http
-	http.StartHttp()
-
 	// proc
 	proc.InitProc()
 
+	// db
+	db.InitDB()
+	// http
+	http.StartHttp()
 	// graph index
 	index.StartIndex()
 

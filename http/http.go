@@ -33,7 +33,7 @@ func StartHttp() {
 		MaxHeaderBytes: 1 << 30,
 	}
 
-	log.Println("http listening", addr)
+	log.Println("StartHttp, ok, listening addr: ", addr)
 	log.Fatalln(s.ListenAndServe())
 }
 
