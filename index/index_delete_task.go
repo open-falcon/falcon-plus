@@ -76,13 +76,13 @@ func deleteIndex() error {
 	// endpoint表
 	{
 		// select
-		endpoints := make([]*Mdb.GraphEndpoint, 0)
 		rows, err := dbConn.Query("SELECT id, endpoint FROM endpoint WHERE ts < ?", lastTs)
 		if err != nil {
 			log.Println(err)
 			return err
 		}
 
+		cnt := 0
 		for rows.Next() {
 			item := &Mdb.GraphEndpoint{}
 			err := rows.Scan(&item.Id, &item.Endpoint)
@@ -90,7 +90,8 @@ func deleteIndex() error {
 				log.Println(err)
 				return err
 			}
-			endpoints = append(endpoints, item)
+			log.Println("will delete endpoint:", item)
+			cnt++
 		}
 
 		if err = rows.Err(); err != nil {
@@ -104,26 +105,22 @@ func deleteIndex() error {
 			log.Println(err)
 			return err
 		}
-
-		for _, item := range endpoints {
-			log.Println("delete endpoint:", item)
-		}
-		log.Printf("delete endpoint, delete cnt %d\n", len(endpoints))
+		log.Printf("delete endpoint, done, cnt %d\n", cnt)
 
 		// statistics
-		proc.IndexDeleteCnt.PutOther("deleteCntEndpoint", len(endpoints))
+		proc.IndexDeleteCnt.PutOther("deleteCntEndpoint", cnt)
 	}
 
 	// tag_endpoint表
 	{
 		// select
-		tagEndpoints := make([]*Mdb.GraphTagEndpoint, 0)
 		rows, err := dbConn.Query("SELECT id, tag, endpoint_id FROM tag_endpoint WHERE ts < ?", lastTs)
 		if err != nil {
 			log.Println(err)
 			return err
 		}
 
+		cnt := 0
 		for rows.Next() {
 			item := &Mdb.GraphTagEndpoint{}
 			err := rows.Scan(&item.Id, &item.Tag, &item.EndpointId)
@@ -131,7 +128,8 @@ func deleteIndex() error {
 				log.Println(err)
 				return err
 			}
-			tagEndpoints = append(tagEndpoints, item)
+			log.Println("will delete tag_endpoint:", item)
+			cnt++
 		}
 
 		if err = rows.Err(); err != nil {
@@ -145,25 +143,21 @@ func deleteIndex() error {
 			log.Println(err)
 			return err
 		}
-
-		for _, item := range tagEndpoints {
-			log.Println("delete tag_endpoint:", item)
-		}
-		log.Printf("delete tag_endpoint, delete cnt %d\n", len(tagEndpoints))
+		log.Printf("delete tag_endpoint, done, cnt %d\n", cnt)
 
 		// statistics
-		proc.IndexDeleteCnt.PutOther("deleteCntTagEndpoint", len(tagEndpoints))
+		proc.IndexDeleteCnt.PutOther("deleteCntTagEndpoint", cnt)
 	}
 	// endpoint_counter表
 	{
 		// select
-		endpointCounters := make([]*Mdb.GraphEndpointCounter, 0)
 		rows, err := dbConn.Query("SELECT id, endpoint_id, counter FROM endpoint_counter WHERE ts < ?", lastTs)
 		if err != nil {
 			log.Println(err)
 			return err
 		}
 
+		cnt := 0
 		for rows.Next() {
 			item := &Mdb.GraphEndpointCounter{}
 			err := rows.Scan(&item.Id, &item.EndpointId, &item.Counter)
@@ -171,7 +165,8 @@ func deleteIndex() error {
 				log.Println(err)
 				return err
 			}
-			endpointCounters = append(endpointCounters, item)
+			log.Println("will delete endpoint_counter:", item)
+			cnt++
 		}
 
 		if err = rows.Err(); err != nil {
@@ -185,14 +180,10 @@ func deleteIndex() error {
 			log.Println(err)
 			return err
 		}
-
-		for _, item := range endpointCounters {
-			log.Println("delete endpoint_counter:", item)
-		}
-		log.Printf("delete endpoint_counter, delete cnt %d\n", len(endpointCounters))
+		log.Printf("delete endpoint_counter, delete cnt %d\n", cnt)
 
 		// statistics
-		proc.IndexDeleteCnt.PutOther("deleteCntEndpointCounter", len(endpointCounters))
+		proc.IndexDeleteCnt.PutOther("deleteCntEndpointCounter", cnt)
 	}
 
 	return nil
