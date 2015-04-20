@@ -74,6 +74,13 @@ func syncPlugin() {
 		localTimestamp = resp.Timestamp
 		localCheckSum = resp.Checksum
 
+		if g.Config().Debug {
+			log.Println("Plugins::::::::::::::::::::")
+			log.Println("PluginPaths:", pluginPaths)
+			log.Println("Timestamp:", localTimestamp)
+			log.Println("Checksum:", localCheckSum)
+		}
+
 		if len(pluginPaths) == 0 {
 			plugins.ClearAllPlugins()
 		}

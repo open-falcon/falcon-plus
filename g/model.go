@@ -56,6 +56,10 @@ type Plugin struct {
 	Path string
 }
 
+func (this *Plugin) String() string {
+	return this.Path
+}
+
 type Host struct {
 	HostId   int
 	HostName string
