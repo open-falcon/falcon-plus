@@ -12,6 +12,11 @@ var (
 	IndexDeleteCnt = P.NewSCounterBase("IndexDeleteCnt")
 )
 
+// transfer监控数据采集
+var (
+	TransferMonitorCronCnt = P.NewSCounterQps("TransferMonitorCronCnt")
+)
+
 func Init() {
 	log.Println("proc:Init, ok")
 }
@@ -22,6 +27,8 @@ func GetAll() []interface{} {
 	// index
 	ret = append(ret, IndexDelete)
 	ret = append(ret, IndexDeleteCnt)
+	// transfer
+	ret = append(ret, TransferMonitorCronCnt)
 
 	return ret
 }

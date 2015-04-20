@@ -18,10 +18,21 @@ type DBConfig struct {
 	Interval int    `json:"interval"`
 }
 
+type IndexConfig struct {
+	Enabled bool `json:"enabled"`
+}
+
+type TransferConfig struct {
+	Enabled bool     `json:"enabled"`
+	Cluster []string `json:"cluster"`
+}
+
 type GlobalConfig struct {
-	Debug bool        `json:"debug"`
-	Http  *HttpConfig `json:"http"`
-	DB    *DBConfig   `json:"db"`
+	Debug    bool            `json:"debug"`
+	Http     *HttpConfig     `json:"http"`
+	DB       *DBConfig       `json:"db"`
+	Index    *IndexConfig    `json:"index"`
+	Transfer *TransferConfig `json:"transfer"`
 }
 
 var (

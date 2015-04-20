@@ -8,6 +8,7 @@ import (
 	"github.com/open-falcon/task/http"
 	"github.com/open-falcon/task/index"
 	"github.com/open-falcon/task/proc"
+	"github.com/open-falcon/task/transfer"
 	"os"
 	"os/signal"
 	"syscall"
@@ -33,11 +34,13 @@ func main() {
 	g.ParseConfig(*cfg)
 	// proc
 	proc.Init()
-
 	// db
 	db.Init()
+
 	// graph index
 	index.Start()
+	// transfer
+	transfer.Start()
 
 	// http
 	// ENSURE starting httpServer to be the final step

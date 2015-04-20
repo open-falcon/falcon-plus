@@ -73,7 +73,7 @@ function build() {
 function pack() {
     build
     version=`./$app -v`
-    tar zcvf $app-$version.tar.gz control cfg.example.json $app ./test/debug ./test/*.go
+    tar zcvf $app-$version.tar.gz control cfg.example.json $app ./test/debug
 }
 
 function packbin() {
