@@ -83,6 +83,12 @@ function pack() {
     tar zcvf $app-$version.tar.gz public control cfg.json $app
 }
 
+function packbin() {
+    build
+    version=`./$app -v`
+    tar zcvf $app-bin-$version.tar.gz $app
+}
+
 function help() {
     echo "$0 build|pack|start|stop|restart|status|tail"
 }
@@ -103,6 +109,8 @@ elif [ "$1" == "build" ];then
     build
 elif [ "$1" == "pack" ];then
     pack
+elif [ "$1" == "packbin" ];then
+    packbin
 else
     help
 fi

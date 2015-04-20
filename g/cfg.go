@@ -41,6 +41,7 @@ type CollectorConfig struct {
 type GlobalConfig struct {
 	Debug     bool             `json:"debug"`
 	Hostname  string           `json:"hostname"`
+	IP        string           `json:"ip"`
 	Plugin    *PluginConfig    `json:"plugin"`
 	Heartbeat *HeartbeatConfig `json:"heartbeat"`
 	Transfer  *TransferConfig  `json:"transfer"`
@@ -67,6 +68,20 @@ func Hostname() (string, error) {
 	}
 
 	return os.Hostname()
+}
+
+func IP() string {
+	ip := Config().IP
+	if ip != "" {
+		// use ip in configuration
+		return ip
+	}
+
+	if len(LocalIps) > 0 {
+		ip = LocalIps[0]
+	}
+
+	return ip
 }
 
 func ParseConfig(cfg string) {

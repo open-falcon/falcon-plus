@@ -13,11 +13,6 @@ func Report() {
 }
 
 func report(interval time.Duration) {
-	ip := ""
-	if len(g.LocalIps) > 0 {
-		ip = g.LocalIps[0]
-	}
-
 	hostname, err := g.Hostname()
 	if err != nil {
 		hostname = fmt.Sprintf("error:%s", err.Error())
@@ -27,7 +22,7 @@ func report(interval time.Duration) {
 		req := g.AgentReportReq{
 			HostName:      hostname,
 			Version:       g.VERSION,
-			Meta:          ip,
+			Meta:          g.IP(),
 			PluginVersion: GetCurrPluginVersion(),
 		}
 

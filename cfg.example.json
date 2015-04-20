@@ -1,29 +1,34 @@
 {
-	"debug": true,
-	"hostname": "",
-	"plugin": {
-		"enabled": false,
-		"dir": "./plugin",
-		"git": "https://coding.net/ulricqin/plugin.git",
-		"logs": "./logs"
-	},
-	"heartbeat": {
-		"enabled": false,
-		"addr": "",
-		"interval": 60,
-		"timeout": 1000
-	},
-	"transfer": {
-		"enabled": false,
-		"addr": "",
-		"interval": 60,
-		"timeout": 1000
-	},
-	"http": {
-		"enabled": true,
-		"listen": ":1988"
-	},
-	"collector": {
-		"ifacePrefix": ["eth", "em"]
-	}
+    "debug": true,
+    "hostname": "",
+    "ip": "",
+    "plugin": {
+        "enabled": false,
+        "dir": "./plugin",
+        "git": "https://coding.net/ulricqin/plugin.git",
+        "logs": "./logs"
+    },
+    "heartbeat": {
+        "enabled": false,
+        "addr": "",
+        "interval": 60,
+        "timeout": 1000
+    },
+    "transfer": {
+        "enabled": false,
+        "addr": "",
+        "interval": 60,
+        "timeout": 1000
+    },
+    "http": {
+        "enabled": true,
+        "listen": ":1988"
+    },
+    "collector": {
+        "ifacePrefix": ["eth", "em"]
+    },
+    "ignore": {
+        "cpu.busy": true,
+        "load.15min": true
+    }
 }
