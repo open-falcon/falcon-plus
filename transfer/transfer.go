@@ -95,6 +95,9 @@ func monitorTransfer() {
 		}
 
 		for _, item := range data.Data {
+			if item["Name"] == nil {
+				continue
+			}
 			itemName := item["Name"].(string)
 
 			var jmdCnt model.JsonMetaData
@@ -107,17 +110,18 @@ func monitorTransfer() {
 			jmdCnt.Tags = tags
 			jsonList = append(jsonList, jmdCnt)
 
-			if item["Qps"] != nil {
-				var jmdQps model.JsonMetaData
-				jmdQps.Endpoint = tran
-				jmdQps.Metric = itemName + ".Qps"
-				jmdQps.Timestamp = ts
-				jmdQps.Step = 60
-				jmdQps.Value = int64(item["Qps"].(float64))
-				jmdQps.CounterType = "GAUGE"
-				jmdQps.Tags = tags
-				jsonList = append(jsonList, jmdQps)
+			if item["Qps"] == nil {
+				continue
 			}
+			var jmdQps model.JsonMetaData
+			jmdQps.Endpoint = tran
+			jmdQps.Metric = itemName + ".Qps"
+			jmdQps.Timestamp = ts
+			jmdQps.Step = 60
+			jmdQps.Value = int64(item["Qps"].(float64))
+			jmdQps.CounterType = "GAUGE"
+			jmdQps.Tags = tags
+			jsonList = append(jsonList, jmdQps)
 		}
 
 		if len(jsonList) < 1 { //没取到数据
