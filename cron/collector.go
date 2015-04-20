@@ -42,9 +42,10 @@ func collect(sec int64, fns []func() []*g.MetricValue) {
 			goto REST
 		}
 
-		funcIdxItems := make(map[int][]*g.MetricValue, len(fns))
+		mvs := []*g.MetricValue{}
+		ignoreMetrics := g.Config().IgnoreMetrics
 
-		for idx, fn := range fns {
+		for _, fn := range fns {
 			items := fn()
 			if items == nil {
 				continue
@@ -54,32 +55,23 @@ func collect(sec int64, fns []func() []*g.MetricValue) {
 				continue
 			}
 
-			funcIdxItems[idx] = items
-		}
-
-		size := 0
-		for _, val := range funcIdxItems {
-			size += len(val)
-		}
-
-		L := make([]*g.MetricValue, size)
-
-		i := 0
-		for _, metrics := range funcIdxItems {
-			for _, mv := range metrics {
-				L[i] = mv
-				i++
+			for _, mv := range items {
+				if _, ok := ignoreMetrics[mv.Metric]; ok {
+					continue
+				} else {
+					mvs = append(mvs, mv)
+				}
 			}
 		}
 
 		now := time.Now().Unix()
-		for j := 0; j < size; j++ {
-			L[j].Step = sec
-			L[j].Endpoint = hostname
-			L[j].Timestamp = now
+		for j := 0; j < len(mvs); j++ {
+			mvs[j].Step = sec
+			mvs[j].Endpoint = hostname
+			mvs[j].Timestamp = now
 		}
 
-		g.SendToTransfer(L)
+		g.SendToTransfer(mvs)
 
 	}
 }
