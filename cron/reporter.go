@@ -3,6 +3,8 @@ package cron
 import (
 	"fmt"
 	"github.com/open-falcon/agent/g"
+	"github.com/open-falcon/common/model"
+	"log"
 	"time"
 )
 
@@ -19,15 +21,18 @@ func report(interval time.Duration) {
 	}
 
 	for {
-		req := g.AgentReportReq{
-			HostName:      hostname,
-			Version:       g.VERSION,
-			Meta:          g.IP(),
+		req := model.AgentReportRequest{
+			Hostname:      hostname,
+			IP:            g.IP(),
+			AgentVersion:  g.VERSION,
 			PluginVersion: GetCurrPluginVersion(),
 		}
 
-		var resp g.AgentReportResp
-		g.HbsClient.Call("Agent.ReportStatus", req, &resp)
+		var resp model.SimpleRpcResponse
+		err = g.HbsClient.Call("Agent.ReportStatus", req, &resp)
+		if err != nil {
+			log.Println("call Agent.ReportStatus fail", err, "Request:", req)
+		}
 
 		time.Sleep(interval)
 	}

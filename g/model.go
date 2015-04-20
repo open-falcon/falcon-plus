@@ -40,18 +40,6 @@ func (this *TransferResp) String() string {
 		this.Msg)
 }
 
-type AgentReportReq struct {
-	HostName      string
-	Version       string
-	Meta          string
-	PluginVersion string
-}
-
-type AgentReportResp struct {
-	Status bool
-	Msg    string
-}
-
 type Plugin struct {
 	Path string
 }
