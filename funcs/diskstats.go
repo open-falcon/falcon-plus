@@ -2,7 +2,7 @@ package funcs
 
 import (
 	"fmt"
-	"github.com/open-falcon/agent/g"
+	"github.com/open-falcon/common/model"
 	"github.com/toolkits/nux"
 	"log"
 	"strings"
@@ -85,7 +85,7 @@ func IODelta(device string, f func([2]*nux.DiskStats) uint64) uint64 {
 	return f(val)
 }
 
-func DiskIOMetrics() (L []*g.MetricValue) {
+func DiskIOMetrics() (L []*model.MetricValue) {
 
 	dsList, err := nux.ListDiskStats()
 	if err != nil {
@@ -115,7 +115,7 @@ func DiskIOMetrics() (L []*g.MetricValue) {
 	return
 }
 
-func IOStatsMetrics() (L []*g.MetricValue) {
+func IOStatsMetrics() (L []*model.MetricValue) {
 	dsLock.RLock()
 	defer dsLock.RUnlock()
 

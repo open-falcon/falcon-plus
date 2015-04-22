@@ -1,7 +1,7 @@
 package funcs
 
 import (
-	"github.com/open-falcon/agent/g"
+	"github.com/open-falcon/common/model"
 	"github.com/toolkits/nux"
 	"log"
 )
@@ -32,7 +32,7 @@ var USES = map[string]struct{}{
 	"TCPMinTTLDrop":      struct{}{},
 }
 
-func NetstatMetrics() (L []*g.MetricValue) {
+func NetstatMetrics() (L []*model.MetricValue) {
 	tcpExts, err := nux.Netstat("TcpExt")
 
 	if err != nil {

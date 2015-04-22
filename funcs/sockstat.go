@@ -1,12 +1,12 @@
 package funcs
 
 import (
-	"github.com/open-falcon/agent/g"
+	"github.com/open-falcon/common/model"
 	"github.com/toolkits/nux"
 	"log"
 )
 
-func SocketStatSummaryMetrics() (L []*g.MetricValue) {
+func SocketStatSummaryMetrics() (L []*model.MetricValue) {
 	ssMap, err := nux.SocketStatSummary()
 	if err != nil {
 		log.Println(err)

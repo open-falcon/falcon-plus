@@ -2,10 +2,11 @@ package funcs
 
 import (
 	"github.com/open-falcon/agent/g"
+	"github.com/open-falcon/common/model"
 )
 
 type FuncsAndInterval struct {
-	Fs       []func() []*g.MetricValue
+	Fs       []func() []*model.MetricValue
 	Interval int
 }
 
@@ -15,7 +16,7 @@ func BuildMappers() {
 	interval := g.Config().Transfer.Interval
 	Mappers = []FuncsAndInterval{
 		FuncsAndInterval{
-			Fs: []func() []*g.MetricValue{
+			Fs: []func() []*model.MetricValue{
 				AgentMetrics,
 				CpuMetrics,
 				NetMetrics,
@@ -30,13 +31,13 @@ func BuildMappers() {
 			Interval: interval,
 		},
 		FuncsAndInterval{
-			Fs: []func() []*g.MetricValue{
+			Fs: []func() []*model.MetricValue{
 				DeviceMetrics,
 			},
 			Interval: interval,
 		},
 		FuncsAndInterval{
-			Fs: []func() []*g.MetricValue{
+			Fs: []func() []*model.MetricValue{
 				PortMetrics,
 				SocketStatSummaryMetrics,
 			},

@@ -1,6 +1,7 @@
 package g
 
 import (
+	"github.com/open-falcon/common/model"
 	"github.com/toolkits/net"
 	"log"
 	"os"
@@ -50,7 +51,7 @@ func InitRpcClients() {
 	}
 }
 
-func SendToTransfer(metrics []*MetricValue) {
+func SendToTransfer(metrics []*model.MetricValue) {
 	if len(metrics) == 0 {
 		return
 	}
@@ -61,8 +62,11 @@ func SendToTransfer(metrics []*MetricValue) {
 		log.Printf("=> <Total=%d> %v\n", len(metrics), metrics[0])
 	}
 
-	var resp TransferResp
-	TransferClient.Call("Transfer.Update", metrics, &resp)
+	var resp model.TransferResponse
+	err := TransferClient.Call("Transfer.Update", metrics, &resp)
+	if err != nil {
+		log.Println("call Transfer.Update fail", err)
+	}
 
 	if debug {
 		log.Println("<=", &resp)

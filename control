@@ -79,8 +79,7 @@ function build() {
 function pack() {
     build
     version=`./$app -v`
-    [ -f cfg.json ] || cp cfg.example.json cfg.json
-    tar zcvf $app-$version.tar.gz public control cfg.json $app
+    tar zcvf $app-$version.tar.gz public control cfg.example.json $app
 }
 
 function packbin() {

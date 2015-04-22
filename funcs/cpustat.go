@@ -1,7 +1,7 @@
 package funcs
 
 import (
-	"github.com/open-falcon/agent/g"
+	"github.com/open-falcon/common/model"
 	"github.com/toolkits/nux"
 	"sync"
 )
@@ -149,9 +149,9 @@ func CpuPrepared() bool {
 	return procStatHistory[1] != nil
 }
 
-func CpuMetrics() []*g.MetricValue {
+func CpuMetrics() []*model.MetricValue {
 	if !CpuPrepared() {
-		return []*g.MetricValue{}
+		return []*model.MetricValue{}
 	}
 
 	cpuIdleVal := CpuIdle()
@@ -166,5 +166,5 @@ func CpuMetrics() []*g.MetricValue {
 	steal := GaugeValue("cpu.steal", CpuSteal())
 	guest := GaugeValue("cpu.guest", CpuGuest())
 	switches := CounterValue("cpu.switches", CurrentCpuSwitches())
-	return []*g.MetricValue{idle, busy, user, nice, system, iowait, irq, softirq, steal, guest, switches}
+	return []*model.MetricValue{idle, busy, user, nice, system, iowait, irq, softirq, steal, guest, switches}
 }

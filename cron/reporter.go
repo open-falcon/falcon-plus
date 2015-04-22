@@ -30,8 +30,8 @@ func report(interval time.Duration) {
 
 		var resp model.SimpleRpcResponse
 		err = g.HbsClient.Call("Agent.ReportStatus", req, &resp)
-		if err != nil {
-			log.Println("call Agent.ReportStatus fail", err, "Request:", req)
+		if err != nil || resp.Code != 0 {
+			log.Println("call Agent.ReportStatus fail:", err, "Request:", req, "Response:", resp)
 		}
 
 		time.Sleep(interval)

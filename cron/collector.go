@@ -3,6 +3,7 @@ package cron
 import (
 	"github.com/open-falcon/agent/funcs"
 	"github.com/open-falcon/agent/g"
+	"github.com/open-falcon/common/model"
 	"log"
 	"time"
 )
@@ -30,7 +31,7 @@ func Collect() {
 	}
 }
 
-func collect(sec int64, fns []func() []*g.MetricValue) {
+func collect(sec int64, fns []func() []*model.MetricValue) {
 
 	for {
 	REST:
@@ -42,7 +43,7 @@ func collect(sec int64, fns []func() []*g.MetricValue) {
 			goto REST
 		}
 
-		mvs := []*g.MetricValue{}
+		mvs := []*model.MetricValue{}
 		ignoreMetrics := g.Config().IgnoreMetrics
 
 		for _, fn := range fns {

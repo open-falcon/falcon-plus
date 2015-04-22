@@ -2,12 +2,12 @@ package funcs
 
 import (
 	"fmt"
-	"github.com/open-falcon/agent/g"
+	"github.com/open-falcon/common/model"
 	"github.com/toolkits/nux"
 	"log"
 )
 
-func DeviceMetrics() (L []*g.MetricValue) {
+func DeviceMetrics() (L []*model.MetricValue) {
 	mountPoints, err := nux.ListMountPoint()
 
 	if err != nil {

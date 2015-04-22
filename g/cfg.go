@@ -91,7 +91,7 @@ func ParseConfig(cfg string) {
 	}
 
 	if !file.IsExist(cfg) {
-		log.Fatalln("config file:", cfg, "is not existent")
+		log.Fatalln("config file:", cfg, "is not existent. maybe you need `mv cfg.example.json cfg.json`")
 	}
 
 	ConfigFile = cfg

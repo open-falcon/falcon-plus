@@ -2,24 +2,25 @@ package funcs
 
 import (
 	"github.com/open-falcon/agent/g"
+	"github.com/open-falcon/common/model"
 	"github.com/toolkits/nux"
 	"log"
 )
 
-func NetMetrics() []*g.MetricValue {
+func NetMetrics() []*model.MetricValue {
 	return CoreNetMetrics(g.Config().Collector.IfacePrefix)
 }
 
-func CoreNetMetrics(ifacePrefix []string) []*g.MetricValue {
+func CoreNetMetrics(ifacePrefix []string) []*model.MetricValue {
 
 	netIfs, err := nux.NetIfs(ifacePrefix)
 	if err != nil {
 		log.Println(err)
-		return []*g.MetricValue{}
+		return []*model.MetricValue{}
 	}
 
 	cnt := len(netIfs)
-	ret := make([]*g.MetricValue, cnt*20)
+	ret := make([]*model.MetricValue, cnt*20)
 
 	for idx, netIf := range netIfs {
 		iface := "iface=" + netIf.Iface

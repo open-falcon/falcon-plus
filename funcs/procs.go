@@ -2,12 +2,13 @@ package funcs
 
 import (
 	"github.com/open-falcon/agent/g"
+	"github.com/open-falcon/common/model"
 	"github.com/toolkits/nux"
 	"log"
 	"strings"
 )
 
-func ProcMetrics() (L []*g.MetricValue) {
+func ProcMetrics() (L []*model.MetricValue) {
 
 	reportProcs := g.ReportProcs()
 	sz := len(reportProcs)

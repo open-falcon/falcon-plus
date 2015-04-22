@@ -3,12 +3,13 @@ package funcs
 import (
 	"fmt"
 	"github.com/open-falcon/agent/g"
+	"github.com/open-falcon/common/model"
 	"github.com/toolkits/nux"
 	"github.com/toolkits/slice"
 	"log"
 )
 
-func PortMetrics() (L []*g.MetricValue) {
+func PortMetrics() (L []*model.MetricValue) {
 
 	reportPorts := g.ReportPorts()
 	sz := len(reportPorts)

@@ -1,12 +1,12 @@
 package funcs
 
 import (
-	"github.com/open-falcon/agent/g"
+	"github.com/open-falcon/common/model"
 	"github.com/toolkits/nux"
 	"log"
 )
 
-func MemMetrics() []*g.MetricValue {
+func MemMetrics() []*model.MetricValue {
 	m, err := nux.MemInfo()
 	if err != nil {
 		log.Println(err)
@@ -30,7 +30,7 @@ func MemMetrics() []*g.MetricValue {
 		pswapUsed = float64(m.SwapUsed) * 100.0 / float64(m.SwapTotal)
 	}
 
-	return []*g.MetricValue{
+	return []*model.MetricValue{
 		GaugeValue("mem.memtotal", m.MemTotal),
 		GaugeValue("mem.memused", memUsed),
 		GaugeValue("mem.memfree", memFree),

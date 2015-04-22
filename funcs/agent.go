@@ -1,9 +1,9 @@
 package funcs
 
 import (
-	"github.com/open-falcon/agent/g"
+	"github.com/open-falcon/common/model"
 )
 
-func AgentMetrics() []*g.MetricValue {
-	return []*g.MetricValue{GaugeValue("agent.alive", 1)}
+func AgentMetrics() []*model.MetricValue {
+	return []*model.MetricValue{GaugeValue("agent.alive", 1)}
 }

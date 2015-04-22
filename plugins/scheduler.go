@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"github.com/open-falcon/agent/g"
+	"github.com/open-falcon/common/model"
 	"github.com/toolkits/file"
 	"github.com/toolkits/sys"
 	"log"
@@ -102,7 +103,7 @@ func PluginRun(plugin *Plugin) {
 		return
 	}
 
-	var metrics []*g.MetricValue
+	var metrics []*model.MetricValue
 	err = json.Unmarshal(data, &metrics)
 	if err != nil {
 		log.Printf("[ERROR] json.Unmarshal stdout of %s fail. error:%s stdout: \n%s\n", fpath, err, stdout.String())

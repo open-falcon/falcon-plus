@@ -3,6 +3,7 @@ package http
 import (
 	"encoding/json"
 	"github.com/open-falcon/agent/g"
+	"github.com/open-falcon/common/model"
 	"net/http"
 )
 
@@ -21,7 +22,7 @@ func configPushRoutes() {
 		}
 
 		decoder := json.NewDecoder(req.Body)
-		var metrics []*g.MetricValue
+		var metrics []*model.MetricValue
 		err := decoder.Decode(&metrics)
 		if err != nil {
 			m["err"] = 1
