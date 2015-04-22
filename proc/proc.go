@@ -14,7 +14,7 @@ var (
 
 // transfer监控数据采集
 var (
-	TransferMonitorCronCnt = P.NewSCounterQps("TransferMonitorCronCnt")
+	MonitorCronCnt = P.NewSCounterQps("MonitorCronCnt")
 )
 
 func Init() {
@@ -27,8 +27,8 @@ func GetAll() []interface{} {
 	// index
 	ret = append(ret, IndexDelete)
 	ret = append(ret, IndexDeleteCnt)
-	// transfer
-	ret = append(ret, TransferMonitorCronCnt)
+	// monitor
+	ret = append(ret, MonitorCronCnt)
 
 	return ret
 }

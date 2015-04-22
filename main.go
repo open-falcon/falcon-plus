@@ -7,8 +7,8 @@ import (
 	"github.com/open-falcon/task/g"
 	"github.com/open-falcon/task/http"
 	"github.com/open-falcon/task/index"
+	"github.com/open-falcon/task/monitor"
 	"github.com/open-falcon/task/proc"
-	"github.com/open-falcon/task/transfer"
 	"os"
 	"os/signal"
 	"syscall"
@@ -39,8 +39,8 @@ func main() {
 
 	// graph index
 	index.Start()
-	// transfer
-	transfer.Start()
+	// monitor
+	monitor.Start()
 
 	// http
 	// ENSURE starting httpServer to be the final step
