@@ -9,13 +9,13 @@ import (
 	"time"
 )
 
-func SyncBuiltinItems() {
+func SyncBuiltinMetrics() {
 	if g.Config().Heartbeat.Enabled && g.Config().Heartbeat.Addr != "" {
-		go syncBuiltinItems()
+		go syncBuiltinMetrics()
 	}
 }
 
-func syncBuiltinItems() {
+func syncBuiltinMetrics() {
 
 	var timestamp int64
 	var checksum string
@@ -39,15 +39,14 @@ func syncBuiltinItems() {
 			Checksum: checksum,
 		}
 
-		var resp g.BuiltinItemResp
-		err = g.HbsClient.Call("Agent.GetBuiltinItems", req, &resp)
+		var resp model.BuiltinMetricResponse
+		err = g.HbsClient.Call("Agent.BuiltinMetrics", req, &resp)
 		if err != nil {
-			log.Println("[ERROR]", err)
+			log.Println("ERROR:", err)
 			goto REST
 		}
 
 		if resp.Timestamp <= timestamp {
-			log.Println("resp.Timestamp <= timestamp")
 			goto REST
 		}
 
@@ -58,17 +57,22 @@ func syncBuiltinItems() {
 		timestamp = resp.Timestamp
 		checksum = resp.Checksum
 
-		for _, item := range resp.Items {
-			if item.Metric == "net.port.listen" {
-				if port, err := strconv.ParseInt(item.Tags[5:], 10, 64); err == nil {
+		for _, metric := range resp.Metrics {
+			if metric.Metric == "net.port.listen" {
+				if !strings.Contains(metric.Tags, "=") {
+					// illegal
+					continue
+				}
+
+				if port, err := strconv.ParseInt(metric.Tags[5:], 10, 64); err == nil {
 					ports = append(ports, port)
 				}
 
 				continue
 			}
 
-			if item.Metric == "proc.num" {
-				arr := strings.Split(item.Tags, ",")
+			if metric.Metric == "proc.num" {
+				arr := strings.Split(metric.Tags, ",")
 
 				tmpMap := make(map[int]string)
 
@@ -80,7 +84,7 @@ func syncBuiltinItems() {
 					}
 				}
 
-				procs[item.Tags] = tmpMap
+				procs[metric.Tags] = tmpMap
 			}
 		}
 

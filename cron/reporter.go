@@ -8,13 +8,13 @@ import (
 	"time"
 )
 
-func Report() {
+func ReportAgentStatus() {
 	if g.Config().Heartbeat.Enabled && g.Config().Heartbeat.Addr != "" {
-		go report(time.Duration(g.Config().Heartbeat.Interval) * time.Second)
+		go reportAgentStatus(time.Duration(g.Config().Heartbeat.Interval) * time.Second)
 	}
 }
 
-func report(interval time.Duration) {
+func reportAgentStatus(interval time.Duration) {
 	hostname, err := g.Hostname()
 	if err != nil {
 		hostname = fmt.Sprintf("error:%s", err.Error())

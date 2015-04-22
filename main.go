@@ -38,9 +38,9 @@ func main() {
 
 	go cron.InitDataHistory()
 
-	cron.Report()
-	cron.SyncPlugin()
-	cron.SyncBuiltinItems()
+	cron.ReportAgentStatus()
+	cron.SyncMinePlugins()
+	cron.SyncBuiltinMetrics()
 	cron.SyncTrustableIps()
 	cron.Collect()
 

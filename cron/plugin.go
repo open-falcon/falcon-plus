@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func SyncPlugin() {
+func SyncMinePlugins() {
 	if !g.Config().Plugin.Enabled {
 		return
 	}
@@ -22,10 +22,10 @@ func SyncPlugin() {
 		return
 	}
 
-	go syncPlugin()
+	go syncMinePlugins()
 }
 
-func syncPlugin() {
+func syncMinePlugins() {
 
 	var (
 		checksum   string = "nil"
