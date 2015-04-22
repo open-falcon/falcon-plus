@@ -64,6 +64,7 @@ func configPluginRoutes() {
 	})
 
 	http.HandleFunc("/plugins", func(w http.ResponseWriter, r *http.Request) {
+		//TODO: not thread safe
 		RenderDataJson(w, plugins.Plugins)
 	})
 }

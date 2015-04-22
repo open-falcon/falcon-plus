@@ -8,18 +8,6 @@ func (this *Plugin) String() string {
 	return this.Path
 }
 
-type Host struct {
-	HostId   int
-	HostName string
-	Pause    int
-	Uuid     string
-}
-
-type AgentReq struct {
-	Host
-	Checksum string
-}
-
 type AgentPluginsResp struct {
 	Plugins   []*Plugin
 	HostName  string

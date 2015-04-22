@@ -17,7 +17,7 @@ func SyncBuiltinItems() {
 
 func syncBuiltinItems() {
 
-	var getBuiltinItemsTS int64
+	var timestamp int64
 	var checksum string
 
 	duration := time.Duration(g.Config().Heartbeat.Interval) * time.Second
@@ -46,8 +46,8 @@ func syncBuiltinItems() {
 			goto REST
 		}
 
-		if resp.Timestamp <= getBuiltinItemsTS {
-			log.Println("resp.Timestamp <= getBuiltinItemsTS")
+		if resp.Timestamp <= timestamp {
+			log.Println("resp.Timestamp <= timestamp")
 			goto REST
 		}
 
@@ -55,7 +55,7 @@ func syncBuiltinItems() {
 			goto REST
 		}
 
-		getBuiltinItemsTS = resp.Timestamp
+		timestamp = resp.Timestamp
 		checksum = resp.Checksum
 
 		for _, item := range resp.Items {
