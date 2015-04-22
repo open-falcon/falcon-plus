@@ -9,15 +9,8 @@ import (
 
 func configPushRoutes() {
 	http.HandleFunc("/v1/push", func(w http.ResponseWriter, req *http.Request) {
-		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-		m := map[string]interface{}{
-			"err": 0,
-			"msg": "",
-		}
-
 		if req.ContentLength == 0 {
-			m["msg"] = "request.ContentLength == 0: do nothing"
-			w.Write(buildJson(m))
+			http.Error(w, "body is blank", http.StatusBadRequest)
 			return
 		}
 
@@ -25,26 +18,11 @@ func configPushRoutes() {
 		var metrics []*model.MetricValue
 		err := decoder.Decode(&metrics)
 		if err != nil {
-			m["err"] = 1
-			m["msg"] = err.Error()
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write(buildJson(m))
+			http.Error(w, "connot decode body", http.StatusBadRequest)
 			return
 		}
 
 		g.SendToTransfer(metrics)
-
-		w.Write(buildJson(m))
+		w.Write([]byte("success"))
 	})
-}
-
-func buildJson(m map[string]interface{}) []byte {
-	bs, err := json.Marshal(m)
-	if err != nil {
-		m["err"] = 2
-		m["msg"] = err.Error()
-		bs, _ = json.Marshal(m)
-		return bs
-	}
-	return bs
 }

@@ -11,15 +11,13 @@ func configRunRoutes() {
 	http.HandleFunc("/run", func(w http.ResponseWriter, r *http.Request) {
 		if g.InWhiteIPs(r.RemoteAddr) {
 			if r.ContentLength == 0 {
-				w.WriteHeader(http.StatusBadRequest)
-				w.Write([]byte("req.Body is blank"))
+				http.Error(w, "body is blank", http.StatusBadRequest)
 				return
 			}
 
 			bs, err := ioutil.ReadAll(r.Body)
 			if err != nil {
-				w.WriteHeader(http.StatusInternalServerError)
-				w.Write([]byte("read req.Body fail: " + err.Error()))
+				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
 
