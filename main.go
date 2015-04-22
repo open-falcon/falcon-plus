@@ -41,7 +41,7 @@ func main() {
 	cron.Report()
 	cron.SyncPlugin()
 	cron.SyncBuiltinItems()
-	cron.SyncWhiteIPs()
+	cron.SyncTrustableIps()
 	cron.Collect()
 
 	go http.Start()

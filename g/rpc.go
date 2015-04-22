@@ -43,7 +43,7 @@ func (this *SingleConnRpcClient) insureConn() {
 
 		log.Printf("dial %s fail: %v", this.RpcServer, err)
 
-		if retry > 8 {
+		if retry > 6 {
 			retry = 1
 		}
 
@@ -60,7 +60,7 @@ func (this *SingleConnRpcClient) Call(method string, args interface{}, reply int
 
 	this.insureConn()
 
-	timeout := time.Duration(30 * time.Second)
+	timeout := time.Duration(50 * time.Second)
 	done := make(chan error)
 
 	go func() {

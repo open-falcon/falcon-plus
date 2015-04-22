@@ -2,19 +2,18 @@ package cron
 
 import (
 	"github.com/open-falcon/agent/g"
+	"github.com/open-falcon/common/model"
 	"log"
 	"time"
 )
 
-func SyncWhiteIPs() {
+func SyncTrustableIps() {
 	if g.Config().Heartbeat.Enabled && g.Config().Heartbeat.Addr != "" {
-		go syncWhiteIPs()
+		go syncTrustableIps()
 	}
 }
 
-func syncWhiteIPs() {
-	var ipsChecksum string
-	var ipsTimestamp int64
+func syncTrustableIps() {
 
 	duration := time.Duration(g.Config().Heartbeat.Interval) * time.Second
 
@@ -22,41 +21,13 @@ func syncWhiteIPs() {
 	REST:
 		time.Sleep(duration)
 
-		hostname, err := g.Hostname()
+		var ips string
+		err := g.HbsClient.Call("Agent.TrustableIps", model.NullRpcRequest{}, &ips)
 		if err != nil {
-			log.Println("[ERROR] g.Hostname() fail:", err)
+			log.Println("ERROR: call Agent.TrustableIps fail", err)
 			goto REST
 		}
 
-		req := g.AgentReq{
-			Host:     g.Host{HostName: hostname},
-			Checksum: ipsChecksum,
-		}
-
-		var resp g.IpWhiteListResp
-
-		err = g.HbsClient.Call("Agent.GetWhiteIPList", req, &resp)
-		if err != nil {
-			log.Println("[ERROR]", err)
-			goto REST
-		}
-
-		if resp.Checksum == "" {
-			log.Println("[ERROR] resp.Checksum is blank")
-			goto REST
-		}
-
-		if resp.Timestamp <= ipsTimestamp {
-			log.Println("resp.Timestamp <= ipsTimestamp")
-			goto REST
-		}
-
-		if resp.Checksum == ipsChecksum {
-			goto REST
-		}
-
-		g.SetWhiteIps(resp.Ips)
-		ipsTimestamp = resp.Timestamp
-		ipsChecksum = resp.Checksum
+		g.SetTrustableIps(ips)
 	}
 }

@@ -3,6 +3,7 @@ package g
 import (
 	"github.com/open-falcon/common/model"
 	"github.com/toolkits/net"
+	"github.com/toolkits/slice"
 	"log"
 	"os"
 	"strings"
@@ -111,23 +112,24 @@ func SetReportProcs(procs map[string]map[int]string) {
 }
 
 var (
-	whiteIPs    []*WhiteIP
-	whiteIpLock = new(sync.Mutex)
+	ips     []string
+	ipsLock = new(sync.Mutex)
 )
 
-func WhiteIps() []*WhiteIP {
-	whiteIpLock.Lock()
-	defer whiteIpLock.Unlock()
-	return whiteIPs
+func GetTrustableIps() []string {
+	ipsLock.Lock()
+	defer ipsLock.Unlock()
+	return ips
 }
 
-func SetWhiteIps(ips []*WhiteIP) {
-	whiteIpLock.Lock()
-	defer whiteIpLock.Unlock()
-	whiteIPs = ips
+func SetTrustableIps(ipStr string) {
+	arr := strings.Split(ipStr, ",")
+	ipsLock.Lock()
+	defer ipsLock.Unlock()
+	ips = arr
 }
 
-func InWhiteIPs(remoteAddr string) bool {
+func IsTrustable(remoteAddr string) bool {
 	ip := remoteAddr
 	idx := strings.LastIndex(remoteAddr, ":")
 	if idx > 0 {
@@ -138,11 +140,5 @@ func InWhiteIPs(remoteAddr string) bool {
 		return true
 	}
 
-	list := WhiteIps()
-	for _, white := range list {
-		if white.Ip == ip {
-			return true
-		}
-	}
-	return false
+	return slice.ContainsString(GetTrustableIps(), ip)
 }

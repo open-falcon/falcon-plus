@@ -25,7 +25,7 @@ func report(interval time.Duration) {
 			Hostname:      hostname,
 			IP:            g.IP(),
 			AgentVersion:  g.VERSION,
-			PluginVersion: GetCurrPluginVersion(),
+			PluginVersion: g.GetCurrPluginVersion(),
 		}
 
 		var resp model.SimpleRpcResponse

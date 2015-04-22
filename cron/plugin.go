@@ -87,7 +87,7 @@ func syncPlugin() {
 
 		desiredAll := make(map[string]*plugins.Plugin)
 
-		pluginVersion := GetCurrPluginVersion()
+		pluginVersion := g.GetCurrPluginVersion()
 
 		for _, p := range pluginPaths {
 			underOneDir := plugins.PluginsUnder(strings.Trim(p.Path, "/"), pluginVersion)

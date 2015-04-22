@@ -1,20 +1,19 @@
-package cron
+package g
 
 import (
 	"bytes"
 	"fmt"
-	"github.com/open-falcon/agent/g"
 	"github.com/toolkits/file"
 	"os/exec"
 	"strings"
 )
 
 func GetCurrPluginVersion() string {
-	if !g.Config().Plugin.Enabled {
+	if !Config().Plugin.Enabled {
 		return "plugin not enabled"
 	}
 
-	pluginDir := g.Config().Plugin.Dir
+	pluginDir := Config().Plugin.Dir
 	if !file.IsExist(pluginDir) {
 		return "plugin dir not existent"
 	}

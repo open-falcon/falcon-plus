@@ -10,7 +10,7 @@ import (
 
 func configAdminRoutes() {
 	http.HandleFunc("/exit", func(w http.ResponseWriter, r *http.Request) {
-		if g.InWhiteIPs(r.RemoteAddr) {
+		if g.IsTrustable(r.RemoteAddr) {
 			w.Write([]byte("exiting..."))
 			go func() {
 				time.Sleep(time.Second)
@@ -22,7 +22,7 @@ func configAdminRoutes() {
 	})
 
 	http.HandleFunc("/config/reload", func(w http.ResponseWriter, r *http.Request) {
-		if g.InWhiteIPs(r.RemoteAddr) {
+		if g.IsTrustable(r.RemoteAddr) {
 			g.ParseConfig(g.ConfigFile)
 			RenderDataJson(w, g.Config())
 		} else {
@@ -32,5 +32,9 @@ func configAdminRoutes() {
 
 	http.HandleFunc("/workdir", func(w http.ResponseWriter, r *http.Request) {
 		RenderDataJson(w, file.SelfDir())
+	})
+
+	http.HandleFunc("/ips", func(w http.ResponseWriter, r *http.Request) {
+		RenderDataJson(w, g.GetTrustableIps())
 	})
 }
