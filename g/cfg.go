@@ -68,7 +68,11 @@ func Hostname() (string, error) {
 		return hostname, nil
 	}
 
-	return os.Hostname()
+	hostname, err := os.Hostname()
+	if err != nil {
+		log.Println("ERROR: os.Hostname() fail", err)
+	}
+	return hostname, err
 }
 
 func IP() string {

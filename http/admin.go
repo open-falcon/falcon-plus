@@ -35,6 +35,6 @@ func configAdminRoutes() {
 	})
 
 	http.HandleFunc("/ips", func(w http.ResponseWriter, r *http.Request) {
-		RenderDataJson(w, g.GetTrustableIps())
+		RenderDataJson(w, g.TrustableIps())
 	})
 }

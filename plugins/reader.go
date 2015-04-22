@@ -10,26 +10,7 @@ import (
 	"strings"
 )
 
-var (
-	path_plugin_version = make(map[string]string)
-	path_plugins        = make(map[string]map[string]*Plugin)
-)
-
-func PluginsUnder(relativePath, pluginVersion string) map[string]*Plugin {
-
-	ver, ver_exists := path_plugin_version[relativePath]
-	plugins, plugins_exists := path_plugins[relativePath]
-	if ver_exists && plugins_exists && pluginVersion == ver {
-		return plugins
-	}
-
-	plugins = ListPlugins(relativePath)
-	path_plugins[relativePath] = plugins
-	path_plugin_version[relativePath] = pluginVersion
-
-	return plugins
-}
-
+// key: sys/ntp/60_ntp.py
 func ListPlugins(relativePath string) map[string]*Plugin {
 	ret := make(map[string]*Plugin)
 	if relativePath == "" {

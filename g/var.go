@@ -116,7 +116,7 @@ var (
 	ipsLock = new(sync.Mutex)
 )
 
-func GetTrustableIps() []string {
+func TrustableIps() []string {
 	ipsLock.Lock()
 	defer ipsLock.Unlock()
 	return ips
@@ -140,5 +140,5 @@ func IsTrustable(remoteAddr string) bool {
 		return true
 	}
 
-	return slice.ContainsString(GetTrustableIps(), ip)
+	return slice.ContainsString(TrustableIps(), ip)
 }

@@ -4,7 +4,6 @@ import (
 	"github.com/open-falcon/agent/funcs"
 	"github.com/open-falcon/agent/g"
 	"github.com/open-falcon/common/model"
-	"log"
 	"time"
 )
 
@@ -39,7 +38,6 @@ func collect(sec int64, fns []func() []*model.MetricValue) {
 
 		hostname, err := g.Hostname()
 		if err != nil {
-			log.Println("g.Hostname() fail:", err)
 			goto REST
 		}
 

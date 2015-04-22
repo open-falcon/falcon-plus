@@ -2,6 +2,7 @@ package cron
 
 import (
 	"github.com/open-falcon/agent/g"
+	"github.com/open-falcon/common/model"
 	"log"
 	"strconv"
 	"strings"
@@ -30,12 +31,11 @@ func syncBuiltinItems() {
 
 		hostname, err := g.Hostname()
 		if err != nil {
-			log.Println("[ERROR] g.Hostname() fail:", err)
 			goto REST
 		}
 
-		req := g.AgentReq{
-			Host:     g.Host{HostName: hostname},
+		req := model.AgentHeartbeatRequest{
+			Hostname: hostname,
 			Checksum: checksum,
 		}
 
