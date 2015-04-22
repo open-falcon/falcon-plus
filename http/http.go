@@ -71,9 +71,6 @@ func Start() {
 		MaxHeaderBytes: 1 << 30,
 	}
 
-	if g.Config().Debug {
-		log.Println("listening", addr)
-	}
-
+	log.Println("listening", addr)
 	log.Fatalln(s.ListenAndServe())
 }
