@@ -17,8 +17,8 @@ func SyncBuiltinMetrics() {
 
 func syncBuiltinMetrics() {
 
-	var timestamp int64
-	var checksum string
+	var timestamp int64 = -1
+	var checksum string = "nil"
 
 	duration := time.Duration(g.Config().Heartbeat.Interval) * time.Second
 
