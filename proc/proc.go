@@ -25,10 +25,10 @@ func GetAll() []interface{} {
 	ret := make([]interface{}, 0)
 
 	// index
-	ret = append(ret, IndexDelete)
-	ret = append(ret, IndexDeleteCnt)
+	ret = append(ret, IndexDelete.Get())
+	ret = append(ret, IndexDeleteCnt.Get())
 	// monitor
-	ret = append(ret, MonitorCronCnt)
+	ret = append(ret, MonitorCronCnt.Get())
 
 	return ret
 }
