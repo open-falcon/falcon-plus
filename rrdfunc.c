@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include <rrd.h>
+#include "rrd.h"
 
 char *rrdError() {
 	char *err = NULL;
@@ -28,11 +28,6 @@ char *rrdUpdate(const char *filename, const char *template, int argc, const char
 	return rrdError();
 }
 
-char *rrdGraph(rrd_info_t **ret, int argc, char **argv) {
-	rrd_clear_error();
-	*ret = rrd_graph_v(argc, argv);
-	return rrdError();
-}
 
 char *rrdInfo(rrd_info_t **ret, char *filename) {
 	rrd_clear_error();
@@ -43,12 +38,6 @@ char *rrdInfo(rrd_info_t **ret, char *filename) {
 char *rrdFetch(int *ret, char *filename, const char *cf, time_t *start, time_t *end, unsigned long *step, unsigned long *ds_cnt, char ***ds_namv, double **data) {
 	rrd_clear_error();
 	*ret = rrd_fetch_r(filename, cf, start, end, step, ds_cnt, ds_namv, data);
-	return rrdError();
-}
-
-char *rrdXport(int *ret, int argc, char **argv, int *xsize, time_t *start, time_t *end, unsigned long *step, unsigned long *col_cnt, char ***legend_v, double **data) {
-	rrd_clear_error();
-	*ret = rrd_xport(argc, argv, xsize, start, end, step, col_cnt, legend_v, data);
 	return rrdError();
 }
 

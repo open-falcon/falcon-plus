@@ -1,18 +1,11 @@
-# Go (golang) Bindings for rrdtool C library (rrdtool)
+# Go (golang) for rrdtool(1.4.9)
 
-This package implements [Go](http://golang.org) (golang) bindings for the [rrdtool](http://oss.oetiker.ch/rrdtool/) C API.
+一个轻量级的rrdtool工具包，解除librrd依赖,只提供creat,update,fetch,info
 
 ## Installing
 
-rrd currently supports rrdtool-1.4.x
+    go get github.com/yubo/rrdlite
 
-Install rrd with:
-
-    go get github.com/ziutek/rrd
-
-## Usage
-
-See [GoDoc](http://godoc.org/github.com/ziutek/rrd) for documentation.
 
 ## Example 
-See [rrd_test.go](https://github.com/ziutek/rrd/blob/master/rrd_test.go) for an example of using this package.
+See [rrd_test.go](https://github.com/yubo/rrdlite/blob/master/rrd_test.go) for an example of using this package.
