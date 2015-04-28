@@ -55,7 +55,7 @@ void      rpnstack_init(
 void      rpnstack_free(
     rpnstack_t *rpnstack);
 
-void      parseCDEF_DS(
+int      parseCDEF_DS(
     const char *def,
     rrd_t *rrd,
     int ds_idx);

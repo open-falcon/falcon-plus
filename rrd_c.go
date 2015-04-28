@@ -43,7 +43,6 @@ func makeError(e *C.char) error {
 	if e == null {
 		return nil
 	}
-	defer freeCString(e)
 	return Error(C.GoString(e))
 }
 

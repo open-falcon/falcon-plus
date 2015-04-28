@@ -53,63 +53,51 @@
 #endif
 
 #define converter(VV,VVV) \
-   if (strcmp(#VV, string) == 0) return VVV;
+	if (strcmp(#VV, string) == 0) return VVV;
 
 /* conversion functions to allow symbolic entry of enumerations */
-enum dst_en dst_conv(
-    char *string)
-{
-    converter(COUNTER, DST_COUNTER)
-        converter(ABSOLUTE, DST_ABSOLUTE)
-        converter(GAUGE, DST_GAUGE)
-        converter(DERIVE, DST_DERIVE)
-        converter(COMPUTE, DST_CDEF)
-        rrd_set_error("unknown data acquisition function '%s'", string);
-    return (enum dst_en)(-1);
+enum dst_en dst_conv( char *string) {
+	converter(COUNTER, DST_COUNTER)
+		converter(ABSOLUTE, DST_ABSOLUTE)
+		converter(GAUGE, DST_GAUGE)
+		converter(DERIVE, DST_DERIVE)
+		converter(COMPUTE, DST_CDEF)
+		return (enum dst_en)(-1);
 }
 
 
-enum cf_en cf_conv(
-    const char *string)
-{
+enum cf_en cf_conv( const char *string) {
 
-    converter(AVERAGE, CF_AVERAGE)
-        converter(MIN, CF_MINIMUM)
-        converter(MAX, CF_MAXIMUM)
-        converter(LAST, CF_LAST)
-        converter(HWPREDICT, CF_HWPREDICT)
-        converter(MHWPREDICT, CF_MHWPREDICT)
-        converter(DEVPREDICT, CF_DEVPREDICT)
-        converter(SEASONAL, CF_SEASONAL)
-        converter(DEVSEASONAL, CF_DEVSEASONAL)
-        converter(FAILURES, CF_FAILURES)
-        rrd_set_error("unknown consolidation function '%s'", string);
-    return (enum cf_en)(-1);
+	converter(AVERAGE, CF_AVERAGE)
+		converter(MIN, CF_MINIMUM)
+		converter(MAX, CF_MAXIMUM)
+		converter(LAST, CF_LAST)
+		converter(HWPREDICT, CF_HWPREDICT)
+		converter(MHWPREDICT, CF_MHWPREDICT)
+		converter(DEVPREDICT, CF_DEVPREDICT)
+		converter(SEASONAL, CF_SEASONAL)
+		converter(DEVSEASONAL, CF_DEVSEASONAL)
+		converter(FAILURES, CF_FAILURES)
+		return (enum cf_en)(-1);
 }
 
 #undef converter
 
-long ds_match(
-    rrd_t *rrd,
-    char *ds_nam)
-{
-    unsigned long i;
+long ds_match( rrd_t *rrd, char *ds_nam) {
+	unsigned long i;
 
-    for (i = 0; i < rrd->stat_head->ds_cnt; i++)
-        if ((strcmp(ds_nam, rrd->ds_def[i].ds_nam)) == 0)
-            return i;
-    rrd_set_error("unknown data source name '%s'", ds_nam);
-    return -1;
+	for (i = 0; i < rrd->stat_head->ds_cnt; i++)
+		if ((strcmp(ds_nam, rrd->ds_def[i].ds_nam)) == 0)
+			return i;
+	return -RRD_ERR_UNKNOWN_DS_NAME;
 }
 
-off_t rrd_get_header_size(
-    rrd_t *rrd)
-{
-    return sizeof(stat_head_t) + \
-        sizeof(ds_def_t) * rrd->stat_head->ds_cnt + \
-        sizeof(rra_def_t) * rrd->stat_head->rra_cnt + \
-        ( atoi(rrd->stat_head->version) < 3 ? sizeof(time_t) : sizeof(live_head_t) ) + \
-        sizeof(pdp_prep_t) * rrd->stat_head->ds_cnt + \
-        sizeof(cdp_prep_t) * rrd->stat_head->ds_cnt * rrd->stat_head->rra_cnt + \
-        sizeof(rra_ptr_t) * rrd->stat_head->rra_cnt;
+off_t rrd_get_header_size( rrd_t *rrd) {
+	return sizeof(stat_head_t) + \
+		sizeof(ds_def_t) * rrd->stat_head->ds_cnt + \
+		sizeof(rra_def_t) * rrd->stat_head->rra_cnt + \
+		( atoi(rrd->stat_head->version) < 3 ? sizeof(time_t) : sizeof(live_head_t) ) + \
+		sizeof(pdp_prep_t) * rrd->stat_head->ds_cnt + \
+		sizeof(cdp_prep_t) * rrd->stat_head->ds_cnt * rrd->stat_head->rra_cnt + \
+		sizeof(rra_ptr_t) * rrd->stat_head->rra_cnt;
 }

@@ -25,7 +25,7 @@ int       lookup_seasonal(
     rrd_file_t *rrd_file,
     unsigned long offset,
     rrd_value_t **seasonal_coef);
-void      erase_violations(
+int      erase_violations(
     rrd_t *rrd,
     unsigned long cdp_idx,
     unsigned long rra_idx);
@@ -34,10 +34,6 @@ int       apply_smoother(
     unsigned long rra_idx,
     unsigned long rra_start,
     rrd_file_t *rrd_file);
-void      reset_aberrant_coefficients(
-    rrd_t *rrd,
-    rrd_file_t *rrd_file,
-    unsigned long ds_idx);
 void      init_hwpredict_cdp(
     cdp_prep_t *);
 void      init_seasonal_cdp(

@@ -168,7 +168,7 @@ extern    "C" {
 	/* thread-safe (hopefully) */
 	int       rrd_create_r( const char *filename, unsigned long pdp_step, time_t last_up,
 			int argc, const char **argv); 
-	rrd_info_t *rrd_info_r( char *);
+	rrd_info_t *rrd_info_r(char *, int *);
 	/* NOTE: rrd_update_r are only thread-safe if no at-style time
 	   specifications get used!!! */
 
@@ -217,11 +217,6 @@ extern    "C" {
 
 	int       rrd_proc_start_end( rrd_time_value_t *, rrd_time_value_t *, time_t *, time_t *);
 
-	/* HELPER FUNCTIONS */
-	void      rrd_set_error( char *, ...);
-	void      rrd_clear_error( void);
-	int       rrd_test_error( void);
-	char     *rrd_get_error( void);
 
 	/* rrd_strerror is thread safe, but still it uses a global buffer
 	   (but one per thread), thus subsequent calls within a single
@@ -229,12 +224,6 @@ extern    "C" {
 	const char *rrd_strerror( int err);
 
 	/** MULTITHREADED HELPER FUNCTIONS */
-	rrd_context_t *rrd_new_context( void);
-	void      rrd_free_context( rrd_context_t * buf); 
-	/* void   rrd_set_error_r  (rrd_context_t *, char *, ...); */
-	/* void   rrd_clear_error_r(rrd_context_t *); */
-	/* int    rrd_test_error_r (rrd_context_t *); */
-	/* char  *rrd_get_error_r  (rrd_context_t *); */
 
 	/** UTILITY FUNCTIONS */
 
@@ -260,6 +249,7 @@ extern    "C" {
 	 */
 #if defined(_RRD_TOOL_H) || defined(RRD_EXPORT_DEPRECATED)
 
+#include "rrd_error.h"
 #include "rrd_format.h"
 
 #if defined(__GNUC__) && defined (RRD_EXPORT_DEPRECATED)
@@ -270,7 +260,7 @@ extern    "C" {
 	void     rrd_free( rrd_t *rrd) RRD_DEPRECATED;
 	void      rrd_init( rrd_t *rrd) RRD_DEPRECATED;
 
-	rrd_file_t *rrd_open( const char *const file_name, rrd_t *rrd, unsigned rdwr) RRD_DEPRECATED;
+	rrd_file_t *rrd_open( const char *const file_name, rrd_t *rrd, unsigned rdwr, int *ret_p) RRD_DEPRECATED;
 
 	void      rrd_dontneed( rrd_file_t *rrd_file, rrd_t *rrd) RRD_DEPRECATED;
 	int       rrd_close( rrd_file_t *rrd_file) RRD_DEPRECATED;

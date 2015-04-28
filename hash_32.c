@@ -149,8 +149,6 @@ Fnv32_t fnv_32_str(
 }
 
 /* a wrapper function for fnv_32_str */
-unsigned long FnvHash(
-    const char *str)
-{
+unsigned long FnvHash( const char *str) {
     return fnv_32_str(str, FNV1_32_INIT);
 }

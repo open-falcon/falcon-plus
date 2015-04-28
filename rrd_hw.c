@@ -22,19 +22,15 @@ static unsigned long MyMod(
     signed long val,
     unsigned long mod);
 
-int lookup_seasonal(
-    rrd_t *rrd,
-    unsigned long rra_idx,
-    unsigned long rra_start,
-    rrd_file_t *rrd_file,
-    unsigned long offset,
-    rrd_value_t **seasonal_coef)
-{
+int lookup_seasonal( rrd_t *rrd, unsigned long rra_idx,
+    unsigned long rra_start, rrd_file_t *rrd_file,
+    unsigned long offset, rrd_value_t **seasonal_coef) {
     unsigned long pos_tmp;
 
     /* rra_ptr[].cur_row points to the rra row to be written; this function
      * reads cur_row + offset */
     unsigned long row_idx = rrd->rra_ptr[rra_idx].cur_row + offset;
+	int ret = 0;
 
     /* handle wrap around */
     if (row_idx >= rrd->rra_def[rra_idx].row_cnt)
@@ -52,8 +48,7 @@ int lookup_seasonal(
             (rrd_value_t *) malloc((rrd->stat_head->ds_cnt) *
                                    sizeof(rrd_value_t));
     if (*seasonal_coef == NULL) {
-        rrd_set_error("memory allocation failure: seasonal coef");
-        return -1;
+        return -RRD_ERR_MALLOC4;
     }
 
     if (!rrd_seek(rrd_file, pos_tmp, SEEK_SET)) {
@@ -68,35 +63,36 @@ int lookup_seasonal(
              * */
             return 0;
         } else {
-            rrd_set_error("read operation failed in lookup_seasonal(): %lu\n",
-                          pos_tmp);
+			ret = -RRD_ERR_READ1;
         }
     } else {
-        rrd_set_error("seek operation failed in lookup_seasonal(): %lu\n",
-                      pos_tmp);
+		ret = -RRD_ERR_SEEK1;
     }
 
-    return -1;
+    return ret;
 }
 
 /* For the specified CDP prep area and the FAILURES RRA,
  * erase all history of past violations.
  */
-void erase_violations(
-    rrd_t *rrd,
-    unsigned long cdp_idx,
-    unsigned long rra_idx)
-{
+int erase_violations( rrd_t *rrd, unsigned long cdp_idx,
+    unsigned long rra_idx) {
     unsigned short i;
     char     *violations_array;
+	int ret = 0;
+	enum dst_en r;
+	
 
     /* check that rra_idx is a CF_FAILURES array */
-    if (cf_conv(rrd->rra_def[rra_idx].cf_nam) != CF_FAILURES) {
+    if ((r = cf_conv(rrd->rra_def[rra_idx].cf_nam)) != CF_FAILURES) {
 #ifdef DEBUG
         fprintf(stderr, "erase_violations called for non-FAILURES RRA: %s\n",
                 rrd->rra_def[rra_idx].cf_nam);
 #endif
-        return;
+		if (r < 0){
+			return (int)r;
+		}
+        return 0;
     }
 #ifdef DEBUG
     fprintf(stderr, "scratch buffer before erase:\n");
@@ -121,16 +117,13 @@ void erase_violations(
     }
     fprintf(stderr, "\n");
 #endif
+	return 0;
 }
 
 /* Smooth a periodic array with a moving average: equal weights and
  * length = 5% of the period. */
-int apply_smoother(
-    rrd_t *rrd,
-    unsigned long rra_idx,
-    unsigned long rra_start,
-    rrd_file_t *rrd_file)
-{
+int apply_smoother( rrd_t *rrd, unsigned long rra_idx, unsigned long rra_start,
+    rrd_file_t *rrd_file) {
     unsigned long i, j, k;
     unsigned long totalbytes;
     rrd_value_t *rrd_values;
@@ -140,6 +133,7 @@ int apply_smoother(
     FIFOqueue **buffers;
     rrd_value_t *working_average;
     rrd_value_t *baseline;
+	int ret = 0;
 
     if (atoi(rrd->stat_head->version) >= 4) {
         offset = floor(rrd->rra_def[rra_idx].
@@ -156,15 +150,13 @@ int apply_smoother(
     totalbytes = sizeof(rrd_value_t) * row_length * row_count;
     rrd_values = (rrd_value_t *) malloc(totalbytes);
     if (rrd_values == NULL) {
-        rrd_set_error("apply smoother: memory allocation failure");
-        return -1;
+        return -RRD_ERR_MALLOC5;
     }
 
     /* rra_start is at the beginning of this rra */
     if (rrd_seek(rrd_file, rra_start, SEEK_SET)) {
-        rrd_set_error("seek to rra %d failed", rra_start);
         free(rrd_values);
-        return -1;
+        return -RRD_ERR_SEEK2;
     }
 
     /* could read all data in a single block, but we need to
@@ -175,8 +167,7 @@ int apply_smoother(
                 (rrd_file, &(rrd_values[i * row_length + j]),
                  sizeof(rrd_value_t) * 1)
                 != (ssize_t) (sizeof(rrd_value_t) * 1)) {
-                rrd_set_error("reading value failed: %s",
-                              rrd_strerror(errno));
+				ret = -RRD_ERR_READ2;
             }
             if (isnan(rrd_values[i * row_length + j])) {
                 /* can't apply smoothing, still uninitialized values */
@@ -186,7 +177,7 @@ int apply_smoother(
                         i, j);
 #endif
                 free(rrd_values);
-                return 0;
+                return ret;
             }
         }
     }
@@ -251,10 +242,7 @@ int apply_smoother(
             init_seasonality = hw_multiplicative_init_seasonality;
             break;
         default:
-            rrd_set_error("apply smoother: SEASONAL rra doesn't have "
-                          "valid dependency: %s",
-                          rrd->rra_def[hw_dep_idx(rrd, rra_idx)].cf_nam);
-            return -1;
+            return -RRD_ERR_DEP1;
         }
 
         for (j = 0; j < row_length; ++j) {
@@ -275,113 +263,36 @@ int apply_smoother(
                      rrd->stat_head->rra_cnt * sizeof(rra_def_t) +
                      sizeof(live_head_t) +
                      rrd->stat_head->ds_cnt * sizeof(pdp_prep_t), SEEK_SET)) {
-            rrd_set_error("apply_smoother: seek to cdp_prep failed");
             free(rrd_values);
-            return -1;
+			return -RRD_ERR_SEEK3;
         }
         if (rrd_write(rrd_file, rrd->cdp_prep,
                       sizeof(cdp_prep_t) *
                       (rrd->stat_head->rra_cnt) * rrd->stat_head->ds_cnt)
             != (ssize_t) (sizeof(cdp_prep_t) * (rrd->stat_head->rra_cnt) *
                           (rrd->stat_head->ds_cnt))) {
-            rrd_set_error("apply_smoother: cdp_prep write failed");
             free(rrd_values);
-            return -1;
+            return -RRD_ERR_WRITE1;
         }
     }
 
     /* endif CF_SEASONAL */
     /* flush updated values to disk */
     if (rrd_seek(rrd_file, rra_start, SEEK_SET)) {
-        rrd_set_error("apply_smoother: seek to pos %d failed", rra_start);
         free(rrd_values);
-        return -1;
+        return -RRD_ERR_SEEK4;
     }
     /* write as a single block */
     if (rrd_write
         (rrd_file, rrd_values, sizeof(rrd_value_t) * row_length * row_count)
         != (ssize_t) (sizeof(rrd_value_t) * row_length * row_count)) {
-        rrd_set_error("apply_smoother: write failed to %lu", rra_start);
         free(rrd_values);
-        return -1;
+        return -RRD_ERR_WRITE2;
     }
 
     free(rrd_values);
     free(baseline);
     return 0;
-}
-
-/* Reset aberrant behavior model coefficients, including intercept, slope,
- * seasonal, and seasonal deviation for the specified data source. */
-void reset_aberrant_coefficients(
-    rrd_t *rrd,
-    rrd_file_t *rrd_file,
-    unsigned long ds_idx)
-{
-    unsigned long cdp_idx, rra_idx, i;
-    unsigned long cdp_start, rra_start;
-    rrd_value_t nan_buffer = DNAN;
-
-    /* compute the offset for the cdp area */
-    cdp_start = sizeof(stat_head_t) +
-        rrd->stat_head->ds_cnt * sizeof(ds_def_t) +
-        rrd->stat_head->rra_cnt * sizeof(rra_def_t) +
-        sizeof(live_head_t) + rrd->stat_head->ds_cnt * sizeof(pdp_prep_t);
-    /* compute the offset for the first rra */
-    rra_start = cdp_start +
-        (rrd->stat_head->ds_cnt) * (rrd->stat_head->rra_cnt) *
-        sizeof(cdp_prep_t) + rrd->stat_head->rra_cnt * sizeof(rra_ptr_t);
-
-    /* loop over the RRAs */
-    for (rra_idx = 0; rra_idx < rrd->stat_head->rra_cnt; rra_idx++) {
-        cdp_idx = rra_idx * (rrd->stat_head->ds_cnt) + ds_idx;
-        switch (cf_conv(rrd->rra_def[rra_idx].cf_nam)) {
-        case CF_HWPREDICT:
-        case CF_MHWPREDICT:
-            init_hwpredict_cdp(&(rrd->cdp_prep[cdp_idx]));
-            break;
-        case CF_SEASONAL:
-        case CF_DEVSEASONAL:
-            /* don't use init_seasonal because it will reset burn-in, which
-             * means different data sources will be calling for the smoother
-             * at different times. */
-            rrd->cdp_prep[cdp_idx].scratch[CDP_hw_seasonal].u_val = DNAN;
-            rrd->cdp_prep[cdp_idx].scratch[CDP_hw_last_seasonal].u_val = DNAN;
-            /* move to first entry of data source for this rra */
-            rrd_seek(rrd_file, rra_start + ds_idx * sizeof(rrd_value_t),
-                     SEEK_SET);
-            /* entries for the same data source are not contiguous, 
-             * temporal entries are contiguous */
-            for (i = 0; i < rrd->rra_def[rra_idx].row_cnt; ++i) {
-                if (rrd_write(rrd_file, &nan_buffer, sizeof(rrd_value_t) * 1)
-                    != sizeof(rrd_value_t) * 1) {
-                    rrd_set_error
-                        ("reset_aberrant_coefficients: write failed data source %lu rra %s",
-                         ds_idx, rrd->rra_def[rra_idx].cf_nam);
-                    return;
-                }
-                rrd_seek(rrd_file, (rrd->stat_head->ds_cnt - 1) *
-                         sizeof(rrd_value_t), SEEK_CUR);
-            }
-            break;
-        case CF_FAILURES:
-            erase_violations(rrd, cdp_idx, rra_idx);
-            break;
-        default:
-            break;
-        }
-        /* move offset to the next rra */
-        rra_start += rrd->rra_def[rra_idx].row_cnt * rrd->stat_head->ds_cnt *
-            sizeof(rrd_value_t);
-    }
-    rrd_seek(rrd_file, cdp_start, SEEK_SET);
-    if (rrd_write(rrd_file, rrd->cdp_prep,
-                  sizeof(cdp_prep_t) *
-                  (rrd->stat_head->rra_cnt) * rrd->stat_head->ds_cnt)
-        != (ssize_t) (sizeof(cdp_prep_t) * (rrd->stat_head->rra_cnt) *
-                      (rrd->stat_head->ds_cnt))) {
-        rrd_set_error("reset_aberrant_coefficients: cdp_prep write failed");
-    }
 }
 
 void init_hwpredict_cdp(
@@ -458,7 +369,7 @@ int update_aberrant_CF(
                                    CDP_scratch_idx, seasonal_coef,
                                    &hw_multiplicative_functions);
         default:
-            return -1;
+            return -RRD_ERR_UNREC_CONSOLIDATION_FUNC;
         }
     case CF_DEVSEASONAL:
         switch (cf_conv(rrd->rra_def[hw_dep_idx(rrd, rra_idx)].cf_nam)) {
@@ -471,7 +382,7 @@ int update_aberrant_CF(
                                       CDP_scratch_idx, seasonal_coef,
                                       &hw_multiplicative_functions);
         default:
-            return -1;
+            return -RRD_ERR_UNREC_CONSOLIDATION_FUNC;
         }
     case CF_FAILURES:
         switch (cf_conv
@@ -485,7 +396,7 @@ int update_aberrant_CF(
                                    CDP_scratch_idx,
                                    &hw_multiplicative_functions);
         default:
-            return -1;
+            return -RRD_ERR_UNREC_CONSOLIDATION_FUNC;
         }
     case CF_AVERAGE:
     default:

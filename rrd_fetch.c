@@ -60,130 +60,6 @@
 #include "rrd_is_thread_safe.h"
 /* #define DEBUG */
 
-#ifndef RRD_LITE
-int rrd_fetch(
-    int argc,
-    char **argv,
-    time_t *start,
-    time_t *end,        /* which time frame do you want ?
-                         * will be changed to represent reality */
-    unsigned long *step,    /* which stepsize do you want? 
-                             * will be changed to represent reality */
-    unsigned long *ds_cnt,  /* number of data sources in file */
-    char ***ds_namv,    /* names of data sources */
-    rrd_value_t **data)
-{                       /* two dimensional array containing the data */
-    long      step_tmp = 1;
-    time_t    start_tmp = 0, end_tmp = 0;
-    const char *cf;
-    char *opt_daemon = NULL;
-    int status;
-
-    rrd_time_value_t start_tv, end_tv;
-    char     *parsetime_error = NULL;
-    struct option long_options[] = {
-        {"resolution", required_argument, 0, 'r'},
-        {"start", required_argument, 0, 's'},
-        {"end", required_argument, 0, 'e'},
-        {"daemon", required_argument, 0, 'd'},
-        {0, 0, 0, 0}
-    };
-
-    optind = 0;
-    opterr = 0;         /* initialize getopt */
-
-    /* init start and end time */
-    rrd_parsetime("end-24h", &start_tv);
-    rrd_parsetime("now", &end_tv);
-
-    while (1) {
-        int       option_index = 0;
-        int       opt;
-
-        opt = getopt_long(argc, argv, "r:s:e:d:", long_options, &option_index);
-
-        if (opt == EOF)
-            break;
-
-        switch (opt) {
-        case 's':
-            if ((parsetime_error = rrd_parsetime(optarg, &start_tv))) {
-                rrd_set_error("start time: %s", parsetime_error);
-                return -1;
-            }
-            break;
-        case 'e':
-            if ((parsetime_error = rrd_parsetime(optarg, &end_tv))) {
-                rrd_set_error("end time: %s", parsetime_error);
-                return -1;
-            }
-            break;
-        case 'r':
-            step_tmp = atol(optarg);
-            break;
-
-        case 'd':
-            if (opt_daemon != NULL)
-                    free (opt_daemon);
-            opt_daemon = strdup (optarg);
-            if (opt_daemon == NULL)
-            {
-                rrd_set_error ("strdup failed.");
-                return (-1);
-            }
-            break;
-
-        case '?':
-            rrd_set_error("unknown option '-%c'", optopt);
-            return (-1);
-        }
-    }
-
-
-    if (rrd_proc_start_end(&start_tv, &end_tv, &start_tmp, &end_tmp) == -1) {
-        return -1;
-    }
-
-
-    if (start_tmp < 3600 * 24 * 365 * 10) {
-        rrd_set_error("the first entry to fetch should be after 1980");
-        return (-1);
-    }
-
-    if (end_tmp < start_tmp) {
-        rrd_set_error("start (%ld) should be less than end (%ld)", start_tmp,
-                      end_tmp);
-        return (-1);
-    }
-
-    *start = start_tmp;
-    *end = end_tmp;
-
-    if (step_tmp < 1) {
-        rrd_set_error("step must be >= 1 second");
-        return -1;
-    }
-    *step = step_tmp;
-
-    if (optind + 1 >= argc) {
-        rrd_set_error("Usage: rrdtool %s <file> <CF> [options]", argv[0]);
-        return -1;
-    }
-
-    status = rrdc_flush_if_daemon(opt_daemon, argv[optind]);
-    if (opt_daemon) free (opt_daemon);
-    if (status) return (-1);
-
-    cf = argv[optind + 1];
-
-    status = rrd_fetch_r(argv[optind], cf, start, end, step,
-            ds_cnt, ds_namv, data);
-    if (status != 0)
-        return (-1);
-    return (0);
-}
-#endif
-
 int rrd_fetch_r(
     const char *filename,   /* name of the rrd */
     const char *cf,     /* which consolidation function ? */
@@ -199,7 +75,7 @@ int rrd_fetch_r(
     enum cf_en cf_idx;
 
     if ((int) (cf_idx = cf_conv(cf)) == -1) {
-        return -1;
+        return -RRD_ERR_UNREC_CONSOLIDATION_FUNC;
     }
 
     return (rrd_fetch_fn
@@ -232,6 +108,7 @@ int rrd_fetch_fn(
     rrd_file_t *rrd_file;
     rrd_value_t *data_ptr;
     unsigned long rows;
+	int ret = 0;
 
 #ifdef DEBUG
     fprintf(stderr, "Entered rrd_fetch_fn() searching for the best match\n");
@@ -247,7 +124,7 @@ int rrd_fetch_fn(
 #endif
 
     rrd_init(&rrd);
-    rrd_file = rrd_open(filename, &rrd, RRD_READONLY);
+    rrd_file = rrd_open(filename, &rrd, RRD_READONLY, &ret);
     if (rrd_file == NULL)
         goto err_free;
 
@@ -255,13 +132,13 @@ int rrd_fetch_fn(
 
     if (((*ds_namv) =
          (char **) malloc(rrd.stat_head->ds_cnt * sizeof(char *))) == NULL) {
-        rrd_set_error("malloc fetch ds_namv array");
+		ret = -RRD_ERR_MALLOC1;
         goto err_close;
     }
 
     for (i = 0; (unsigned long) i < rrd.stat_head->ds_cnt; i++) {
         if ((((*ds_namv)[i]) = (char*)malloc(sizeof(char) * DS_NAM_SIZE)) == NULL) {
-            rrd_set_error("malloc fetch ds_namv entry");
+			ret = -RRD_ERR_MALLOC2;
             goto err_free_ds_namv;
         }
         strncpy((*ds_namv)[i], rrd.ds_def[i].ds_nam, DS_NAM_SIZE - 1);
@@ -336,8 +213,7 @@ int rrd_fetch_fn(
     else if (first_part == 0)
         chosen_rra = best_part_rra;
     else {
-        rrd_set_error
-            ("the RRD does not contain an RRA matching the chosen CF");
+		ret = -RRD_ERR_NO_MATCH_RRA;
         goto err_free_all_ds_namv;
     }
 
@@ -361,7 +237,7 @@ int rrd_fetch_fn(
 */
     *ds_cnt = rrd.stat_head->ds_cnt;
     if (((*data) = (rrd_value_t*)malloc(*ds_cnt * rows * sizeof(rrd_value_t))) == NULL) {
-        rrd_set_error("malloc fetch data area");
+		ret = -RRD_ERR_MALLOC3;
         goto err_free_all_ds_namv;
     }
 
@@ -397,7 +273,7 @@ int rrd_fetch_fn(
         if (rrd_seek(rrd_file, (rra_base + (rra_pointer * (*ds_cnt)
                                         * sizeof(rrd_value_t))),
                  SEEK_SET) != 0) {
-            rrd_set_error("seek error in RRA");
+			ret = -RRD_ERR_SEEK_RRA;
             goto err_free_data;
         }
 #ifdef DEBUG
@@ -441,7 +317,7 @@ int rrd_fetch_fn(
                 if (rrd_seek(rrd_file, (rra_base + rra_pointer * (*ds_cnt)
                                         * sizeof(rrd_value_t)),
                              SEEK_SET) != 0) {
-                    rrd_set_error("wrap seek in RRA did fail");
+					ret = -RRD_ERR_SEEK_RRA1;
                     goto err_free_data;
                 }
 #ifdef DEBUG
@@ -451,7 +327,7 @@ int rrd_fetch_fn(
 
             if (rrd_read(rrd_file, data_ptr, sizeof(rrd_value_t) * (*ds_cnt))
                 != (ssize_t) (sizeof(rrd_value_t) * (*ds_cnt))) {
-                rrd_set_error("fetching cdp from rra");
+				ret = -RRD_ERR_FETCH_CDP;
                 goto err_free_data;
             }
 #ifdef DEBUG
@@ -483,5 +359,5 @@ int rrd_fetch_fn(
     rrd_close(rrd_file);
   err_free:
     rrd_free(&rrd);
-    return (-1);
+    return ret;
 }

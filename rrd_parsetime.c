@@ -1002,20 +1002,15 @@ int rrd_proc_start_end(
 {
     if (start_tv->type == RELATIVE_TO_END_TIME &&   /* same as the line above */
         end_tv->type == RELATIVE_TO_START_TIME) {
-        rrd_set_error("the start and end times cannot be specified "
-                      "relative to each other");
-        return -1;
+        return -RRD_ERR_TIME4;
     }
 
     if (start_tv->type == RELATIVE_TO_START_TIME) {
-        rrd_set_error
-            ("the start time cannot be specified relative to itself");
-        return -1;
+        return -RRD_ERR_TIME5;
     }
 
     if (end_tv->type == RELATIVE_TO_END_TIME) {
-        rrd_set_error("the end time cannot be specified relative to itself");
-        return -1;
+        return -RRD_ERR_TIME6;
     }
 
     if (start_tv->type == RELATIVE_TO_END_TIME) {

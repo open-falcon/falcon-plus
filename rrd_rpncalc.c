@@ -33,9 +33,7 @@ short rpn_compact(
     while (rpnp[*count].op != OP_END)
         (*count)++;
     if (++(*count) > DS_CDEF_MAX_RPN_NODES) {
-        rrd_set_error("Maximum %d RPN nodes permitted. Got %d RPN nodes at present.",
-                      DS_CDEF_MAX_RPN_NODES-1,(*count)-1);
-        return -1;
+        return -RRD_ERR_DATA1;
     }
 
     /* allocate memory */
@@ -47,11 +45,8 @@ short rpn_compact(
             double    temp = floor(rpnp[i].val);
 
 			if (temp < SHRT_MIN || temp > SHRT_MAX || temp != rpnp[i].val) {
-                rrd_set_error
-                    ("constants must be integers in the interval (%d, %d)",
-                     SHRT_MIN, SHRT_MAX);
                 free(*rpnc);
-                return -1;
+                return -RRD_ERR_DATA2;
             }
             (*rpnc)[i].val = (short) temp;
         } else if (rpnp[i].op == OP_VARIABLE || rpnp[i].op == OP_PREV_OTHER) {
@@ -63,9 +58,7 @@ short rpn_compact(
     return 0;
 }
 
-rpnp_t   *rpn_expand(
-    rpn_cdefds_t *rpnc)
-{
+rpnp_t   *rpn_expand( rpn_cdefds_t *rpnc) {
     short     i;
     rpnp_t   *rpnp;
 
@@ -73,7 +66,7 @@ rpnp_t   *rpn_expand(
      * memory we avoid any reallocs */
     rpnp = (rpnp_t *) calloc(DS_CDEF_MAX_RPN_NODES, sizeof(rpnp_t));
     if (rpnp == NULL) {
-        rrd_set_error("failed allocating rpnp array");
+		//RRD_ERR_MALLOC17
         return NULL;
     }
     for (i = 0; rpnc[i].op != OP_END; ++i) {
@@ -97,11 +90,7 @@ rpnp_t   *rpn_expand(
  *   for lookup of data source names by index
  *  str: out string, memory is allocated by the function, must be freed by the
  *   the caller */
-void rpn_compact2str(
-    rpn_cdefds_t *rpnc,
-    ds_def_t *ds_def,
-    char **str)
-{
+void rpn_compact2str( rpn_cdefds_t *rpnc, ds_def_t *ds_def, char **str) {
     unsigned short i, offset = 0;
     char      buffer[7];    /* short as a string */
 
@@ -193,13 +182,8 @@ void rpn_compact2str(
 
 }
 
-short addop2str(
-    enum op_en op,
-    enum op_en op_type,
-    char *op_str,
-    char **result_str,
-    unsigned short *offset)
-{
+short addop2str( enum op_en op, enum op_en op_type, char *op_str,
+    char **result_str, unsigned short *offset) {
     if (op == op_type) {
         short     op_len;
 
@@ -208,8 +192,7 @@ short addop2str(
                                            (op_len + 1 +
                                             *offset) * sizeof(char));
         if (*result_str == NULL) {
-            rrd_set_error("failed to alloc memory in addop2str");
-            return -1;
+            return -RRD_ERR_MALLOC16;
         }
         strncpy(&((*result_str)[*offset]), op_str, op_len);
         *offset += op_len;
@@ -218,19 +201,14 @@ short addop2str(
     return 0;
 }
 
-void parseCDEF_DS(
-    const char *def,
-    rrd_t *rrd,
-    int ds_idx)
-{
+int parseCDEF_DS( const char *def, rrd_t *rrd, int ds_idx) {
     rpnp_t   *rpnp = NULL;
     rpn_cdefds_t *rpnc = NULL;
     short     count, i;
 
     rpnp = rpn_parse((void *) rrd, def, &lookup_DS);
     if (rpnp == NULL) {
-        rrd_set_error("failed to parse computed data source");
-        return;
+        return -RRD_ERR_PARSE1;
     }
     /* Check for OP nodes not permitted in COMPUTE DS.
      * Moved this check from within rpn_compact() because it really is
@@ -241,21 +219,20 @@ void parseCDEF_DS(
             rpnp[i].op == OP_PREV || rpnp[i].op == OP_COUNT ||
             rpnp[i].op == OP_TREND || rpnp[i].op == OP_TRENDNAN ||
             rpnp[i].op == OP_PREDICT || rpnp[i].op ==  OP_PREDICTSIGMA ) {
-            rrd_set_error
-                ("operators TIME, LTIME, PREV COUNT TREND TRENDNAN PREDICT PREDICTSIGMA are not supported with DS COMPUTE");
             free(rpnp);
-            return;
+            return -RRD_ERR_DS;
         }
     }
     if (rpn_compact(rpnp, &rpnc, &count) == -1) {
         free(rpnp);
-        return;
+        return 0;
     }
     /* copy the compact rpn representation over the ds_def par array */
     memcpy((void *) &(rrd->ds_def[ds_idx].par[DS_cdef]),
            (void *) rpnc, count * sizeof(rpn_cdefds_t));
     free(rpnp);
     free(rpnc);
+	return 0;
 }
 
 /* lookup a data source name in the rrd struct and return the index,
@@ -288,18 +265,15 @@ long lookup_DS(
  * expr: the string RPN expression, including variable names
  * lookup(): a function that retrieves a numeric key given a variable name
  */
-rpnp_t   *rpn_parse(
-    void *key_hash,
-    const char *const expr_const,
-    long      (*lookup) (void *,
-                         char *))
-{
+rpnp_t   *rpn_parse( void *key_hash, const char *const expr_const,
+    long      (*lookup) (void *, char *)) {
     int       pos = 0;
     char     *expr;
     long      steps = -1;
     rpnp_t   *rpnp;
     char      vname[MAX_VNAME_LEN + 10];
     char     *old_locale;
+	int r, ret = 0;
 
     old_locale = setlocale(LC_NUMERIC, "C");
 
@@ -332,7 +306,8 @@ rpnp_t   *rpn_parse(
              rpnp[steps].op = VV; \
              rpnp[steps].ptr = (*lookup)(key_hash,vname); \
              if (rpnp[steps].ptr < 0) { \
-                           rrd_set_error("variable '%s' not found",vname);\
+				 if(!ret) \
+					ret = RRD_ERR_UNKNOWN_DATA1; \
 			   free(rpnp); \
 			   return NULL; \
 			 } else expr+=length; \
@@ -400,7 +375,6 @@ rpnp_t   *rpn_parse(
         }
 
         else {
-            rrd_set_error("don't undestand '%s'",expr);
             setlocale(LC_NUMERIC, old_locale);
             free(rpnp);
             return NULL;
@@ -421,26 +395,19 @@ rpnp_t   *rpn_parse(
     return rpnp;
 }
 
-void rpnstack_init(
-    rpnstack_t *rpnstack)
-{
+void rpnstack_init( rpnstack_t *rpnstack) {
     rpnstack->s = NULL;
     rpnstack->dc_stacksize = 0;
     rpnstack->dc_stackblock = 100;
 }
 
-void rpnstack_free(
-    rpnstack_t *rpnstack)
-{
+void rpnstack_free( rpnstack_t *rpnstack) {
     if (rpnstack->s != NULL)
         free(rpnstack->s);
     rpnstack->dc_stacksize = 0;
 }
 
-static int rpn_compare_double(
-    const void *x,
-    const void *y)
-{
+static int rpn_compare_double( const void *x, const void *y) {
     double    diff = *((const double *) x) - *((const double *) y);
 
     return (diff < 0) ? -1 : (diff > 0) ? 1 : 0;
@@ -461,13 +428,8 @@ static int rpn_compare_double(
  * returns: -1 if the computation failed (also calls rrd_set_error)
  *           0 on success
  */
-short rpn_calc(
-    rpnp_t *rpnp,
-    rpnstack_t *rpnstack,
-    long data_idx,
-    rrd_value_t *output,
-    int output_idx)
-{
+short rpn_calc( rpnp_t *rpnp, rpnstack_t *rpnstack, long data_idx,
+    rrd_value_t *output, int output_idx) {
     int       rpi;
     long      stptr = -1;
 
@@ -481,14 +443,12 @@ short rpn_calc(
                                       (rpnstack->dc_stacksize) *
                                       sizeof(*(rpnstack->s)));
             if (rpnstack->s == NULL) {
-                rrd_set_error("RPN stack overflow");
-                return -1;
+                return -RRD_ERR_STACK;
             }
         }
 #define stackunderflow(MINSIZE)				\
 	if(stptr<MINSIZE){				\
-	    rrd_set_error("RPN stack underflow");	\
-	    return -1;					\
+         return -RRD_ERR_STACK1;		\
 	}
 
         switch (rpnp[rpi].op) {
@@ -499,8 +459,7 @@ short rpn_calc(
         case OP_PREV_OTHER:
             /* Sanity check: VDEFs shouldn't make it here */
             if (rpnp[rpi].ds_cnt == 0) {
-                rrd_set_error("VDEF made it into rpn_calc... aborting");
-                return -1;
+                return -RRD_ERR_ABORT;
             } else {
                 /* make sure we pull the correct value from
                  * the *.data array. Adjust the pointer into
@@ -856,8 +815,7 @@ short rpn_calc(
 			shiftstep = rpnstack->s[stptr+loop]; 
 		    }
 		    if(shiftstep <0) {
-			rrd_set_error("negative shift step not allowed: %i",shiftstep);
-			return -1;
+			return -RRD_ERR_ALLOW;
 		    }
 		    shiftstep=(int)ceil((float)shiftstep/(float)dsstep);
 		    /* loop all local shifts */
@@ -900,8 +858,7 @@ short rpn_calc(
         case OP_TRENDNAN:
             stackunderflow(1);
             if ((rpi < 2) || (rpnp[rpi - 2].op != OP_VARIABLE)) {
-                rrd_set_error("malformed trend arguments");
-                return -1;
+                return -RRD_ERR_ARG12;
             } else {
                 time_t    dur = (time_t) rpnstack->s[stptr];
                 time_t    step = (time_t) rpnp[rpi - 2].step;
@@ -967,8 +924,7 @@ short rpn_calc(
 #undef stackunderflow
     }
     if (stptr != 0) {
-        rrd_set_error("RPN final stack size != 1");
-        return -1;
+        return -RRD_ERR_STACK2;
     }
 
     output[output_idx] = rpnstack->s[0];
