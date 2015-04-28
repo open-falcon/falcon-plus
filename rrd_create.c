@@ -11,7 +11,9 @@
 #include "rrd_tool.h"
 #include "rrd_rpncalc.h"
 #include "rrd_hw.h"
+#ifndef RRD_LITE
 #include "rrd_client.h"
+#endif
 #include "rrd_config.h"
 
 #include "rrd_is_thread_safe.h"
@@ -35,6 +37,7 @@ void      parseGENERIC_DS(
 static void rrd_free2(
     rrd_t *rrd);        /* our onwn copy, immmune to mmap */
 
+#ifndef RRD_LITE
 int rrd_create(
     int argc,
     char **argv)
@@ -116,6 +119,7 @@ int rrd_create(
 
     return rc;
 }
+#endif
 
 /* #define DEBUG */
 int rrd_create_r(

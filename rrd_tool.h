@@ -52,11 +52,13 @@ extern    "C" {
 #endif
 
 /* local include files -- need to be after the system ones */
+#ifndef RRD_LITE
 #ifdef HAVE_GETOPT_LONG
 #define _GNU_SOURCE
 #include <getopt.h>
 #else
 #include "rrd_getopt.h"
+#endif
 #endif
 
 #include "rrd_format.h"

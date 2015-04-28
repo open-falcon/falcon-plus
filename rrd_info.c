@@ -6,7 +6,9 @@
 
 #include "rrd_tool.h"
 #include "rrd_rpncalc.h"
+#ifndef RRD_LITE
 #include "rrd_client.h"
+#endif
 #include <stdarg.h>
 
 /* proto */
@@ -85,6 +87,7 @@ rrd_info_t
 }
 
 
+#ifndef RRD_LITE
 rrd_info_t *rrd_info(
     int argc,
     char **argv)
@@ -143,6 +146,7 @@ rrd_info_t *rrd_info(
 
     return (info);
 } /* rrd_info_t *rrd_info */
+#endif
 
 rrd_info_t *rrd_info_r(
     char *filename)

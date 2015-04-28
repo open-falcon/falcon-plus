@@ -25,7 +25,9 @@
 #include "rrd_is_thread_safe.h"
 #include "unused.h"
 
+#ifndef RRD_LITE
 #include "rrd_client.h"
+#endif
 
 #if defined(_WIN32) && !defined(__CYGWIN__) && !defined(__CYGWIN32__)
 /*
@@ -319,6 +321,7 @@ static void initialize_time(
 
 #define IFDNAN(X,Y) (isnan(X) ? (Y) : (X));
 
+#ifndef RRD_LITE
 rrd_info_t *rrd_update_v(
     int argc,
     char **argv)
@@ -475,6 +478,7 @@ int rrd_update(
     }
     return rc;
 }
+#endif
 
 int rrd_update_r(
     const char *filename,

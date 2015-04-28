@@ -53,11 +53,14 @@
  *****************************************************************************/
 
 #include "rrd_tool.h"
+#ifndef RRD_LITE
 #include "rrd_client.h"
+#endif
 
 #include "rrd_is_thread_safe.h"
 /* #define DEBUG */
 
+#ifndef RRD_LITE
 int rrd_fetch(
     int argc,
     char **argv,
@@ -179,6 +182,7 @@ int rrd_fetch(
         return (-1);
     return (0);
 }
+#endif
 
 int rrd_fetch_r(
     const char *filename,   /* name of the rrd */
