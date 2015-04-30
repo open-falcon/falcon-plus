@@ -56,10 +56,9 @@ function status() {
     check_pid
     running=$?
     if [ $running -gt 0 ];then
-        echo -n "$app now is running, pid="
-        cat $pidfile
+        echo started
     else
-        echo "$app is stoped"
+        echo stoped
     fi
 }
 
