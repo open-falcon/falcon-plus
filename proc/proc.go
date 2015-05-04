@@ -6,8 +6,9 @@ import (
 	"time"
 )
 
-// 索引垃圾清理
+// 索引更新
 var (
+	IndexUpdateAll = P.NewSCounterQps("IndexUpdateAll")
 	IndexDelete    = P.NewSCounterQps("IndexDelete")
 	IndexDeleteCnt = P.NewSCounterBase("IndexDeleteCnt")
 )
@@ -25,8 +26,10 @@ func GetAll() []interface{} {
 	ret := make([]interface{}, 0)
 
 	// index
+	ret = append(ret, IndexUpdateAll.Get())
 	ret = append(ret, IndexDelete.Get())
 	ret = append(ret, IndexDeleteCnt.Get())
+
 	// monitor
 	ret = append(ret, MonitorCronCnt.Get())
 

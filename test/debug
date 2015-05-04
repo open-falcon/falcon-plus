@@ -33,8 +33,17 @@ function stop(){
 }
 
 ## index
+function index_update_all(){
+    curl -s "$httpprex/index/updateAll" | python -m json.tool
+}
+
 function index_delete(){
     curl -s "$httpprex/index/delete" | python -m json.tool
+}
+
+## tail
+function tail_log(){
+    $control tail
 }
 
 action=$1
@@ -54,8 +63,14 @@ case $action in
     "config")
         statistics_config
         ;;
-    "index")
+    "index_update")
+        index_update_all
+        ;;
+    "index_delete")
         index_delete
+        ;;
+    "tail")
+        tail_log
         ;;
     *)
         statistics

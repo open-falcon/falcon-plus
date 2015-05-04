@@ -19,7 +19,8 @@ type DBConfig struct {
 }
 
 type IndexConfig struct {
-	Enabled bool `json:"enabled"`
+	Enabled bool     `json:"enabled"`
+	Cluster []string `json:"cluster"`
 }
 
 type MonitorConfig struct {

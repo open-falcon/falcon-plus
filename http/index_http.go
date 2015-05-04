@@ -10,4 +10,8 @@ func configIndexHttpRoutes() {
 		index.DeleteIndex()
 		RenderDataJson(w, "ok")
 	})
+	http.HandleFunc("/index/updateAll", func(w http.ResponseWriter, r *http.Request) {
+		index.UpdateAllIndex()
+		RenderDataJson(w, "ok")
+	})
 }

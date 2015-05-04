@@ -9,6 +9,7 @@ import (
 func Start() {
 	if g.Config().Index.Enabled {
 		StartIndexDeleteTask()
+		StartIndexUpdateAllTask()
 		log.Println("index:Start, ok")
 	} else {
 		log.Println("index:Start, index not enabled")
