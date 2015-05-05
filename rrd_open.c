@@ -110,8 +110,7 @@ rrd_file_t *rrd_open( const char *const file_name, rrd_t *rrd,
 	size_t header_len, value_cnt, data_len;
 
 	/* Are we creating a new file? */
-	if((rdwr & RRD_CREAT) && (rrd->stat_head != NULL))
-	{
+	if((rdwr & RRD_CREAT) && (rrd->stat_head != NULL)) {
 		header_len = rrd_get_header_size(rrd);
 
 		value_cnt = 0;
@@ -489,10 +488,7 @@ int rrd_lock(
 
 
 /* drop cache except for the header and the active pages */
-void rrd_dontneed(
-		rrd_file_t *rrd_file,
-		rrd_t *rrd)
-{
+void rrd_dontneed( rrd_file_t *rrd_file, rrd_t *rrd) {
 	rrd_simple_file_t *rrd_simple_file = (rrd_simple_file_t *)rrd_file->pvt;
 #if defined USE_MADVISE || defined HAVE_POSIX_FADVISE
 	size_t dontneed_start;
@@ -675,11 +671,7 @@ ssize_t rrd_read(
  * rrd_file->pos of rrd_simple_file->fd.
  * Returns the number of bytes written or <0 on error.  */
 
-ssize_t rrd_write(
-		rrd_file_t *rrd_file,
-		const void *buf,
-		size_t count)
-{
+ssize_t rrd_write(rrd_file_t *rrd_file, const void *buf, size_t count){
 	rrd_simple_file_t *rrd_simple_file = (rrd_simple_file_t *)rrd_file->pvt;
 #ifdef HAVE_MMAP
 	size_t old_size = rrd_file->file_len;
@@ -688,8 +680,7 @@ ssize_t rrd_write(
 	if (buf == NULL)
 		return -1;      /* EINVAL */
 
-	if((rrd_file->pos + count) > old_size)
-	{
+	if((rrd_file->pos + count) > old_size) {
 		return -RRD_ERR_WRITE6;
 	}
 	memcpy(rrd_simple_file->file_start + rrd_file->pos, buf, count);
@@ -707,16 +698,13 @@ ssize_t rrd_write(
 
 /* this is a leftover from the old days, it serves no purpose
    and is therefore turned into a no-op */
-void rrd_flush(
-		rrd_file_t UNUSED(*rrd_file))
+void rrd_flush(rrd_file_t UNUSED(*rrd_file))
 {
 }
 
 /* Initialize RRD header.  */
 
-void rrd_init(
-		rrd_t *rrd)
-{
+void rrd_init(rrd_t *rrd) {
 	rrd->stat_head = NULL;
 	rrd->ds_def = NULL;
 	rrd->rra_def = NULL;
@@ -732,17 +720,13 @@ void rrd_init(
 /* free RRD header data.  */
 
 #ifdef HAVE_MMAP
-void rrd_free(
-		rrd_t *rrd)
-{
+void rrd_free(rrd_t *rrd) {
 	if (rrd->legacy_last_up) {  /* this gets set for version < 3 only */
 		free(rrd->live_head);
 	}
 }
 #else
-void rrd_free(
-		rrd_t *rrd)
-{
+void rrd_free(rrd_t *rrd) {
 	free(rrd->live_head);
 	free(rrd->stat_head);
 	free(rrd->ds_def);
@@ -758,9 +742,7 @@ void rrd_free(
 /* routine used by external libraries to free memory allocated by
  * rrd library */
 
-void rrd_freemem(
-		void *mem)
-{
+void rrd_freemem(void *mem) {
 	free(mem);
 }
 
@@ -769,12 +751,9 @@ void rrd_freemem(
  * The low level storage API may use this information for
  * aligning RRAs within stripes, or other performance enhancements
  */
-	void rrd_notify_row(
-			rrd_file_t UNUSED(*rrd_file),
-			int UNUSED(rra_idx),
-			unsigned long UNUSED(rra_row),
-			time_t UNUSED(rra_time))
-{
+void rrd_notify_row(rrd_file_t UNUSED(*rrd_file),
+			int UNUSED(rra_idx), unsigned long UNUSED(rra_row),
+			time_t UNUSED(rra_time)) {
 }
 
 /*
@@ -784,11 +763,7 @@ void rrd_freemem(
  * The default implementation is random, to ensure that all RRAs
  * don't change to a new disk block at the same time
  */
-	unsigned long rrd_select_initial_row(
-			rrd_file_t UNUSED(*rrd_file),
-			int UNUSED(rra_idx),
-			rra_def_t *rra
-			)
-{
+unsigned long rrd_select_initial_row( rrd_file_t UNUSED(*rrd_file),
+			int UNUSED(rra_idx), rra_def_t *rra) {
 	return rrd_random() % rra->row_cnt;
 }
