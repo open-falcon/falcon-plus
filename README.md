@@ -23,8 +23,9 @@ go get ./...
 
 I use [linux-dash](https://github.com/afaqurk/linux-dash) as the page theme.
 
-## config
+## configuration
 
-plugin/heartbeat/transfer config is for our other open-falcon component. Just ignore it before we open source those
-component.
+- heartbeat: heartbeat server rpc address
+- transfer: transfer rpc address
+- ignore: the metrics should ignore
 
