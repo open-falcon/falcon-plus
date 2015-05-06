@@ -63,23 +63,33 @@ function tailf() {
 }
 
 function build() {
+    commit=$(git log -1 --pretty=%h)
+    cat <<EOF > ./g/git.go
+package g
+const (
+    COMMIT = "$commit"
+)
+EOF
     go build -o $app main.go
-    if [ $? -ne 0 ]; then
-        exit $?
-    fi
-    ./$app -v
+    show_version
+}
+
+function show_version() {
+    ./$app -vg
 }
 
 function pack() {
     build
+    git log -1 --pretty=%h > gitversion
     version=`./$app -v`
-    tar zcvf $app-$version.tar.gz control cfg.example.json $app ./test/debug
+    tar zcvf $app-$version.tar.gz control $app cfg.example.json gitversion ./test/debug
 }
 
 function packbin() {
     build
+    git log -1 --pretty=%h > gitversion
     version=`./$app -v`
-    tar zcvf $app-bin-$version.tar.gz $app
+    tar zcvf $app-bin-$version.tar.gz $app gitversion
 }
 
 function help() {

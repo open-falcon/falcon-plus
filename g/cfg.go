@@ -13,9 +13,8 @@ type HttpConfig struct {
 }
 
 type DBConfig struct {
-	Dsn      string `json:"dsn"`
-	MaxIdle  int    `json:"maxIdle"`
-	Interval int    `json:"interval"`
+	Dsn     string `json:"dsn"`
+	MaxIdle int    `json:"maxIdle"`
 }
 
 type IndexConfig struct {

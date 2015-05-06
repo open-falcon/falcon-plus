@@ -9,7 +9,7 @@ import (
 
 var DB *sql.DB
 
-func Init() {
+func Start() {
 	var err error
 	DB, err = GetDbConn()
 	if err != nil {

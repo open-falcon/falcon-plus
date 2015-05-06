@@ -36,9 +36,9 @@ func UpdateAllIndex() {
 	log.Printf("index, update all, startTs %s, time-consuming %d sec\n", proc.FmtUnixTs(startTs), endTs-startTs)
 
 	// statistics
-	proc.IndexUpdateAll.Incr()
-	proc.IndexUpdateAll.PutOther("lastStartTs", proc.FmtUnixTs(startTs))
-	proc.IndexUpdateAll.PutOther("lastTimeConsumingInSec", endTs-startTs)
+	proc.IndexUpdateAllCnt.Incr()
+	proc.IndexUpdateAllCnt.PutOther("lastStartTs", proc.FmtUnixTs(startTs))
+	proc.IndexUpdateAllCnt.PutOther("lastTimeConsumingInSec", endTs-startTs)
 }
 
 func updateAllIndex() {

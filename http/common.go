@@ -2,14 +2,13 @@ package http
 
 import (
 	"fmt"
-	"github.com/open-falcon/transfer/g"
+	"github.com/open-falcon/task/g"
 	"github.com/toolkits/file"
 	"net/http"
 	"strings"
 )
 
 func configCommonRoutes() {
-	// GET
 	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("ok\n"))
 	})
@@ -28,10 +27,10 @@ func configCommonRoutes() {
 
 	http.HandleFunc("/config/reload", func(w http.ResponseWriter, r *http.Request) {
 		if strings.HasPrefix(r.RemoteAddr, "127.0.0.1") {
-			w.Write([]byte("not supported\n")) // 暂时不支持配置的重新加载
+			g.ParseConfig(g.ConfigFile)
+			RenderDataJson(w, "ok")
 		} else {
-			w.Write([]byte("no privilege\n"))
+			RenderDataJson(w, "no privilege")
 		}
 	})
-
 }
