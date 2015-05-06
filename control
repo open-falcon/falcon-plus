@@ -77,14 +77,16 @@ function build() {
 
 function pack() {
     build
+    git log -1 --pretty=%h > gitversion
     version=`./$app -v`
-    tar zcvf $app-$version.tar.gz public control cfg.example.json $app
+    tar zcvf $app-$version.tar.gz public control cfg.example.json $app gitversion
 }
 
 function packbin() {
     build
+    git log -1 --pretty=%h > gitversion
     version=`./$app -v`
-    tar zcvf $app-bin-$version.tar.gz $app
+    tar zcvf $app-bin-$version.tar.gz $app gitversion
 }
 
 function help() {
