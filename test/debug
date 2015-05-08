@@ -1,0 +1,158 @@
+#!/bin/bash
+## test home
+testdir=$(cd $(dirname $0)/; pwd)
+## word home
+workdir=$(dirname $testdir)
+cd $workdir
+
+module=transfer
+app=falcon-$module
+pidfile=var/app.pid
+logfile=var/app.log
+control=./control
+httpprex="127.0.0.1:6060"
+sockaddr="127.0.0.1"
+sockport="4444"
+
+## statistics
+function statistics(){
+    curl -s "$httpprex/statistics/all" | python -m json.tool
+}
+function statistics_config(){
+    curl -s "$httpprex/statistics/config" | python -m json.tool
+}
+
+## trace
+function trace_recv(){
+    e="test.transfer.endpoint.niean" 
+    m="test.transfer.metric.niean"
+    #t="tag0=tag0-niean-1,tag1=tag1-niean-1,tag2=tag2-niean-1"
+    curl -s "$httpprex/trace/$e/$m" | python -m json.tool
+}
+
+## telnet 
+function telnet_send(){
+    cnt=$1
+    if [ "X$cnt" == "X" ];then
+        cnt=1
+    fi
+
+    e="test.transfer.endpoint.niean" 
+    m="test.transfer.metric.niean"
+    type="GAUGE"
+    step=60
+     # endpoint counter timestamp value [type] [step]
+    (for i in `seq 1 $cnt`; do echo "update $e $m `date +%s` $i $type $step"; sleep 1; done; echo "quit") | nc $sockaddr $sockport
+    if [ $? -eq 0 ]; then
+        echo "ok"
+    else
+        echo "error"
+    fi
+}
+
+## tail
+function tail_log(){
+    $control tail
+}
+
+## build
+function build(){
+    $control build
+    [ $? -eq 0 ] && echo -e "build ok" || { echo -e "build error"; exit 1; }
+}
+function start(){
+    $control start
+}
+function stop(){
+    $control stop
+}
+
+## mockagent
+srcname=mockagent
+appname=$srcname-debug
+builddir=$testdir/build
+masrc=$testdir/$srcname.go
+matarget=$builddir/$appname.bin
+
+function build_mockagent(){
+	rm -rf $matarget &&\
+	go build -o $matarget $masrc &>/dev/null
+    ec=$?
+    [ $ec -eq 0 ] && echo -e "mockagent build, ok" || { echo -e "mockagent build, error"; exit $ec;}
+}
+
+function clean_mockagent(){
+    rm -rf $builddir  
+    ec=$?
+    [ $ec -eq 0 ] && echo -e "clean mockagent, ok" || { echo -e "clean mockagent, error"; exit $ec; }
+}
+
+function kill_mockagent(){
+    pids=`ps -ef | grep $appname.bin | grep -v grep | awk '{print $2}'`
+    for pid in $pids
+    do
+        kill -9  $pid &>/dev/null
+        echo -e "kill mockagent, $pid"
+        sleep 0.01
+    done 
+    echo -e "kill mockagent ok"
+}
+
+function start_mockagent(){
+    cnt=$1
+    if [ "X$cnt" == "X" ];then
+        cnt=1
+    fi
+    
+    for i in `seq 1 $cnt`
+    do
+        id=malog.`date +%s`
+        $matarget -i 3 > $builddir/$id.$i.log &
+        echo -e "start mockagent, $id.$i"
+        sleep 0.2
+    done
+}
+
+action=$1
+case $action in
+    "build")
+        build
+        ;;
+    "start")
+        start
+        ;;
+    "stop")
+        stop
+        ;;
+    "restart")
+        stop && build && start
+        ;;
+    "config")
+        statistics_config
+        ;;
+    "trace")
+        trace_recv 
+        ;;
+    "send")
+        telnet_send
+        ;;
+    "tail")
+        tail_log
+        ;;
+    "startm")
+        start_mockagent $2
+        ;;
+    "killm")
+        kill_mockagent
+        ;;
+    "cleanm")
+        clean_mockagent 
+        ;;
+    "buildm")
+        build_mockagent
+        ;;
+    *)
+        statistics 
+        ;;
+esac
+
