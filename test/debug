@@ -1,0 +1,79 @@
+#!/bin/bash
+## test home
+testdir=$(cd $(dirname $0)/; pwd)
+## word home
+workdir=$(dirname $testdir)
+cd $workdir
+
+module=task
+app=falcon-$module
+pidfile=var/app.pid
+logfile=var/app.log
+control=./control
+httpprex="127.0.0.1:8001"
+
+## statistics
+function statistics(){
+    curl -s "$httpprex/statistics/all" | python -m json.tool
+}
+function statistics_config(){
+    curl -s "$httpprex/statistics/config" | python -m json.tool
+}
+
+## build
+function build(){
+    $control build
+    [ $? -eq 0 ] && echo -e "build ok" || { echo -e "build error"; exit 1; }
+}
+function start(){
+    $control start
+}
+function stop(){
+    $control stop
+}
+
+## index
+function index_update_all(){
+    curl -s "$httpprex/index/updateAll" | python -m json.tool
+}
+
+function index_delete(){
+    curl -s "$httpprex/index/delete" | python -m json.tool
+}
+
+## tail
+function tail_log(){
+    $control tail
+}
+
+action=$1
+case $action in
+    "build")
+        build
+        ;;
+    "start")
+        start
+        ;;
+    "stop")
+        stop
+        ;;
+    "restart")
+        stop && build && start
+        ;;
+    "config")
+        statistics_config
+        ;;
+    "index_update")
+        index_update_all
+        ;;
+    "index_delete")
+        index_delete
+        ;;
+    "tail")
+        tail_log
+        ;;
+    *)
+        statistics
+        ;;
+esac
+

@@ -1,0 +1,26 @@
+{
+    "debug": false,
+    "http": {
+        "enabled": true,
+        "listen": "0.0.0.0:8001"
+    },
+    "db": {
+        "dsn": "root:@tcp(127.0.0.1:3306)/graph?loc=Local&parseTime=true",
+        "maxIdle": 4
+    },
+    "index": {
+        "enabled": true,
+        "cluster":[
+            "127.0.0.1:6071"
+            ]
+    },
+    "monitor" : {
+        "enabled": true,
+        "cluster" : [
+            "task,127.0.0.1:8001",
+            "transfer,127.0.0.1:6060",
+            "graph,127.0.0.1:6071"
+        ]
+    }
+}
+    
