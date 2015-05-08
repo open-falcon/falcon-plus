@@ -29,3 +29,7 @@ I use [linux-dash](https://github.com/afaqurk/linux-dash) as the page theme.
 - transfer: transfer rpc address
 - ignore: the metrics should ignore
 
+# deploy
+
+http://ulricqin.com/project/ops-updater/
+
