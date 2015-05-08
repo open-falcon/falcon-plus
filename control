@@ -1,0 +1,145 @@
+#!/bin/bash
+
+WORKSPACE=$(cd $(dirname $0)/; pwd)
+cd $WORKSPACE
+
+mkdir -p var
+
+module=graph
+app=falcon-$module
+conf=cfg.json
+pidfile=var/app.pid
+logfile=var/app.log
+
+[[ -f $module ]] && mv $module $app
+[[ -f $conf ]] || cp cfg.example.json $conf
+
+function check_pid() {
+    if [ -f $pidfile ];then
+        pid=`cat $pidfile`
+        if [ -n $pid ]; then
+            running=`ps -p $pid|grep -v "PID TTY" |wc -l`
+            return $running
+        fi
+    fi
+    return 0
+}
+
+function start() {
+    check_pid
+    running=$?
+    if [ $running -gt 0 ];then
+        echo -n "$app now is running already, pid="
+        cat $pidfile
+        return 1
+    fi
+
+    nohup ./$app -c $conf >>$logfile 2>&1 &
+    echo $! > $pidfile
+    echo "$app started..., pid=$!"
+}
+
+function stop() {
+    pid=`cat $pidfile`
+    kill $pid
+    echo "$app quit..."
+}
+
+function kill9() {
+    pid=`cat $pidfile`
+    kill -9 $pid
+    echo "$app stoped..."
+}
+
+function restart() {
+	stop
+	sleep 2
+	start
+}
+
+function status() {
+    check_pid
+    running=$?
+    if [ $running -gt 0 ];then
+        echo -n "$app now is running, pid="
+        cat $pidfile
+		echo
+    else
+        echo "$app is stoped"
+    fi
+}
+
+function tailf() {
+    tail -f $logfile
+}
+
+function pack() {
+    build
+    git log -1 --pretty=%h > gitversion
+    version=`./$app -v`
+    tar zcvf $app-$version.tar.gz control $app cfg.example.json ./test/debug gitversion
+}
+
+function packbin() {
+    build
+    git log -1 --pretty=%h > gitversion
+    version=`./$app -v`
+    tar zcvf $app-bin-$version.tar.gz $app gitversion
+}
+
+function build() {
+	commit=$(git log -1 --pretty=%h)
+	cat <<EOF > ./g/git.go
+package g
+const (
+	COMMIT = "$commit"
+)
+EOF
+    go build -o $app main.go
+    show_version
+}
+
+function show_version() {
+    ./$app -vg
+}
+
+function test() {
+    pkg=$1
+    if [ "X$pkg" != "X" ]; then
+        go test -v "github.com/open-falcon/$module/$pkg"
+    else
+        echo "test: bad args"
+    fi
+}
+
+function help() {
+    echo "$0 start|stop|restart|status|tail|kill9|build|version|pack|packbin|test"
+}
+
+if [ "$1" == "" ]; then
+    help
+elif [ "$1" == "stop" ];then
+    stop
+elif [ "$1" == "kill9" ];then
+    kill9
+elif [ "$1" == "start" ];then
+    start
+elif [ "$1" == "restart" ];then
+    restart
+elif [ "$1" == "status" ];then
+    status
+elif [ "$1" == "tail" ];then
+    tailf
+elif [ "$1" == "pack" ];then
+    pack
+elif [ "$1" == "packbin" ];then
+    packbin
+elif [ "$1" == "build" ];then
+    build
+elif [ "$1" == "version" ];then
+    show_version
+elif [ "$1" == "test" ]; then
+    test $2
+else
+    help
+fi

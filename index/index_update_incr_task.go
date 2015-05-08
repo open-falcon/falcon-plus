@@ -1,0 +1,210 @@
+package index
+
+import (
+	"database/sql"
+	"fmt"
+	"github.com/open-falcon/common/model"
+	MUtils "github.com/open-falcon/common/utils"
+	db "github.com/open-falcon/graph/db"
+	proc "github.com/open-falcon/graph/proc"
+	TSemaphore "github.com/toolkits/concurrent/semaphore"
+	"log"
+	"time"
+)
+
+const (
+	IndexUpdateIncrTaskSleepInterval = time.Duration(1) * time.Second // 增量更新间隔时间, 默认30s
+)
+
+var (
+	semaUpdateIndexIncr = TSemaphore.NewSemaphore(2) // 索引增量更新时操作mysql的并发控制
+)
+
+// 启动索引的 异步、增量更新 任务, 空闲时就小睡一会儿
+func StartIndexUpdateIncrTask() {
+	for {
+		time.Sleep(IndexUpdateIncrTaskSleepInterval)
+		startTs := time.Now().Unix()
+		cnt := updateIndexIncr()
+		endTs := time.Now().Unix()
+		// statistics
+		proc.IndexUpdateIncrCnt.SetCnt(int64(cnt))
+		proc.IndexUpdateIncr.Incr()
+		proc.IndexUpdateIncr.PutOther("lastStartTs", proc.FmtUnixTs(startTs))
+		proc.IndexUpdateIncr.PutOther("lastTimeConsumingInSec", endTs-startTs)
+	}
+}
+
+// 进行一次增量更新
+func updateIndexIncr() int {
+	ret := 0
+	if unIndexedItemCache == nil || unIndexedItemCache.Size() <= 0 {
+		return ret
+	}
+
+	dbConn, err := db.GetDbConn("UpdateIndexIncrTask")
+	if err != nil {
+		log.Println("[ERROR] get dbConn fail", err)
+		return ret
+	}
+
+	keys := unIndexedItemCache.Keys()
+	for _, key := range keys {
+		icitem := unIndexedItemCache.Get(key)
+		unIndexedItemCache.Remove(key)
+		if icitem != nil {
+			// 并发更新mysql
+			semaUpdateIndexIncr.Acquire()
+			go func(key string, icitem *IndexCacheItem, dbConn *sql.DB) {
+				defer semaUpdateIndexIncr.Release()
+				err := maybeUpdateIndexFromOneItem(icitem.Item, dbConn)
+				if err != nil {
+					proc.IndexUpdateIncrErrorCnt.Incr()
+				} else {
+					indexedItemCache.Put(key, icitem)
+				}
+			}(key, icitem.(*IndexCacheItem), dbConn)
+			ret++
+		}
+	}
+
+	return ret
+}
+
+//
+func maybeUpdateIndexFromOneItem(item *model.GraphItem, conn *sql.DB) error {
+	if item == nil {
+		return nil
+	}
+
+	endpoint := item.Endpoint
+	ts := item.Timestamp
+	var endpointId int64 = -1
+	sqlDuplicateString := " ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id), ts=VALUES(ts)" //第一个字符是空格
+
+	// endpoint表
+	{
+		exists := dbEndpointCache.ContainsKey(endpoint)
+		if !exists { // 内存中没有, 准备更新数据库
+			err := conn.QueryRow("SELECT id FROM endpoint WHERE endpoint = ?", endpoint).Scan(&endpointId)
+			if err != nil && err != sql.ErrNoRows {
+				log.Println(endpoint, err)
+				return err
+			}
+			proc.IndexUpdateIncrDbEndpointSelectCnt.Incr()
+
+			if err == sql.ErrNoRows || endpointId <= 0 { // 数据库中也没有, insert
+				sqlStr := "INSERT INTO endpoint(endpoint, ts, t_create) VALUES (?, ?, now())" + sqlDuplicateString
+				ret, err := conn.Exec(sqlStr, endpoint, ts)
+				if err != nil {
+					log.Println(err)
+					return err
+				}
+				proc.IndexUpdateIncrDbEndpointInsertCnt.Incr()
+
+				endpointId, err = ret.LastInsertId()
+				if err != nil {
+					log.Println(err)
+					return err
+				}
+			} else { // do not update
+			}
+			// 更新缓存
+			dbEndpointCache.Put(endpoint, endpointId)
+		} else { //缓存中有
+			endpointId = dbEndpointCache.Get(endpoint).(int64)
+		}
+	}
+
+	// tag_endpoint表
+	{
+		for tagKey, tagVal := range item.Tags {
+			tag := fmt.Sprintf("%s=%s", tagKey, tagVal)
+			key := fmt.Sprintf("%s-%d", tag, endpointId)
+			if !dbTagEndpointCache.ContainsKey(key) { // 缓存中没有,可能需要更新
+				var tagEndpointId int64 = -1
+				err := conn.QueryRow("SELECT id FROM tag_endpoint WHERE tag = ? and endpoint_id = ?",
+					tag, endpointId).Scan(&tagEndpointId)
+				if err != nil && err != sql.ErrNoRows {
+					log.Println(tag, endpointId, err)
+					return err
+				}
+				proc.IndexUpdateIncrDbTagEndpointSelectCnt.Incr()
+
+				if err == sql.ErrNoRows || tagEndpointId <= 0 {
+					sqlStr := "INSERT INTO tag_endpoint(tag, endpoint_id, ts, t_create) VALUES (?, ?, ?, now())" + sqlDuplicateString
+					ret, err := conn.Exec(sqlStr, tag, endpointId, ts)
+					if err != nil {
+						log.Println(err)
+						return err
+					}
+					proc.IndexUpdateIncrDbTagEndpointInsertCnt.Incr()
+
+					tagEndpointId, err = ret.LastInsertId()
+					if err != nil {
+						log.Println(err)
+						return err
+					}
+				}
+				// 更新缓存
+				dbTagEndpointCache.Put(key, true)
+			}
+		}
+	}
+
+	// endpoint_counter表
+	{
+		counter := item.Metric
+		if len(item.Tags) > 0 {
+			counter = fmt.Sprintf("%s/%s", counter, MUtils.SortedTags(item.Tags))
+		}
+
+		endpointCounterKey := fmt.Sprintf("%d-%s", endpointId, counter)
+		endpointCounterVal := fmt.Sprintf("%s_%d", item.DsType, item.Step)
+		if !(dbEndpointCounterCache.ContainsKey(endpointCounterKey) &&
+			dbEndpointCounterCache.Get(endpointCounterKey).(string) == endpointCounterVal) { //TODO 非原子操作, 好在没有并行的更新、删除操作
+			var endpointCounterId int64 = -1
+			var step int = 0
+			var dstype string = "nil"
+
+			err := conn.QueryRow("SELECT id,step,type FROM endpoint_counter WHERE endpoint_id = ? and counter = ?",
+				endpointId, counter).Scan(&endpointCounterId, &step, &dstype)
+			if err != nil && err != sql.ErrNoRows {
+				log.Println(counter, endpointId, err)
+				return err
+			}
+			proc.IndexUpdateIncrDbEndpointCounterSelectCnt.Incr()
+
+			if err == sql.ErrNoRows || endpointCounterId <= 0 {
+				sqlStr := "INSERT INTO endpoint_counter(endpoint_id,counter,step,type,ts,t_create) VALUES (?,?,?,?,?,now())" +
+					" ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id),ts=VALUES(ts), step=VALUES(step),type=VALUES(type)"
+				ret, err := conn.Exec(sqlStr, endpointId, counter, item.Step, item.DsType, ts)
+				if err != nil {
+					log.Println(err)
+					return err
+				}
+				proc.IndexUpdateIncrDbEndpointCounterInsertCnt.Incr()
+
+				endpointCounterId, err = ret.LastInsertId()
+				if err != nil {
+					log.Println(err)
+					return err
+				}
+			} else {
+				if !(item.Step == step && item.DsType == dstype) {
+					_, err := conn.Exec("UPDATE endpoint_counter SET step = ?, type = ? where id = ?",
+						item.Step, item.DsType, endpointCounterId)
+					proc.IndexUpdateIncrDbEndpointCounterUpdateCnt.Incr()
+					if err != nil {
+						log.Println(err)
+						return err
+					}
+				}
+			}
+			// 更新缓存
+			dbEndpointCounterCache.Put(endpointCounterKey, endpointCounterVal)
+		}
+	}
+
+	return nil
+}
