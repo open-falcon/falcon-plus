@@ -1,0 +1,30 @@
+{
+    "debug": true,
+    "debugHost": "nil",
+    "remain": 11, 
+    "http": {
+        "enabled": true,
+        "listen": "0.0.0.0:6081"
+    },
+    "rpc": {
+        "enabled": true,
+        "listen": "0.0.0.0:6080"
+    },
+    "hbs": {
+        "servers": ["127.0.0.1:6030"],
+        "timeout": 300,
+        "interval": 60
+    },
+    "alarm": {
+        "enabled": true,
+        "minInterval": 300,
+        "queuePattern": "event:p%v",
+        "redis": {
+            "dsn": "127.0.0.1:6379",
+            "maxIdle": 5,
+            "connTimeout": 5000,
+            "readTimeout": 5000,
+            "writeTimeout": 5000
+        }
+    }
+}
