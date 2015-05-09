@@ -134,7 +134,7 @@ func Fetch(filename string, cf string, start, end int64, step int) ([]*model.RRD
 
 	fetchRes, err := rrdlite.Fetch(filename, cf, start_t, end_t, step_t)
 	if err != nil {
-		return []*model.RRDData{}, nil
+		return []*model.RRDData{}, err
 	}
 
 	defer fetchRes.FreeValues()
