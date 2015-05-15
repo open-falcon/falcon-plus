@@ -2,17 +2,27 @@ package rrdlite
 
 import (
 	"fmt"
+	"os"
+	"os/exec"
 	"testing"
 	"time"
 )
 
-func TestAll(t *testing.T) {
+const (
+	dbfile    = "/tmp/test.rrd"
+	step      = 1
+	heartbeat = 2 * step
+	b_size    = 100000
+)
+
+var now time.Time
+
+func init() {
+	now = time.Now()
+}
+
+func testAll(t *testing.T) {
 	// Create
-	const (
-		dbfile    = "/tmp/test.rrd"
-		step      = 1
-		heartbeat = 2 * step
-	)
 
 	c := NewCreator(dbfile, time.Now(), step)
 	c.RRA("AVERAGE", 0.5, 1, 100)
@@ -83,5 +93,66 @@ func TestAll(t *testing.T) {
 		}
 		fmt.Printf("\n")
 		row++
+	}
+}
+
+func add(b *testing.B, filename string) {
+	c := NewCreator(filename, now, step)
+	c.RRA("AVERAGE", 0.5, 1, 100)
+	c.RRA("AVERAGE", 0.5, 5, 100)
+	c.DS("g", "GAUGE", heartbeat, 0, 60)
+	err := c.Create(true)
+	if err != nil {
+		b.Fatal(err)
+	}
+}
+
+func update(b *testing.B, filename string) {
+	u := NewUpdater(filename)
+	err := u.Update(now, 1.5)
+	if err != nil {
+		b.Fatal(err)
+	}
+}
+
+func BenchmarkAdd(b *testing.B) {
+	b.StopTimer()
+	if err := exec.Command("rm", "-rf", "/tmp/rrd").Run(); err != nil {
+		b.Fatal(err)
+	}
+	if err := os.Mkdir("/tmp/rrd", 0755); err != nil {
+		b.Fatal(err)
+	}
+	for i := 0; i < 256; i++ {
+		if err := os.Mkdir(fmt.Sprintf("/tmp/rrd/%d", i), 0755); err != nil {
+			b.Fatal(err)
+		}
+	}
+	b.StartTimer()
+	b.N = b_size
+	for i := 0; i < b.N; i++ {
+		filename := fmt.Sprintf("/tmp/rrd/%d/%d.rrd", i%256, i)
+		add(b, filename)
+	}
+}
+
+func BenchmarkUpdate(b *testing.B) {
+	b.N = b_size
+	for i := 0; i < b.N; i++ {
+		filename := fmt.Sprintf("/tmp/rrd/%d/%d.rrd", i%256, i)
+		update(b, filename)
+	}
+
+}
+
+func BenchmarkFetch(b *testing.B) {
+	b.N = b_size
+	start := time.Unix(now.Unix()-step, 0)
+	end := start.Add(20 * step * time.Second)
+	for i := 0; i < b.N; i++ {
+		filename := fmt.Sprintf("/tmp/rrd/%d/%d.rrd", i%256, i)
+		if _, err := Fetch(filename, "AVERAGE", start, end, step*time.Second); err != nil {
+			b.Fatal(err)
+		}
 	}
 }
