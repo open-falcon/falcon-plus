@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"runtime"
+	"sync"
 	"testing"
 	"time"
 )
@@ -13,12 +15,15 @@ const (
 	step      = 1
 	heartbeat = 2 * step
 	b_size    = 100000
+	work_size = 10
 )
 
 var now time.Time
+var wg sync.WaitGroup
 
 func init() {
 	now = time.Now()
+	runtime.GOMAXPROCS(runtime.NumCPU())
 }
 
 func testAll(t *testing.T) {
@@ -115,6 +120,14 @@ func update(b *testing.B, filename string) {
 	}
 }
 
+func fetch(b *testing.B, filename string, start, end time.Time) {
+	if fetchRes, err := Fetch(filename, "AVERAGE", start, end, step*time.Second); err != nil {
+		b.Fatal(err)
+	} else {
+		fetchRes.FreeValues()
+	}
+}
+
 func BenchmarkAdd(b *testing.B) {
 	b.StopTimer()
 	if err := exec.Command("rm", "-rf", "/tmp/rrd").Run(); err != nil {
@@ -130,29 +143,51 @@ func BenchmarkAdd(b *testing.B) {
 	}
 	b.StartTimer()
 	b.N = b_size
-	for i := 0; i < b.N; i++ {
-		filename := fmt.Sprintf("/tmp/rrd/%d/%d.rrd", i%256, i)
-		add(b, filename)
+	n := b.N / work_size
+	for j := 0; j < work_size; j++ {
+		wg.Add(1)
+		go func(j int) {
+			defer wg.Done()
+			for i := 0; i < n; i++ {
+				filename := fmt.Sprintf("/tmp/rrd/%d/%d-%d.rrd", i%256, j, i)
+				add(b, filename)
+			}
+		}(j)
 	}
+	wg.Wait()
 }
 
 func BenchmarkUpdate(b *testing.B) {
 	b.N = b_size
-	for i := 0; i < b.N; i++ {
-		filename := fmt.Sprintf("/tmp/rrd/%d/%d.rrd", i%256, i)
-		update(b, filename)
-	}
+	n := b.N / work_size
 
+	for j := 0; j < work_size; j++ {
+		wg.Add(1)
+		go func(j int) {
+			defer wg.Done()
+			for i := 0; i < n; i++ {
+				filename := fmt.Sprintf("/tmp/rrd/%d/%d-%d.rrd", i%256, j, i)
+				update(b, filename)
+			}
+		}(j)
+	}
+	wg.Wait()
 }
 
 func BenchmarkFetch(b *testing.B) {
 	b.N = b_size
+	n := b.N / work_size
 	start := time.Unix(now.Unix()-step, 0)
 	end := start.Add(20 * step * time.Second)
-	for i := 0; i < b.N; i++ {
-		filename := fmt.Sprintf("/tmp/rrd/%d/%d.rrd", i%256, i)
-		if _, err := Fetch(filename, "AVERAGE", start, end, step*time.Second); err != nil {
-			b.Fatal(err)
-		}
+	for j := 0; j < work_size; j++ {
+		wg.Add(1)
+		go func(j int) {
+			defer wg.Done()
+			for i := 0; i < n; i++ {
+				filename := fmt.Sprintf("/tmp/rrd/%d/%d-%d.rrd", i%256, j, i)
+				fetch(b, filename, start, end)
+			}
+		}(j)
 	}
+	wg.Wait()
 }
