@@ -20,7 +20,7 @@ import (
 
 var pid int
 
-var conf *g.GlobalConfig
+var conf g.GlobalConfig
 
 func start_signal() {
 	sigs := make(chan os.Signal, 1)
@@ -55,6 +55,9 @@ func main() {
 	version := flag.Bool("v", false, "show version")
 	versionGit := flag.Bool("vg", false, "show version")
 	flag.Parse()
+	g.ParseConfig(*cfg)
+
+	conf = *g.Config()
 
 	if *version {
 		fmt.Println(g.VERSION)
@@ -65,9 +68,6 @@ func main() {
 		fmt.Println(g.VERSION, g.COMMIT)
 		os.Exit(0)
 	}
-
-	g.ParseConfig(*cfg)
-	conf = g.Config()
 
 	// 只在启动的时候初始化一次，而ParseConfig可以被多次调用
 	logger.SetLevelWithDefault(g.Config().Log, "info")

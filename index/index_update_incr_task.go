@@ -3,11 +3,12 @@ package index
 import (
 	"database/sql"
 	"fmt"
-	"github.com/open-falcon/common/model"
-	MUtils "github.com/open-falcon/common/utils"
+	nsema "github.com/niean/gotools/concurrent/semaphore"
+	ntime "github.com/niean/gotools/time"
+	cmodel "github.com/open-falcon/common/model"
+	cutils "github.com/open-falcon/common/utils"
 	db "github.com/open-falcon/graph/db"
 	proc "github.com/open-falcon/graph/proc"
-	TSemaphore "github.com/toolkits/concurrent/semaphore"
 	"log"
 	"time"
 )
@@ -17,10 +18,10 @@ const (
 )
 
 var (
-	semaUpdateIndexIncr = TSemaphore.NewSemaphore(2) // 索引增量更新时操作mysql的并发控制
+	semaUpdateIndexIncr = nsema.NewSemaphore(2) // 索引增量更新时操作mysql的并发控制
 )
 
-// 启动索引的 异步、增量更新 任务, 空闲时就小睡一会儿
+// 启动索引的 异步、增量更新 任务
 func StartIndexUpdateIncrTask() {
 	for {
 		time.Sleep(IndexUpdateIncrTaskSleepInterval)
@@ -30,7 +31,7 @@ func StartIndexUpdateIncrTask() {
 		// statistics
 		proc.IndexUpdateIncrCnt.SetCnt(int64(cnt))
 		proc.IndexUpdateIncr.Incr()
-		proc.IndexUpdateIncr.PutOther("lastStartTs", proc.FmtUnixTs(startTs))
+		proc.IndexUpdateIncr.PutOther("lastStartTs", ntime.FormatTs(startTs))
 		proc.IndexUpdateIncr.PutOther("lastTimeConsumingInSec", endTs-startTs)
 	}
 }
@@ -72,7 +73,7 @@ func updateIndexIncr() int {
 }
 
 //
-func maybeUpdateIndexFromOneItem(item *model.GraphItem, conn *sql.DB) error {
+func maybeUpdateIndexFromOneItem(item *cmodel.GraphItem, conn *sql.DB) error {
 	if item == nil {
 		return nil
 	}
@@ -84,70 +85,61 @@ func maybeUpdateIndexFromOneItem(item *model.GraphItem, conn *sql.DB) error {
 
 	// endpoint表
 	{
-		exists := dbEndpointCache.ContainsKey(endpoint)
-		if !exists { // 内存中没有, 准备更新数据库
-			err := conn.QueryRow("SELECT id FROM endpoint WHERE endpoint = ?", endpoint).Scan(&endpointId)
-			if err != nil && err != sql.ErrNoRows {
-				log.Println(endpoint, err)
+		err := conn.QueryRow("SELECT id FROM endpoint WHERE endpoint = ?", endpoint).Scan(&endpointId)
+		if err != nil && err != sql.ErrNoRows {
+			log.Println(endpoint, err)
+			return err
+		}
+		proc.IndexUpdateIncrDbEndpointSelectCnt.Incr()
+
+		if err == sql.ErrNoRows || endpointId <= 0 { // 数据库中也没有, insert
+			sqlStr := "INSERT INTO endpoint(endpoint, ts, t_create) VALUES (?, ?, now())" + sqlDuplicateString
+			ret, err := conn.Exec(sqlStr, endpoint, ts)
+			if err != nil {
+				log.Println(err)
 				return err
 			}
-			proc.IndexUpdateIncrDbEndpointSelectCnt.Incr()
+			proc.IndexUpdateIncrDbEndpointInsertCnt.Incr()
 
-			if err == sql.ErrNoRows || endpointId <= 0 { // 数据库中也没有, insert
-				sqlStr := "INSERT INTO endpoint(endpoint, ts, t_create) VALUES (?, ?, now())" + sqlDuplicateString
-				ret, err := conn.Exec(sqlStr, endpoint, ts)
-				if err != nil {
-					log.Println(err)
-					return err
-				}
-				proc.IndexUpdateIncrDbEndpointInsertCnt.Incr()
-
-				endpointId, err = ret.LastInsertId()
-				if err != nil {
-					log.Println(err)
-					return err
-				}
-			} else { // do not update
+			endpointId, err = ret.LastInsertId()
+			if err != nil {
+				log.Println(err)
+				return err
 			}
-			// 更新缓存
-			dbEndpointCache.Put(endpoint, endpointId)
-		} else { //缓存中有
-			endpointId = dbEndpointCache.Get(endpoint).(int64)
+		} else { // do not update
 		}
+		// 更新缓存
+		//dbEndpointCache.Set(endpoint, endpointId, 0)
 	}
 
 	// tag_endpoint表
 	{
 		for tagKey, tagVal := range item.Tags {
 			tag := fmt.Sprintf("%s=%s", tagKey, tagVal)
-			key := fmt.Sprintf("%s-%d", tag, endpointId)
-			if !dbTagEndpointCache.ContainsKey(key) { // 缓存中没有,可能需要更新
-				var tagEndpointId int64 = -1
-				err := conn.QueryRow("SELECT id FROM tag_endpoint WHERE tag = ? and endpoint_id = ?",
-					tag, endpointId).Scan(&tagEndpointId)
-				if err != nil && err != sql.ErrNoRows {
-					log.Println(tag, endpointId, err)
+
+			var tagEndpointId int64 = -1
+			err := conn.QueryRow("SELECT id FROM tag_endpoint WHERE tag = ? and endpoint_id = ?",
+				tag, endpointId).Scan(&tagEndpointId)
+			if err != nil && err != sql.ErrNoRows {
+				log.Println(tag, endpointId, err)
+				return err
+			}
+			proc.IndexUpdateIncrDbTagEndpointSelectCnt.Incr()
+
+			if err == sql.ErrNoRows || tagEndpointId <= 0 {
+				sqlStr := "INSERT INTO tag_endpoint(tag, endpoint_id, ts, t_create) VALUES (?, ?, ?, now())" + sqlDuplicateString
+				ret, err := conn.Exec(sqlStr, tag, endpointId, ts)
+				if err != nil {
+					log.Println(err)
 					return err
 				}
-				proc.IndexUpdateIncrDbTagEndpointSelectCnt.Incr()
+				proc.IndexUpdateIncrDbTagEndpointInsertCnt.Incr()
 
-				if err == sql.ErrNoRows || tagEndpointId <= 0 {
-					sqlStr := "INSERT INTO tag_endpoint(tag, endpoint_id, ts, t_create) VALUES (?, ?, ?, now())" + sqlDuplicateString
-					ret, err := conn.Exec(sqlStr, tag, endpointId, ts)
-					if err != nil {
-						log.Println(err)
-						return err
-					}
-					proc.IndexUpdateIncrDbTagEndpointInsertCnt.Incr()
-
-					tagEndpointId, err = ret.LastInsertId()
-					if err != nil {
-						log.Println(err)
-						return err
-					}
+				tagEndpointId, err = ret.LastInsertId()
+				if err != nil {
+					log.Println(err)
+					return err
 				}
-				// 更新缓存
-				dbTagEndpointCache.Put(key, true)
 			}
 		}
 	}
@@ -156,53 +148,46 @@ func maybeUpdateIndexFromOneItem(item *model.GraphItem, conn *sql.DB) error {
 	{
 		counter := item.Metric
 		if len(item.Tags) > 0 {
-			counter = fmt.Sprintf("%s/%s", counter, MUtils.SortedTags(item.Tags))
+			counter = fmt.Sprintf("%s/%s", counter, cutils.SortedTags(item.Tags))
 		}
 
-		endpointCounterKey := fmt.Sprintf("%d-%s", endpointId, counter)
-		endpointCounterVal := fmt.Sprintf("%s_%d", item.DsType, item.Step)
-		if !(dbEndpointCounterCache.ContainsKey(endpointCounterKey) &&
-			dbEndpointCounterCache.Get(endpointCounterKey).(string) == endpointCounterVal) { //TODO 非原子操作, 好在没有并行的更新、删除操作
-			var endpointCounterId int64 = -1
-			var step int = 0
-			var dstype string = "nil"
+		var endpointCounterId int64 = -1
+		var step int = 0
+		var dstype string = "nil"
 
-			err := conn.QueryRow("SELECT id,step,type FROM endpoint_counter WHERE endpoint_id = ? and counter = ?",
-				endpointId, counter).Scan(&endpointCounterId, &step, &dstype)
-			if err != nil && err != sql.ErrNoRows {
-				log.Println(counter, endpointId, err)
+		err := conn.QueryRow("SELECT id,step,type FROM endpoint_counter WHERE endpoint_id = ? and counter = ?",
+			endpointId, counter).Scan(&endpointCounterId, &step, &dstype)
+		if err != nil && err != sql.ErrNoRows {
+			log.Println(counter, endpointId, err)
+			return err
+		}
+		proc.IndexUpdateIncrDbEndpointCounterSelectCnt.Incr()
+
+		if err == sql.ErrNoRows || endpointCounterId <= 0 {
+			sqlStr := "INSERT INTO endpoint_counter(endpoint_id,counter,step,type,ts,t_create) VALUES (?,?,?,?,?,now())" +
+				" ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id),ts=VALUES(ts), step=VALUES(step),type=VALUES(type)"
+			ret, err := conn.Exec(sqlStr, endpointId, counter, item.Step, item.DsType, ts)
+			if err != nil {
+				log.Println(err)
 				return err
 			}
-			proc.IndexUpdateIncrDbEndpointCounterSelectCnt.Incr()
+			proc.IndexUpdateIncrDbEndpointCounterInsertCnt.Incr()
 
-			if err == sql.ErrNoRows || endpointCounterId <= 0 {
-				sqlStr := "INSERT INTO endpoint_counter(endpoint_id,counter,step,type,ts,t_create) VALUES (?,?,?,?,?,now())" +
-					" ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id),ts=VALUES(ts), step=VALUES(step),type=VALUES(type)"
-				ret, err := conn.Exec(sqlStr, endpointId, counter, item.Step, item.DsType, ts)
+			endpointCounterId, err = ret.LastInsertId()
+			if err != nil {
+				log.Println(err)
+				return err
+			}
+		} else {
+			if !(item.Step == step && item.DsType == dstype) {
+				_, err := conn.Exec("UPDATE endpoint_counter SET step = ?, type = ? where id = ?",
+					item.Step, item.DsType, endpointCounterId)
+				proc.IndexUpdateIncrDbEndpointCounterUpdateCnt.Incr()
 				if err != nil {
 					log.Println(err)
 					return err
-				}
-				proc.IndexUpdateIncrDbEndpointCounterInsertCnt.Incr()
-
-				endpointCounterId, err = ret.LastInsertId()
-				if err != nil {
-					log.Println(err)
-					return err
-				}
-			} else {
-				if !(item.Step == step && item.DsType == dstype) {
-					_, err := conn.Exec("UPDATE endpoint_counter SET step = ?, type = ? where id = ?",
-						item.Step, item.DsType, endpointCounterId)
-					proc.IndexUpdateIncrDbEndpointCounterUpdateCnt.Incr()
-					if err != nil {
-						log.Println(err)
-						return err
-					}
 				}
 			}
-			// 更新缓存
-			dbEndpointCounterCache.Put(endpointCounterKey, endpointCounterVal)
 		}
 	}
 

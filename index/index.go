@@ -1,7 +1,7 @@
 package index
 
 import (
-	"github.com/open-falcon/common/model"
+	cmodel "github.com/open-falcon/common/model"
 	"github.com/open-falcon/graph/g"
 	"github.com/open-falcon/graph/rrdtool"
 	"log"
@@ -15,7 +15,7 @@ func Start() {
 }
 
 // index收到一条新上报的监控数据,尝试用于增量更新索引
-func ReceiveItem(item *model.GraphItem, md5 string) {
+func ReceiveItem(item *cmodel.GraphItem, md5 string) {
 	if item == nil {
 		return
 	}
@@ -25,7 +25,7 @@ func ReceiveItem(item *model.GraphItem, md5 string) {
 	// 已上报过的数据
 	if indexedItemCache.ContainsKey(md5) {
 		old := indexedItemCache.Get(md5).(*IndexCacheItem)
-		if uuid == old.UUID { // dsType+step没有发生变化,只更新缓存
+		if uuid == old.UUID { // dsType+step没有发生变化,只更新缓存 TODO 存在线程安全的问题
 			old.Item = item
 		} else { // dsType+step变化了,当成一个新的增量来处理(甚至,不用rrd文件来过滤)
 			//indexedItemCache.Remove(md5)

@@ -3,11 +3,12 @@ package index
 import (
 	"database/sql"
 	"fmt"
-	"github.com/open-falcon/common/model"
-	MUtils "github.com/open-falcon/common/utils"
+	nsema "github.com/niean/gotools/concurrent/semaphore"
+	ntime "github.com/niean/gotools/time"
+	cmodel "github.com/open-falcon/common/model"
+	cutils "github.com/open-falcon/common/utils"
 	db "github.com/open-falcon/graph/db"
 	proc "github.com/open-falcon/graph/proc"
-	TSemaphore "github.com/toolkits/concurrent/semaphore"
 	"log"
 	"time"
 )
@@ -18,14 +19,14 @@ const (
 )
 
 var (
-	semaIndexUpdateAllTask = TSemaphore.NewSemaphore(ConcurrentOfUpdateIndexAll) //全量同步任务 并发控制器
-	semaIndexUpdateAll     = TSemaphore.NewSemaphore(4)                          // 索引全量更新时的mysql操作并发控制
+	semaIndexUpdateAllTask = nsema.NewSemaphore(ConcurrentOfUpdateIndexAll) //全量同步任务 并发控制器
+	semaIndexUpdateAll     = nsema.NewSemaphore(4)                          // 索引全量更新时的mysql操作并发控制
 )
 
 // 更新一条监控数据对应的索引. 用于手动添加索引,一般情况下不会使用
 func UpdateIndexOne(endpoint string, metric string, tags map[string]string, dstype string, step int) error {
 	log.Println("1")
-	itemDemo := &model.GraphItem{
+	itemDemo := &cmodel.GraphItem{
 		Endpoint: endpoint,
 		Metric:   metric,
 		Tags:     tags,
@@ -82,12 +83,12 @@ func UpdateIndexAll(updateStepInSec int64) {
 	cnt := updateIndexAll(updateStepInSec)
 	endTs := time.Now().Unix()
 	log.Printf("UpdateIndexAll, lastStartTs %s, updateStepInSec %d, lastTimeConsumingInSec %d\n",
-		proc.FmtUnixTs(startTs), updateStepInSec, endTs-startTs)
+		ntime.FormatTs(startTs), updateStepInSec, endTs-startTs)
 
 	// statistics
 	proc.IndexUpdateAllCnt.SetCnt(int64(cnt))
 	proc.IndexUpdateAll.Incr()
-	proc.IndexUpdateAll.PutOther("lastStartTs", proc.FmtUnixTs(startTs))
+	proc.IndexUpdateAll.PutOther("lastStartTs", ntime.FormatTs(startTs))
 	proc.IndexUpdateAll.PutOther("updateStepInSec", updateStepInSec)
 	proc.IndexUpdateAll.PutOther("lastTimeConsumingInSec", endTs-startTs)
 	proc.IndexUpdateAll.PutOther("updateCnt", cnt)
@@ -123,7 +124,7 @@ func updateIndexAll(updateStepInSec int64) int {
 		}
 		// 并发写mysql
 		semaIndexUpdateAll.Acquire()
-		go func(gitem *model.GraphItem, dbConn *sql.DB) {
+		go func(gitem *cmodel.GraphItem, dbConn *sql.DB) {
 			defer semaIndexUpdateAll.Release()
 			err := updateIndexFromOneItem(gitem, dbConn)
 			if err != nil {
@@ -138,7 +139,7 @@ func updateIndexAll(updateStepInSec int64) int {
 }
 
 // 根据item,更新db存储. 不用本地缓存 优化db访问频率.
-func updateIndexFromOneItem(item *model.GraphItem, conn *sql.DB) error {
+func updateIndexFromOneItem(item *cmodel.GraphItem, conn *sql.DB) error {
 	if item == nil {
 		return nil
 	}
@@ -188,7 +189,7 @@ func updateIndexFromOneItem(item *model.GraphItem, conn *sql.DB) error {
 	{
 		counter := item.Metric
 		if len(item.Tags) > 0 {
-			counter = fmt.Sprintf("%s/%s", counter, MUtils.SortedTags(item.Tags))
+			counter = fmt.Sprintf("%s/%s", counter, cutils.SortedTags(item.Tags))
 		}
 
 		sqlStr := "INSERT INTO endpoint_counter(endpoint_id,counter,step,type,ts,t_create) VALUES (?,?,?,?,?,now())" + sqlDuplicateString

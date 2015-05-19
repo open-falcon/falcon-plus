@@ -1,46 +1,57 @@
 package proc
 
 import (
-	P "github.com/open-falcon/common/proc"
-	"time"
+	nproc "github.com/niean/gotools/proc"
+)
+
+// trace
+var (
+	RecvDataTrace = nproc.NewDataTrace("RecvDataTrace", 3)
 )
 
 // 索引增量更新
 var (
-	IndexUpdateIncr         = P.NewSCounterQps("IndexUpdateIncr")
-	IndexUpdateIncrCnt      = P.NewSCounterBase("IndexUpdateIncrCnt")
-	IndexUpdateIncrErrorCnt = P.NewSCounterQps("IndexUpdateIncrErrorCnt")
+	IndexUpdateIncr         = nproc.NewSCounterQps("IndexUpdateIncr")
+	IndexUpdateIncrCnt      = nproc.NewSCounterBase("IndexUpdateIncrCnt")
+	IndexUpdateIncrErrorCnt = nproc.NewSCounterQps("IndexUpdateIncrErrorCnt")
 
-	IndexUpdateIncrDbEndpointSelectCnt = P.NewSCounterQps("IndexUpdateIncrDbEndpointSelectCnt")
-	IndexUpdateIncrDbEndpointInsertCnt = P.NewSCounterQps("IndexUpdateIncrDbEndpointInsertCnt")
+	IndexUpdateIncrDbEndpointSelectCnt = nproc.NewSCounterQps("IndexUpdateIncrDbEndpointSelectCnt")
+	IndexUpdateIncrDbEndpointInsertCnt = nproc.NewSCounterQps("IndexUpdateIncrDbEndpointInsertCnt")
 
-	IndexUpdateIncrDbTagEndpointSelectCnt = P.NewSCounterQps("IndexUpdateIncrDbTagEndpointSelectCnt")
-	IndexUpdateIncrDbTagEndpointInsertCnt = P.NewSCounterQps("IndexUpdateIncrDbTagEndpointInsertCnt")
+	IndexUpdateIncrDbTagEndpointSelectCnt = nproc.NewSCounterQps("IndexUpdateIncrDbTagEndpointSelectCnt")
+	IndexUpdateIncrDbTagEndpointInsertCnt = nproc.NewSCounterQps("IndexUpdateIncrDbTagEndpointInsertCnt")
 
-	IndexUpdateIncrDbEndpointCounterSelectCnt = P.NewSCounterQps("IndexUpdateIncrDbEndpointCounterSelectCnt")
-	IndexUpdateIncrDbEndpointCounterInsertCnt = P.NewSCounterQps("IndexUpdateIncrDbEndpointCounterInsertCnt")
-	IndexUpdateIncrDbEndpointCounterUpdateCnt = P.NewSCounterQps("IndexUpdateIncrDbEndpointCounterUpdateCnt")
+	IndexUpdateIncrDbEndpointCounterSelectCnt = nproc.NewSCounterQps("IndexUpdateIncrDbEndpointCounterSelectCnt")
+	IndexUpdateIncrDbEndpointCounterInsertCnt = nproc.NewSCounterQps("IndexUpdateIncrDbEndpointCounterInsertCnt")
+	IndexUpdateIncrDbEndpointCounterUpdateCnt = nproc.NewSCounterQps("IndexUpdateIncrDbEndpointCounterUpdateCnt")
 )
 
 // 索引全量更新
 var (
-	IndexUpdateAll         = P.NewSCounterQps("IndexUpdateAll")
-	IndexUpdateAllCnt      = P.NewSCounterBase("IndexUpdateAllCnt")
-	IndexUpdateAllErrorCnt = P.NewSCounterQps("IndexUpdateAllErrorCnt")
+	IndexUpdateAll         = nproc.NewSCounterQps("IndexUpdateAll")
+	IndexUpdateAllCnt      = nproc.NewSCounterBase("IndexUpdateAllCnt")
+	IndexUpdateAllErrorCnt = nproc.NewSCounterQps("IndexUpdateAllErrorCnt")
 )
 
 // 索引缓存大小
 var (
-	IndexedItemCacheCnt            = P.NewSCounterBase("IndexedItemCacheCnt")
-	UnIndexedItemCacheCnt          = P.NewSCounterBase("UnIndexedItemCacheCnt")
-	IndexDbEndpointCacheCnt        = P.NewSCounterBase("IndexDbEndpointCacheCnt")
-	IndexDbTagEndpointCacheCnt     = P.NewSCounterBase("IndexDbTagEndpointCacheCnt")
-	IndexDbEndpointCounterCacheCnt = P.NewSCounterBase("IndexDbEndpointCounterCacheCnt")
+	IndexedItemCacheCnt   = nproc.NewSCounterBase("IndexedItemCacheCnt")
+	UnIndexedItemCacheCnt = nproc.NewSCounterBase("UnIndexedItemCacheCnt")
+	EndpointCacheCnt      = nproc.NewSCounterBase("EndpointCacheCnt")
+	CounterCacheCnt       = nproc.NewSCounterBase("CounterCacheCnt")
 )
 
 // Rpc
 var (
-	GraphRpcRecvCnt = P.NewSCounterQps("GraphRpcRecvCnt")
+	GraphRpcRecvCnt = nproc.NewSCounterQps("GraphRpcRecvCnt")
+)
+
+// Query
+var (
+	GraphQueryCnt     = nproc.NewSCounterQps("GraphQueryCnt")
+	GraphQueryItemCnt = nproc.NewSCounterQps("GraphQueryItemCnt")
+	GraphInfoCnt      = nproc.NewSCounterQps("GraphInfoCnt")
+	GraphLoadDbCnt    = nproc.NewSCounterQps("GraphLoadDbCnt") // load sth from db when query/info, tmp
 )
 
 func GetAll() []interface{} {
@@ -48,6 +59,12 @@ func GetAll() []interface{} {
 
 	// rpc recv
 	ret = append(ret, GraphRpcRecvCnt.Get())
+
+	// query
+	ret = append(ret, GraphQueryCnt.Get())
+	ret = append(ret, GraphQueryItemCnt.Get())
+	ret = append(ret, GraphInfoCnt.Get())
+	ret = append(ret, GraphLoadDbCnt.Get())
 
 	// index update all
 	ret = append(ret, IndexUpdateAll.Get())
@@ -72,14 +89,8 @@ func GetAll() []interface{} {
 	// index db cache
 	ret = append(ret, IndexedItemCacheCnt.Get())
 	ret = append(ret, UnIndexedItemCacheCnt.Get())
-	ret = append(ret, IndexDbEndpointCacheCnt.Get())
-	ret = append(ret, IndexDbTagEndpointCacheCnt.Get())
-	ret = append(ret, IndexDbEndpointCounterCacheCnt.Get())
+	ret = append(ret, EndpointCacheCnt.Get())
+	ret = append(ret, CounterCacheCnt.Get())
 
 	return ret
-}
-
-// TODO 临时放在这里了, 考虑放到合适的模块
-func FmtUnixTs(ts int64) string {
-	return time.Unix(ts, 0).Format("2006-01-02 15:04:05")
 }

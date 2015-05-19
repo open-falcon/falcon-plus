@@ -20,12 +20,16 @@ func configCommonRoutes() {
 		RenderDataJson(w, file.SelfDir())
 	})
 
+	http.HandleFunc("/config", func(w http.ResponseWriter, r *http.Request) {
+		RenderDataJson(w, g.Config())
+	})
+
 	http.HandleFunc("/config/reload", func(w http.ResponseWriter, r *http.Request) {
 		if strings.HasPrefix(r.RemoteAddr, "127.0.0.1") {
 			g.ParseConfig(g.ConfigFile)
-			RenderDataJson(w, g.Config())
+			RenderDataJson(w, "ok")
 		} else {
-			w.Write([]byte("no privilege"))
+			RenderDataJson(w, "no privilege")
 		}
 	})
 }

@@ -8,10 +8,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/open-falcon/common/model"
+	cmodel "github.com/open-falcon/common/model"
 	"github.com/open-falcon/graph/g"
 	"github.com/open-falcon/graph/store"
-	"github.com/open-falcon/rrdlite"
+	"github.com/open-falcon/rrd"
 	"github.com/toolkits/file"
 	"github.com/toolkits/logger"
 )
@@ -41,12 +41,12 @@ var (
 	}
 )
 
-func create(filename string, item *model.GraphItem) error {
+func create(filename string, item *cmodel.GraphItem) error {
 	now := time.Now()
 	start := now.Add(time.Duration(-24) * time.Hour)
 	step := uint(item.Step)
 
-	c := rrdlite.NewCreator(filename, start, step)
+	c := rrd.NewCreator(filename, start, step)
 	c.DS("metric", item.DsType, item.Heartbeat, item.Min, item.Max)
 
 	// 设置各种归档策略
@@ -76,8 +76,8 @@ func create(filename string, item *model.GraphItem) error {
 	return c.Create(true)
 }
 
-func update(filename string, items []*model.GraphItem) error {
-	u := rrdlite.NewUpdater(filename)
+func update(filename string, items []*cmodel.GraphItem) error {
+	u := rrd.NewUpdater(filename)
 
 	for _, item := range items {
 		v := math.Abs(item.Value)
@@ -96,7 +96,7 @@ func update(filename string, items []*model.GraphItem) error {
 
 // flush to disk from memory
 // 最新的数据在列表的最后面
-func Flush(filename string, items []*model.GraphItem) error {
+func Flush(filename string, items []*cmodel.GraphItem) error {
 
 	if items == nil || len(items) == 0 {
 		return errors.New("empty items")
@@ -123,7 +123,7 @@ func Flush(filename string, items []*model.GraphItem) error {
 	return update(filename, items)
 }
 
-func Fetch(filename string, cf string, start, end int64, step int) ([]*model.RRDData, error) {
+func Fetch(filename string, cf string, start, end int64, step int) ([]*cmodel.RRDData, error) {
 	start_t := time.Unix(start, 0)
 	end_t := time.Unix(end, 0)
 	step_t := time.Duration(step) * time.Second
@@ -132,9 +132,9 @@ func Fetch(filename string, cf string, start, end int64, step int) ([]*model.RRD
 	lock.Lock()
 	defer lock.Unlock()
 
-	fetchRes, err := rrdlite.Fetch(filename, cf, start_t, end_t, step_t)
+	fetchRes, err := rrd.Fetch(filename, cf, start_t, end_t, step_t)
 	if err != nil {
-		return []*model.RRDData{}, err
+		return []*cmodel.RRDData{}, err
 	}
 
 	defer fetchRes.FreeValues()
@@ -142,16 +142,16 @@ func Fetch(filename string, cf string, start, end int64, step int) ([]*model.RRD
 
 	values := fetchRes.Values()
 	size := len(values)
-	ret := make([]*model.RRDData, size)
+	ret := make([]*cmodel.RRDData, size)
 
 	start_ts := fetchRes.Start.Unix()
 	step_s := fetchRes.Step.Seconds()
 
 	for i, val := range values {
 		ts := start_ts + int64(i+1)*int64(step_s)
-		d := &model.RRDData{
+		d := &cmodel.RRDData{
 			Timestamp: ts,
-			Value:     model.JsonFloat(val),
+			Value:     cmodel.JsonFloat(val),
 		}
 		ret[i] = d
 	}
@@ -160,7 +160,7 @@ func Fetch(filename string, cf string, start, end int64, step int) ([]*model.RRD
 }
 
 // 监控数据对应的rrd文件名称
-func RrdFileName(baseDir string, item *model.GraphItem, md5 string) string {
+func RrdFileName(baseDir string, item *cmodel.GraphItem, md5 string) string {
 	return fmt.Sprintf("%s/%s/%s_%s_%d.rrd", baseDir, md5[0:2], md5, item.DsType, item.Step)
 }
 

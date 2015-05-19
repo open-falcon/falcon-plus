@@ -1,8 +1,16 @@
 package index
 
 import (
-	"github.com/open-falcon/common/model"
+	"database/sql"
+	"fmt"
+	tcache "github.com/niean/gotools/cache/timedcache"
+	cmodel "github.com/open-falcon/common/model"
+	cutils "github.com/open-falcon/common/utils"
+	db "github.com/open-falcon/graph/db"
 	"github.com/open-falcon/graph/proc"
+	"log"
+	"strconv"
+	"strings"
 	"sync"
 	"time"
 )
@@ -21,16 +29,106 @@ var (
 // db本地缓存
 var (
 	// endpoint表的内存缓存, key:endpoint(string) / value:id(int64)
-	dbEndpointCache = NewIndexCacheBase(DefaultMaxCacheSize)
-	// tag_endpoint表的内存缓存, key:tagkey=tagvalue-endpoint_id(string) / val:true(bool)
-	dbTagEndpointCache = NewIndexCacheBase(DefaultMaxCacheSize)
+	dbEndpointCache = tcache.New(600*time.Second, 60*time.Second)
 	// endpoint_counter表的内存缓存, key:endpoint_id-counter(string) / val:dstype-step(string)
-	dbEndpointCounterCache = NewIndexCacheBase(DefaultMaxCacheSize)
+	dbEndpointCounterCache = tcache.New(600*time.Second, 60*time.Second)
 )
 
 // 初始化cache
 func InitCache() {
 	go startCacheProcUpdateTask()
+}
+
+// USED WHEN QUERY
+func GetTypeAndStep(endpoint string, counter string) (dsType string, step int, found bool) {
+	// get it from index cache
+	pk := cutils.Md5(fmt.Sprintf("%s/%s", endpoint, counter))
+	if icitem := indexedItemCache.Get(pk); icitem != nil {
+		if item := icitem.(*IndexCacheItem).Item; item != nil {
+			dsType = item.DsType
+			step = item.Step
+			found = true
+			return
+		}
+	}
+
+	// statistics
+	proc.GraphLoadDbCnt.Incr()
+
+	// get it from db, this should rarely happen
+	var endpointId int64 = -1
+	if endpointId, found = GetEndpointFromCache(endpoint); found {
+		if dsType, step, found = GetCounterFromCache(endpointId, counter); found {
+			//found = true
+			return
+		}
+	}
+
+	// do not find it, this must be a bad request
+	found = false
+	return
+}
+
+// Return EndpointId if Found
+func GetEndpointFromCache(endpoint string) (int64, bool) {
+	// get from cache
+	endpointId, found := dbEndpointCache.Get(endpoint)
+	if found {
+		return endpointId.(int64), true
+	}
+
+	// get from db
+	var id int64 = -1
+	err := db.DB.QueryRow("SELECT id FROM endpoint WHERE endpoint = ?", endpoint).Scan(&id)
+	if err != nil && err != sql.ErrNoRows {
+		log.Println("query endpoint id fail,", err)
+		return -1, false
+	}
+
+	if err == sql.ErrNoRows || id < 0 {
+		return -1, false
+	}
+
+	// update cache
+	dbEndpointCache.Set(endpoint, id, 0)
+
+	return id, true
+}
+
+// Return DsType Step if Found
+func GetCounterFromCache(endpointId int64, counter string) (dsType string, step int, found bool) {
+	var err error
+	// get from cache
+	key := fmt.Sprintf("%d-%s", endpointId, counter)
+	dsTypeStep, found := dbEndpointCounterCache.Get(key)
+	if found {
+		arr := strings.Split(dsTypeStep.(string), "_")
+		step, err = strconv.Atoi(arr[1])
+		if err != nil {
+			found = false
+			return
+		}
+		dsType = arr[0]
+		return
+	}
+
+	// get from db
+	err = db.DB.QueryRow("SELECT type, step FROM endpoint_counter WHERE endpoint_id = ? and counter = ?",
+		endpointId, counter).Scan(&dsType, &step)
+	if err != nil && err != sql.ErrNoRows {
+		log.Println("query type and step fail", err)
+		return
+	}
+
+	if err == sql.ErrNoRows {
+		return
+	}
+
+	// update cache
+	dbEndpointCounterCache.Set(key, fmt.Sprintf("%s_%d", dsType, step), 0)
+
+	found = true
+	return
 }
 
 // 更新 cache的统计信息
@@ -39,19 +137,19 @@ func startCacheProcUpdateTask() {
 		time.Sleep(DefaultCacheProcUpdateTaskSleepInterval)
 		proc.IndexedItemCacheCnt.SetCnt(int64(indexedItemCache.Size()))
 		proc.UnIndexedItemCacheCnt.SetCnt(int64(unIndexedItemCache.Size()))
-		proc.IndexDbEndpointCacheCnt.SetCnt(int64(dbEndpointCache.Size()))
-		proc.IndexDbTagEndpointCacheCnt.SetCnt(int64(dbTagEndpointCache.Size()))
-		proc.IndexDbEndpointCounterCacheCnt.SetCnt(int64(dbEndpointCounterCache.Size()))
+		proc.EndpointCacheCnt.SetCnt(int64(dbEndpointCache.Size()))
+		proc.CounterCacheCnt.SetCnt(int64(dbEndpointCounterCache.Size()))
 	}
 }
 
+// INDEX CACHE
 // 索引缓存的元素数据结构
 type IndexCacheItem struct {
 	UUID string
-	Item *model.GraphItem
+	Item *cmodel.GraphItem
 }
 
-func NewIndexCacheItem(uuid string, item *model.GraphItem) *IndexCacheItem {
+func NewIndexCacheItem(uuid string, item *cmodel.GraphItem) *IndexCacheItem {
 	return &IndexCacheItem{UUID: uuid, Item: item}
 }
 

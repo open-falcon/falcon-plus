@@ -2,8 +2,8 @@ package http
 
 import (
 	"fmt"
-	"github.com/open-falcon/common/model"
-	MUtils "github.com/open-falcon/common/utils"
+	cmodel "github.com/open-falcon/common/model"
+	cutils "github.com/open-falcon/common/utils"
 	"github.com/open-falcon/graph/api"
 	"github.com/open-falcon/graph/g"
 	"github.com/open-falcon/graph/store"
@@ -59,10 +59,10 @@ func configDebugRoutes() {
 		value, _ := strconv.ParseFloat(args[5], 64)
 		tags := make(map[string]string)
 		if argsLen == 7 {
-			tags = MUtils.DictedTagstring(args[6])
+			tags = cutils.DictedTagstring(args[6])
 		}
 
-		item := &model.MetaData{
+		item := &cmodel.MetaData{
 			Endpoint:    endpoint,
 			Metric:      metric,
 			Timestamp:   ts,
@@ -77,14 +77,14 @@ func configDebugRoutes() {
 			return
 		}
 
-		api.HandleItems([]*model.GraphItem{gitem})
+		api.HandleItems([]*cmodel.GraphItem{gitem})
 		RenderDataJson(w, "ok")
 	})
 
 }
 
-func convert2GraphItem(d *model.MetaData) (*model.GraphItem, error) {
-	item := &model.GraphItem{}
+func convert2GraphItem(d *cmodel.MetaData) (*cmodel.GraphItem, error) {
+	item := &cmodel.GraphItem{}
 
 	item.Endpoint = d.Endpoint
 	item.Metric = d.Metric

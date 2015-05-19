@@ -34,6 +34,7 @@ function start() {
         return 1
     fi
 
+    export LD_LIBRARY_PATH=$HOME/rrdtool/lib
     nohup ./$app -c $conf >>$logfile 2>&1 &
     echo $! > $pidfile
     echo "$app started..., pid=$!"
@@ -43,6 +44,12 @@ function stop() {
     pid=`cat $pidfile`
     kill $pid
     echo "$app quit..."
+}
+
+function shutdown() {
+    pid=`cat $pidfile`
+    kill -9 $pid
+    echo "$app kill..."
 }
 
 function kill9() {
@@ -63,7 +70,7 @@ function status() {
     if [ $running -gt 0 ];then
         echo -n "$app now is running, pid="
         cat $pidfile
-		echo
+		echo 
     else
         echo "$app is stoped"
     fi
@@ -73,21 +80,18 @@ function tailf() {
     tail -f $logfile
 }
 
-function pack() {
-    build
-    git log -1 --pretty=%h > gitversion
-    version=`./$app -v`
-    tar zcvf $app-$version.tar.gz control $app cfg.example.json ./test/debug gitversion
+function help() {
+    echo "$0 start|stop|restart|status|tail|test"
 }
 
-function packbin() {
-    build
-    git log -1 --pretty=%h > gitversion
-    version=`./$app -v`
-    tar zcvf $app-bin-$version.tar.gz $app gitversion
+function pack() {
+    export LD_LIBRARY_PATH=$HOME/rrdtool/lib
+    tar zcvf $app-`./$app -v`.tar.gz control $app cfg.example.json ./test/debug
 }
 
 function build() {
+    export PKG_CONFIG_PATH=$HOME/rrdtool/lib/pkgconfig
+    export LD_LIBRARY_PATH=$HOME/rrdtool/lib
 	commit=$(git log -1 --pretty=%h)
 	cat <<EOF > ./g/git.go
 package g
@@ -100,6 +104,7 @@ EOF
 }
 
 function show_version() {
+    export LD_LIBRARY_PATH=$HOME/rrdtool/lib
     ./$app -vg
 }
 
@@ -110,10 +115,6 @@ function test() {
     else
         echo "test: bad args"
     fi
-}
-
-function help() {
-    echo "$0 start|stop|restart|status|tail|kill9|build|version|pack|packbin|test"
 }
 
 if [ "$1" == "" ]; then
@@ -131,15 +132,15 @@ elif [ "$1" == "status" ];then
 elif [ "$1" == "tail" ];then
     tailf
 elif [ "$1" == "pack" ];then
-    pack
-elif [ "$1" == "packbin" ];then
-    packbin
+    pack $2
 elif [ "$1" == "build" ];then
     build
 elif [ "$1" == "version" ];then
     show_version
 elif [ "$1" == "test" ]; then
     test $2
+elif [ "$1" == "shutdown" ]; then
+    kill
 else
     help
 fi

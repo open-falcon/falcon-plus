@@ -5,8 +5,8 @@ import (
 	"log"
 	"math"
 
-	"github.com/open-falcon/common/model"
-	MUtils "github.com/open-falcon/common/utils"
+	cmodel "github.com/open-falcon/common/model"
+	cutils "github.com/open-falcon/common/utils"
 	"github.com/open-falcon/graph/g"
 	"github.com/open-falcon/graph/index"
 	"github.com/open-falcon/graph/proc"
@@ -19,22 +19,22 @@ import (
 
 type Graph int
 
-func (this *Graph) Ping(req model.NullRpcRequest, resp *model.SimpleRpcResponse) error {
+func (this *Graph) Ping(req cmodel.NullRpcRequest, resp *cmodel.SimpleRpcResponse) error {
 	return nil
 }
 
-func (this *Graph) Send(items []*model.GraphItem, resp *model.SimpleRpcResponse) error {
+func (this *Graph) Send(items []*cmodel.GraphItem, resp *cmodel.SimpleRpcResponse) error {
 	go handleItems(items)
 	return nil
 }
 
 // 供外部调用、处理接收到的数据 的接口
-func HandleItems(items []*model.GraphItem) error {
+func HandleItems(items []*cmodel.GraphItem) error {
 	handleItems(items)
 	return nil
 }
 
-func handleItems(items []*model.GraphItem) {
+func handleItems(items []*cmodel.GraphItem) {
 	if items == nil {
 		return
 	}
@@ -52,9 +52,7 @@ func handleItems(items []*model.GraphItem) {
 
 		//statistics
 		proc.GraphRpcRecvCnt.Incr()
-		if checksum == proc.RecvDataTrace.PK {
-			proc.RecvDataTrace.PushFront(items[i])
-		}
+		proc.RecvDataTrace.Trace(checksum, items[i])
 
 		// To Graph
 		first := store.GraphItems.First(checksum)
@@ -68,20 +66,17 @@ func handleItems(items []*model.GraphItem) {
 	}
 }
 
-func (this *Graph) Query(param model.GraphQueryParam, resp *model.GraphQueryResponse) error {
-	resp.Values = []*model.RRDData{}
+func (this *Graph) Query(param cmodel.GraphQueryParam, resp *cmodel.GraphQueryResponse) error {
+	// statistics
+	proc.GraphQueryCnt.Incr()
 
-	endpointId, exists := store.LoadEndpointId(param.Endpoint)
+	resp.Values = []*cmodel.RRDData{}
+	dsType, step, exists := index.GetTypeAndStep(param.Endpoint, param.Counter)
 	if !exists {
 		return nil
 	}
 
-	dsType, step, exists := store.LoadDsTypeAndStep(endpointId, param.Counter)
-	if !exists {
-		return nil
-	}
-
-	md5 := MUtils.Md5(param.Endpoint + "/" + param.Counter)
+	md5 := cutils.Md5(param.Endpoint + "/" + param.Counter)
 	filename := fmt.Sprintf("%s/%s/%s_%s_%d.rrd", g.Config().RRD.Storage, md5[0:2], md5, dsType, step)
 
 	datas, err := rrdtool.Fetch(filename, param.ConsolFun, param.Start, param.End, step)
@@ -106,9 +101,9 @@ func (this *Graph) Query(param model.GraphQueryParam, resp *model.GraphQueryResp
 		int(datas[1].Timestamp-datas[0].Timestamp) == step &&
 		items[items_size-1].Timestamp > datas[0].Timestamp {
 
-		var val model.JsonFloat
+		var val cmodel.JsonFloat
 		cache_size := int(items[items_size-1].Timestamp-items[0].Timestamp)/step + 1
-		cache := make([]*model.RRDData, cache_size, cache_size)
+		cache := make([]*cmodel.RRDData, cache_size, cache_size)
 
 		//fix items
 		items_idx := 0
@@ -118,17 +113,17 @@ func (this *Graph) Query(param model.GraphQueryParam, resp *model.GraphQueryResp
 				if items_idx < items_size-1 &&
 					ts == items[items_idx].Timestamp &&
 					ts != items[items_idx+1].Timestamp {
-					val = model.JsonFloat(items[items_idx+1].Value-items[items_idx].Value) /
-						model.JsonFloat(items[items_idx+1].Timestamp-items[items_idx].Timestamp)
+					val = cmodel.JsonFloat(items[items_idx+1].Value-items[items_idx].Value) /
+						cmodel.JsonFloat(items[items_idx+1].Timestamp-items[items_idx].Timestamp)
 					if val < 0 {
-						val = model.JsonFloat(math.NaN())
+						val = cmodel.JsonFloat(math.NaN())
 					}
 					items_idx++
 				} else {
 					// miss
-					val = model.JsonFloat(math.NaN())
+					val = cmodel.JsonFloat(math.NaN())
 				}
-				cache[i] = &model.RRDData{
+				cache[i] = &cmodel.RRDData{
 					Timestamp: ts,
 					Value:     val,
 				}
@@ -137,13 +132,13 @@ func (this *Graph) Query(param model.GraphQueryParam, resp *model.GraphQueryResp
 		} else if dsType == g.GAUGE {
 			for i := 0; i < cache_size; i++ {
 				if items_idx < items_size && ts == items[items_idx].Timestamp {
-					val = model.JsonFloat(items[items_idx].Value)
+					val = cmodel.JsonFloat(items[items_idx].Value)
 					items_idx++
 				} else {
 					// miss
-					val = model.JsonFloat(math.NaN())
+					val = cmodel.JsonFloat(math.NaN())
 				}
-				cache[i] = &model.RRDData{
+				cache[i] = &cmodel.RRDData{
 					Timestamp: ts,
 					Value:     val,
 				}
@@ -155,7 +150,7 @@ func (this *Graph) Query(param model.GraphQueryParam, resp *model.GraphQueryResp
 		}
 
 		size := int(items[items_size-1].Timestamp-datas[0].Timestamp)/step + 1
-		ret := make([]*model.RRDData, size, size)
+		ret := make([]*cmodel.RRDData, size, size)
 		cache_idx := 0
 		ts = datas[0].Timestamp
 
@@ -185,10 +180,10 @@ func (this *Graph) Query(param model.GraphQueryParam, resp *model.GraphQueryResp
 					cache_idx++
 				} else {
 					//miss
-					val = model.JsonFloat(math.NaN())
+					val = cmodel.JsonFloat(math.NaN())
 				}
 			}
-			ret[i] = &model.RRDData{
+			ret[i] = &cmodel.RRDData{
 				Timestamp: ts,
 				Value:     val,
 			}
@@ -204,21 +199,21 @@ func (this *Graph) Query(param model.GraphQueryParam, resp *model.GraphQueryResp
 	resp.DsType = dsType
 	resp.Step = step
 
+	// statistics
+	proc.GraphQueryItemCnt.IncrBy(int64(len(resp.Values)))
 	return nil
 }
 
-func (this *Graph) Info(param model.GraphInfoParam, resp *model.GraphInfoResp) error {
-	endpointId, exists := store.LoadEndpointId(param.Endpoint)
+func (this *Graph) Info(param cmodel.GraphInfoParam, resp *cmodel.GraphInfoResp) error {
+	// statistics
+	proc.GraphInfoCnt.Incr()
+
+	dsType, step, exists := index.GetTypeAndStep(param.Endpoint, param.Counter)
 	if !exists {
 		return nil
 	}
 
-	dsType, step, exists := store.LoadDsTypeAndStep(endpointId, param.Counter)
-	if !exists {
-		return nil
-	}
-
-	md5 := MUtils.Md5(param.Endpoint + "/" + param.Counter)
+	md5 := cutils.Md5(param.Endpoint + "/" + param.Counter)
 	filename := fmt.Sprintf("%s/%s/%s_%s_%d.rrd", g.Config().RRD.Storage, md5[0:2], md5, dsType, step)
 
 	resp.ConsolFun = dsType

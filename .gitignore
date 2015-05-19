@@ -35,8 +35,7 @@ _testmain.go
 /graph
 /falcon-graph
 /cfg.json
-/test/*.go
-/test/build
+/test
 g/git.go
 
 tmp/

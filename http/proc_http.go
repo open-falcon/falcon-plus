@@ -1,7 +1,7 @@
 package http
 
 import (
-	"github.com/open-falcon/graph/g"
+	cutils "github.com/open-falcon/common/utils"
 	"github.com/open-falcon/graph/proc"
 	"net/http"
 	"strings"
@@ -11,10 +11,6 @@ func configProcRoutes() {
 	// TOP
 	http.HandleFunc("/statistics/all", func(w http.ResponseWriter, r *http.Request) {
 		RenderDataJson(w, proc.GetAll())
-	})
-
-	http.HandleFunc("/statistics/config", func(w http.ResponseWriter, r *http.Request) {
-		RenderDataJson(w, g.Config())
 	})
 
 	// trace
@@ -35,8 +31,8 @@ func configProcRoutes() {
 				}
 			}
 		}
-		proc.RecvDataTrace.SetTraceConfig(endpoint, metric, tags)
-		RenderDataJson(w, proc.RecvDataTrace.FilterAll())
+		proc.RecvDataTrace.SetPK(cutils.Checksum(endpoint, metric, tags))
+		RenderDataJson(w, proc.RecvDataTrace.GetAllTraced())
 	})
 
 }

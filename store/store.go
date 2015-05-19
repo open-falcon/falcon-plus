@@ -4,7 +4,7 @@ import (
 	"container/list"
 	"hash/crc32"
 
-	"github.com/open-falcon/common/model"
+	cmodel "github.com/open-falcon/common/model"
 	"github.com/open-falcon/graph/g"
 	//"log"
 	"sync"
@@ -51,7 +51,7 @@ func (this *GraphItemMap) Len() int {
 	return l
 }
 
-func (this *GraphItemMap) First(key string) *model.GraphItem {
+func (this *GraphItemMap) First(key string) *cmodel.GraphItem {
 	this.RLock()
 	defer this.RUnlock()
 	idx := int(hashKey(key)) % this.Size
@@ -65,27 +65,27 @@ func (this *GraphItemMap) First(key string) *model.GraphItem {
 		return nil
 	}
 
-	return first.Value.(*model.GraphItem)
+	return first.Value.(*cmodel.GraphItem)
 }
 
-func (this *GraphItemMap) PopAll(key string) []*model.GraphItem {
+func (this *GraphItemMap) PopAll(key string) []*cmodel.GraphItem {
 	this.RLock()
 	defer this.RUnlock()
 	idx := int(hashKey(key)) % this.Size
 	L, ok := this.A[idx][key]
 	if !ok {
-		return []*model.GraphItem{}
+		return []*cmodel.GraphItem{}
 	}
 	return L.PopAll()
 }
 
-func (this *GraphItemMap) FetchAll(key string) []*model.GraphItem {
+func (this *GraphItemMap) FetchAll(key string) []*cmodel.GraphItem {
 	this.RLock()
 	defer this.RUnlock()
 	idx := int(hashKey(key)) % this.Size
 	L, ok := this.A[idx][key]
 	if !ok {
-		return []*model.GraphItem{}
+		return []*cmodel.GraphItem{}
 	}
 
 	return L.FetchAll()
@@ -105,7 +105,7 @@ func getWts(key string, now int64) int64 {
 	return now + interval - (int64(hashKey(key)) % interval)
 }
 
-func (this *GraphItemMap) PushFront(key string, val *model.GraphItem) {
+func (this *GraphItemMap) PushFront(key string, val *cmodel.GraphItem) {
 	if linkedList, exists := this.Get(key); exists {
 		linkedList.PushFront(val)
 	} else {
