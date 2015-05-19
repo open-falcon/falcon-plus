@@ -28,6 +28,7 @@ func startHttpServer() {
 
 	configCommonRoutes()
 	configProcHttpRoutes()
+	configDebugHttpRoutes()
 
 	s := &http.Server{
 		Addr:           addr,

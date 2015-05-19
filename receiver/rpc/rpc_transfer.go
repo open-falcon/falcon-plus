@@ -1,8 +1,9 @@
 package rpc
 
 import (
-	"github.com/open-falcon/common/model"
-	MUtils "github.com/open-falcon/common/utils"
+	"fmt"
+	cmodel "github.com/open-falcon/common/model"
+	cutils "github.com/open-falcon/common/utils"
 	"github.com/open-falcon/transfer/g"
 	"github.com/open-falcon/transfer/proc"
 	"github.com/open-falcon/transfer/sender"
@@ -12,15 +13,31 @@ import (
 
 type Transfer int
 
-func (this *Transfer) Ping(req model.NullRpcRequest, resp *model.SimpleRpcResponse) error {
+type TransferResp struct {
+	Msg        string
+	Total      int
+	ErrInvalid int
+	Latency    int64
+}
+
+func (t *TransferResp) String() string {
+	s := fmt.Sprintf("TransferResp total=%d, err_invalid=%d, latency=%dus",
+		t.Total, t.ErrInvalid, t.Latency)
+	if t.Msg != "" {
+		s = fmt.Sprintf("%s, msg=%s", s, t.Msg)
+	}
+	return s
+}
+
+func (this *Transfer) Ping(req cmodel.NullRpcRequest, resp *cmodel.SimpleRpcResponse) error {
 	return nil
 }
 
-func (t *Transfer) Update(args []*model.MetricValue, reply *model.TransferResponse) error {
+func (t *Transfer) Update(args []*cmodel.MetricValue, reply *cmodel.TransferResponse) error {
 	start := time.Now()
 	reply.Invalid = 0
 
-	items := []*model.MetaData{}
+	items := []*cmodel.MetaData{}
 	for _, v := range args {
 		if v == nil {
 			reply.Invalid += 1
@@ -65,13 +82,13 @@ func (t *Transfer) Update(args []*model.MetricValue, reply *model.TransferRespon
 			v.Timestamp = now
 		}
 
-		fv := &model.MetaData{
+		fv := &cmodel.MetaData{
 			Metric:      v.Metric,
 			Endpoint:    v.Endpoint,
 			Timestamp:   v.Timestamp,
 			Step:        v.Step,
 			CounterType: v.Type,
-			Tags:        MUtils.DictedTagstring(v.Tags), //TODO tags键值对的个数,要做一下限制
+			Tags:        cutils.DictedTagstring(v.Tags), //TODO tags键值对的个数,要做一下限制
 		}
 
 		valid := true

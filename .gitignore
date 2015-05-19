@@ -31,10 +31,7 @@ _testmain.go
 /var
 /falcon-transfer*
 /cfg.json
-/test/build
-/test/*.go
-/test/*.sh
+/test
 
-cfg.json
 gitversion
 g/git.go

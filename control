@@ -11,9 +11,6 @@ conf=cfg.json
 pidfile=var/app.pid
 logfile=var/app.log
 
-[[ -f $module ]] && mv $module $app
-[[ -f $conf ]] || cp cfg.example.json $conf
-
 function check_pid() {
     if [ -f $pidfile ];then
         pid=`cat $pidfile`
@@ -34,18 +31,12 @@ function start() {
         return 1
     fi
 
-    nohup ./$app -c $conf >>$logfile 2>&1 &
+    nohup ./$app -c $conf &> $logfile &
     echo $! > $pidfile
     echo "$app started..., pid=$!"
 }
 
 function stop() {
-    pid=`cat $pidfile`
-    kill $pid
-    echo "$app quit..."
-}
-
-function kill9() {
     pid=`cat $pidfile`
     kill -9 $pid
     echo "$app stoped..."
@@ -53,7 +44,7 @@ function kill9() {
 
 function restart() {
     stop
-    sleep 2
+    sleep 1
     start
 }
 
@@ -73,11 +64,11 @@ function tailf() {
 }
 
 function build() {
-	commit=$(git log -1 --pretty=%h)
-	cat <<EOF > ./g/git.go
+    commit=$(git log -1 --pretty=%h)
+    cat <<EOF > ./g/git.go
 package g
 const (
-	COMMIT = "$commit"
+    COMMIT = "$commit"
 )
 EOF
     go build -o $app main.go
@@ -92,7 +83,7 @@ function pack() {
     build
     git log -1 --pretty=%h > gitversion
     version=`./$app -v`
-    tar zcvf $app-$version.tar.gz control $app cfg.example.json gitversion
+    tar zcvf $app-$version.tar.gz control $app cfg.example.json gitversion ./test/debug
 }
 
 function packbin() {
@@ -102,16 +93,15 @@ function packbin() {
     tar zcvf $app-bin-$version.tar.gz $app gitversion
 }
 
+
 function help() {
-    echo "$0 start|stop|restart|status|tail|kill9|build|version|pack|packbin"
+    echo "$0 build|pack|packbin|start|stop|restart|status|tail"
 }
 
 if [ "$1" == "" ]; then
     help
 elif [ "$1" == "stop" ];then
     stop
-elif [ "$1" == "kill9" ];then
-    kill9
 elif [ "$1" == "start" ];then
     start
 elif [ "$1" == "restart" ];then
@@ -120,14 +110,12 @@ elif [ "$1" == "status" ];then
     status
 elif [ "$1" == "tail" ];then
     tailf
-elif [ "$1" == "pack" ];then
-    pack
-elif [ "$1" == "packbin" ];then
-    packbin
 elif [ "$1" == "build" ];then
     build
-elif [ "$1" == "version" ];then
-    show_version
+elif [ "$1" == "packbin" ];then
+    packbin
+elif [ "$1" == "pack" ];then
+    pack
 else
     help
 fi

@@ -6,8 +6,7 @@ import (
 	"net"
 )
 
-func Start() {
-
+func StartSocket() {
 	if !g.Config().Socket.Enabled {
 		return
 	}
@@ -34,6 +33,6 @@ func Start() {
 			continue
 		}
 
-		go socketHandle(conn)
+		go socketTelnetHandle(conn)
 	}
 }

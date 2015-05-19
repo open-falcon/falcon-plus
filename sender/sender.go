@@ -2,10 +2,10 @@ package sender
 
 import (
 	"fmt"
-	"github.com/open-falcon/common/model"
-	"github.com/open-falcon/common/pool"
+	cmodel "github.com/open-falcon/common/model"
 	"github.com/open-falcon/transfer/g"
 	"github.com/open-falcon/transfer/proc"
+	cpool "github.com/open-falcon/transfer/sender/conn_pool"
 	"github.com/toolkits/container/list"
 	"log"
 )
@@ -33,9 +33,9 @@ var (
 // 连接池
 // node_address -> connection_pool
 var (
-	JudgeConnPools          *pool.SafeRpcConnPools
-	GraphConnPools          *pool.SafeRpcConnPools
-	GraphMigratingConnPools *pool.SafeRpcConnPools
+	JudgeConnPools          *cpool.SafeRpcConnPools
+	GraphConnPools          *cpool.SafeRpcConnPools
+	GraphMigratingConnPools *cpool.SafeRpcConnPools
 )
 
 // 初始化数据发送服务, 在main函数中调用
@@ -45,18 +45,17 @@ func Start() {
 	initNodeRings()
 	// SendTasks依赖基础组件的初始化,要最后启动
 	startSendTasks()
+	startSenderCron()
 	log.Println("send.Start, ok")
 }
 
 // 将数据 打入 某个Judge的发送缓存队列, 具体是哪一个Judge 由一致性哈希 决定
-func Push2JudgeSendQueue(items []*model.MetaData) {
+func Push2JudgeSendQueue(items []*cmodel.MetaData) {
 	for _, item := range items {
 		pk := item.PK()
 
-		// statistics, transfer recv. 为了效率,放到了这里
-		if proc.RecvDataTrace.PK == pk {
-			proc.RecvDataTrace.PushFront(item)
-		}
+		// statistics, transfer recv. 为了效率,放到了这里,因此只有judge是enbale时才能trace
+		proc.RecvDataTrace.Trace(pk, item)
 
 		node, err := JudgeNodeRing.GetNode(pk)
 		if err != nil {
@@ -64,7 +63,7 @@ func Push2JudgeSendQueue(items []*model.MetaData) {
 			continue
 		}
 
-		judgeItem := &model.JudgeItem{
+		judgeItem := &cmodel.JudgeItem{
 			Endpoint:  item.Endpoint,
 			Metric:    item.Metric,
 			Value:     item.Value,
@@ -78,17 +77,13 @@ func Push2JudgeSendQueue(items []*model.MetaData) {
 		// statistics
 		if !isSuccess {
 			proc.SendToJudgeDropCnt.Incr()
-			cnt := proc.SendToJudgeDropCntPerNode[node]
-			if cnt != nil {
-				cnt.Incr()
-			}
 		}
 	}
 }
 
 // 将数据 打入 某个Graph的发送缓存队列, 具体是哪一个Graph 由一致性哈希 决定
 // 如果正在数据迁移, 数据除了打到原有配置上 还要向新的配置上打一份(新老重叠时要去重,防止将一条数据向一台Graph上打两次)
-func Push2GraphSendQueue(items []*model.MetaData, migrating bool) {
+func Push2GraphSendQueue(items []*cmodel.MetaData, migrating bool) {
 	for _, item := range items {
 		graphItem, err := convert2GraphItem(item)
 		if err != nil {
@@ -108,10 +103,6 @@ func Push2GraphSendQueue(items []*model.MetaData, migrating bool) {
 		// statistics
 		if !isSuccess {
 			proc.SendToGraphDropCnt.Incr()
-			cnt := proc.SendToGraphDropCntPerNode[node]
-			if cnt != nil {
-				cnt.Incr()
-			}
 		}
 
 		if migrating {
@@ -128,10 +119,6 @@ func Push2GraphSendQueue(items []*model.MetaData, migrating bool) {
 				// statistics
 				if !isSuccess {
 					proc.SendToGraphMigratingDropCnt.Incr()
-					cnt := proc.SendToGraphMigratingDropCntPerNode[migratingNode]
-					if cnt != nil {
-						cnt.Incr()
-					}
 
 				}
 			}
@@ -140,8 +127,8 @@ func Push2GraphSendQueue(items []*model.MetaData, migrating bool) {
 }
 
 // 打到Graph的数据,要根据rrdtool的特定 来限制 step、counterType、timestamp
-func convert2GraphItem(d *model.MetaData) (*model.GraphItem, error) {
-	item := &model.GraphItem{}
+func convert2GraphItem(d *cmodel.MetaData) (*cmodel.GraphItem, error) {
+	item := &cmodel.GraphItem{}
 
 	item.Endpoint = d.Endpoint
 	item.Metric = d.Metric

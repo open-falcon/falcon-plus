@@ -3,7 +3,7 @@ package socket
 import (
 	"bufio"
 	"fmt"
-	"github.com/open-falcon/common/model"
+	cmodel "github.com/open-falcon/common/model"
 	"github.com/open-falcon/transfer/g"
 	"github.com/open-falcon/transfer/proc"
 	"github.com/open-falcon/transfer/sender"
@@ -13,10 +13,10 @@ import (
 	"time"
 )
 
-func socketHandle(conn net.Conn) {
+func socketTelnetHandle(conn net.Conn) {
 	defer conn.Close()
 
-	items := []*model.MetaData{}
+	items := []*cmodel.MetaData{}
 	buf := bufio.NewReader(conn)
 
 	cfg := g.Config()
@@ -56,7 +56,6 @@ func socketHandle(conn net.Conn) {
 		}
 
 		items = append(items, item)
-
 	}
 
 	// statistics
@@ -77,7 +76,7 @@ func socketHandle(conn net.Conn) {
 
 // example: endpoint counter timestamp value [type] [step]
 // default type is DERIVE, default step is 60s
-func convertLine2MetaData(fields []string) (item *model.MetaData, err error) {
+func convertLine2MetaData(fields []string) (item *cmodel.MetaData, err error) {
 	if len(fields) != 4 && len(fields) != 5 && len(fields) != 6 {
 		err = fmt.Errorf("not_enough_fileds")
 		return
@@ -125,7 +124,7 @@ func convertLine2MetaData(fields []string) (item *model.MetaData, err error) {
 		}
 	}
 
-	item = &model.MetaData{
+	item = &cmodel.MetaData{
 		Metric:      metric,
 		Endpoint:    endpoint,
 		Timestamp:   ts,

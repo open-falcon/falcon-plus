@@ -8,7 +8,7 @@ import (
 	"net/rpc/jsonrpc"
 )
 
-func Start() {
+func StartRpc() {
 	if !g.Config().Rpc.Enabled {
 		return
 	}
