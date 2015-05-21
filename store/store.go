@@ -69,8 +69,8 @@ func (this *GraphItemMap) First(key string) *cmodel.GraphItem {
 }
 
 func (this *GraphItemMap) PopAll(key string) []*cmodel.GraphItem {
-	this.RLock()
-	defer this.RUnlock()
+	this.Lock()
+	defer this.Unlock()
 	idx := int(hashKey(key)) % this.Size
 	L, ok := this.A[idx][key]
 	if !ok {

@@ -84,6 +84,8 @@ func (this *Graph) Query(param cmodel.GraphQueryParam, resp *cmodel.GraphQueryRe
 		items := store.GraphItems.PopAll(md5)
 		size := len(items)
 		if size > 2 {
+			filename := fmt.Sprintf("%s/%s/%s_%s_%d.rrd", g.Config().RRD.Storage, md5[0:2],
+				md5, items[0].DsType, items[0].Step)
 			err := rrdtool.Flush(filename, items)
 			if err != nil && g.Config().Debug && g.Config().DebugChecksum == md5 {
 				log.Println("flush fail:", err, "filename:", filename)
