@@ -18,11 +18,7 @@ import (
 	"github.com/toolkits/logger"
 )
 
-var pid int
-
-var conf g.GlobalConfig
-
-func start_signal() {
+func start_signal(pid int, conf g.GlobalConfig) {
 	sigs := make(chan os.Signal, 1)
 	log.Println(pid, "register signal notify")
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
@@ -49,15 +45,11 @@ func start_signal() {
 }
 
 func main() {
-	pid = os.Getpid()
 
 	cfg := flag.String("c", "cfg.json", "configuration file")
 	version := flag.Bool("v", false, "show version")
 	versionGit := flag.Bool("vg", false, "show version")
 	flag.Parse()
-	g.ParseConfig(*cfg)
-
-	conf = *g.Config()
 
 	if *version {
 		fmt.Println(g.VERSION)
@@ -68,6 +60,9 @@ func main() {
 		fmt.Println(g.VERSION, g.COMMIT)
 		os.Exit(0)
 	}
+
+	// global config
+	g.ParseConfig(*cfg)
 
 	// 只在启动的时候初始化一次，而ParseConfig可以被多次调用
 	logger.SetLevelWithDefault(g.Config().Log, "info")
@@ -84,6 +79,6 @@ func main() {
 	// http
 	go http.Start()
 
-	start_signal()
+	start_signal(os.Getpid(), *g.Config())
 
 }
