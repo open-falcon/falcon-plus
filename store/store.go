@@ -51,6 +51,18 @@ func (this *GraphItemMap) Len() int {
 	return l
 }
 
+func (this *GraphItemMap) LenOf(key string) int {
+	this.RLock()
+	defer this.RUnlock()
+
+	idx := int(hashKey(key)) % this.Size
+	L, ok := this.A[idx][key]
+	if !ok {
+		return 0
+	}
+	return L.Len()
+}
+
 func (this *GraphItemMap) First(key string) *cmodel.GraphItem {
 	this.RLock()
 	defer this.RUnlock()

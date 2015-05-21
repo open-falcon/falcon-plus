@@ -34,7 +34,6 @@ function start() {
         return 1
     fi
 
-    export LD_LIBRARY_PATH=$HOME/rrdtool/lib
     nohup ./$app -c $conf >>$logfile 2>&1 &
     echo $! > $pidfile
     echo "$app started..., pid=$!"
@@ -85,13 +84,21 @@ function help() {
 }
 
 function pack() {
-    export LD_LIBRARY_PATH=$HOME/rrdtool/lib
-    tar zcvf $app-`./$app -v`.tar.gz control $app cfg.example.json ./test/debug
+    build
+    git log -1 --pretty=%h > gitversion
+    version=`./$app -v`
+    tar zcvf $app-$version.tar.gz control $app cfg.example.json gitversion ./test/debug 
 }
 
+function packbin() {
+    build
+    git log -1 --pretty=%h > gitversion
+    version=`./$app -v`
+    tar zcvf $app-$version.tar.gz control $app gitversion
+}
+
+
 function build() {
-    export PKG_CONFIG_PATH=$HOME/rrdtool/lib/pkgconfig
-    export LD_LIBRARY_PATH=$HOME/rrdtool/lib
 	commit=$(git log -1 --pretty=%h)
 	cat <<EOF > ./g/git.go
 package g
@@ -104,7 +111,6 @@ EOF
 }
 
 function show_version() {
-    export LD_LIBRARY_PATH=$HOME/rrdtool/lib
     ./$app -vg
 }
 
@@ -132,7 +138,9 @@ elif [ "$1" == "status" ];then
 elif [ "$1" == "tail" ];then
     tailf
 elif [ "$1" == "pack" ];then
-    pack $2
+    pack
+elif [ "$1" == "packbin" ];then
+    packbin
 elif [ "$1" == "build" ];then
     build
 elif [ "$1" == "version" ];then

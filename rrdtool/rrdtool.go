@@ -11,7 +11,7 @@ import (
 	cmodel "github.com/open-falcon/common/model"
 	"github.com/open-falcon/graph/g"
 	"github.com/open-falcon/graph/store"
-	"github.com/open-falcon/rrd"
+	"github.com/open-falcon/rrdlite"
 	"github.com/toolkits/file"
 	"github.com/toolkits/logger"
 )
@@ -46,7 +46,7 @@ func create(filename string, item *cmodel.GraphItem) error {
 	start := now.Add(time.Duration(-24) * time.Hour)
 	step := uint(item.Step)
 
-	c := rrd.NewCreator(filename, start, step)
+	c := rrdlite.NewCreator(filename, start, step)
 	c.DS("metric", item.DsType, item.Heartbeat, item.Min, item.Max)
 
 	// 设置各种归档策略
@@ -77,7 +77,7 @@ func create(filename string, item *cmodel.GraphItem) error {
 }
 
 func update(filename string, items []*cmodel.GraphItem) error {
-	u := rrd.NewUpdater(filename)
+	u := rrdlite.NewUpdater(filename)
 
 	for _, item := range items {
 		v := math.Abs(item.Value)
@@ -132,7 +132,7 @@ func Fetch(filename string, cf string, start, end int64, step int) ([]*cmodel.RR
 	lock.Lock()
 	defer lock.Unlock()
 
-	fetchRes, err := rrd.Fetch(filename, cf, start_t, end_t, step_t)
+	fetchRes, err := rrdlite.Fetch(filename, cf, start_t, end_t, step_t)
 	if err != nil {
 		return []*cmodel.RRDData{}, err
 	}

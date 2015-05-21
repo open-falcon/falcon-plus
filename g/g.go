@@ -5,8 +5,10 @@ import (
 	"runtime"
 )
 
+// Change Logs
+// 0.5.2 use rrdlite other than rrdtool, fix data lost when query failed
 const (
-	VERSION         = "0.4.8"
+	VERSION         = "0.5.2"
 	GAUGE           = "GAUGE"
 	DERIVE          = "DERIVE"
 	COUNTER         = "COUNTER"
