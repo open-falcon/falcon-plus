@@ -4,7 +4,7 @@ falcon-agent
 This is a linux monitor agent. Just like zabbix-agent and tcollector.
 
 
-## install
+## Installation
 
 It is a golang classic project
 
@@ -23,13 +23,13 @@ go get ./...
 
 I use [linux-dash](https://github.com/afaqurk/linux-dash) as the page theme.
 
-## configuration
+## Configuration
 
 - heartbeat: heartbeat server rpc address
 - transfer: transfer rpc address
 - ignore: the metrics should ignore
 
-# deploy
+# Deployment
 
 http://ulricqin.com/project/ops-updater/
 
