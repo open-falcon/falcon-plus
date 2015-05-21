@@ -1,4 +1,4 @@
-## intro
+## Introduction
 
 Query面向终端用户，收到查询请求后，根据一致性哈希算法，会去相应的Graph里面，查询不同metric的数据，汇总后统一返回给用户。
 
@@ -38,7 +38,7 @@ print r.text
 
 其中cf的值可以为：AVERAGE、MAX、MIN ，具体可以参考RRDtool的相关概念
 
-## install
+## Installation
 
 ```bash
 # set $GOPATH and $GOROOT
@@ -54,7 +54,7 @@ go get ./...
 ./control start
 ```
 
-## configuration
+## Configuration
 
     log_level: 可选 error/warn/info/debug/trace，默认为info
 
