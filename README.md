@@ -20,7 +20,7 @@ each(metric=qps project=falcon)
 
 如上配置之后，push上来的数据如果发现metric=qps，并且带有project=falcon这个tag，那就说明与这个expression相关，要做相关阈值判断
 
-## install
+## Installation
 
 ```bash
 # set $GOPATH and $GOROOT
@@ -33,7 +33,7 @@ go get ./...
 ./control start
 ```
 
-## configuration
+## Configuration
 
 配置文件中主要是一些连接地址和监听的端口，没啥好说的，看一下alarm的配置，judge报警判断完毕之后会产生报警event，这些event会写入
 alarm的redis队列中，不同优先级（配置策略的时候每个策略会配置一个优先级，0-5）写入不同队列，alarm中除了redis地址需要修改，其他
