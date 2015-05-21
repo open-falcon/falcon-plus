@@ -78,9 +78,12 @@ func (this *Graph) Query(param cmodel.GraphQueryParam, resp *cmodel.GraphQueryRe
 
 	md5 := cutils.Md5(param.Endpoint + "/" + param.Counter)
 	filename := fmt.Sprintf("%s/%s/%s_%s_%d.rrd", g.Config().RRD.Storage, md5[0:2], md5, dsType, step)
-
 	datas, err := rrdtool.Fetch(filename, param.ConsolFun, param.Start, param.End, step)
 	if err != nil {
+		if store.GraphItems.LenOf(md5) <= 2 {
+			return nil
+		}
+		// TODO not atomic, fix me
 		items := store.GraphItems.PopAll(md5)
 		size := len(items)
 		if size > 2 {
