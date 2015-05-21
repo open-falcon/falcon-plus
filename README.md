@@ -1,4 +1,4 @@
-## intro
+## Introduction
 
 数据收集，是监控系统一个最基本的功能，在Open-Falcon中，Agent采集到的数据，会先发送给Transfer组件。Transfer在接收到客户端发送的数据，做一些数据规整，检查之后，转发到多个后端系统去处理。在转发到每个后端业务系统的时候，Transfer会根据一致性哈希算法，进行数据分片，来达到后端业务系统的水平扩展。Transfer自身是无状态的，挂掉一台或者多台不会有任何影响。
 
@@ -38,7 +38,7 @@ r=requests.post("http://127.0.0.1:1988/v1/push",data=json.dumps(payload))
 print r.text
 ```
 
-## install
+## Installation
 
 ```bash
 # set $GOPATH and $GOROOT
@@ -54,7 +54,7 @@ go get ./...
 ./control start
 ```
 
-## configuration
+## Configuration
 
     debug: true/false, 如果为true，日志中会打印debug信息
 
