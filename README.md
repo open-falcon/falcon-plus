@@ -11,7 +11,7 @@ hbs要能够处理agent的上述请求，就需要与portal的数据库打交道
 
 所以hbs的逻辑就变成了：每分钟从DB中load各种数据，处理后放到内存里，静待agent、judge的请求。
 
-## install
+## Installation
 
 ```bash
 # set $GOPATH and $GOROOT
@@ -24,7 +24,7 @@ go get ./...
 ./control start
 ```
 
-## configuration
+## Configuration
 
 - database: portal的db连接地址
 - maxIdle: 数据库连接池的MaxIdle配置
