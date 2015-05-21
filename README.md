@@ -18,7 +18,7 @@ cfg.json中配置了api:sms和api:mail，即两个http接口，这是需要各�
 - content：邮件正文
 - subject：邮件标题
 
-## install
+## Installation
 
 ```bash
 # set $GOPATH and $GOROOT
@@ -32,7 +32,7 @@ go get ./...
 ./control start
 ```
 
-## configuration
+## Configuration
 
 - redis: redis地址需要和alarm、judge使用同一个
 - queue: 维持默认即可，需要和alarm的配置一致
