@@ -14,10 +14,6 @@ graph所做的事情，就是把用户每次push上来的数据，进行采样�
 
 ```bash
 # set $GOPATH and $GOROOT
-# build and compile rrdtool
-
-export PKG_CONFIG_PATH=$HOME/rrdtool/lib/pkgconfig
-export LD_LIBRARY_PATH=$HOME/rrdtool/lib
 
 mkdir -p $GOPATH/src/github.com/open-falcon
 cd $GOPATH/src/github.com/open-falcon
