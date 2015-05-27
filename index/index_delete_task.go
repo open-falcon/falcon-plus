@@ -3,7 +3,6 @@ package index
 import (
 	cron "github.com/niean/cron"
 	Mdb "github.com/open-falcon/model/db"
-	"github.com/open-falcon/task/db"
 	"github.com/open-falcon/task/proc"
 	TSemaphore "github.com/toolkits/concurrent/semaphore"
 	"log"
@@ -56,7 +55,7 @@ func DeleteIndex() {
 
 // 先select 得到可能被删除的index的信息, 然后以相同的条件delete. select和delete不是原子操作,可能有一些不一致,但不影响正确性
 func deleteIndex() error {
-	dbConn, err := db.GetDbConn()
+	dbConn, err := GetDbConn()
 	if err != nil {
 		log.Println("[ERROR] get dbConn fail", err)
 		return err
@@ -179,7 +178,7 @@ func deleteIndex() error {
 			log.Println(err)
 			return err
 		}
-		log.Printf("delete endpoint_counter, delete cnt %d\n", cnt)
+		log.Printf("delete endpoint_counter, done, cnt %d\n", cnt)
 
 		// statistics
 		proc.IndexDeleteCnt.PutOther("deleteCntEndpointCounter", cnt)

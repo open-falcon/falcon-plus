@@ -1,4 +1,4 @@
-package db
+package index
 
 import (
 	"database/sql"
@@ -9,7 +9,7 @@ import (
 
 var DB *sql.DB
 
-func Start() {
+func StartDB() {
 	var err error
 	DB, err = GetDbConn()
 	if err != nil {
@@ -20,12 +20,12 @@ func Start() {
 }
 
 func GetDbConn() (conn *sql.DB, err error) {
-	conn, err = sql.Open("mysql", g.Config().DB.Dsn)
+	conn, err = sql.Open("mysql", g.Config().Index.Dsn)
 	if err != nil {
 		return nil, err
 	}
 
-	conn.SetMaxIdleConns(g.Config().DB.MaxIdle)
+	conn.SetMaxIdleConns(g.Config().Index.MaxIdle)
 
 	err = conn.Ping()
 	if err != nil {

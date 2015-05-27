@@ -2,55 +2,111 @@ package monitor
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
-	cron "github.com/niean/cron"
-	"github.com/open-falcon/model"
+	ncron "github.com/niean/cron"
+	nsema "github.com/niean/gotools/concurrent/semaphore"
+	nmap "github.com/niean/gotools/container/nmap"
+	ntime "github.com/niean/gotools/time"
 	"github.com/open-falcon/task/g"
 	"github.com/open-falcon/task/proc"
-	TSemaphore "github.com/toolkits/concurrent/semaphore"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 )
 
 const (
-	srcUrlFmt = "http://%s/statistics/all"
-	destUrl   = "http://127.0.0.1:1988/v1/push"
+	alarmInterval = time.Duration(300) * time.Second
 )
 
 var (
-	monitorCron     = cron.New()
-	monitorCronSpec = "0 * * * * ?"
-	monitorSema     = TSemaphore.NewSemaphore(1)
+	monitorCron = ncron.New()
+	sema        = nsema.NewSemaphore(1)
+	statusCache = nmap.NewSafeMap()
+	alarmCache  = nmap.NewSafeMap()
+	cronSpec    = "0 * * * * ?"
 )
 
 func Start() {
 	if g.Config().Monitor.Enabled {
-		go startMonitorCron()
+		monitorCron.AddFunc(cronSpec, func() {
+			monitor()
+		})
+		monitorCron.Start()
+		go alarmJudge()
 		log.Println("monitor.Start, ok")
 	} else {
 		log.Println("monitor.Start, not enable")
 	}
-
 }
 
-func startMonitorCron() {
-	monitorCron.AddFunc(monitorCronSpec, func() {
-		monitor()
-	})
-	monitorCron.Start()
+// alarm judge
+func alarmJudge() {
+	interval := time.Duration(10) * time.Second
+	for {
+		time.Sleep(interval)
+		var content bytes.Buffer
+
+		keys := alarmCache.Keys()
+		if len(keys) == 0 {
+			continue
+		}
+		for _, key := range keys {
+			aitem, found := alarmCache.GetAndRemove(key)
+			if !found {
+				continue
+			}
+			content.WriteString(aitem.(*Alarm).String() + "\n")
+		}
+
+		if content.Len() > 5 {
+			err := sendMail(g.Config().Monitor.MailUrl,
+				formAlarmMailContent(g.Config().Monitor.MailTos, "Self-Monitor.Alarm", content.String(), "Falcon"))
+			if err != nil {
+				log.Println("alarm send mail error, ", err)
+			} else {
+				// statistics
+				proc.MonitorAlarmMailCnt.Incr()
+			}
+		}
+	}
 }
 
+func formAlarmMailContent(tos string, subject string, content string, from string) string {
+	return fmt.Sprintf("tos=%s;subject=%s;content=%s;user=%s", tos, subject, content, from)
+}
+
+func sendMail(mailUrl string, content string) error {
+	client := http.Client{
+		Timeout: time.Duration(30) * time.Second,
+	}
+
+	// send by http-post
+	req, err := http.NewRequest("POST", mailUrl, bytes.NewBufferString(content))
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
+	postResp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer postResp.Body.Close()
+
+	if postResp.StatusCode/100 != 2 {
+		return fmt.Errorf("Http-Post Error, Code %d", postResp.StatusCode)
+	}
+	return nil
+}
+
+// status calc
 func monitor() {
-	if monitorSema.AvailablePermits() <= 0 {
-		log.Println("monitor.monitor, concurrent not available")
+	if sema.AvailablePermits() <= 0 {
+		proc.MonitorConcurrentErrorCnt.Incr()
+		log.Println("monitor.collect, concurrent not available")
 		return
 	}
-	monitorSema.Acquire()
-	defer monitorSema.Release()
+	sema.Acquire()
+	defer sema.Release()
 
 	startTs := time.Now().Unix()
 	_monitor()
@@ -62,113 +118,141 @@ func monitor() {
 	proc.MonitorCronCnt.PutOther("lastStartTs", proc.FmtUnixTs(startTs))
 	proc.MonitorCronCnt.PutOther("lastTimeConsumingInSec", endTs-startTs)
 }
+
 func _monitor() {
-	tags := "type=statistics,pdl=falcon"
 	client := http.Client{
 		Timeout: time.Duration(5) * time.Second,
 	}
 
 	for _, host := range g.Config().Monitor.Cluster {
-		ts := time.Now().Unix()
-		jsonList := make([]model.JsonMetaData, 0)
-
-		// get statistics by http-get
-		hostInfo := strings.Split(host, ",") // "module,hostname:port"
+		hostInfo := strings.Split(host, ",") // "module,hostname:port/health"
 		if len(hostInfo) != 2 {
 			continue
 		}
-		hostModule := hostInfo[0]
-		hostNamePort := hostInfo[1]
-
-		hostNamePortList := strings.Split(hostNamePort, ":")
-		if len(hostNamePortList) != 2 {
-			continue
+		//hostType := hostInfo[0]
+		hostUrl := hostInfo[1]
+		if !strings.Contains(hostUrl, "http://") {
+			hostUrl = "http://" + hostUrl
 		}
-		hostName := hostNamePortList[0]
-		hostPort := hostNamePortList[1]
 
-		myTags := tags + ",module=" + hostModule + ",port=" + hostPort
-		srcUrl := fmt.Sprintf(srcUrlFmt, hostNamePort)
-		getResp, err := client.Get(srcUrl)
+		getResp, err := client.Get(hostUrl)
 		if err != nil {
-			log.Printf(hostNamePort+", get statistics error,", err)
+			log.Printf(host+", monitor error,", err)
+			onMonitorErr(host)
 			continue
 		}
 		defer getResp.Body.Close()
 
-		body, err := ioutil.ReadAll(getResp.Body)
-		if err != nil {
-			log.Println(hostNamePort+", get statistics error,", err)
-			continue
-		}
-
-		var data Dto
-		err = json.Unmarshal(body, &data)
-		if err != nil {
-			log.Println(hostNamePort+", get statistics error,", err)
-			continue
-		}
-
-		for _, item := range data.Data {
-			if item["Name"] == nil {
-				continue
-			}
-			itemName := item["Name"].(string)
-
-			if item["Cnt"] != nil {
-				var jmdCnt model.JsonMetaData
-				jmdCnt.Endpoint = hostName
-				jmdCnt.Metric = itemName
-				jmdCnt.Timestamp = ts
-				jmdCnt.Step = 60
-				jmdCnt.Value = int64(item["Cnt"].(float64))
-				jmdCnt.CounterType = "GAUGE"
-				jmdCnt.Tags = myTags
-				jsonList = append(jsonList, jmdCnt)
-			}
-
-			if item["Qps"] != nil {
-				var jmdQps model.JsonMetaData
-				jmdQps.Endpoint = hostName
-				jmdQps.Metric = itemName + ".Qps"
-				jmdQps.Timestamp = ts
-				jmdQps.Step = 60
-				jmdQps.Value = int64(item["Qps"].(float64))
-				jmdQps.CounterType = "GAUGE"
-				jmdQps.Tags = myTags
-				jsonList = append(jsonList, jmdQps)
-			}
-		}
-
-		if len(jsonList) < 1 { //没取到数据
-			log.Println("get null from ", hostNamePort)
-			continue
-		}
-
-		// format result
-		jsonBody, err := json.Marshal(jsonList)
-		if err != nil {
-			log.Println(hostNamePort+", format body error,", err)
-			continue
-		}
-
-		// send by http-post
-		req, err := http.NewRequest("POST", destUrl, bytes.NewBuffer(jsonBody))
-		req.Header.Set("Content-Type", "application/json; charset=UTF-8")
-		postResp, err := client.Do(req)
-		if err != nil {
-			log.Println(hostNamePort+", post to dest error,", err)
-			continue
-		}
-		defer postResp.Body.Close()
-
-		if postResp.StatusCode/100 != 2 {
-			log.Println(hostNamePort+", post to dest, bad response,", postResp.StatusCode)
+		body, err := ioutil.ReadAll(getResp.Body)                        // body=['o','k',...]
+		if !(err == nil && len(body) >= 2 && string(body[:2]) == "ok") { // err
+			log.Println(host, ", error,", err)
+			onMonitorErr(host)
+		} else { // get "ok"
+			onMonitorOk(host)
 		}
 	}
 }
 
-type Dto struct {
-	Msg  string                   `json:"msg"`
-	Data []map[string]interface{} `json:"data"`
+func onMonitorErr(host string) {
+	// change status
+	s, found := statusCache.Get(host)
+	if !found {
+		s = NewStatus()
+		statusCache.Put(host, s)
+	}
+	ss := s.(*Status)
+	ss.OnErr()
+
+	// alarm
+	errCnt := ss.GetErrCnt()
+	if errCnt >= 4 && errCnt <= 16 {
+		for i := 4; i <= errCnt; i *= 2 {
+			if errCnt == i {
+				a := NewAlarm(host, "err", ss.GetErrCnt())
+				alarmCache.Put(host, a)
+				break
+			}
+		}
+	}
+}
+
+func onMonitorOk(host string) {
+	// change status
+	s, found := statusCache.Get(host)
+	if !found {
+		s = NewStatus()
+		statusCache.Put(host, s)
+	}
+	ss := s.(*Status)
+	ss.OnOk()
+
+	if ss.IsTurnToOk() {
+		// alarm
+		a := NewAlarm(host, "ok", ss.GetErrCnt())
+		alarmCache.Put(host, a)
+	}
+}
+
+// Status Struct
+type Status struct {
+	sync.RWMutex
+	Status     string
+	LastStatus string
+	ErrCnt     int
+	OkCnt      int
+}
+
+func NewStatus() *Status {
+	return &Status{Status: "ok", LastStatus: "ok", ErrCnt: 0, OkCnt: 0}
+}
+
+func (s *Status) GetErrCnt() int {
+	s.RLock()
+	cnt := s.ErrCnt
+	s.RUnlock()
+	return cnt
+}
+
+func (s *Status) OnErr() {
+	s.Lock()
+	s.LastStatus = s.Status
+	s.Status = "err"
+	s.OkCnt = 0
+	s.ErrCnt += 1
+	s.Unlock()
+}
+
+func (s *Status) OnOk() {
+	s.Lock()
+	s.LastStatus = s.Status
+	s.Status = "ok"
+	s.OkCnt += 1
+	s.ErrCnt = 0
+	s.Unlock()
+}
+
+func (s *Status) IsTurnToOk() bool {
+	s.RLock()
+	ret := false
+	if s.LastStatus == "err" && s.Status == "ok" {
+		ret = true
+	}
+	s.RUnlock()
+	return ret
+}
+
+// AlarmItem Struct
+type Alarm struct {
+	ObjName   string
+	AlarmType string
+	AlarmCnt  int
+	Ts        int64
+}
+
+func NewAlarm(obj string, atype string, cnt int) *Alarm {
+	return &Alarm{AlarmType: atype, ObjName: obj, AlarmCnt: cnt, Ts: time.Now().Unix()}
+}
+
+func (a *Alarm) String() string {
+	return fmt.Sprintf("[%s][%s][%d][%s]", ntime.FormatTs(a.Ts), a.AlarmType, a.AlarmCnt, a.ObjName)
 }

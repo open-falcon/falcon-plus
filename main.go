@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/open-falcon/task/db"
+	"github.com/open-falcon/task/collector"
 	"github.com/open-falcon/task/g"
 	"github.com/open-falcon/task/http"
 	"github.com/open-falcon/task/index"
@@ -31,11 +31,11 @@ func main() {
 	g.ParseConfig(*cfg)
 	// proc
 	proc.Start()
-	// db
-	db.Start()
 
 	// graph index
 	index.Start()
+	// collector
+	collector.Start()
 	// monitor
 	monitor.Start()
 

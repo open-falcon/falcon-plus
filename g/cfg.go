@@ -12,27 +12,33 @@ type HttpConfig struct {
 	Listen  string `json:"listen"`
 }
 
-type DBConfig struct {
-	Dsn     string `json:"dsn"`
-	MaxIdle int    `json:"maxIdle"`
-}
-
 type IndexConfig struct {
 	Enabled bool     `json:"enabled"`
+	Dsn     string   `json:"dsn"`
+	MaxIdle int      `json:"maxIdle"`
 	Cluster []string `json:"cluster"`
 }
 
 type MonitorConfig struct {
 	Enabled bool     `json:"enabled"`
+	MailUrl string   `json:"mailUrl"`
+	MailTos string   `json:"mailTos"`
 	Cluster []string `json:"cluster"`
 }
 
+type CollectorConfig struct {
+	Enabled   bool     `json:"enabled"`
+	DestUrl   string   `json:"destUrl"`
+	SrcUrlFmt string   `json:"srcUrlFmt"`
+	Cluster   []string `json:"cluster"`
+}
+
 type GlobalConfig struct {
-	Debug   bool           `json:"debug"`
-	Http    *HttpConfig    `json:"http"`
-	DB      *DBConfig      `json:"db"`
-	Index   *IndexConfig   `json:"index"`
-	Monitor *MonitorConfig `json:"monitor"`
+	Debug     bool             `json:"debug"`
+	Http      *HttpConfig      `json:"http"`
+	Index     *IndexConfig     `json:"index"`
+	Monitor   *MonitorConfig   `json:"monitor"`
+	Collector *CollectorConfig `json:"collector"`
 }
 
 var (
