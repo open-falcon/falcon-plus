@@ -32,6 +32,7 @@ func main() {
 	go rpc.Start()
 
 	go cron.SyncStrategies()
+	go cron.CleanStale()
 
 	select {}
 }

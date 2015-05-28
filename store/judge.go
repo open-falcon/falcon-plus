@@ -195,6 +195,12 @@ func sendEventIfNeed(historyData []*model.HistoryData, isTriggered bool, now int
 		if !exists || lastEvent.Status[0] == 'O' {
 			// 本次触发了阈值，之前又没报过警，得产生一个报警Event
 			event.CurrentStep = 1
+
+			// 但是有些用户把最大报警次数配置成了0，相当于屏蔽了，要检查一下
+			if maxStep == 0 {
+				return
+			}
+
 			sendEvent(event)
 			return
 		}

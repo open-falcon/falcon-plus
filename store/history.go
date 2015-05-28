@@ -34,6 +34,44 @@ func (this *JudgeItemMap) Len() int {
 	return len(this.M)
 }
 
+func (this *JudgeItemMap) Delete(key string) {
+	this.Lock()
+	defer this.Unlock()
+	delete(this.M, key)
+}
+
+func (this *JudgeItemMap) BatchDelete(keys []string) {
+	count := len(keys)
+	if count == 0 {
+		return
+	}
+
+	this.Lock()
+	defer this.Unlock()
+	for i := 0; i < count; i++ {
+		delete(this.M, keys[i])
+	}
+}
+
+func (this *JudgeItemMap) CleanStale(before int64) {
+	keys := []string{}
+
+	this.RLock()
+	for key, L := range this.M {
+		front := L.Front()
+		if front == nil {
+			continue
+		}
+
+		if front.Value.(*model.JudgeItem).Timestamp < before {
+			keys = append(keys, key)
+		}
+	}
+	this.RUnlock()
+
+	this.BatchDelete(keys)
+}
+
 func (this *JudgeItemMap) PushFrontAndMaintain(key string, val *model.JudgeItem, maxCount int, now int64) {
 	if linkedList, exists := this.Get(key); exists {
 		needJudge := linkedList.PushFrontAndMaintain(val, maxCount)
