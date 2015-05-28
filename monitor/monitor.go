@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	ncron "github.com/niean/cron"
+	nhttp "github.com/niean/go-httpclient"
 	nsema "github.com/niean/gotools/concurrent/semaphore"
 	nmap "github.com/niean/gotools/container/nmap"
 	ntime "github.com/niean/gotools/time"
@@ -62,10 +63,11 @@ func alarmJudge() {
 		}
 
 		if content.Len() > 5 {
-			err := sendMail(g.Config().Monitor.MailUrl,
-				formAlarmMailContent(g.Config().Monitor.MailTos, "Self-Monitor.Alarm", content.String(), "Falcon"))
+			mailContent := formAlarmMailContent(g.Config().Monitor.MailTos, "Self-Monitor.Alarm",
+				content.String(), "Falcon")
+			err := sendMail(g.Config().Monitor.MailUrl, mailContent)
 			if err != nil {
-				log.Println("alarm send mail error, ", err)
+				log.Println("alarm send mail error, mail:", mailContent, "", err)
 			} else {
 				// statistics
 				proc.MonitorAlarmMailCnt.Incr()
@@ -79,9 +81,12 @@ func formAlarmMailContent(tos string, subject string, content string, from strin
 }
 
 func sendMail(mailUrl string, content string) error {
-	client := http.Client{
-		Timeout: time.Duration(30) * time.Second,
+	transport := &nhttp.Transport{
+		ConnectTimeout: time.Duration(5) * time.Second,
+		RequestTimeout: time.Duration(20) * time.Second,
 	}
+	defer transport.Close()
+	client := &http.Client{Transport: transport}
 
 	// send by http-post
 	req, err := http.NewRequest("POST", mailUrl, bytes.NewBufferString(content))
@@ -120,9 +125,12 @@ func monitor() {
 }
 
 func _monitor() {
-	client := http.Client{
-		Timeout: time.Duration(5) * time.Second,
+	transport := &nhttp.Transport{
+		ConnectTimeout: time.Duration(1) * time.Second,
+		RequestTimeout: time.Duration(10) * time.Second,
 	}
+	defer transport.Close()
+	client := &http.Client{Transport: transport}
 
 	for _, host := range g.Config().Monitor.Cluster {
 		hostInfo := strings.Split(host, ",") // "module,hostname:port/health"

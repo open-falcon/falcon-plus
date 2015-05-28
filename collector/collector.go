@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	cron "github.com/niean/cron"
+	nhttp "github.com/niean/go-httpclient"
 	"github.com/open-falcon/model"
 	"github.com/open-falcon/task/g"
 	"github.com/open-falcon/task/proc"
@@ -69,10 +70,14 @@ func collect() {
 	proc.CollectorCronCnt.PutOther("lastTimeConsumingInSec", endTs-startTs)
 }
 func _collect() {
-	tags := "type=statistics,pdl=falcon"
-	client := http.Client{
-		Timeout: time.Duration(5) * time.Second,
+	transport := &nhttp.Transport{
+		ConnectTimeout: time.Duration(5) * time.Second,
+		RequestTimeout: time.Duration(20) * time.Second,
 	}
+	defer transport.Close()
+	client := &http.Client{Transport: transport}
+
+	tags := "type=statistics,pdl=falcon"
 
 	for _, host := range g.Config().Collector.Cluster {
 		ts := time.Now().Unix()
