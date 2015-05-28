@@ -184,12 +184,15 @@ func onMonitorOk(host string) {
 		statusCache.Put(host, s)
 	}
 	ss := s.(*Status)
+	errCnt := ss.GetErrCnt()
 	ss.OnOk()
 
 	if ss.IsTurnToOk() {
-		// alarm
-		a := NewAlarm(host, "ok", ss.GetErrCnt())
-		alarmCache.Put(host, a)
+		if errCnt >= 4 { //有过alarm, 才能turnOk
+			// alarm
+			a := NewAlarm(host, "ok", ss.GetErrCnt())
+			alarmCache.Put(host, a)
+		}
 	}
 }
 
