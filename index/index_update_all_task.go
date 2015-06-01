@@ -4,11 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	cron "github.com/niean/cron"
+	nhttpclient "github.com/niean/gotools/http/httpclient"
 	"github.com/open-falcon/task/g"
 	"github.com/open-falcon/task/proc"
 	"io/ioutil"
 	"log"
-	"net/http"
 	"time"
 )
 
@@ -42,10 +42,7 @@ func UpdateAllIndex() {
 }
 
 func updateAllIndex() {
-	client := http.Client{
-		Timeout: time.Duration(5) * time.Second,
-	}
-
+	client := nhttpclient.GetHttpClient("index.updateall")
 	for _, hostNamePort := range g.Config().Index.Cluster {
 		if hostNamePort == "" {
 			continue

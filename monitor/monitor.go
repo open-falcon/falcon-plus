@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"fmt"
 	ncron "github.com/niean/cron"
-	nhttp "github.com/niean/go-httpclient"
 	nsema "github.com/niean/gotools/concurrent/semaphore"
 	nmap "github.com/niean/gotools/container/nmap"
+	nhttpclient "github.com/niean/gotools/http/httpclient"
 	ntime "github.com/niean/gotools/time"
 	"github.com/open-falcon/task/g"
 	"github.com/open-falcon/task/proc"
@@ -18,16 +18,12 @@ import (
 	"time"
 )
 
-const (
-	alarmInterval = time.Duration(300) * time.Second
-)
-
 var (
 	monitorCron = ncron.New()
 	sema        = nsema.NewSemaphore(1)
 	statusCache = nmap.NewSafeMap()
 	alarmCache  = nmap.NewSafeMap()
-	cronSpec    = "0 * * * * ?"
+	cronSpec    = "30 * * * * ?"
 )
 
 func Start() {
@@ -81,16 +77,11 @@ func formAlarmMailContent(tos string, subject string, content string, from strin
 }
 
 func sendMail(mailUrl string, content string) error {
-	transport := &nhttp.Transport{
-		ConnectTimeout: time.Duration(5) * time.Second,
-		RequestTimeout: time.Duration(20) * time.Second,
-	}
-	defer transport.Close()
-	client := &http.Client{Transport: transport}
-
+	client := nhttpclient.GetHttpClient("monitor.mail")
 	// send by http-post
 	req, err := http.NewRequest("POST", mailUrl, bytes.NewBufferString(content))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
+	req.Header.Set("Connection", "close")
 	postResp, err := client.Do(req)
 	if err != nil {
 		return err
@@ -125,13 +116,7 @@ func monitor() {
 }
 
 func _monitor() {
-	transport := &nhttp.Transport{
-		ConnectTimeout: time.Duration(1) * time.Second,
-		RequestTimeout: time.Duration(10) * time.Second,
-	}
-	defer transport.Close()
-	client := &http.Client{Transport: transport}
-
+	client := nhttpclient.GetHttpClient("monitor")
 	for _, host := range g.Config().Monitor.Cluster {
 		hostInfo := strings.Split(host, ",") // "module,hostname:port/health"
 		if len(hostInfo) != 2 {

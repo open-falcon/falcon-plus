@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	cron "github.com/niean/cron"
-	nhttp "github.com/niean/go-httpclient"
+	nhttpclient "github.com/niean/gotools/http/httpclient"
 	"github.com/open-falcon/model"
 	"github.com/open-falcon/task/g"
 	"github.com/open-falcon/task/proc"
@@ -70,12 +70,7 @@ func collect() {
 	proc.CollectorCronCnt.PutOther("lastTimeConsumingInSec", endTs-startTs)
 }
 func _collect() {
-	transport := &nhttp.Transport{
-		ConnectTimeout: time.Duration(5) * time.Second,
-		RequestTimeout: time.Duration(20) * time.Second,
-	}
-	defer transport.Close()
-	client := &http.Client{Transport: transport}
+	client := nhttpclient.GetHttpClient("collector")
 
 	tags := "type=statistics,pdl=falcon"
 
@@ -166,6 +161,7 @@ func _collect() {
 		// send by http-post
 		req, err := http.NewRequest("POST", destUrl, bytes.NewBuffer(jsonBody))
 		req.Header.Set("Content-Type", "application/json; charset=UTF-8")
+		req.Header.Set("Connection", "close")
 		postResp, err := client.Do(req)
 		if err != nil {
 			log.Println(hostNamePort+", post to dest error,", err)
