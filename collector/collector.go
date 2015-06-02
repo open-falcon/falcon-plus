@@ -26,22 +26,21 @@ var (
 )
 
 func Start() {
-	// init
+	if !g.Config().Collector.Enabled {
+		log.Println("collector.Start, not enable")
+		return
+	}
+
+	// init url
 	if g.Config().Collector.DestUrl != "" {
 		destUrl = g.Config().Collector.DestUrl
 	}
 	if g.Config().Collector.SrcUrlFmt != "" {
 		srcUrlFmt = g.Config().Collector.SrcUrlFmt
 	}
-
 	// start
-	if g.Config().Collector.Enabled {
-		go startCollectorCron()
-		log.Println("collector.Start, ok")
-	} else {
-		log.Println("collector.Start, not enable")
-	}
-
+	go startCollectorCron()
+	log.Println("collector.Start, ok")
 }
 
 func startCollectorCron() {
@@ -70,7 +69,8 @@ func collect() {
 	proc.CollectorCronCnt.PutOther("lastTimeConsumingInSec", endTs-startTs)
 }
 func _collect() {
-	client := nhttpclient.GetHttpClient("collector")
+	clientGet := nhttpclient.GetHttpClient("collector.get", 5*time.Second, 5*time.Second)
+	clientPost := nhttpclient.GetHttpClient("collector.post", 5*time.Second, 10*time.Second)
 
 	tags := "type=statistics,pdl=falcon"
 
@@ -95,7 +95,9 @@ func _collect() {
 
 		myTags := tags + ",module=" + hostModule + ",port=" + hostPort
 		srcUrl := fmt.Sprintf(srcUrlFmt, hostNamePort)
-		getResp, err := client.Get(srcUrl)
+		reqGet, _ := http.NewRequest("GET", srcUrl, nil)
+		reqGet.Header.Set("Connection", "close")
+		getResp, err := clientGet.Do(reqGet)
 		if err != nil {
 			log.Printf(hostNamePort+", get statistics error,", err)
 			continue
@@ -162,7 +164,7 @@ func _collect() {
 		req, err := http.NewRequest("POST", destUrl, bytes.NewBuffer(jsonBody))
 		req.Header.Set("Content-Type", "application/json; charset=UTF-8")
 		req.Header.Set("Connection", "close")
-		postResp, err := client.Do(req)
+		postResp, err := clientPost.Do(req)
 		if err != nil {
 			log.Println(hostNamePort+", post to dest error,", err)
 			continue

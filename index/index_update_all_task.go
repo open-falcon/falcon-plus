@@ -9,6 +9,7 @@ import (
 	"github.com/open-falcon/task/proc"
 	"io/ioutil"
 	"log"
+	"net/http"
 	"time"
 )
 
@@ -42,14 +43,16 @@ func UpdateAllIndex() {
 }
 
 func updateAllIndex() {
-	client := nhttpclient.GetHttpClient("index.updateall")
+	client := nhttpclient.GetHttpClient("index.updateall", 5*time.Second, 10*time.Second)
 	for _, hostNamePort := range g.Config().Index.Cluster {
 		if hostNamePort == "" {
 			continue
 		}
 
 		destUrl := fmt.Sprintf(destUrlFmt, hostNamePort)
-		getResp, err := client.Get(destUrl)
+		req, _ := http.NewRequest("GET", destUrl, nil)
+		req.Header.Set("Connection", "close")
+		getResp, err := client.Do(req)
 		if err != nil {
 			log.Printf(hostNamePort+", index update all error,", err)
 			continue

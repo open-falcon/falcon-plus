@@ -27,16 +27,17 @@ var (
 )
 
 func Start() {
-	if g.Config().Monitor.Enabled {
-		monitorCron.AddFunc(cronSpec, func() {
-			monitor()
-		})
-		monitorCron.Start()
-		go alarmJudge()
-		log.Println("monitor.Start, ok")
-	} else {
+	if !g.Config().Monitor.Enabled {
 		log.Println("monitor.Start, not enable")
+		return
 	}
+	//
+	monitorCron.AddFunc(cronSpec, func() {
+		monitor()
+	})
+	monitorCron.Start()
+	go alarmJudge()
+	log.Println("monitor.Start, ok")
 }
 
 // alarm judge
@@ -77,7 +78,7 @@ func formAlarmMailContent(tos string, subject string, content string, from strin
 }
 
 func sendMail(mailUrl string, content string) error {
-	client := nhttpclient.GetHttpClient("monitor.mail")
+	client := nhttpclient.GetHttpClient("monitor.mail", 5*time.Second, 10*time.Second)
 	// send by http-post
 	req, err := http.NewRequest("POST", mailUrl, bytes.NewBufferString(content))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
@@ -116,7 +117,7 @@ func monitor() {
 }
 
 func _monitor() {
-	client := nhttpclient.GetHttpClient("monitor")
+	client := nhttpclient.GetHttpClient("monitor.get", 5*time.Second, 5*time.Second)
 	for _, host := range g.Config().Monitor.Cluster {
 		hostInfo := strings.Split(host, ",") // "module,hostname:port/health"
 		if len(hostInfo) != 2 {
@@ -128,7 +129,9 @@ func _monitor() {
 			hostUrl = "http://" + hostUrl
 		}
 
-		getResp, err := client.Get(hostUrl)
+		req, _ := http.NewRequest("GET", hostUrl, nil)
+		req.Header.Set("Connection", "close")
+		getResp, err := client.Do(req)
 		if err != nil {
 			log.Printf(host+", monitor error,", err)
 			onMonitorErr(host)
