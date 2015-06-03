@@ -6,7 +6,7 @@ import (
 	"fmt"
 	cron "github.com/niean/cron"
 	nhttpclient "github.com/niean/gotools/http/httpclient"
-	"github.com/open-falcon/model"
+	"github.com/open-falcon/common/model"
 	"github.com/open-falcon/task/g"
 	"github.com/open-falcon/task/proc"
 	sema "github.com/toolkits/concurrent/semaphore"
@@ -69,14 +69,14 @@ func collect() {
 	proc.CollectorCronCnt.PutOther("lastTimeConsumingInSec", endTs-startTs)
 }
 func _collect() {
-	clientGet := nhttpclient.GetHttpClient("collector.get", 5*time.Second, 5*time.Second)
+	clientGet := nhttpclient.GetHttpClient("collector.get", 10*time.Second, 20*time.Second)
 	clientPost := nhttpclient.GetHttpClient("collector.post", 5*time.Second, 10*time.Second)
 
 	tags := "type=statistics,pdl=falcon"
 
 	for _, host := range g.Config().Collector.Cluster {
 		ts := time.Now().Unix()
-		jsonList := make([]model.JsonMetaData, 0)
+		jsonList := make([]model.MetricValue, 0)
 
 		// get statistics by http-get
 		hostInfo := strings.Split(host, ",") // "module,hostname:port"
@@ -124,25 +124,25 @@ func _collect() {
 			itemName := item["Name"].(string)
 
 			if item["Cnt"] != nil {
-				var jmdCnt model.JsonMetaData
+				var jmdCnt model.MetricValue
 				jmdCnt.Endpoint = hostName
 				jmdCnt.Metric = itemName
 				jmdCnt.Timestamp = ts
 				jmdCnt.Step = 60
 				jmdCnt.Value = int64(item["Cnt"].(float64))
-				jmdCnt.CounterType = "GAUGE"
+				jmdCnt.Type = "GAUGE"
 				jmdCnt.Tags = myTags
 				jsonList = append(jsonList, jmdCnt)
 			}
 
 			if item["Qps"] != nil {
-				var jmdQps model.JsonMetaData
+				var jmdQps model.MetricValue
 				jmdQps.Endpoint = hostName
 				jmdQps.Metric = itemName + ".Qps"
 				jmdQps.Timestamp = ts
 				jmdQps.Step = 60
 				jmdQps.Value = int64(item["Qps"].(float64))
-				jmdQps.CounterType = "GAUGE"
+				jmdQps.Type = "GAUGE"
 				jmdQps.Tags = myTags
 				jsonList = append(jsonList, jmdQps)
 			}

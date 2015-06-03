@@ -117,7 +117,7 @@ func monitor() {
 }
 
 func _monitor() {
-	client := nhttpclient.GetHttpClient("monitor.get", 5*time.Second, 5*time.Second)
+	client := nhttpclient.GetHttpClient("monitor.get", 5*time.Second, 10*time.Second)
 	for _, host := range g.Config().Monitor.Cluster {
 		hostInfo := strings.Split(host, ",") // "module,hostname:port/health"
 		if len(hostInfo) != 2 {

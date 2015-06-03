@@ -2,20 +2,19 @@ package proc
 
 import (
 	nproc "github.com/niean/gotools/proc"
-	P "github.com/open-falcon/model/proc"
 	"log"
 	"time"
 )
 
 // 索引更新
 var (
-	IndexUpdateAllCnt = P.NewSCounterQps("IndexUpdateAllCnt")
-	IndexDeleteCnt    = P.NewSCounterQps("IndexDeleteCnt")
+	IndexUpdateAllCnt = nproc.NewSCounterQps("IndexUpdateAllCnt")
+	IndexDeleteCnt    = nproc.NewSCounterQps("IndexDeleteCnt")
 )
 
 // 监控数据采集
 var (
-	CollectorCronCnt = P.NewSCounterQps("CollectorCronCnt")
+	CollectorCronCnt = nproc.NewSCounterQps("CollectorCronCnt")
 )
 
 // 监控
