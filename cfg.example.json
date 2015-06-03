@@ -6,7 +6,7 @@
     },
     "index": {
         "enabled": true,
-        "dsn": "root:@#@tcp(127.0.0.1:3306)/graph?loc=Local&parseTime=true",
+        "dsn": "root:@tcp(127.0.0.1:3306)/graph?loc=Local&parseTime=true",
         "maxIdle": 4,
         "cluster":[
             "127.0.0.1:6071"

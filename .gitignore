@@ -33,4 +33,5 @@ _testmain.go
 /cfg.json
 /test/build
 
+cfg.json
 gitversion

@@ -1,4 +1,4 @@
-## intro
+## Introduction
 
 定时任务，是监控系统一个必要的辅助模块。有些功能，不适合与监控的核心业务耦合、无高可用要求、但又必不可少，我们把这部分功能拿出来 放到定时任务task模块中。
 
@@ -10,7 +10,7 @@
 2.falcon服务的自监控数据采集。当前，定时任务了采集了 transfer、graph、task这三个服务的内部状态数据。
 
 
-## install
+## Installation
 
 ```bash
 # set $GOPATH and $GOROOT
@@ -26,7 +26,7 @@ go get ./...
 ./control start
 ```
 
-## configuration
+## Configuration
 
     debug: true/false, 如果为true，日志中会打印debug信息
 
