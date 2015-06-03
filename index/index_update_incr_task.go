@@ -93,7 +93,7 @@ func maybeUpdateIndexFromOneItem(item *cmodel.GraphItem, conn *sql.DB) error {
 		proc.IndexUpdateIncrDbEndpointSelectCnt.Incr()
 
 		if err == sql.ErrNoRows || endpointId <= 0 { // 数据库中也没有, insert
-			sqlStr := "INSERT INTO endpoint(endpoint, ts, t_create) VALUES (?, ?, now())" + sqlDuplicateString
+			sqlStr := "INSERT INTO endpoint (endpoint, ts, t_create) VALUES (?, ?, now())" + sqlDuplicateString
 			ret, err := conn.Exec(sqlStr, endpoint, ts)
 			if err != nil {
 				log.Println(err)
@@ -127,7 +127,7 @@ func maybeUpdateIndexFromOneItem(item *cmodel.GraphItem, conn *sql.DB) error {
 			proc.IndexUpdateIncrDbTagEndpointSelectCnt.Incr()
 
 			if err == sql.ErrNoRows || tagEndpointId <= 0 {
-				sqlStr := "INSERT INTO tag_endpoint(tag, endpoint_id, ts, t_create) VALUES (?, ?, ?, now())" + sqlDuplicateString
+				sqlStr := "INSERT INTO tag_endpoint (tag, endpoint_id, ts, t_create) VALUES (?, ?, ?, now())" + sqlDuplicateString
 				ret, err := conn.Exec(sqlStr, tag, endpointId, ts)
 				if err != nil {
 					log.Println(err)
@@ -164,7 +164,7 @@ func maybeUpdateIndexFromOneItem(item *cmodel.GraphItem, conn *sql.DB) error {
 		proc.IndexUpdateIncrDbEndpointCounterSelectCnt.Incr()
 
 		if err == sql.ErrNoRows || endpointCounterId <= 0 {
-			sqlStr := "INSERT INTO endpoint_counter(endpoint_id,counter,step,type,ts,t_create) VALUES (?,?,?,?,?,now())" +
+			sqlStr := "INSERT INTO endpoint_counter (endpoint_id,counter,step,type,ts,t_create) VALUES (?,?,?,?,?,now())" +
 				" ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id),ts=VALUES(ts), step=VALUES(step),type=VALUES(type)"
 			ret, err := conn.Exec(sqlStr, endpointId, counter, item.Step, item.DsType, ts)
 			if err != nil {

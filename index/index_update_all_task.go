@@ -151,7 +151,7 @@ func updateIndexFromOneItem(item *cmodel.GraphItem, conn *sql.DB) error {
 
 	// endpoint表
 	{
-		sqlStr := "INSERT INTO endpoint(endpoint, ts, t_create) VALUES (?, ?, now())" + sqlDuplicateString
+		sqlStr := "INSERT INTO endpoint (endpoint, ts, t_create) VALUES (?, ?, now())" + sqlDuplicateString
 		ret, err := conn.Exec(sqlStr, endpoint, ts)
 		if err != nil {
 			log.Println(err)
@@ -167,7 +167,7 @@ func updateIndexFromOneItem(item *cmodel.GraphItem, conn *sql.DB) error {
 
 	// tag_endpoint表
 	{
-		sqlStr := "INSERT INTO tag_endpoint(tag, endpoint_id, ts, t_create) VALUES (?, ?, ?, now())" + sqlDuplicateString
+		sqlStr := "INSERT INTO tag_endpoint (tag, endpoint_id, ts, t_create) VALUES (?, ?, ?, now())" + sqlDuplicateString
 		for tagKey, tagVal := range item.Tags {
 			tag := fmt.Sprintf("%s=%s", tagKey, tagVal)
 
@@ -192,7 +192,7 @@ func updateIndexFromOneItem(item *cmodel.GraphItem, conn *sql.DB) error {
 			counter = fmt.Sprintf("%s/%s", counter, cutils.SortedTags(item.Tags))
 		}
 
-		sqlStr := "INSERT INTO endpoint_counter(endpoint_id,counter,step,type,ts,t_create) VALUES (?,?,?,?,?,now())" + sqlDuplicateString
+		sqlStr := "INSERT INTO endpoint_counter (endpoint_id,counter,step,type,ts,t_create) VALUES (?,?,?,?,?,now())" + sqlDuplicateString
 		ret, err := conn.Exec(sqlStr, endpointId, counter, item.Step, item.DsType, ts)
 		if err != nil {
 			log.Println(err)
