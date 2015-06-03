@@ -36,7 +36,6 @@ _testmain.go
 /falcon-graph
 /cfg.json
 /test
-g/git.go
 
 tmp/
 gitversion
