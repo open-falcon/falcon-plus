@@ -6,7 +6,7 @@ import (
 
 	cmodel "github.com/open-falcon/common/model"
 	"github.com/open-falcon/graph/g"
-	//"log"
+	"log"
 	"sync"
 )
 
@@ -21,7 +21,7 @@ type GraphItemMap struct {
 func (this *GraphItemMap) Get(key string) (*SafeLinkedList, bool) {
 	this.RLock()
 	defer this.RUnlock()
-	idx := int(hashKey(key)) % this.Size
+	idx := hashKey(key) % uint32(this.Size)
 	val, ok := this.A[idx][key]
 	return val, ok
 }
@@ -37,7 +37,7 @@ func (this *GraphItemMap) Getitems(idx int) map[string]*SafeLinkedList {
 func (this *GraphItemMap) Set(key string, val *SafeLinkedList) {
 	this.Lock()
 	defer this.Unlock()
-	idx := int(hashKey(key)) % this.Size
+	idx := hashKey(key) % uint32(this.Size)
 	this.A[idx][key] = val
 }
 
@@ -55,7 +55,7 @@ func (this *GraphItemMap) LenOf(key string) int {
 	this.RLock()
 	defer this.RUnlock()
 
-	idx := int(hashKey(key)) % this.Size
+	idx := hashKey(key) % uint32(this.Size)
 	L, ok := this.A[idx][key]
 	if !ok {
 		return 0
@@ -66,7 +66,7 @@ func (this *GraphItemMap) LenOf(key string) int {
 func (this *GraphItemMap) First(key string) *cmodel.GraphItem {
 	this.RLock()
 	defer this.RUnlock()
-	idx := int(hashKey(key)) % this.Size
+	idx := hashKey(key) % uint32(this.Size)
 	L, ok := this.A[idx][key]
 	if !ok {
 		return nil
@@ -83,7 +83,7 @@ func (this *GraphItemMap) First(key string) *cmodel.GraphItem {
 func (this *GraphItemMap) PopAll(key string) []*cmodel.GraphItem {
 	this.Lock()
 	defer this.Unlock()
-	idx := int(hashKey(key)) % this.Size
+	idx := hashKey(key) % uint32(this.Size)
 	L, ok := this.A[idx][key]
 	if !ok {
 		return []*cmodel.GraphItem{}
@@ -94,7 +94,7 @@ func (this *GraphItemMap) PopAll(key string) []*cmodel.GraphItem {
 func (this *GraphItemMap) FetchAll(key string) []*cmodel.GraphItem {
 	this.RLock()
 	defer this.RUnlock()
-	idx := int(hashKey(key)) % this.Size
+	idx := hashKey(key) % uint32(this.Size)
 	L, ok := this.A[idx][key]
 	if !ok {
 		return []*cmodel.GraphItem{}
@@ -146,26 +146,13 @@ func (this *GraphItemMap) KeysByIndex(idx int) []string {
 	return keys
 }
 
-/*
-func (this *GraphItemMap) Keys() []string {
-	this.RLock()
-	defer this.RUnlock()
-
-	count := len(this.M)
-	if count == 0 {
-		return []string{}
-	}
-
-	keys := make([]string, 0, count)
-	for key := range this.M {
-		keys = append(keys, key)
-	}
-	return keys
-}
-*/
-
 func init() {
-	size := g.CACHE_TIME / g.FLUSH_DISK_STEP
+	size32 := int32(uint32(g.CACHE_TIME / g.FLUSH_DISK_STEP))
+	if size32 < 0 {
+		log.Panicf("store.init, bad size %d\n", size32)
+	}
+
+	size := int(size32)
 	GraphItems = &GraphItemMap{
 		A:    make([]map[string]*SafeLinkedList, size),
 		Size: size,
