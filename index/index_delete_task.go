@@ -3,7 +3,6 @@ package index
 import (
 	cron "github.com/niean/cron"
 	Mdb "github.com/open-falcon/common/db"
-	"github.com/open-falcon/task/db"
 	"github.com/open-falcon/task/proc"
 	TSemaphore "github.com/toolkits/concurrent/semaphore"
 	"log"
@@ -11,7 +10,7 @@ import (
 )
 
 const (
-	indexDeleteCronSpec = "0 0 2 ? * 6" // 每周6凌晨02:00执行一次
+	indexDeleteCronSpec = "0 0 2 ? * 6" // 每周6晚上22:00执行一次
 	deteleStepInSec     = 7 * 24 * 3600 // 索引的最大生存周期, sec
 )
 
@@ -49,14 +48,14 @@ func DeleteIndex() {
 	log.Printf("deleteIndex, startTs %s, time-consuming %d sec\n", proc.FmtUnixTs(startTs), endTs-startTs)
 
 	// statistics
-	proc.IndexDelete.Incr()
-	proc.IndexDelete.PutOther("lastStartTs", proc.FmtUnixTs(startTs))
-	proc.IndexDelete.PutOther("lastTimeConsumingInSec", endTs-startTs)
+	proc.IndexDeleteCnt.Incr()
+	proc.IndexDeleteCnt.PutOther("lastStartTs", proc.FmtUnixTs(startTs))
+	proc.IndexDeleteCnt.PutOther("lastTimeConsumingInSec", endTs-startTs)
 }
 
 // 先select 得到可能被删除的index的信息, 然后以相同的条件delete. select和delete不是原子操作,可能有一些不一致,但不影响正确性
 func deleteIndex() error {
-	dbConn, err := db.GetDbConn()
+	dbConn, err := GetDbConn()
 	if err != nil {
 		log.Println("[ERROR] get dbConn fail", err)
 		return err
@@ -68,7 +67,6 @@ func deleteIndex() error {
 	log.Printf("deleteIndex, lastTs %d\n", lastTs)
 
 	// reinit statistics
-	// TODO 侵入性有点强阿, 改下这里
 	proc.IndexDeleteCnt.PutOther("deleteCntEndpoint", 0)
 	proc.IndexDeleteCnt.PutOther("deleteCntTagEndpoint", 0)
 	proc.IndexDeleteCnt.PutOther("deleteCntEndpointCounter", 0)
@@ -180,7 +178,7 @@ func deleteIndex() error {
 			log.Println(err)
 			return err
 		}
-		log.Printf("delete endpoint_counter, delete cnt %d\n", cnt)
+		log.Printf("delete endpoint_counter, done, cnt %d\n", cnt)
 
 		// statistics
 		proc.IndexDeleteCnt.PutOther("deleteCntEndpointCounter", cnt)

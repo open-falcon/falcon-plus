@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	cron "github.com/niean/cron"
+	nhttpclient "github.com/niean/gotools/http/httpclient"
 	"github.com/open-falcon/task/g"
 	"github.com/open-falcon/task/proc"
 	"io/ioutil"
@@ -36,23 +37,22 @@ func UpdateAllIndex() {
 	log.Printf("index, update all, startTs %s, time-consuming %d sec\n", proc.FmtUnixTs(startTs), endTs-startTs)
 
 	// statistics
-	proc.IndexUpdateAll.Incr()
-	proc.IndexUpdateAll.PutOther("lastStartTs", proc.FmtUnixTs(startTs))
-	proc.IndexUpdateAll.PutOther("lastTimeConsumingInSec", endTs-startTs)
+	proc.IndexUpdateAllCnt.Incr()
+	proc.IndexUpdateAllCnt.PutOther("lastStartTs", proc.FmtUnixTs(startTs))
+	proc.IndexUpdateAllCnt.PutOther("lastTimeConsumingInSec", endTs-startTs)
 }
 
 func updateAllIndex() {
-	client := http.Client{
-		Timeout: time.Duration(5) * time.Second,
-	}
-
+	client := nhttpclient.GetHttpClient("index.updateall", 5*time.Second, 10*time.Second)
 	for _, hostNamePort := range g.Config().Index.Cluster {
 		if hostNamePort == "" {
 			continue
 		}
 
 		destUrl := fmt.Sprintf(destUrlFmt, hostNamePort)
-		getResp, err := client.Get(destUrl)
+		req, _ := http.NewRequest("GET", destUrl, nil)
+		req.Header.Set("Connection", "close")
+		getResp, err := client.Do(req)
 		if err != nil {
 			log.Printf(hostNamePort+", index update all error,", err)
 			continue

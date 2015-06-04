@@ -1,37 +1,47 @@
 package proc
 
 import (
-	P "github.com/open-falcon/common/proc"
+	nproc "github.com/niean/gotools/proc"
 	"log"
 	"time"
 )
 
 // 索引更新
 var (
-	IndexUpdateAll = P.NewSCounterQps("IndexUpdateAll")
-	IndexDelete    = P.NewSCounterQps("IndexDelete")
-	IndexDeleteCnt = P.NewSCounterBase("IndexDeleteCnt")
+	IndexUpdateAllCnt = nproc.NewSCounterQps("IndexUpdateAllCnt")
+	IndexDeleteCnt    = nproc.NewSCounterQps("IndexDeleteCnt")
 )
 
-// transfer监控数据采集
+// 监控数据采集
 var (
-	MonitorCronCnt = P.NewSCounterQps("MonitorCronCnt")
+	CollectorCronCnt = nproc.NewSCounterQps("CollectorCronCnt")
 )
 
-func Init() {
-	log.Println("proc:Init, ok")
+// 监控
+var (
+	MonitorCronCnt            = nproc.NewSCounterQps("MonitorCronCnt")
+	MonitorConcurrentErrorCnt = nproc.NewSCounterQps("MonitorConcurrentErrorCnt")
+	MonitorAlarmMailCnt       = nproc.NewSCounterQps("MonitorAlarmMailCnt")
+)
+
+func Start() {
+	log.Println("proc:Start, ok")
 }
 
 func GetAll() []interface{} {
 	ret := make([]interface{}, 0)
 
 	// index
-	ret = append(ret, IndexUpdateAll.Get())
-	ret = append(ret, IndexDelete.Get())
+	ret = append(ret, IndexUpdateAllCnt.Get())
 	ret = append(ret, IndexDeleteCnt.Get())
+
+	// collector
+	ret = append(ret, CollectorCronCnt.Get())
 
 	// monitor
 	ret = append(ret, MonitorCronCnt.Get())
+	ret = append(ret, MonitorConcurrentErrorCnt.Get())
+	ret = append(ret, MonitorAlarmMailCnt.Get())
 
 	return ret
 }

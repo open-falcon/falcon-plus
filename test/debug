@@ -16,8 +16,18 @@ httpprex="127.0.0.1:8001"
 function statistics(){
     curl -s "$httpprex/statistics/all" | python -m json.tool
 }
-function statistics_config(){
-    curl -s "$httpprex/statistics/config" | python -m json.tool
+
+## config
+function config(){
+    action=$1
+    case $action in
+        "reload")
+            curl -s "$httpprex/config/reload" | python -m json.tool
+            ;;
+        *)
+            curl -s "$httpprex/config" | python -m json.tool
+            ;;
+    esac
 }
 
 ## build
@@ -61,7 +71,7 @@ case $action in
         stop && build && start
         ;;
     "config")
-        statistics_config
+        config $2
         ;;
     "index_update")
         index_update_all

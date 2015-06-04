@@ -32,9 +32,6 @@ _testmain.go
 /falcon-task*
 /cfg.json
 /test/build
-/test/*.go
-/test/*.sh
 
 cfg.json
 gitversion
-g/git.go
