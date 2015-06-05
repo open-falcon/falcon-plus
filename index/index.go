@@ -3,7 +3,6 @@ package index
 import (
 	cmodel "github.com/open-falcon/common/model"
 	"github.com/open-falcon/graph/g"
-	"github.com/open-falcon/graph/rrdtool"
 	"log"
 )
 
@@ -36,8 +35,8 @@ func ReceiveItem(item *cmodel.GraphItem, md5 string) {
 
 	// 是否有rrdtool文件存在,如果有 认为已建立索引
 	// 针对 索引缓存重建场景 做的优化, 结合索引全量更新 来保证一致性
-	rrdFileName := rrdtool.RrdFileName(g.Config().RRD.Storage, item, md5)
-	if rrdtool.IsRrdFileExist(rrdFileName) {
+	rrdFileName := g.RrdFileName(g.Config().RRD.Storage, md5, item.DsType, item.Step)
+	if g.IsRrdFileExist(rrdFileName) {
 		indexedItemCache.Put(md5, NewIndexCacheItem(uuid, item))
 		return
 	}

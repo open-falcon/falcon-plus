@@ -13,11 +13,20 @@ import (
 	"github.com/open-falcon/graph/store"
 	"github.com/open-falcon/rrdlite"
 	"github.com/toolkits/file"
-	"github.com/toolkits/logger"
 )
 
 var Counter uint64
 
+func Start() {
+	// check data dir
+	dataDir := g.Config().RRD.Storage
+	if err := file.EnsureDirRW(dataDir); err != nil {
+		log.Fatalln("rrdtool.Start error, bad data dir", dataDir+",", err)
+	}
+	log.Println("rrdtool.Start, ok")
+}
+
+// RRD Files' Lock
 type RRDLocker struct {
 	sync.Mutex
 	M map[string]*sync.Mutex
@@ -106,7 +115,7 @@ func Flush(filename string, items []*cmodel.GraphItem) error {
 	lock.Lock()
 	defer lock.Unlock()
 
-	if !IsRrdFileExist(filename) {
+	if !g.IsRrdFileExist(filename) {
 		baseDir := file.Dir(filename)
 
 		err := file.InsureDir(baseDir)
@@ -138,7 +147,6 @@ func Fetch(filename string, cf string, start, end int64, step int) ([]*cmodel.RR
 	}
 
 	defer fetchRes.FreeValues()
-	logger.Trace("fetch res: %v, filename: %s", fetchRes, filename)
 
 	values := fetchRes.Values()
 	size := len(values)
@@ -157,16 +165,6 @@ func Fetch(filename string, cf string, start, end int64, step int) ([]*cmodel.RR
 	}
 
 	return ret, nil
-}
-
-// 监控数据对应的rrd文件名称
-func RrdFileName(baseDir string, item *cmodel.GraphItem, md5 string) string {
-	return fmt.Sprintf("%s/%s/%s_%s_%d.rrd", baseDir, md5[0:2], md5, item.DsType, item.Step)
-}
-
-// rrd文件是否存在
-func IsRrdFileExist(filename string) bool {
-	return file.IsExist(filename)
 }
 
 func FlushAll() {
