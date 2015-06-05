@@ -15,7 +15,6 @@ import (
 	"github.com/open-falcon/graph/http"
 	"github.com/open-falcon/graph/index"
 	"github.com/open-falcon/graph/rrdtool"
-	"github.com/toolkits/logger"
 )
 
 func start_signal(pid int, conf g.GlobalConfig) {
@@ -64,9 +63,10 @@ func main() {
 	// global config
 	g.ParseConfig(*cfg)
 
-	// 只在启动的时候初始化一次，而ParseConfig可以被多次调用
-	logger.SetLevelWithDefault(g.Config().Log, "info")
+	// init db
 	db.Init()
+	// start rrdtool
+	rrdtool.Start()
 
 	go api.Start()
 
