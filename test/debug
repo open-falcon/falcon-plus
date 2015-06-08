@@ -46,9 +46,19 @@ function conn_pool_status(){
 function trace_recv(){
     e="test.endpoint.niean.1" 
     m="test.metric.niean.1"
-    #t="tag0=tag0-niean-1,tag1=tag1-niean-1,tag2=tag2-niean-1"
-    curl -s "$httpprex/trace/$e/$m" | python -m json.tool
+    t="tag0=tag0-niean-1,tag1=tag1-niean-1,tag2=tag2-niean-1"
+    curl -s "$httpprex/trace/$e/$m/$t" | python -m json.tool
 }
+
+## api
+function http_post(){
+    e="test.endpoint.niean.1" 
+    m="test.metric.niean.1"
+    t="tag0=tag0-niean-1,tag1=tag1-niean-1,tag2=tag2-niean-1"
+    ts=`date +%s`
+    curl -s -X POST -d "[{\"metric\":\"$m\", \"endpoint\":\"$e\", \"timestamp\":$ts,\"step\":60, \"value\":9, \"counterType\":\"GAUGE\",\"tags\":\"$t\"}]" "$httpprex/api/push" | python -m json.tool
+}
+
 
 ## telnet 
 function telnet_send(){
@@ -158,6 +168,9 @@ case $action in
         ;;
     "conn")
         conn_pool_status $2
+        ;;
+    "post")
+        http_post 
         ;;
     "send")
         telnet_send

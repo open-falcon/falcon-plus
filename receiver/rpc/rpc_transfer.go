@@ -34,6 +34,11 @@ func (this *Transfer) Ping(req cmodel.NullRpcRequest, resp *cmodel.SimpleRpcResp
 }
 
 func (t *Transfer) Update(args []*cmodel.MetricValue, reply *cmodel.TransferResponse) error {
+	return RecvMetricValues(args, reply, "rpc")
+}
+
+// process new metric values
+func RecvMetricValues(args []*cmodel.MetricValue, reply *cmodel.TransferResponse, from string) error {
 	start := time.Now()
 	reply.Invalid = 0
 
@@ -119,8 +124,13 @@ func (t *Transfer) Update(args []*cmodel.MetricValue, reply *cmodel.TransferResp
 	}
 
 	// statistics
-	proc.RpcRecvCnt.IncrBy(int64(len(items)))
-	proc.RecvCnt.IncrBy(int64(len(items)))
+	cnt := int64(len(items))
+	proc.RecvCnt.IncrBy(cnt)
+	if from == "rpc" {
+		proc.RpcRecvCnt.IncrBy(cnt)
+	} else if from == "http" {
+		proc.HttpRecvCnt.IncrBy(cnt)
+	}
 
 	cfg := g.Config()
 

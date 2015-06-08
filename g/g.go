@@ -10,8 +10,10 @@ import (
 // 0.0.4: bugfix: set replicas before add node
 // 0.0.8: change receiver, mv proc cron to proc pkg, add readme, add gitversion, add config reload, add trace tools
 // 0.0.9: fix bugs of conn pool(use transfer's private conn pool, named & minimum)
+// 0.0.10: use more efficient proc & sema, rm conn_pool status log
+// 0.0.11: fix bug: all graphs' traffic delined when one graph broken down, modify retry interval
 const (
-	VERSION      = "0.0.9"
+	VERSION      = "0.0.11"
 	GAUGE        = "GAUGE"
 	COUNTER      = "COUNTER"
 	DERIVE       = "DERIVE"
