@@ -15,6 +15,7 @@ var (
 	// 计数统计,正确计数,错误计数, ...
 	RecvCnt       = nproc.NewSCounterQps("RecvCnt")
 	RpcRecvCnt    = nproc.NewSCounterQps("RpcRecvCnt")
+	HttpRecvCnt   = nproc.NewSCounterQps("HttpRecvCnt")
 	SocketRecvCnt = nproc.NewSCounterQps("SocketRecvCnt")
 
 	SendToJudgeCnt          = nproc.NewSCounterQps("SendToJudgeCnt")
@@ -45,6 +46,7 @@ func GetAll() []interface{} {
 	// recv cnt
 	ret = append(ret, RecvCnt.Get())
 	ret = append(ret, RpcRecvCnt.Get())
+	ret = append(ret, HttpRecvCnt.Get())
 	ret = append(ret, SocketRecvCnt.Get())
 
 	// send cnt

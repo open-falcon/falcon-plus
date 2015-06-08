@@ -38,26 +38,27 @@ func startSendTasks() {
 	// init send go-routines
 	for node, _ := range cfg.Judge.Cluster {
 		queue := JudgeQueues[node]
-		go forward2JudgeTask(queue, node)
+		go forward2JudgeTask(queue, node, judgeConcurrent)
 	}
 
 	for node, _ := range cfg.Graph.Cluster {
 		queue := GraphQueues[node]
-		go forward2GraphTask(queue, node)
+		go forward2GraphTask(queue, node, graphConcurrent)
 	}
 
 	if cfg.Graph.Migrating {
 		for node, _ := range cfg.Graph.ClusterMigrating {
 			queue := GraphMigratingQueues[node]
-			go forward2GraphMigratingTask(queue, node)
+			go forward2GraphMigratingTask(queue, node, graphConcurrent)
 		}
 	}
 }
 
 // Judge定时任务, 将 Judge发送缓存中的数据 通过rpc连接池 发送到Judge
-func forward2JudgeTask(Q *list.SafeLinkedListLimited, node string) {
+func forward2JudgeTask(Q *list.SafeLinkedListLimited, node string, concurrent int) {
 	batch := g.Config().Judge.Batch // 一次发送,最多batch条数据
 	addr := g.Config().Judge.Cluster[node]
+	sema := nsema.NewSemaphore(concurrent)
 
 	for {
 		items := Q.PopBack(batch)
@@ -73,9 +74,9 @@ func forward2JudgeTask(Q *list.SafeLinkedListLimited, node string) {
 		}
 
 		//	同步Call + 有限并发 进行发送
-		semaSendToJudge.Acquire()
+		sema.Acquire()
 		go func(addr string, judgeItems []*cmodel.JudgeItem, count int) {
-			defer semaSendToJudge.Release()
+			defer sema.Release()
 
 			resp := &cmodel.SimpleRpcResponse{}
 			var err error
@@ -86,7 +87,7 @@ func forward2JudgeTask(Q *list.SafeLinkedListLimited, node string) {
 					sendOk = true
 					break
 				}
-				time.Sleep(time.Millisecond * 100)
+				time.Sleep(time.Millisecond * 10)
 			}
 
 			if !sendOk {
@@ -102,9 +103,10 @@ func forward2JudgeTask(Q *list.SafeLinkedListLimited, node string) {
 }
 
 // Graph定时任务, 将 Graph发送缓存中的数据 通过rpc连接池 发送到Graph
-func forward2GraphTask(Q *list.SafeLinkedListLimited, node string) {
+func forward2GraphTask(Q *list.SafeLinkedListLimited, node string, concurrent int) {
 	batch := g.Config().Graph.Batch // 一次发送,最多batch条数据
 	addr := g.Config().Graph.Cluster[node]
+	sema := nsema.NewSemaphore(concurrent)
 
 	for {
 		items := Q.PopBack(batch)
@@ -119,9 +121,9 @@ func forward2GraphTask(Q *list.SafeLinkedListLimited, node string) {
 			graphItems[i] = items[i].(*cmodel.GraphItem)
 		}
 
-		semaSendToGraph.Acquire()
+		sema.Acquire()
 		go func(addr string, graphItems []*cmodel.GraphItem, count int) {
-			defer semaSendToGraph.Release()
+			defer sema.Release()
 
 			resp := &cmodel.SimpleRpcResponse{}
 			var err error
@@ -132,7 +134,7 @@ func forward2GraphTask(Q *list.SafeLinkedListLimited, node string) {
 					sendOk = true
 					break
 				}
-				time.Sleep(time.Millisecond * 100)
+				time.Sleep(time.Millisecond * 10)
 			}
 
 			if !sendOk {
@@ -148,9 +150,10 @@ func forward2GraphTask(Q *list.SafeLinkedListLimited, node string) {
 }
 
 // Graph定时任务, 进行数据迁移时的 数据冗余发送
-func forward2GraphMigratingTask(Q *list.SafeLinkedListLimited, node string) {
+func forward2GraphMigratingTask(Q *list.SafeLinkedListLimited, node string, concurrent int) {
 	batch := g.Config().Graph.Batch // 一次发送,最多batch条数据
 	addr := g.Config().Graph.ClusterMigrating[node]
+	sema := nsema.NewSemaphore(concurrent)
 
 	for {
 		items := Q.PopBack(batch)
@@ -165,9 +168,9 @@ func forward2GraphMigratingTask(Q *list.SafeLinkedListLimited, node string) {
 			graphItems[i] = items[i].(*cmodel.GraphItem)
 		}
 
-		semaSendToGraphMigrating.Acquire()
+		sema.Acquire()
 		go func(addr string, graphItems []*cmodel.GraphItem, count int) {
-			defer semaSendToGraphMigrating.Release()
+			defer sema.Release()
 
 			resp := &cmodel.SimpleRpcResponse{}
 			var err error
@@ -178,7 +181,7 @@ func forward2GraphMigratingTask(Q *list.SafeLinkedListLimited, node string) {
 					sendOk = true
 					break
 				}
-				time.Sleep(time.Millisecond * 100) //发送失败了,睡100ms
+				time.Sleep(time.Millisecond * 10) //发送失败了,睡10ms
 			}
 
 			if !sendOk {

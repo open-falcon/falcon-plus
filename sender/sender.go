@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	DefaultSendQueueMaxSize = 102400 //10.24w
+	DefaultSendQueueMaxSize = 10240 //1.024w
 )
 
 // 服务节点的一致性哈希环
