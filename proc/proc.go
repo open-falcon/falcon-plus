@@ -1,7 +1,7 @@
 package proc
 
 import (
-	nproc "github.com/niean/gotools/proc"
+	nproc "github.com/toolkits/proc"
 	"log"
 	"time"
 )

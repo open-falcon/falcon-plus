@@ -1,10 +1,10 @@
 package index
 
 import (
-	cron "github.com/niean/cron"
 	Mdb "github.com/open-falcon/common/db"
 	"github.com/open-falcon/task/proc"
 	TSemaphore "github.com/toolkits/concurrent/semaphore"
+	cron "github.com/toolkits/cron"
 	"log"
 	"time"
 )

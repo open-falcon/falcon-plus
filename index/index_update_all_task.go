@@ -3,10 +3,10 @@ package index
 import (
 	"encoding/json"
 	"fmt"
-	cron "github.com/niean/cron"
-	nhttpclient "github.com/niean/gotools/http/httpclient"
 	"github.com/open-falcon/task/g"
 	"github.com/open-falcon/task/proc"
+	cron "github.com/toolkits/cron"
+	nhttpclient "github.com/toolkits/http/httpclient"
 	"io/ioutil"
 	"log"
 	"net/http"
