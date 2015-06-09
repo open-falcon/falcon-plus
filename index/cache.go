@@ -3,11 +3,11 @@ package index
 import (
 	"database/sql"
 	"fmt"
-	tcache "github.com/niean/gotools/cache/timedcache"
 	cmodel "github.com/open-falcon/common/model"
 	cutils "github.com/open-falcon/common/utils"
 	db "github.com/open-falcon/graph/db"
 	"github.com/open-falcon/graph/proc"
+	tcache "github.com/toolkits/cache/localcache/timedcache"
 	"log"
 	"strconv"
 	"strings"

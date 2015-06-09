@@ -3,12 +3,12 @@ package index
 import (
 	"database/sql"
 	"fmt"
-	nsema "github.com/niean/gotools/concurrent/semaphore"
-	ntime "github.com/niean/gotools/time"
 	cmodel "github.com/open-falcon/common/model"
 	cutils "github.com/open-falcon/common/utils"
 	db "github.com/open-falcon/graph/db"
 	proc "github.com/open-falcon/graph/proc"
+	nsema "github.com/toolkits/concurrent/semaphore"
+	ntime "github.com/toolkits/time"
 	"log"
 	"time"
 )
