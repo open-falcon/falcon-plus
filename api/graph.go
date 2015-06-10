@@ -53,6 +53,7 @@ func handleItems(items []*cmodel.GraphItem) {
 		//statistics
 		proc.GraphRpcRecvCnt.Incr()
 		proc.RecvDataTrace.Trace(checksum, items[i])
+		proc.RecvDataFilter.Filter(checksum, items[i].Value, items[i])
 
 		// To Graph
 		first := store.GraphItems.First(checksum)

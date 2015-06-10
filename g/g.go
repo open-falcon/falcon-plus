@@ -7,7 +7,7 @@ import (
 
 // Change Logs
 // 0.5.2 use rrdlite other than rrdtool, fix data lost when query failed
-//		 rollback to central lib
+//		 rollback to central lib, add filer for debug
 const (
 	VERSION         = "0.5.2"
 	GAUGE           = "GAUGE"

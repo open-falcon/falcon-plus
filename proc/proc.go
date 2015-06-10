@@ -9,6 +9,11 @@ var (
 	RecvDataTrace = nproc.NewDataTrace("RecvDataTrace", 3)
 )
 
+// filter
+var (
+	RecvDataFilter = nproc.NewDataFilter("RecvDataFilter", 3)
+)
+
 // 索引增量更新
 var (
 	IndexUpdateIncr         = nproc.NewSCounterQps("IndexUpdateIncr")
