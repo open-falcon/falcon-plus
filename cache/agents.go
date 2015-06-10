@@ -28,13 +28,7 @@ func (this *SafeAgents) Put(req *model.AgentReportRequest) {
 		ReportRequest: req,
 	}
 
-	// 对于新部署agent的机器，信息第一次上来，应该立马更新DB
-	// 当然，如果AgentVersion、PluginVersion发生了变化，也要立马更新DB
-	// 如果机器改名，ip也会发生变化
-	old, exists := this.Get(req.Hostname)
-	if !exists || old.ReportRequest.AgentVersion != req.AgentVersion || old.ReportRequest.PluginVersion != req.PluginVersion || old.ReportRequest.IP != req.IP {
-		db.UpdateAgent(val)
-	}
+	db.UpdateAgent(val)
 
 	this.Lock()
 	defer this.Unlock()
