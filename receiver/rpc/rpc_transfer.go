@@ -144,7 +144,7 @@ func RecvMetricValues(args []*cmodel.MetricValue, reply *cmodel.TransferResponse
 
 	reply.Message = "ok"
 	reply.Total = len(args)
-	reply.Latency = (time.Now().UnixNano() - start.UnixNano()) / 1000
+	reply.Latency = (time.Now().UnixNano() - start.UnixNano()) / 1000000
 
 	return nil
 }
