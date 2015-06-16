@@ -1,10 +1,10 @@
 package sender
 
 import (
-	nsema "github.com/niean/gotools/concurrent/semaphore"
 	cmodel "github.com/open-falcon/common/model"
 	"github.com/open-falcon/transfer/g"
 	"github.com/open-falcon/transfer/proc"
+	nsema "github.com/toolkits/concurrent/semaphore"
 	"github.com/toolkits/container/list"
 	"log"
 	"time"
