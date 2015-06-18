@@ -96,6 +96,10 @@ type RRDData struct {
 	Value     JsonFloat `json:"value"`
 }
 
+func NewRRDData(ts int64, val float64) *RRDData {
+	return &RRDData{Timestamp: ts, Value: JsonFloat(val)}
+}
+
 func (this *RRDData) String() string {
 	return fmt.Sprintf(
 		"<RRDData:Value:%v TS:%d %v>",
@@ -123,4 +127,15 @@ type GraphFullyInfo struct {
 	Step      int    `json:"step"`
 	Filename  string `json:"filename"`
 	Addr      string `json:"addr"`
+}
+
+type GraphLastParam struct {
+	Endpoint string `json:"endpoint"`
+	Counter  string `json:"counter"`
+}
+
+type GraphLastResp struct {
+	Endpoint string   `json:"endpoint"`
+	Counter  string   `json:"counter"`
+	Value    *RRDData `json:"value"`
 }
