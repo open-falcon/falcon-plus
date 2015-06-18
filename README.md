@@ -54,7 +54,7 @@ go get ./...
 ./control start
 ```
 ## Usage
-send items by transfer's http-api
+send items via transfer's http-api
 ```bash
 #!/bin/bash
 e="test.endpoint.1" 
@@ -63,6 +63,10 @@ t="t0=tag0,t1=tag1,t2=tag2"
 ts=`date +%s`
 curl -s -X POST -d "[{\"metric\":\"$m\", \"endpoint\":\"$e\", \"timestamp\":$ts,\"step\":60, \"value\":9, \"counterType\":\"GAUGE\",\"tags\":\"$t\"}]" "127.0.0.1:6060/api/push" | python -m json.tool
 ```
+
+u want sending items via python jsonrpc? turn to one simple example: ```./test/rcpclient.py```
+
+
 ## Configuration
 
     debug: true/false, 如果为true，日志中会打印debug信息
