@@ -75,6 +75,58 @@ func Info(endpoint, counter string) (r *model.GraphFullyInfo, err error) {
 	}
 }
 
+func Last(endpoint, counter string) (r *model.GraphLastResp, err error) {
+	pool, err := selectPool(endpoint, counter)
+	if err != nil {
+		return nil, err
+	}
+
+	conn, err := pool.Get()
+	if err != nil {
+		return nil, err
+	}
+
+	rpc_conn := conn.(RpcConn)
+	if rpc_conn.cli == nil {
+		pool.CloseClean(conn)
+		return nil, errors.New("nil rpc conn")
+	}
+
+	type ChResult struct {
+		Err  error
+		Resp *model.GraphLastResp
+	}
+	ch := make(chan *ChResult, 1)
+	go func() {
+		param := model.GraphLastParam{
+			Endpoint: endpoint,
+			Counter:  counter,
+		}
+		resp := &model.GraphLastResp{}
+		err := rpc_conn.cli.Call("Graph.Last", param, resp)
+		r := &ChResult{
+			Err:  err,
+			Resp: resp,
+		}
+		ch <- r
+	}()
+
+	cfg := g.Config().Graph
+	select {
+	case r := <-ch:
+		if r.Err != nil {
+			pool.CloseClean(conn)
+			return nil, r.Err
+		} else {
+			pool.Release(conn)
+			return r.Resp, nil
+		}
+	case <-time.After(time.Duration(cfg.Timeout) * time.Millisecond):
+		pool.Release(conn)
+		return nil, errors.New("i/o timeout")
+	}
+}
+
 func QueryOne(start, end int64, cf, endpoint, counter string) (r *model.GraphQueryResponse, err error) {
 	pool, err := selectPool(endpoint, counter)
 	if err != nil {

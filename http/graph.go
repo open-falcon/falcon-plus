@@ -134,4 +134,30 @@ func configGraphRoutes() {
 		StdRender(w, data, nil)
 	})
 
+	// post, last
+	http.HandleFunc("/graph/last", func(w http.ResponseWriter, r *http.Request) {
+		var body []*model.GraphLastParam
+		decoder := json.NewDecoder(r.Body)
+		err := decoder.Decode(&body)
+		if err != nil {
+			StdRender(w, "", err)
+			return
+		}
+
+		if len(body) == 0 {
+			StdRender(w, "", errors.New("empty_payload"))
+			return
+		}
+
+		data := []*model.GraphLastResp{}
+		for _, param := range body {
+			last, err := graph.Last(param.Endpoint, param.Counter)
+			if err != nil {
+				logger.Trace("graph.last fail, resp: %v, err: %v", last, err)
+				continue
+			}
+			data = append(data, last)
+		}
+		StdRender(w, data, nil)
+	})
 }
