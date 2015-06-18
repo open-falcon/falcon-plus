@@ -12,7 +12,6 @@ import (
 	"github.com/open-falcon/graph/proc"
 	"github.com/open-falcon/graph/rrdtool"
 	"github.com/open-falcon/graph/store"
-	//"sync/atomic"
 )
 
 //var DropCounter int64
@@ -64,6 +63,9 @@ func handleItems(items []*cmodel.GraphItem) {
 
 		// To Index
 		index.ReceiveItem(items[i], checksum)
+
+		// To History
+		store.AddItem(checksum, items[i])
 	}
 }
 
@@ -226,5 +228,18 @@ func (this *Graph) Info(param cmodel.GraphInfoParam, resp *cmodel.GraphInfoResp)
 	resp.Step = step
 	resp.Filename = filename
 
+	return nil
+}
+
+func (this *Graph) Last(param cmodel.GraphLastParam, resp *cmodel.GraphLastResp) error {
+	// statistics
+	proc.GraphLastCnt.Incr()
+
+	resp.Endpoint = param.Endpoint
+	resp.Counter = param.Counter
+
+	md5 := cutils.Md5(param.Endpoint + "/" + param.Counter)
+	item := store.GetLastItem(md5)
+	resp.Value = cmodel.NewRRDData(item.Timestamp, item.Value)
 	return nil
 }

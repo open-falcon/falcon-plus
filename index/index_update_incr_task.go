@@ -5,7 +5,7 @@ import (
 	"fmt"
 	cmodel "github.com/open-falcon/common/model"
 	cutils "github.com/open-falcon/common/utils"
-	db "github.com/open-falcon/graph/db"
+	"github.com/open-falcon/graph/g"
 	proc "github.com/open-falcon/graph/proc"
 	nsema "github.com/toolkits/concurrent/semaphore"
 	ntime "github.com/toolkits/time"
@@ -43,7 +43,7 @@ func updateIndexIncr() int {
 		return ret
 	}
 
-	dbConn, err := db.GetDbConn("UpdateIndexIncrTask")
+	dbConn, err := g.GetDbConn("UpdateIndexIncrTask")
 	if err != nil {
 		log.Println("[ERROR] get dbConn fail", err)
 		return ret

@@ -8,8 +8,10 @@ import (
 // Change Logs
 // 0.5.2 use rrdlite other than rrdtool, fix data lost when query failed
 //		 rollback to central lib, add filer for debug
+// 0.5.3 mv db back to g, add rpc.last
+
 const (
-	VERSION         = "0.5.2"
+	VERSION         = "0.5.3"
 	GAUGE           = "GAUGE"
 	DERIVE          = "DERIVE"
 	COUNTER         = "COUNTER"

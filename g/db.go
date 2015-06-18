@@ -1,9 +1,8 @@
-package db
+package g
 
 import (
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/open-falcon/graph/g"
 	"log"
 	"sync"
 )
@@ -16,7 +15,7 @@ var (
 
 var DB *sql.DB
 
-func Init() {
+func InitDB() {
 	var err error
 	DB, err = makeDbConn()
 	if DB == nil || err != nil {
@@ -55,12 +54,12 @@ func GetDbConn(connName string) (c *sql.DB, e error) {
 
 // 创建一个新的mysql连接
 func makeDbConn() (conn *sql.DB, err error) {
-	conn, err = sql.Open("mysql", g.Config().DB.Dsn)
+	conn, err = sql.Open("mysql", Config().DB.Dsn)
 	if err != nil {
 		return nil, err
 	}
 
-	conn.SetMaxIdleConns(g.Config().DB.MaxIdle)
+	conn.SetMaxIdleConns(Config().DB.MaxIdle)
 	err = conn.Ping()
 
 	return conn, err

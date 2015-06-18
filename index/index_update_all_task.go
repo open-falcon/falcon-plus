@@ -5,7 +5,7 @@ import (
 	"fmt"
 	cmodel "github.com/open-falcon/common/model"
 	cutils "github.com/open-falcon/common/utils"
-	db "github.com/open-falcon/graph/db"
+	"github.com/open-falcon/graph/g"
 	proc "github.com/open-falcon/graph/proc"
 	nsema "github.com/toolkits/concurrent/semaphore"
 	ntime "github.com/toolkits/time"
@@ -49,7 +49,7 @@ func UpdateIndexOne(endpoint string, metric string, tags map[string]string, dsty
 
 	log.Println("2")
 
-	dbConn, err := db.GetDbConn("UpdateIndexAllTask")
+	dbConn, err := g.GetDbConn("UpdateIndexAllTask")
 	if err != nil {
 		log.Println("[ERROR] make dbConn fail", err)
 		return err
@@ -100,7 +100,7 @@ func updateIndexAll(updateStepInSec int64) int {
 		return ret
 	}
 
-	dbConn, err := db.GetDbConn("UpdateIndexAllTask")
+	dbConn, err := g.GetDbConn("UpdateIndexAllTask")
 	if err != nil {
 		log.Println("[ERROR] make dbConn fail", err)
 		return ret
