@@ -21,7 +21,7 @@ type TransferResp struct {
 }
 
 func (t *TransferResp) String() string {
-	s := fmt.Sprintf("TransferResp total=%d, err_invalid=%d, latency=%dus",
+	s := fmt.Sprintf("TransferResp total=%d, err_invalid=%d, latency=%dms",
 		t.Total, t.ErrInvalid, t.Latency)
 	if t.Msg != "" {
 		s = fmt.Sprintf("%s, msg=%s", s, t.Msg)

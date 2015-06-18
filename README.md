@@ -75,7 +75,7 @@ curl -s -X POST -d "[{\"metric\":\"$m\", \"endpoint\":\"$e\", \"timestamp\":$ts,
         - enable: true/false, 表示是否开启该jsonrpc数据接收端口, Agent发送数据使用的就是该端口
         - listen: 表示监听的http端口
 
-    socket
+    socket #即将被废弃,请避免使用
         - enable: true/false, 表示是否开启该telnet方式的数据接收端口，这是为了方便用户一行行的发送数据给transfer
         - listen: 表示监听的http端口
 
