@@ -64,8 +64,9 @@ ts=`date +%s`
 curl -s -X POST -d "[{\"metric\":\"$m\", \"endpoint\":\"$e\", \"timestamp\":$ts,\"step\":60, \"value\":9, \"counterType\":\"GAUGE\",\"tags\":\"$t\"}]" "127.0.0.1:6060/api/push" | python -m json.tool
 ```
 
-u want sending items via python jsonrpc? turn to one simple example: ```./test/rcpclient.py```
+u want sending items via python jsonrpc client? turn to one python example: ```./test/rcpclient.py```
 
+u want sending items via java jsonrpc client? turn to one java example: ```https://github.com/niean/jsonrpc4go```
 
 ## Configuration
 
