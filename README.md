@@ -66,7 +66,7 @@ curl -s -X POST -d "[{\"metric\":\"$m\", \"endpoint\":\"$e\", \"timestamp\":$ts,
 
 u want sending items via python jsonrpc client? turn to one python example: ```./test/rcpclient.py```
 
-u want sending items via java jsonrpc client? turn to one java example: ```https://github.com/niean/jsonrpc4go```
+u want sending items via java jsonrpc client? turn to one java example: ![jsonrpc4go](https://github.com/niean/jsonrpc4go)
 
 ## Configuration
 
