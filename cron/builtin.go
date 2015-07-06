@@ -101,6 +101,7 @@ func syncBuiltinMetrics() {
 
 		g.SetReportPorts(ports)
 		g.SetReportProcs(procs)
+		g.SetDuPaths(paths)
 
 	}
 }
