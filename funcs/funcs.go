@@ -27,6 +27,7 @@ func BuildMappers() {
 				IOStatsMetrics,
 				NetstatMetrics,
 				ProcMetrics,
+				UdpMetrics,
 			},
 			Interval: interval,
 		},
@@ -40,6 +41,12 @@ func BuildMappers() {
 			Fs: []func() []*model.MetricValue{
 				PortMetrics,
 				SocketStatSummaryMetrics,
+			},
+			Interval: interval,
+		},
+		FuncsAndInterval{
+			Fs: []func() []*model.MetricValue{
+				DuMetrics,
 			},
 			Interval: interval,
 		},

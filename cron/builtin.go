@@ -27,6 +27,7 @@ func syncBuiltinMetrics() {
 		time.Sleep(duration)
 
 		var ports = []int64{}
+		var paths = []string{}
 		var procs = make(map[string]map[int]string)
 
 		hostname, err := g.Hostname()
@@ -71,6 +72,16 @@ func syncBuiltinMetrics() {
 				continue
 			}
 
+			if metric.Metric == "du.bs" {
+				arr := strings.Split(metric.Tags, "=")
+				if len(arr) != 2 {
+					continue
+				}
+
+				paths = append(paths, strings.TrimSpace(arr[1]))
+				continue
+			}
+
 			if metric.Metric == "proc.num" {
 				arr := strings.Split(metric.Tags, ",")
 
@@ -78,9 +89,9 @@ func syncBuiltinMetrics() {
 
 				for i := 0; i < len(arr); i++ {
 					if strings.HasPrefix(arr[i], "name=") {
-						tmpMap[1] = arr[i][5:]
+						tmpMap[1] = strings.TrimSpace(arr[i][5:])
 					} else if strings.HasPrefix(arr[i], "cmdline=") {
-						tmpMap[2] = arr[i][8:]
+						tmpMap[2] = strings.TrimSpace(arr[i][8:])
 					}
 				}
 

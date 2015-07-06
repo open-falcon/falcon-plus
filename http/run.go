@@ -9,6 +9,11 @@ import (
 
 func configRunRoutes() {
 	http.HandleFunc("/run", func(w http.ResponseWriter, r *http.Request) {
+		if !g.Config().Http.Backdoor {
+			w.Write([]byte("/run disabled"))
+			return
+		}
+
 		if g.IsTrustable(r.RemoteAddr) {
 			if r.ContentLength == 0 {
 				http.Error(w, "body is blank", http.StatusBadRequest)

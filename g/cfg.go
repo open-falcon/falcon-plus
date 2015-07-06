@@ -30,8 +30,9 @@ type TransferConfig struct {
 }
 
 type HttpConfig struct {
-	Enabled bool   `json:"enabled"`
-	Listen  string `json:"listen"`
+	Enabled  bool   `json:"enabled"`
+	Listen   string `json:"listen"`
+	Backdoor bool   `json:"backdoor"`
 }
 
 type CollectorConfig struct {

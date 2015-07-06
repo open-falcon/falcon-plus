@@ -92,6 +92,23 @@ func SetReportPorts(ports []int64) {
 }
 
 var (
+	duPaths     []string
+	duPathsLock = new(sync.RWMutex)
+)
+
+func DuPaths() []string {
+	duPathsLock.RLock()
+	defer duPathsLock.RUnlock()
+	return duPaths
+}
+
+func SetDuPaths(paths []string) {
+	duPathsLock.Lock()
+	defer duPathsLock.Unlock()
+	duPaths = paths
+}
+
+var (
 	// tags => {1=>name, 2=>cmdline}
 	// e.g. 'name=falcon-agent'=>{1=>falcon-agent}
 	// e.g. 'cmdline=xx'=>{2=>xx}

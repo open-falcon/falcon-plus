@@ -3,6 +3,7 @@ package funcs
 import (
 	"fmt"
 	"github.com/toolkits/nux"
+	"github.com/toolkits/sys"
 )
 
 func CheckCollector() {
@@ -13,6 +14,8 @@ func CheckCollector() {
 	_, listDiskErr := nux.ListDiskStats()
 	ports, listeningPortsErr := nux.ListeningPorts()
 	procs, psErr := nux.AllProcs()
+
+	_, duErr := sys.CmdOut("du", "--help")
 
 	output["kernel  "] = len(KernelMetrics()) > 0
 	output["df.bytes"] = len(DeviceMetrics()) > 0
@@ -25,6 +28,7 @@ func CheckCollector() {
 	output["ss -s   "] = len(SocketStatSummaryMetrics()) > 0
 	output["ss -tln "] = listeningPortsErr == nil && len(ports) > 0
 	output["ps aux  "] = psErr == nil && len(procs) > 0
+	output["du -bs  "] = duErr == nil
 
 	for k, v := range output {
 		status := "fail"
