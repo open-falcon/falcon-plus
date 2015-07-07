@@ -42,7 +42,7 @@ go get ./...
 
     rpc
         - enable: true/false, 表示是否开启该rpc端口，该端口为数据接收端口
-        - listen: 表示监听的http端口
+        - listen: 表示监听的rpc端口
 
     rrd
         - storage: 绝对路径，历史数据的文件存储路径（如有必要，请修改为合适的路径）
