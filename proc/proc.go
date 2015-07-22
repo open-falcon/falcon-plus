@@ -10,6 +10,11 @@ var (
 	RecvDataTrace = nproc.NewDataTrace("RecvDataTrace", 3)
 )
 
+// filter
+var (
+	RecvDataFilter = nproc.NewDataFilter("RecvDataFilter", 5)
+)
+
 // 统计指标的整体数据
 var (
 	// 计数统计,正确计数,错误计数, ...

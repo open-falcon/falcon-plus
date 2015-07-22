@@ -6,7 +6,7 @@ import (
 	"github.com/open-falcon/transfer/g"
 	"github.com/open-falcon/transfer/proc"
 	cpool "github.com/open-falcon/transfer/sender/conn_pool"
-	"github.com/toolkits/container/list"
+	nlist "github.com/toolkits/container/list"
 	"log"
 )
 
@@ -25,9 +25,9 @@ var (
 // 发送缓存队列
 // node -> queue_of_data
 var (
-	JudgeQueues          = make(map[string]*list.SafeLinkedListLimited)
-	GraphQueues          = make(map[string]*list.SafeLinkedListLimited)
-	GraphMigratingQueues = make(map[string]*list.SafeLinkedListLimited)
+	JudgeQueues          = make(map[string]*nlist.SafeListLimited)
+	GraphQueues          = make(map[string]*nlist.SafeListLimited)
+	GraphMigratingQueues = make(map[string]*nlist.SafeListLimited)
 )
 
 // 连接池
@@ -53,21 +53,24 @@ func Start() {
 func Push2JudgeSendQueue(items []*cmodel.MetaData) {
 	for _, item := range items {
 		pk := item.PK()
-
-		// statistics, transfer recv. 为了效率,放到了这里,因此只有judge是enbale时才能trace
-		proc.RecvDataTrace.Trace(pk, item)
-
 		node, err := JudgeNodeRing.GetNode(pk)
 		if err != nil {
 			log.Println("E:", err)
 			continue
 		}
 
+		// align ts
+		step := int(item.Step)
+		if step < g.MIN_STEP {
+			step = g.MIN_STEP
+		}
+		ts := alignTs(item.Timestamp, int64(step))
+
 		judgeItem := &cmodel.JudgeItem{
 			Endpoint:  item.Endpoint,
 			Metric:    item.Metric,
 			Value:     item.Value,
-			Timestamp: item.Timestamp,
+			Timestamp: ts,
 			JudgeType: item.CounterType,
 			Tags:      item.Tags,
 		}
@@ -84,24 +87,37 @@ func Push2JudgeSendQueue(items []*cmodel.MetaData) {
 // 将数据 打入 某个Graph的发送缓存队列, 具体是哪一个Graph 由一致性哈希 决定
 // 如果正在数据迁移, 数据除了打到原有配置上 还要向新的配置上打一份(新老重叠时要去重,防止将一条数据向一台Graph上打两次)
 func Push2GraphSendQueue(items []*cmodel.MetaData, migrating bool) {
+	cfg := g.Config().Graph
+
 	for _, item := range items {
 		graphItem, err := convert2GraphItem(item)
 		if err != nil {
 			log.Println("E:", err)
 			continue
 		}
-
 		pk := item.PK()
+
+		// statistics. 为了效率,放到了这里,因此只有graph是enbale时才能trace
+		proc.RecvDataTrace.Trace(pk, item)
+		proc.RecvDataFilter.Filter(pk, item.Value, item)
+
 		node, err := GraphNodeRing.GetNode(pk)
 		if err != nil {
 			log.Println("E:", err)
 			continue
 		}
-		Q := GraphQueues[node]
-		isSuccess := Q.PushFront(graphItem)
+
+		cnode := cfg.Cluster2[node]
+		errCnt := 0
+		for _, addr := range cnode.Addrs {
+			Q := GraphQueues[node+addr]
+			if !Q.PushFront(graphItem) {
+				errCnt += 1
+			}
+		}
 
 		// statistics
-		if !isSuccess {
+		if errCnt > 0 {
 			proc.SendToGraphDropCnt.Incr()
 		}
 
@@ -113,13 +129,18 @@ func Push2GraphSendQueue(items []*cmodel.MetaData, migrating bool) {
 			}
 
 			if node != migratingNode { // 数据迁移时,进行新老去重
-				MQ := GraphMigratingQueues[migratingNode]
-				isSuccess := MQ.PushFront(graphItem)
+				cnodem := cfg.ClusterMigrating2[migratingNode]
+				errCnt := 0
+				for _, addr := range cnodem.Addrs {
+					MQ := GraphMigratingQueues[migratingNode+addr]
+					if !MQ.PushFront(graphItem) {
+						errCnt += 1
+					}
+				}
 
 				// statistics
-				if !isSuccess {
+				if errCnt > 0 {
 					proc.SendToGraphMigratingDropCnt.Incr()
-
 				}
 			}
 		}
@@ -157,7 +178,11 @@ func convert2GraphItem(d *cmodel.MetaData) (*cmodel.GraphItem, error) {
 		return item, fmt.Errorf("not_supported_counter_type")
 	}
 
-	item.Timestamp = item.Timestamp - item.Timestamp%int64(item.Step)
+	item.Timestamp = alignTs(item.Timestamp, int64(item.Step)) //item.Timestamp - item.Timestamp%int64(item.Step)
 
 	return item, nil
+}
+
+func alignTs(ts int64, period int64) int64 {
+	return ts - ts%period
 }

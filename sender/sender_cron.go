@@ -38,7 +38,7 @@ func refreshSendingCacheSize() {
 	proc.GraphQueuesCnt.SetCnt(calcSendCacheSize(GraphQueues))
 	proc.GraphMigratingQueuesCnt.SetCnt(calcSendCacheSize(GraphMigratingQueues))
 }
-func calcSendCacheSize(mapList map[string]*list.SafeLinkedListLimited) int64 {
+func calcSendCacheSize(mapList map[string]*list.SafeListLimited) int64 {
 	var cnt int64 = 0
 	for _, list := range mapList {
 		if list != nil {

@@ -2,25 +2,29 @@ package sender
 
 import (
 	"github.com/open-falcon/transfer/g"
-	"github.com/toolkits/container/list"
+	nlist "github.com/toolkits/container/list"
 )
 
 func initSendQueues() {
 	cfg := g.Config()
 	for node, _ := range cfg.Judge.Cluster {
-		Q := list.NewSafeLinkedListLimited(DefaultSendQueueMaxSize)
+		Q := nlist.NewSafeListLimited(DefaultSendQueueMaxSize)
 		JudgeQueues[node] = Q
 	}
 
-	for node, _ := range cfg.Graph.Cluster {
-		Q := list.NewSafeLinkedListLimited(DefaultSendQueueMaxSize)
-		GraphQueues[node] = Q
+	for node, nitem := range cfg.Graph.Cluster2 {
+		for _, addr := range nitem.Addrs {
+			Q := nlist.NewSafeListLimited(DefaultSendQueueMaxSize)
+			GraphQueues[node+addr] = Q
+		}
 	}
 
 	if cfg.Graph.Migrating && cfg.Graph.ClusterMigrating != nil {
-		for node, _ := range cfg.Graph.ClusterMigrating {
-			Q := list.NewSafeLinkedListLimited(DefaultSendQueueMaxSize)
-			GraphMigratingQueues[node] = Q
+		for node, cnode := range cfg.Graph.ClusterMigrating2 {
+			for _, addr := range cnode.Addrs {
+				Q := nlist.NewSafeListLimited(DefaultSendQueueMaxSize)
+				GraphMigratingQueues[node+addr] = Q
+			}
 		}
 	}
 }

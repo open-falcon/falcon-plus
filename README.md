@@ -105,6 +105,6 @@ u want sending items via java jsonrpc client? turn to one java example: [jsonrpc
         - maxIdle: 连接池相关配置，最大空闲连接数，建议保持默认
         - replicas: 这是一致性hash算法需要的节点副本数量，建议不要变更，保持默认即可
         - migrating: true/false，当我们需要对graph后端列表进行扩容的时候，设置为true, transfer会根据扩容前后的实例信息，对每个数据采集项，进行两次一致性哈希计算，根据计算结果，来决定是否需要发送双份的数据，当新扩容的服务器积累了足够久的数据后，就可以设置为false。
-        - cluster: key-value形式的字典，表示后端的graph列表，其中key代表后端graph名字，value代表的是具体的ip:port
-        - clusterMigrating: key-value形式的字典，表示新扩容的后端的graph列表，其中key代表后端graph名字，value代表的是具体的ip:port
+        - cluster: key-value形式的字典，表示后端的graph列表，其中key代表后端graph名字，value代表的是具体的ip:port(多个地址 用逗号隔开, transfer会将同一份数据 发送至各个地址)
+        - clusterMigrating: key-value形式的字典，表示新扩容的后端的graph列表，其中key代表后端graph名字，value代表的是具体的ip:port(多个地址 用逗号隔开, transfer会将同一份数据 发送至各个地址)
 

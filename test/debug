@@ -50,13 +50,24 @@ function trace_recv(){
     curl -s "$httpprex/trace/$e/$m/$t" | python -m json.tool
 }
 
+## filter
+function filter_recv(){
+    e="test.endpoint.niean.1" 
+    m="test.metric.niean.1"
+    opt="lt"
+    val="5"
+    t="tag0=tag0-niean-1,tag1=tag1-niean-1,tag2=tag2-niean-1"
+    curl -s "$httpprex/filter/$e/$m/$opt/$val/$t" | python -m json.tool
+}
+
 ## api
 function http_post(){
     e="test.endpoint.niean.1" 
     m="test.metric.niean.1"
     t="tag0=tag0-niean-1,tag1=tag1-niean-1,tag2=tag2-niean-1"
     ts=`date +%s`
-    curl -s -X POST -d "[{\"metric\":\"$m\", \"endpoint\":\"$e\", \"timestamp\":$ts,\"step\":60, \"value\":9, \"counterType\":\"GAUGE\",\"tags\":\"$t\"}]" "$httpprex/api/push" | python -m json.tool
+    val=`expr $ts / 60 % 10`
+    curl -s -X POST -d "[{\"metric\":\"$m\", \"endpoint\":\"$e\", \"timestamp\":$ts,\"step\":60, \"value\":$val, \"counterType\":\"GAUGE\",\"tags\":\"$t\"}]" "$httpprex/api/push" | python -m json.tool
 }
 
 
@@ -165,6 +176,9 @@ case $action in
         ;;
     "trace")
         trace_recv 
+        ;;
+    "filter")
+        filter_recv 
         ;;
     "conn")
         conn_pool_status $2
