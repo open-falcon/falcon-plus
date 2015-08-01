@@ -15,12 +15,12 @@ func ReportAgentStatus() {
 }
 
 func reportAgentStatus(interval time.Duration) {
-	hostname, err := g.Hostname()
-	if err != nil {
-		hostname = fmt.Sprintf("error:%s", err.Error())
-	}
-
 	for {
+		hostname, err := g.Hostname()
+		if err != nil {
+			hostname = fmt.Sprintf("error:%s", err.Error())
+		}
+		
 		req := model.AgentReportRequest{
 			Hostname:      hostname,
 			IP:            g.IP(),
