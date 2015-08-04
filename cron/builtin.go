@@ -60,13 +60,15 @@ func syncBuiltinMetrics() {
 
 		for _, metric := range resp.Metrics {
 			if metric.Metric == "net.port.listen" {
-				if !strings.Contains(metric.Tags, "=") {
-					// illegal
+				arr := strings.Split(metric.Tags, "=")
+				if len(arr) != 2 {
 					continue
 				}
 
-				if port, err := strconv.ParseInt(metric.Tags[5:], 10, 64); err == nil {
+				if port, err := strconv.ParseInt(arr[1], 10, 64); err == nil {
 					ports = append(ports, port)
+				}else{
+					log.Println("metrics ParseInt failed:", err)
 				}
 
 				continue
