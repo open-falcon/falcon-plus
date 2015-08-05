@@ -41,7 +41,6 @@ func (this *AgentHeartbeatRequest) String() string {
 
 type AgentPluginsResponse struct {
 	Plugins   []string
-	Checksum  string
 	Timestamp int64
 }
 
