@@ -28,8 +28,7 @@ func SyncMinePlugins() {
 func syncMinePlugins() {
 
 	var (
-		checksum   string = "nil"
-		timestamp  int64  = -1
+		timestamp  int64 = -1
 		pluginDirs []string
 	)
 
@@ -46,7 +45,6 @@ func syncMinePlugins() {
 
 		req := model.AgentHeartbeatRequest{
 			Hostname: hostname,
-			Checksum: checksum,
 		}
 
 		var resp model.AgentPluginsResponse
@@ -60,13 +58,8 @@ func syncMinePlugins() {
 			goto REST
 		}
 
-		if resp.Checksum == checksum {
-			goto REST
-		}
-
 		pluginDirs = resp.Plugins
 		timestamp = resp.Timestamp
-		checksum = resp.Checksum
 
 		if g.Config().Debug {
 			log.Println(&resp)
