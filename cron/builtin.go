@@ -67,7 +67,7 @@ func syncBuiltinMetrics() {
 
 				if port, err := strconv.ParseInt(arr[1], 10, 64); err == nil {
 					ports = append(ports, port)
-				}else{
+				} else {
 					log.Println("metrics ParseInt failed:", err)
 				}
 
