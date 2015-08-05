@@ -16,19 +16,7 @@ func (t *Agent) MinePlugins(args model.AgentHeartbeatRequest, reply *model.Agent
 		return nil
 	}
 
-	plugins := cache.GetPlugins(args.Hostname)
-	checksum := ""
-	if len(plugins) > 0 {
-		checksum = utils.Md5(strings.Join(plugins, ""))
-	}
-
-	if args.Checksum == checksum {
-		reply.Plugins = []string{}
-	} else {
-		reply.Plugins = plugins
-	}
-
-	reply.Checksum = checksum
+	reply.Plugins = cache.GetPlugins(args.Hostname)
 	reply.Timestamp = time.Now().Unix()
 
 	return nil
