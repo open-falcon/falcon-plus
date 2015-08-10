@@ -9,7 +9,7 @@ import (
 func Start() {
 	if g.Config().Index.Enabled {
 		StartDB()
-		StartIndexDeleteTask()
+		//StartIndexDeleteTask()
 		StartIndexUpdateAllTask()
 		log.Println("index:Start, ok")
 	} else {

@@ -11,8 +11,10 @@ import (
 // 0.0.4: make collector configurable, add monitor cron, adjust index db
 // Changes: send turning-ok only after alarm happens, add conn timeout for http
 //			maybe fix bug of 'too many open files', rollback to central lib
+// 0.0.5: rm index deleting cron
+
 const (
-	VERSION = "0.0.4"
+	VERSION = "0.0.5"
 )
 
 func init() {
