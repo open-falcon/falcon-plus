@@ -22,3 +22,7 @@ func Checksum(endpoint string, metric string, tags map[string]string) string {
 	pk := PK(endpoint, metric, tags)
 	return Md5(pk)
 }
+
+func ChecksumOfUUID(endpoint, metric string, tags map[string]string, dstype string, step int64) string {
+	return Md5(UUID(endpoint, metric, tags, dstype, int(step)))
+}

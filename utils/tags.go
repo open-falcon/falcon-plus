@@ -56,3 +56,26 @@ func DictedTagstring(s string) map[string]string {
 	}
 	return tag_dict
 }
+
+func SplitTagsString(s string) (err error, tags map[string]string) {
+	err = nil
+	tags = make(map[string]string)
+
+	s = strings.Replace(s, " ", "", -1)
+	if s == "" {
+		return
+	}
+
+	tagSlice := strings.Split(s, ",")
+	for _, tag := range tagSlice {
+		tag_pair := strings.SplitN(tag, "=", 2)
+		if len(tag_pair) == 2 {
+			tags[tag_pair[0]] = tag_pair[1]
+		} else {
+			err = fmt.Errorf("bad tag %s", tag)
+			return
+		}
+	}
+
+	return
+}
