@@ -36,13 +36,20 @@ function start() {
         cp cfg.example.json $conf
     fi
     nohup ./$app -c $conf &> $logfile &
-    echo $! > $pidfile
-    echo "$app started..., pid=$!"
+    sleep 1
+    running=`ps -p $! | grep -v "PID TTY" | wc -l`
+    if [ $running -gt 0 ];then
+        echo $! > $pidfile
+        echo "$app started..., pid=$!"
+    else
+        echo "$app failed to start."
+        return 1
 }
 
 function stop() {
     pid=`cat $pidfile`
     kill $pid
+    rm -f $pidfile
     echo "$app stoped..."
 }
 
