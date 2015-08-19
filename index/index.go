@@ -3,7 +3,6 @@ package index
 import (
 	cmodel "github.com/open-falcon/common/model"
 	"github.com/open-falcon/graph/g"
-	"github.com/open-falcon/graph/rrdtool"
 	"log"
 )
 

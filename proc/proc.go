@@ -1,12 +1,17 @@
 package proc
 
 import (
-	nproc "github.com/niean/gotools/proc"
+	nproc "github.com/toolkits/proc"
 )
 
 // trace
 var (
 	RecvDataTrace = nproc.NewDataTrace("RecvDataTrace", 3)
+)
+
+// filter
+var (
+	RecvDataFilter = nproc.NewDataFilter("RecvDataFilter", 3)
 )
 
 // 索引增量更新
@@ -51,6 +56,7 @@ var (
 	GraphQueryCnt     = nproc.NewSCounterQps("GraphQueryCnt")
 	GraphQueryItemCnt = nproc.NewSCounterQps("GraphQueryItemCnt")
 	GraphInfoCnt      = nproc.NewSCounterQps("GraphInfoCnt")
+	GraphLastCnt      = nproc.NewSCounterQps("GraphLastCnt")
 	GraphLoadDbCnt    = nproc.NewSCounterQps("GraphLoadDbCnt") // load sth from db when query/info, tmp
 )
 
@@ -64,6 +70,7 @@ func GetAll() []interface{} {
 	ret = append(ret, GraphQueryCnt.Get())
 	ret = append(ret, GraphQueryItemCnt.Get())
 	ret = append(ret, GraphInfoCnt.Get())
+	ret = append(ret, GraphLastCnt.Get())
 	ret = append(ret, GraphLoadDbCnt.Get())
 
 	// index update all

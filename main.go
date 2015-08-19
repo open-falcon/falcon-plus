@@ -10,7 +10,6 @@ import (
 
 	"github.com/open-falcon/graph/api"
 	"github.com/open-falcon/graph/cron"
-	"github.com/open-falcon/graph/db"
 	"github.com/open-falcon/graph/g"
 	"github.com/open-falcon/graph/http"
 	"github.com/open-falcon/graph/index"
@@ -64,7 +63,7 @@ func main() {
 	g.ParseConfig(*cfg)
 
 	// init db
-	db.Init()
+	g.InitDB()
 	// start rrdtool
 	rrdtool.Start()
 

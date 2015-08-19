@@ -52,6 +52,32 @@ function trace_recv(){
     curl -s "$httpprex/trace/$e/$m/$tags" | python -m json.tool
 }
 
+## filter
+function filter_recv(){
+    e="test.graph.endpoint.niean.1"
+    m="test.graph.metric.1"
+    opt="gt"
+    threshhold="50.0"
+    tags="tag0=tag0-dummy-1,tag1=tag1-dummy-1,tag2=tag2-dummy-1"
+    curl -s "$httpprex/filter/$e/$m/$opt/$threshhold/$tags" | python -m json.tool
+}
+
+## history
+function fetch_history(){
+    e="test.graph.endpoint.niean.1"
+    m="test.graph.metric.1"
+    tags="tag0=tag0-dummy-1,tag1=tag1-dummy-1,tag2=tag2-dummy-1"
+    curl -s "$httpprex/history/$e/$m/$tags" | python -m json.tool
+}
+
+## last
+function fetch_last(){
+    e="test.graph.endpoint.niean.1"
+    m="test.graph.metric.1"
+    tags="tag0=tag0-dummy-1,tag1=tag1-dummy-1,tag2=tag2-dummy-1"
+    curl -s "$httpprex/last/$e/$m/$tags" | python -m json.tool
+}
+
 ## send
 function api_send(){
     e="test.graph.endpoint.niean.1"
@@ -162,6 +188,15 @@ case $action in
         ;;
     "trace")
         trace_recv
+        ;;
+    "filter")
+        filter_recv
+        ;;
+    "history")
+        fetch_history
+        ;;
+    "last")
+        fetch_last
         ;;
     "send")
         api_send

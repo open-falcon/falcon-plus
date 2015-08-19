@@ -1,4 +1,5 @@
 package g
+
 const (
-	COMMIT = "c3c5bae"
+	COMMIT = "76cc7ec"
 )

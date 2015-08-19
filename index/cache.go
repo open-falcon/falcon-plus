@@ -3,11 +3,11 @@ package index
 import (
 	"database/sql"
 	"fmt"
-	tcache "github.com/niean/gotools/cache/timedcache"
 	cmodel "github.com/open-falcon/common/model"
 	cutils "github.com/open-falcon/common/utils"
-	db "github.com/open-falcon/graph/db"
+	"github.com/open-falcon/graph/g"
 	"github.com/open-falcon/graph/proc"
+	tcache "github.com/toolkits/cache/localcache/timedcache"
 	"log"
 	"strconv"
 	"strings"
@@ -79,7 +79,7 @@ func GetEndpointFromCache(endpoint string) (int64, bool) {
 
 	// get from db
 	var id int64 = -1
-	err := db.DB.QueryRow("SELECT id FROM endpoint WHERE endpoint = ?", endpoint).Scan(&id)
+	err := g.DB.QueryRow("SELECT id FROM endpoint WHERE endpoint = ?", endpoint).Scan(&id)
 	if err != nil && err != sql.ErrNoRows {
 		log.Println("query endpoint id fail,", err)
 		return -1, false
@@ -113,7 +113,7 @@ func GetCounterFromCache(endpointId int64, counter string) (dsType string, step 
 	}
 
 	// get from db
-	err = db.DB.QueryRow("SELECT type, step FROM endpoint_counter WHERE endpoint_id = ? and counter = ?",
+	err = g.DB.QueryRow("SELECT type, step FROM endpoint_counter WHERE endpoint_id = ? and counter = ?",
 		endpointId, counter).Scan(&dsType, &step)
 	if err != nil && err != sql.ErrNoRows {
 		log.Println("query type and step fail", err)
