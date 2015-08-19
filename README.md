@@ -20,7 +20,7 @@ go get ./...
 ./control build
 ./control pack
 ```
-最后一步会pack出一个`falcon-gateway-$vsn.tar.gz`的安装包，拿着这个包去部署服务即可（我们也提供了编译好的安装包，在gateway项目的bin目录下，不过仍然建议用户自行编译）。
+最后一步会pack出一个`falcon-gateway-$vsn.tar.gz`的安装包，拿着这个包去部署服务即可。我们也提供了编译好的安装包，在[这里](https://github.com/open-falcon/gateway/releases/tag/0.0.5)。
 
 ### Deploy
 服务部署，包括配置修改、启动服务、检验服务、停止服务等。这之前，需要将安装包解压到服务的部署目录下。
