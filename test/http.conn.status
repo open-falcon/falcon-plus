@@ -1,0 +1,15 @@
+#!/bin/bash
+host_file=./transfer.list
+m=$1
+
+if [ "X$m" == "X" ]; then
+    m="graph"
+fi
+
+for i in `cat $host_file`;
+do
+    printf "%s, %s\n" $i $m
+    curl -s "$i/debug/connpool/$m"
+    printf "\n"
+    sleep 0.1
+done

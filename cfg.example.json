@@ -1,0 +1,25 @@
+{
+    "debug": true,
+    "http": {
+        "enable": true,
+        "listen": "0.0.0.0:6060"
+    },
+    "rpc": {
+        "enable": true,
+        "listen": "0.0.0.0:8433"
+    },
+    "socket": {
+        "enable": true,
+        "listen": "0.0.0.0:4444",
+        "timeout": 3600
+    },
+    "transfer": {
+        "enable": true,
+        "batch": 200,
+        "connTimeout": 1000,
+        "callTimeout": 5000,
+        "maxConns": 32,
+        "maxIdle": 32,
+        "addr": "127.0.0.1:8433"
+    }
+}
