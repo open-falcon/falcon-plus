@@ -1,34 +1,27 @@
 {
     "debug": false,
     "http": {
-        "enabled": true,
-        "listen": "0.0.0.0:8001"
+        "enable": true,
+        "listen": "0.0.0.0:8002"
     },
     "index": {
-        "enabled": true,
-        "dsn": "root:@tcp(127.0.0.1:3306)/graph?loc=Local&parseTime=true",
+        "enable": false,
+        "dsn": "root:root@tcp(127.0.0.1:3306)/graph?loc=Local&parseTime=true",
         "maxIdle": 4,
-        "cluster":[
-            "127.0.0.1:6071"
-            ]
+        "autoDelete": false,
+        "cluster":{
+            "test.hostname01:6071" : "0 0 0 ? * 0-5",
+            "test.hostname02:6071" : "0 30 0 ? * 0-5"
+        }
     },
-    "monitor" : {
-        "enabled": true,
-        "mailUrl" : "http://tycloudstart.com:1986/mail/sender",
-        "mailTos" : "nieanan@xiaomi.com",
-        "cluster" : [
-            "transfer,127.0.0.1:6060/health",
-            "graph,127.0.0.1:6071/health"
-        ]
-    },
-    "collector":{
-        "enabled": true,
+    "collector" : {
+        "enable": true,
         "destUrl" : "http://127.0.0.1:1988/v1/push",
         "srcUrlFmt" : "http://%s/statistics/all",
         "cluster" : [
-            "transfer,127.0.0.1:6060",
-            "graph,127.0.0.1:6071",
-            "task,127.0.0.1:8001"
+            "transfer,test.hostname:6060",
+            "graph,test.hostname:6071",
+            "task,test.hostname:8001"
         ]
     }
 }

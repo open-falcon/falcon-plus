@@ -3,19 +3,20 @@ package index
 import (
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/open-falcon/task/g"
 	"log"
+
+	"github.com/open-falcon/task/g"
 )
 
 var DB *sql.DB
 
-func StartDB() {
+func InitDB() {
 	var err error
 	DB, err = GetDbConn()
 	if err != nil {
-		log.Fatalln("db:Init, get db conn fail", err)
+		log.Fatalln("index:InitDB error,", err)
 	} else {
-		log.Println("db:Init, ok")
+		log.Println("index:InitDB ok")
 	}
 }
 

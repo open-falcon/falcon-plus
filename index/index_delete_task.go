@@ -1,12 +1,14 @@
 package index
 
 import (
-	Mdb "github.com/open-falcon/common/db"
-	"github.com/open-falcon/task/proc"
-	TSemaphore "github.com/toolkits/concurrent/semaphore"
-	cron "github.com/toolkits/cron"
 	"log"
 	"time"
+
+	Mdb "github.com/open-falcon/common/db"
+	cron "github.com/toolkits/cron"
+	ntime "github.com/toolkits/time"
+
+	"github.com/open-falcon/task/proc"
 )
 
 const (
@@ -15,42 +17,24 @@ const (
 )
 
 var (
-	semaIndexDelete = TSemaphore.NewSemaphore(1)
 	indexDeleteCron = cron.New()
 )
 
 // 启动 索引全量更新 定时任务
 func StartIndexDeleteTask() {
-	indexDeleteCron.AddFunc(indexDeleteCronSpec, func() {
-		DeleteIndex()
-	})
+	indexDeleteCron.AddFuncCC(indexDeleteCronSpec, func() { DeleteIndex() }, 1)
 	indexDeleteCron.Start()
-}
-
-func StopIndexDeleteTask() {
-	indexDeleteCron.Stop()
 }
 
 // 索引的全量更新
 func DeleteIndex() {
-	// 阻止多个并发的访问,高并发时可能无效
-	if semaIndexDelete.AvailablePermits() <= 0 {
-		log.Printf("deleteIndex, concurrent not avaiable")
-		return
-	}
-
-	semaIndexDelete.Acquire()
-	defer semaIndexDelete.Release()
-
 	startTs := time.Now().Unix()
 	deleteIndex()
 	endTs := time.Now().Unix()
-	log.Printf("deleteIndex, startTs %s, time-consuming %d sec\n", proc.FmtUnixTs(startTs), endTs-startTs)
+	log.Printf("deleteIndex, start %s, ts %ds", ntime.FormatTs(startTs), endTs-startTs)
 
 	// statistics
 	proc.IndexDeleteCnt.Incr()
-	proc.IndexDeleteCnt.PutOther("lastStartTs", proc.FmtUnixTs(startTs))
-	proc.IndexDeleteCnt.PutOther("lastTimeConsumingInSec", endTs-startTs)
 }
 
 // 先select 得到可能被删除的index的信息, 然后以相同的条件delete. select和delete不是原子操作,可能有一些不一致,但不影响正确性

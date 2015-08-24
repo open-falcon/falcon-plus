@@ -4,30 +4,31 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/open-falcon/common/model"
-	"github.com/open-falcon/task/g"
-	"github.com/open-falcon/task/proc"
-	sema "github.com/toolkits/concurrent/semaphore"
-	cron "github.com/toolkits/cron"
-	nhttpclient "github.com/toolkits/http/httpclient"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 	"time"
+
+	cmodel "github.com/open-falcon/common/model"
+	cron "github.com/toolkits/cron"
+	nhttpclient "github.com/toolkits/http/httpclient"
+	ntime "github.com/toolkits/time"
+
+	"github.com/open-falcon/task/g"
+	"github.com/open-falcon/task/proc"
 )
 
 var (
-	collectorCron     = cron.New()
-	collectorCronSpec = "0 * * * * ?"
-	collectorSema     = sema.NewSemaphore(1)
-	srcUrlFmt         = "http://%s/statistics/all"
-	destUrl           = "http://127.0.0.1:1988/v1/push"
+	collectorCron = cron.New()
+	srcUrlFmt     = "http://%s/statistics/all"
+	destUrl       = "http://127.0.0.1:1988/v1/push"
 )
 
 func Start() {
-	if !g.Config().Collector.Enabled {
-		log.Println("collector.Start, not enable")
+	if !g.Config().Collector.Enable {
+		log.Println("collector.Start warning, not enable")
 		return
 	}
 
@@ -44,39 +45,26 @@ func Start() {
 }
 
 func startCollectorCron() {
-	collectorCron.AddFunc(collectorCronSpec, func() {
-		collect()
-	})
+	collectorCron.AddFuncCC("0 * * * * ?", func() { collect() }, 1)
 	collectorCron.Start()
 }
 
 func collect() {
-	if collectorSema.AvailablePermits() <= 0 {
-		log.Println("collector.collect, concurrent not available")
-		return
-	}
-	collectorSema.Acquire()
-	defer collectorSema.Release()
-
 	startTs := time.Now().Unix()
 	_collect()
 	endTs := time.Now().Unix()
-	log.Printf("collect, startTs %s, time-consuming %d sec\n", proc.FmtUnixTs(startTs), endTs-startTs)
+	log.Printf("collect, start %s, ts %ds\n", ntime.FormatTs(startTs), endTs-startTs)
 
 	// statistics
 	proc.CollectorCronCnt.Incr()
-	proc.CollectorCronCnt.PutOther("lastStartTs", proc.FmtUnixTs(startTs))
-	proc.CollectorCronCnt.PutOther("lastTimeConsumingInSec", endTs-startTs)
 }
+
 func _collect() {
 	clientGet := nhttpclient.GetHttpClient("collector.get", 10*time.Second, 20*time.Second)
-	clientPost := nhttpclient.GetHttpClient("collector.post", 5*time.Second, 10*time.Second)
-
 	tags := "type=statistics,pdl=falcon"
-
 	for _, host := range g.Config().Collector.Cluster {
 		ts := time.Now().Unix()
-		jsonList := make([]model.MetricValue, 0)
+		jsonList := make([]*cmodel.JsonMetaData, 0)
 
 		// get statistics by http-get
 		hostInfo := strings.Split(host, ",") // "module,hostname:port"
@@ -124,57 +112,95 @@ func _collect() {
 			itemName := item["Name"].(string)
 
 			if item["Cnt"] != nil {
-				var jmdCnt model.MetricValue
+				var jmdCnt cmodel.JsonMetaData
 				jmdCnt.Endpoint = hostName
 				jmdCnt.Metric = itemName
 				jmdCnt.Timestamp = ts
 				jmdCnt.Step = 60
 				jmdCnt.Value = int64(item["Cnt"].(float64))
-				jmdCnt.Type = "GAUGE"
+				jmdCnt.CounterType = "GAUGE"
 				jmdCnt.Tags = myTags
-				jsonList = append(jsonList, jmdCnt)
+				jsonList = append(jsonList, &jmdCnt)
 			}
 
 			if item["Qps"] != nil {
-				var jmdQps model.MetricValue
+				var jmdQps cmodel.JsonMetaData
 				jmdQps.Endpoint = hostName
 				jmdQps.Metric = itemName + ".Qps"
 				jmdQps.Timestamp = ts
 				jmdQps.Step = 60
 				jmdQps.Value = int64(item["Qps"].(float64))
-				jmdQps.Type = "GAUGE"
+				jmdQps.CounterType = "GAUGE"
 				jmdQps.Tags = myTags
-				jsonList = append(jsonList, jmdQps)
+				jsonList = append(jsonList, &jmdQps)
 			}
 		}
 
-		if len(jsonList) < 1 { //没取到数据
-			log.Println("get null from ", hostNamePort)
-			continue
-		}
-
 		// format result
-		jsonBody, err := json.Marshal(jsonList)
+		err = sendToTransfer(jsonList, destUrl)
 		if err != nil {
-			log.Println(hostNamePort+", format body error,", err)
-			continue
-		}
-
-		// send by http-post
-		req, err := http.NewRequest("POST", destUrl, bytes.NewBuffer(jsonBody))
-		req.Header.Set("Content-Type", "application/json; charset=UTF-8")
-		req.Header.Set("Connection", "close")
-		postResp, err := clientPost.Do(req)
-		if err != nil {
-			log.Println(hostNamePort+", post to dest error,", err)
-			continue
-		}
-		defer postResp.Body.Close()
-
-		if postResp.StatusCode/100 != 2 {
-			log.Println(hostNamePort+", post to dest, bad response,", postResp.StatusCode)
+			log.Println(hostNamePort, "send to transfer error,", err.Error())
 		}
 	}
+
+	// collector.alive
+	_collectorAlive()
+}
+
+func _collectorAlive() error {
+	hostname, err := os.Hostname()
+	if err != nil {
+		log.Println("get hostname failed,", err)
+		return err
+	}
+
+	var jmdCnt cmodel.JsonMetaData
+	jmdCnt.Endpoint = hostname
+	jmdCnt.Metric = "falcon.task.alive"
+	jmdCnt.Timestamp = time.Now().Unix()
+	jmdCnt.Step = 60
+	jmdCnt.Value = 0
+	jmdCnt.CounterType = "GAUGE"
+	jmdCnt.Tags = ""
+
+	jsonList := make([]*cmodel.JsonMetaData, 0)
+	jsonList = append(jsonList, &jmdCnt)
+	err = sendToTransfer(jsonList, destUrl)
+	if err != nil {
+		log.Println("send task.alive failed,", err)
+		return err
+	}
+
+	return nil
+}
+
+func sendToTransfer(items []*cmodel.JsonMetaData, destUrl string) error {
+	if len(items) < 1 {
+		return nil
+	}
+
+	// format result
+	jsonBody, err := json.Marshal(items)
+	if err != nil {
+		return fmt.Errorf("json.Marshal failed with %v", err)
+	}
+
+	// send by http-post
+	req, err := http.NewRequest("POST", destUrl, bytes.NewBuffer(jsonBody))
+	req.Header.Set("Content-Type", "application/json; charset=UTF-8")
+	req.Header.Set("Connection", "close")
+	clientPost := nhttpclient.GetHttpClient("collector.post", 5*time.Second, 10*time.Second)
+	postResp, err := clientPost.Do(req)
+	if err != nil {
+		return fmt.Errorf("post to %s, resquest failed with %v", destUrl, err)
+	}
+	defer postResp.Body.Close()
+
+	if postResp.StatusCode/100 != 2 {
+		return fmt.Errorf("post to %s, got bad response %d", destUrl, postResp.StatusCode)
+	}
+
+	return nil
 }
 
 type Dto struct {

@@ -1,18 +1,24 @@
 package index
 
 import (
-	"github.com/open-falcon/task/g"
 	"log"
+
+	"github.com/open-falcon/task/g"
 )
 
 // 初始化索引功能模块
 func Start() {
-	if g.Config().Index.Enabled {
-		StartDB()
-		//StartIndexDeleteTask()
-		StartIndexUpdateAllTask()
-		log.Println("index:Start, ok")
-	} else {
-		log.Println("index:Start, index not enabled")
+	cfg := g.Config()
+	if !cfg.Index.Enable {
+		log.Println("index.Start warning, not enable")
+		return
 	}
+
+	InitDB()
+	if cfg.Index.AutoDelete {
+		StartIndexDeleteTask()
+		log.Println("index.Start warning, index cleaner enable")
+	}
+	StartIndexUpdateAllTask()
+	log.Println("index.Start ok")
 }

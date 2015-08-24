@@ -10,7 +10,7 @@ app=falcon-$module
 pidfile=var/app.pid
 logfile=var/app.log
 control=./control
-httpprex="127.0.0.1:8001"
+httpprex="127.0.0.1:8002"
 
 ## statistics
 function statistics(){
@@ -33,7 +33,6 @@ function config(){
 ## build
 function build(){
     $control build
-    [ $? -eq 0 ] && echo -e "build ok" || { echo -e "build error"; exit 1; }
 }
 function start(){
     $control start

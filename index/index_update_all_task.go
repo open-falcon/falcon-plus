@@ -3,14 +3,17 @@ package index
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/open-falcon/task/g"
-	"github.com/open-falcon/task/proc"
-	cron "github.com/toolkits/cron"
-	nhttpclient "github.com/toolkits/http/httpclient"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"time"
+
+	cron "github.com/toolkits/cron"
+	nhttpclient "github.com/toolkits/http/httpclient"
+	ntime "github.com/toolkits/time"
+
+	"github.com/open-falcon/task/g"
+	"github.com/open-falcon/task/proc"
 )
 
 const (
@@ -18,65 +21,79 @@ const (
 )
 
 var (
-	indexUpdateAllCron     = cron.New()
-	indexUpdateAllCronSpec = "0 0 0 ? * 0-5" // 每周6晚上22:00执行一次
+	indexUpdateAllCron = cron.New()
 )
 
 // 启动 索引全量更新 定时任务
 func StartIndexUpdateAllTask() {
-	indexUpdateAllCron.AddFunc(indexUpdateAllCronSpec, func() {
-		UpdateAllIndex()
-	})
+	for graphAddr, cronSpec := range g.Config().Index.Cluster {
+		ga := graphAddr
+		indexUpdateAllCron.AddFuncCC(cronSpec, func() { UpdateIndexOfOneGraph(ga, "cron") }, 1)
+	}
+
 	indexUpdateAllCron.Start()
 }
 
+// 手动触发全量更新
 func UpdateAllIndex() {
-	startTs := time.Now().Unix()
-	updateAllIndex()
-	endTs := time.Now().Unix()
-	log.Printf("index, update all, startTs %s, time-consuming %d sec\n", proc.FmtUnixTs(startTs), endTs-startTs)
-
-	// statistics
-	proc.IndexUpdateAllCnt.Incr()
-	proc.IndexUpdateAllCnt.PutOther("lastStartTs", proc.FmtUnixTs(startTs))
-	proc.IndexUpdateAllCnt.PutOther("lastTimeConsumingInSec", endTs-startTs)
+	for graphAddr, _ := range g.Config().Index.Cluster {
+		UpdateIndexOfOneGraph(graphAddr, "manual")
+	}
 }
 
-func updateAllIndex() {
-	client := nhttpclient.GetHttpClient("index.updateall", 5*time.Second, 10*time.Second)
-	for _, hostNamePort := range g.Config().Index.Cluster {
-		if hostNamePort == "" {
-			continue
-		}
+func UpdateIndexOfOneGraph(graphAddr string, src string) {
+	startTs := time.Now().Unix()
+	err := updateIndexOfOneGraph(graphAddr)
+	endTs := time.Now().Unix()
 
-		destUrl := fmt.Sprintf(destUrlFmt, hostNamePort)
-		req, _ := http.NewRequest("GET", destUrl, nil)
-		req.Header.Set("Connection", "close")
-		getResp, err := client.Do(req)
-		if err != nil {
-			log.Printf(hostNamePort+", index update all error,", err)
-			continue
-		}
-		defer getResp.Body.Close()
-
-		body, err := ioutil.ReadAll(getResp.Body)
-		if err != nil {
-			log.Println(hostNamePort+", index update all error,", err)
-			continue
-		}
-
-		var data Dto
-		err = json.Unmarshal(body, &data)
-		if err != nil {
-			log.Println(hostNamePort+", index update all error,", err)
-			continue
-		}
-
-		if data.Data != "ok" {
-			log.Println(hostNamePort+", index update all error, bad result,", data.Data)
-			continue
-		}
+	// statistics
+	proc.IndexUpdateCnt.Incr()
+	if err == nil {
+		log.Printf("index update ok, %s, %s, start %s, ts %ds",
+			src, graphAddr, ntime.FormatTs(startTs), endTs-startTs)
+	} else {
+		proc.IndexUpdateErrorCnt.Incr()
+		log.Printf("index update error, %s, %s, start %s, ts %ds, reason %v",
+			src, graphAddr, ntime.FormatTs(startTs), endTs-startTs, err)
 	}
+}
+
+func updateIndexOfOneGraph(hostNamePort string) error {
+	if hostNamePort == "" {
+		return fmt.Errorf("index update error, bad host")
+	}
+
+	client := nhttpclient.GetHttpClient("index.update."+hostNamePort, 5*time.Second, 10*time.Second)
+
+	destUrl := fmt.Sprintf(destUrlFmt, hostNamePort)
+	req, _ := http.NewRequest("GET", destUrl, nil)
+	req.Header.Set("Connection", "close")
+	getResp, err := client.Do(req)
+	if err != nil {
+		log.Printf(hostNamePort+", index update error,", err)
+		return err
+	}
+	defer getResp.Body.Close()
+
+	body, err := ioutil.ReadAll(getResp.Body)
+	if err != nil {
+		log.Println(hostNamePort+", index update error,", err)
+		return err
+	}
+
+	var data Dto
+	err = json.Unmarshal(body, &data)
+	if err != nil {
+		log.Println(hostNamePort+", index update error,", err)
+		return err
+	}
+
+	if data.Data != "ok" {
+		log.Println(hostNamePort+", index update error, bad result,", data.Data)
+		return err
+	}
+
+	return nil
 }
 
 type Dto struct {

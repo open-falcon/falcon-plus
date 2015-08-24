@@ -3,13 +3,13 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
+
 	"github.com/open-falcon/task/collector"
 	"github.com/open-falcon/task/g"
 	"github.com/open-falcon/task/http"
 	"github.com/open-falcon/task/index"
-	"github.com/open-falcon/task/monitor"
 	"github.com/open-falcon/task/proc"
-	"os"
 )
 
 func main() {
@@ -36,8 +36,6 @@ func main() {
 	index.Start()
 	// collector
 	collector.Start()
-	// monitor
-	monitor.Start()
 
 	// http
 	http.Start()

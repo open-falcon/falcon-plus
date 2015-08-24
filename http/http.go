@@ -2,9 +2,10 @@ package http
 
 import (
 	"encoding/json"
-	"github.com/open-falcon/task/g"
 	"log"
 	"net/http"
+
+	"github.com/open-falcon/task/g"
 )
 
 type Dto struct {
@@ -17,7 +18,7 @@ func Start() {
 	go startHttpServer()
 }
 func startHttpServer() {
-	if !g.Config().Http.Enabled {
+	if !g.Config().Http.Enable {
 		return
 	}
 

@@ -2,43 +2,58 @@ package g
 
 import (
 	"encoding/json"
-	"github.com/toolkits/file"
 	"log"
 	"sync"
+
+	"github.com/toolkits/file"
 )
 
 type HttpConfig struct {
-	Enabled bool   `json:"enabled"`
-	Listen  string `json:"listen"`
+	Enable bool   `json:"enable"`
+	Listen string `json:"listen"`
 }
 
 type IndexConfig struct {
-	Enabled bool     `json:"enabled"`
-	Dsn     string   `json:"dsn"`
-	MaxIdle int      `json:"maxIdle"`
-	Cluster []string `json:"cluster"`
-}
-
-type MonitorConfig struct {
-	Enabled bool     `json:"enabled"`
-	MailUrl string   `json:"mailUrl"`
-	MailTos string   `json:"mailTos"`
-	Cluster []string `json:"cluster"`
+	Enable     bool              `json:"enable"`
+	Dsn        string            `json:"dsn"`
+	MaxIdle    int               `json:"maxIdle"`
+	AutoDelete bool              `json:"autoDelete"`
+	Cluster    map[string]string `json:"cluster"`
 }
 
 type CollectorConfig struct {
-	Enabled   bool     `json:"enabled"`
+	Enable    bool     `json:"enable"`
 	DestUrl   string   `json:"destUrl"`
 	SrcUrlFmt string   `json:"srcUrlFmt"`
 	Cluster   []string `json:"cluster"`
+}
+
+type PluginConfig struct {
+	ApiUrlFmt      string `json:"apiUrlFmt"`
+	Interval       int32  `json:"interval"`
+	Concurrent     int32  `json:"concurrent"`
+	ConnectTimeout int32  `json:"connectTimeout"`
+	RequestTimeout int32  `json:"requestTimeout"`
+}
+
+type CleanerConfig struct {
+	Interval int32 `json:"interval"`
+}
+
+type AgentConfig struct {
+	Enable  bool           `json:"enable"`
+	Dsn     string         `json:"dsn"`
+	MaxIdle int32          `json:"maxIdle"`
+	Plugin  *PluginConfig  `json:"plugin"`
+	Cleaner *CleanerConfig `json:"cleaner"`
 }
 
 type GlobalConfig struct {
 	Debug     bool             `json:"debug"`
 	Http      *HttpConfig      `json:"http"`
 	Index     *IndexConfig     `json:"index"`
-	Monitor   *MonitorConfig   `json:"monitor"`
 	Collector *CollectorConfig `json:"collector"`
+	Agent     *AgentConfig     `json:"agent"`
 }
 
 var (
@@ -79,5 +94,5 @@ func ParseConfig(cfg string) {
 	defer configLock.Unlock()
 	config = &c
 
-	log.Println("g:ParseConfig, ok, ", cfg)
+	log.Println("g:ParseConfig ok, ", cfg)
 }
