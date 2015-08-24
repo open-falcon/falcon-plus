@@ -11,6 +11,10 @@ func PK(endpoint, metric string, tags map[string]string) string {
 	return fmt.Sprintf("%s/%s/%s", endpoint, metric, SortedTags(tags))
 }
 
+func PK2(endpoint, counter string) string {
+	return fmt.Sprintf("%s/%s", endpoint, counter)
+}
+
 func UUID(endpoint, metric string, tags map[string]string, dstype string, step int) string {
 	if tags == nil || len(tags) == 0 {
 		return fmt.Sprintf("%s/%s/%s/%d", endpoint, metric, dstype, step)

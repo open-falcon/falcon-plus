@@ -28,6 +28,22 @@ func (this *MetricValue) String() string {
 	)
 }
 
+// Same As `MetricValue`
+type JsonMetaData struct {
+	Metric      string      `json:"metric"`
+	Endpoint    string      `json:"endpoint"`
+	Timestamp   int64       `json:"timestamp"`
+	Step        int64       `json:"step"`
+	Value       interface{} `json:"value"`
+	CounterType string      `json:"counterType"`
+	Tags        string      `json:"tags"`
+}
+
+func (t *JsonMetaData) String() string {
+	return fmt.Sprintf("<JsonMetaData Endpoint:%s, Metric:%s, Tags:%s, DsType:%s, Step:%d, Value:%v, Timestamp:%d>",
+		t.Endpoint, t.Metric, t.Tags, t.CounterType, t.Step, t.Value, t.Timestamp)
+}
+
 type MetaData struct {
 	Metric      string            `json:"metric"`
 	Endpoint    string            `json:"endpoint"`
