@@ -118,7 +118,7 @@ curl -s "127.0.0.1:9966/health"
         "replicas": 500,     // 这是一致性hash算法需要的节点副本数量，应该与transfer配置保持一致
         "cluster": {         // 后端的graph列表，应该与transfer配置保持一致；不支持一条记录中配置两个地址
             "node-00": "test.hostname01:6070",
-            "node-00": "test.hostname02:6070"
+            "node-01": "test.hostname02:6070"
         }
     }
 }
