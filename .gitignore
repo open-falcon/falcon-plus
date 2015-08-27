@@ -31,8 +31,8 @@ _testmain.go
 /var
 /query
 
+*.txt
 /falcon-query*
 /release
-
-gitversion
+g/git.go
 cfg.json

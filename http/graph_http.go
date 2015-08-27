@@ -51,15 +51,15 @@ func configGraphRoutes() {
 			if err != nil {
 				log.Printf("graph.queryOne fail, %v", err)
 			}
+			if result == nil {
+				continue
+			}
 			data = append(data, result)
 		}
 
 		// statistics
 		proc.HistoryResponseCounterCnt.IncrBy(int64(len(data)))
 		for _, item := range data {
-			if item == nil {
-				continue
-			}
 			proc.HistoryResponseItemCnt.IncrBy(int64(len(item.Values)))
 		}
 
@@ -93,6 +93,9 @@ func configGraphRoutes() {
 			if err != nil {
 				log.Printf("graph.info fail, resp: %v, err: %v", info, err)
 			}
+			if info == nil {
+				continue
+			}
 			data = append(data, info)
 		}
 
@@ -125,6 +128,9 @@ func configGraphRoutes() {
 			last, err := graph.Last(*param)
 			if err != nil {
 				log.Printf("graph.last fail, resp: %v, err: %v", last, err)
+			}
+			if last == nil {
+				continue
 			}
 			data = append(data, last)
 		}
@@ -161,6 +167,9 @@ func configGraphRoutes() {
 			last, err := graph.LastRaw(*param)
 			if err != nil {
 				log.Printf("graph.last.raw fail, resp: %v, err: %v", last, err)
+			}
+			if last == nil {
+				continue
 			}
 			data = append(data, last)
 		}
