@@ -1,14 +1,11 @@
 {
-    "pid": "/home/work/open-falcon/graph/var/app.pid",
-    "log": "info",
     "debug": false,
-    "debugChecksum": "nil",
     "http": {
-        "enabled": true,
+        "enable": true,
         "listen": "0.0.0.0:6071"
     },
     "rpc": {
-        "enabled": true,
+        "enable": true,
         "listen": "0.0.0.0:6070"
     },
     "rrd": {

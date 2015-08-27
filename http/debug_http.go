@@ -2,15 +2,16 @@ package http
 
 import (
 	"fmt"
+	"net/http"
+	"strconv"
+	"strings"
+	"time"
+
 	cmodel "github.com/open-falcon/common/model"
 	cutils "github.com/open-falcon/common/utils"
 	"github.com/open-falcon/graph/api"
 	"github.com/open-falcon/graph/g"
 	"github.com/open-falcon/graph/store"
-	"net/http"
-	"strconv"
-	"strings"
-	"time"
 )
 
 func configDebugRoutes() {
@@ -25,8 +26,8 @@ func configDebugRoutes() {
 			oneHourAgo := time.Now().Unix() - 3600
 
 			count := 0
-			for _, checksum := range keys {
-				item := store.GraphItems.First(checksum)
+			for _, ckey := range keys {
+				item := store.GraphItems.First(ckey)
 				if item == nil {
 					continue
 				}
@@ -81,6 +82,51 @@ func configDebugRoutes() {
 		RenderDataJson(w, "ok")
 	})
 
+	http.HandleFunc("/v2/api/recv", func(w http.ResponseWriter, r *http.Request) {
+		r.ParseForm()
+
+		if !(len(r.Form["e"]) > 0 && len(r.Form["m"]) > 0 && len(r.Form["v"]) > 0 &&
+			len(r.Form["ts"]) > 0 && len(r.Form["step"]) > 0 && len(r.Form["type"]) > 0) {
+			RenderDataJson(w, "bad args")
+			return
+		}
+		endpoint := r.Form["e"][0]
+		metric := r.Form["m"][0]
+		value, _ := strconv.ParseFloat(r.Form["v"][0], 64)
+		ts, _ := strconv.ParseInt(r.Form["ts"][0], 10, 64)
+		step, _ := strconv.ParseInt(r.Form["step"][0], 10, 32)
+		dstype := r.Form["type"][0]
+
+		tags := make(map[string]string)
+		if len(r.Form["t"]) > 0 {
+			tagstr := r.Form["t"][0]
+			tagVals := strings.Split(tagstr, ",")
+			for _, tag := range tagVals {
+				tagPairs := strings.Split(tag, "=")
+				if len(tagPairs) == 2 {
+					tags[tagPairs[0]] = tagPairs[1]
+				}
+			}
+		}
+
+		item := &cmodel.MetaData{
+			Endpoint:    endpoint,
+			Metric:      metric,
+			Timestamp:   ts,
+			Step:        step,
+			CounterType: dstype,
+			Value:       value,
+			Tags:        tags,
+		}
+		gitem, err := convert2GraphItem(item)
+		if err != nil {
+			RenderDataJson(w, err)
+			return
+		}
+
+		api.HandleItems([]*cmodel.GraphItem{gitem})
+		RenderDataJson(w, "ok")
+	})
 }
 
 func convert2GraphItem(d *cmodel.MetaData) (*cmodel.GraphItem, error) {

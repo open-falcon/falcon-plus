@@ -5,13 +5,24 @@ import (
 	"runtime"
 )
 
-// Change Logs
-// 0.5.2 use rrdlite other than rrdtool, fix data lost when query failed
-//		 rollback to central lib, add filer for debug
-// 0.5.3 mv db back to g, add rpc.last
+// TODO
+// change graph.store cache struct(key: md5->uuid)
+// flush when query happens seems unreasonable
+// shrink packages
+
+// CHANGE LOGS
+// 0.4.8 fix filename bug emporarily, fix dirty-index-cache bug of query,
+//		 add filter for debug
+// 0.4.9 mv db back to g, add rpc.last
+// 0.5.0 rm trace, add history&last api
+// 0.5.1 add http interface v2, using form args
+// 0.5.2 add last_raw
+// 0.5.3 fix bug of last&last_raw
+// 0.5.4 fix bug of Query.merge
+// 0.5.5 use commom(rm model), fix sync disk
 
 const (
-	VERSION         = "0.5.3"
+	VERSION         = "0.5.5"
 	GAUGE           = "GAUGE"
 	DERIVE          = "DERIVE"
 	COUNTER         = "COUNTER"

@@ -2,8 +2,8 @@ package api
 
 import (
 	"fmt"
-	"log"
 	"math"
+	"time"
 
 	cmodel "github.com/open-falcon/common/model"
 	cutils "github.com/open-falcon/common/utils"
@@ -13,8 +13,6 @@ import (
 	"github.com/open-falcon/graph/rrdtool"
 	"github.com/open-falcon/graph/store"
 )
-
-//var DropCounter int64
 
 type Graph int
 
@@ -47,19 +45,20 @@ func handleItems(items []*cmodel.GraphItem) {
 		if items[i] == nil {
 			continue
 		}
+		dsType := items[i].DsType
+		step := items[i].Step
 		checksum := items[i].Checksum()
+		ckey := g.FormRrdCacheKey(checksum, dsType, step)
 
 		//statistics
 		proc.GraphRpcRecvCnt.Incr()
-		proc.RecvDataTrace.Trace(checksum, items[i])
-		proc.RecvDataFilter.Filter(checksum, items[i].Value, items[i])
 
 		// To Graph
-		first := store.GraphItems.First(checksum)
+		first := store.GraphItems.First(ckey)
 		if first != nil && items[i].Timestamp <= first.Timestamp {
 			continue
 		}
-		store.GraphItems.PushFront(checksum, items[i])
+		store.GraphItems.PushFront(ckey, items[i])
 
 		// To Index
 		index.ReceiveItem(items[i], checksum)
@@ -73,140 +72,155 @@ func (this *Graph) Query(param cmodel.GraphQueryParam, resp *cmodel.GraphQueryRe
 	// statistics
 	proc.GraphQueryCnt.Incr()
 
+	// form empty response
 	resp.Values = []*cmodel.RRDData{}
-	dsType, step, exists := index.GetTypeAndStep(param.Endpoint, param.Counter)
+	resp.Endpoint = param.Endpoint
+	resp.Counter = param.Counter
+	dsType, step, exists := index.GetTypeAndStep(param.Endpoint, param.Counter) // complete dsType and step
 	if !exists {
+		return nil
+	}
+	resp.DsType = dsType
+	resp.Step = step
+
+	start_ts := param.Start - param.Start%int64(step)
+	end_ts := param.End - param.End%int64(step) + int64(step)
+	if end_ts-start_ts-int64(step) < 1 {
 		return nil
 	}
 
 	md5 := cutils.Md5(param.Endpoint + "/" + param.Counter)
-	filename := fmt.Sprintf("%s/%s/%s_%s_%d.rrd", g.Config().RRD.Storage, md5[0:2], md5, dsType, step)
-	datas, err := rrdtool.Fetch(filename, param.ConsolFun, param.Start, param.End, step)
-	if err != nil {
-		if store.GraphItems.LenOf(md5) <= 2 {
-			return nil
-		}
-		// TODO not atomic, fix me
-		items := store.GraphItems.PopAll(md5)
-		size := len(items)
-		if size > 2 {
-			filename := fmt.Sprintf("%s/%s/%s_%s_%d.rrd", g.Config().RRD.Storage, md5[0:2],
-				md5, items[0].DsType, items[0].Step)
-			err := rrdtool.Flush(filename, items)
-			if err != nil && g.Config().Debug && g.Config().DebugChecksum == md5 {
-				log.Println("flush fail:", err, "filename:", filename)
-			}
-		} else {
-			return nil
-		}
+	ckey := g.FormRrdCacheKey(md5, dsType, step)
+	filename := g.RrdFileName(g.Config().RRD.Storage, md5, dsType, step)
+	// read data from rrd file
+	datas, _ := rrdtool.Fetch(filename, param.ConsolFun, start_ts, end_ts, step)
+	datas_size := len(datas)
+	// read cached items
+	items := store.GraphItems.FetchAll(ckey)
+	items_size := len(items)
+
+	nowTs := time.Now().Unix()
+	lastUpTs := nowTs - nowTs%int64(step)
+	rra1StartTs := lastUpTs - int64(rrdtool.RRA1PointCnt*step)
+	// consolidated, do not merge
+	if start_ts < rra1StartTs {
+		resp.Values = datas
+		goto _RETURN_OK
 	}
-	items := store.GraphItems.FetchAll(md5)
+
+	// no cached items, do not merge
+	if items_size < 1 {
+		resp.Values = datas
+		goto _RETURN_OK
+	}
 
 	// merge
-	items_size := len(items)
-	datas_size := len(datas)
-	if items_size > 1 && datas_size > 2 &&
-		int(datas[1].Timestamp-datas[0].Timestamp) == step &&
-		items[items_size-1].Timestamp > datas[0].Timestamp {
-
+	{
+		// fmt cached items
 		var val cmodel.JsonFloat
-		cache_size := int(items[items_size-1].Timestamp-items[0].Timestamp)/step + 1
-		cache := make([]*cmodel.RRDData, cache_size, cache_size)
+		cache := make([]*cmodel.RRDData, 0)
 
-		//fix items
-		items_idx := 0
 		ts := items[0].Timestamp
+		itemEndTs := items[items_size-1].Timestamp
+		itemIdx := 0
 		if dsType == g.DERIVE || dsType == g.COUNTER {
-			for i := 0; i < cache_size; i++ {
-				if items_idx < items_size-1 &&
-					ts == items[items_idx].Timestamp &&
-					ts != items[items_idx+1].Timestamp {
-					val = cmodel.JsonFloat(items[items_idx+1].Value-items[items_idx].Value) /
-						cmodel.JsonFloat(items[items_idx+1].Timestamp-items[items_idx].Timestamp)
+			for ts < itemEndTs {
+				if itemIdx < items_size-1 && ts == items[itemIdx].Timestamp &&
+					ts == items[itemIdx+1].Timestamp-int64(step) {
+					val = cmodel.JsonFloat(items[itemIdx+1].Value-items[itemIdx].Value) / cmodel.JsonFloat(step)
 					if val < 0 {
 						val = cmodel.JsonFloat(math.NaN())
 					}
-					items_idx++
+					itemIdx++
 				} else {
-					// miss
+					// missing
 					val = cmodel.JsonFloat(math.NaN())
 				}
-				cache[i] = &cmodel.RRDData{
-					Timestamp: ts,
-					Value:     val,
+
+				if ts >= start_ts && ts <= end_ts {
+					cache = append(cache, &cmodel.RRDData{Timestamp: ts, Value: val})
 				}
 				ts = ts + int64(step)
 			}
 		} else if dsType == g.GAUGE {
-			for i := 0; i < cache_size; i++ {
-				if items_idx < items_size && ts == items[items_idx].Timestamp {
-					val = cmodel.JsonFloat(items[items_idx].Value)
-					items_idx++
+			for ts <= itemEndTs {
+				if itemIdx < items_size && ts == items[itemIdx].Timestamp {
+					val = cmodel.JsonFloat(items[itemIdx].Value)
+					itemIdx++
 				} else {
-					// miss
+					// missing
 					val = cmodel.JsonFloat(math.NaN())
 				}
-				cache[i] = &cmodel.RRDData{
-					Timestamp: ts,
-					Value:     val,
+
+				if ts >= start_ts && ts <= end_ts {
+					cache = append(cache, &cmodel.RRDData{Timestamp: ts, Value: val})
 				}
 				ts = ts + int64(step)
 			}
-		} else {
-			log.Println("not support dstype")
-			return nil
 		}
+		cache_size := len(cache)
 
-		size := int(items[items_size-1].Timestamp-datas[0].Timestamp)/step + 1
-		ret := make([]*cmodel.RRDData, size, size)
-		cache_idx := 0
-		ts = datas[0].Timestamp
-
-		if g.Config().Debug && g.Config().DebugChecksum == md5 {
-			log.Println("param.start", param.Start, "param.End:", param.End,
-				"items:", items, "datas:", datas)
-		}
-
-		for i := 0; i < size; i++ {
-			if g.Config().Debug && g.Config().DebugChecksum == md5 {
-				log.Println("i", i, "size:", size, "items_idx:", items_idx, "ts:", ts)
+		// do merging
+		merged := make([]*cmodel.RRDData, 0)
+		if datas_size > 0 {
+			for _, val := range datas {
+				if val.Timestamp >= start_ts && val.Timestamp <= end_ts {
+					merged = append(merged, val) //rrdtool返回的数据,时间戳是连续的、不会有跳点的情况
+				}
 			}
-			if i < datas_size {
-				if ts == cache[cache_idx].Timestamp {
-					if math.IsNaN(float64(cache[cache_idx].Value)) {
-						val = datas[i].Value
-					} else {
-						val = cache[cache_idx].Value
+		}
+
+		if cache_size > 0 {
+			rrdDataSize := len(merged)
+			lastTs := cache[0].Timestamp
+
+			// find junction
+			rrdDataIdx := 0
+			for rrdDataIdx = rrdDataSize - 1; rrdDataIdx >= 0; rrdDataIdx-- {
+				if merged[rrdDataIdx].Timestamp < cache[0].Timestamp {
+					lastTs = merged[rrdDataIdx].Timestamp
+					break
+				}
+			}
+
+			// fix missing
+			for ts := lastTs + int64(step); ts < cache[0].Timestamp; ts += int64(step) {
+				merged = append(merged, &cmodel.RRDData{Timestamp: ts, Value: cmodel.JsonFloat(math.NaN())})
+			}
+
+			// merge cached items to result
+			rrdDataIdx += 1
+			for cacheIdx := 0; cacheIdx < cache_size; cacheIdx++ {
+				if rrdDataIdx < rrdDataSize {
+					if !math.IsNaN(float64(cache[cacheIdx].Value)) {
+						merged[rrdDataIdx] = cache[cacheIdx]
 					}
-					cache_idx++
 				} else {
-					val = datas[i].Value
+					merged = append(merged, cache[cacheIdx])
 				}
+				rrdDataIdx++
+			}
+		}
+		mergedSize := len(merged)
+
+		// fmt result
+		ret_size := int((end_ts - start_ts) / int64(step))
+		ret := make([]*cmodel.RRDData, ret_size, ret_size)
+		mergedIdx := 0
+		ts = start_ts
+		for i := 0; i < ret_size; i++ {
+			if mergedIdx < mergedSize && ts == merged[mergedIdx].Timestamp {
+				ret[i] = merged[mergedIdx]
+				mergedIdx++
 			} else {
-				if cache_idx < cache_size && ts == cache[cache_idx].Timestamp {
-					val = cache[cache_idx].Value
-					cache_idx++
-				} else {
-					//miss
-					val = cmodel.JsonFloat(math.NaN())
-				}
+				ret[i] = &cmodel.RRDData{Timestamp: ts, Value: cmodel.JsonFloat(math.NaN())}
 			}
-			ret[i] = &cmodel.RRDData{
-				Timestamp: ts,
-				Value:     val,
-			}
-			ts = ts + int64(step)
+			ts += int64(step)
 		}
 		resp.Values = ret
-	} else {
-		resp.Values = datas
 	}
 
-	resp.Endpoint = param.Endpoint
-	resp.Counter = param.Counter
-	resp.DsType = dsType
-	resp.Step = step
-
+_RETURN_OK:
 	// statistics
 	proc.GraphQueryItemCnt.IncrBy(int64(len(resp.Values)))
 	return nil
@@ -237,9 +251,61 @@ func (this *Graph) Last(param cmodel.GraphLastParam, resp *cmodel.GraphLastResp)
 
 	resp.Endpoint = param.Endpoint
 	resp.Counter = param.Counter
+	resp.Value = GetLast(param.Endpoint, param.Counter)
 
-	md5 := cutils.Md5(param.Endpoint + "/" + param.Counter)
-	item := store.GetLastItem(md5)
-	resp.Value = cmodel.NewRRDData(item.Timestamp, item.Value)
 	return nil
+}
+
+func (this *Graph) LastRaw(param cmodel.GraphLastParam, resp *cmodel.GraphLastResp) error {
+	// statistics
+	proc.GraphLastRawCnt.Incr()
+
+	resp.Endpoint = param.Endpoint
+	resp.Counter = param.Counter
+	resp.Value = GetLastRaw(param.Endpoint, param.Counter)
+
+	return nil
+}
+
+// 非法值: ts=0,value无意义
+func GetLast(endpoint, counter string) *cmodel.RRDData {
+	dsType, step, exists := index.GetTypeAndStep(endpoint, counter)
+	if !exists {
+		return cmodel.NewRRDData(0, 0.0)
+	}
+
+	if dsType == g.GAUGE {
+		return GetLastRaw(endpoint, counter)
+	}
+
+	if dsType == g.COUNTER || dsType == g.DERIVE {
+		md5 := cutils.Md5(endpoint + "/" + counter)
+		items := store.GetAllItems(md5)
+		if len(items) < 2 {
+			return cmodel.NewRRDData(0, 0.0)
+		}
+
+		f0 := items[0]
+		f1 := items[1]
+		delta_ts := f0.Timestamp - f1.Timestamp
+		delta_v := f0.Value - f1.Value
+		if delta_ts != int64(step) || delta_ts <= 0 {
+			return cmodel.NewRRDData(0, 0.0)
+		}
+		if delta_v < 0 {
+			// when cnt restarted, new cnt value would be zero, so fix it here
+			delta_v = 0
+		}
+
+		return cmodel.NewRRDData(f0.Timestamp, delta_v/float64(delta_ts))
+	}
+
+	return cmodel.NewRRDData(0, 0.0)
+}
+
+// 非法值: ts=0,value无意义
+func GetLastRaw(endpoint, counter string) *cmodel.RRDData {
+	md5 := cutils.Md5(endpoint + "/" + counter)
+	item := store.GetLastItem(md5)
+	return cmodel.NewRRDData(item.Timestamp, item.Value)
 }

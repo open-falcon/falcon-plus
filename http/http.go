@@ -72,7 +72,8 @@ func (ln TcpKeepAliveListener) Accept() (c net.Conn, err error) {
 }
 
 func Start() {
-	if !g.Config().Http.Enabled {
+	if !g.Config().Http.Enable {
+		log.Println("http.Start warning, not enable")
 		return
 	}
 

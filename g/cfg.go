@@ -9,13 +9,13 @@ import (
 )
 
 type HttpConfig struct {
-	Enabled bool   `json:"enabled"`
-	Listen  string `json:"listen"`
+	Enable bool   `json:"enable"`
+	Listen string `json:"listen"`
 }
 
 type RpcConfig struct {
-	Enabled bool   `json:"enabled"`
-	Listen  string `json:"listen"`
+	Enable bool   `json:"enable"`
+	Listen string `json:"listen"`
 }
 
 type RRDConfig struct {
@@ -28,14 +28,12 @@ type DBConfig struct {
 }
 
 type GlobalConfig struct {
-	Pid           string      `json:"pid"`
-	Log           string      `json:"log"`
-	Debug         bool        `json:"debug"`
-	DebugChecksum string      `json:"debugChecksum"`
-	Http          *HttpConfig `json:"http"`
-	Rpc           *RpcConfig  `json:"rpc"`
-	RRD           *RRDConfig  `json:"rrd"`
-	DB            *DBConfig   `json:"db"`
+	Pid   string      `json:"pid"`
+	Debug bool        `json:"debug"`
+	Http  *HttpConfig `json:"http"`
+	Rpc   *RpcConfig  `json:"rpc"`
+	RRD   *RRDConfig  `json:"rrd"`
+	DB    *DBConfig   `json:"db"`
 }
 
 var (
@@ -52,30 +50,30 @@ func Config() *GlobalConfig {
 
 func ParseConfig(cfg string) {
 	if cfg == "" {
-		log.Fatalln("use -c to specify configuration file")
+		log.Fatalln("config file not specified: use -c $filename")
 	}
 
 	if !file.IsExist(cfg) {
-		log.Fatalln("config file:", cfg, "is not existent")
+		log.Fatalln("config file specified not found:", cfg)
 	}
 
 	ConfigFile = cfg
 
 	configContent, err := file.ToTrimString(cfg)
 	if err != nil {
-		log.Fatalln("read config file:", cfg, "fail:", err)
+		log.Fatalln("read config file", cfg, "error:", err.Error())
 	}
 
 	var c GlobalConfig
 	err = json.Unmarshal([]byte(configContent), &c)
 	if err != nil {
-		log.Fatalln("parse config file:", cfg, "fail:", err)
+		log.Fatalln("parse config file", cfg, "error:", err.Error())
 	}
 
+	// set config
 	configLock.Lock()
 	defer configLock.Unlock()
-
 	config = &c
 
-	log.Println("read config file:", cfg, "successfully")
+	log.Println("g.ParseConfig ok, file", cfg)
 }

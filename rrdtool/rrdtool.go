@@ -2,17 +2,17 @@ package rrdtool
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"math"
 	"sync"
 	"time"
 
 	cmodel "github.com/open-falcon/common/model"
-	"github.com/open-falcon/graph/g"
-	"github.com/open-falcon/graph/store"
 	"github.com/open-falcon/rrdlite"
 	"github.com/toolkits/file"
+
+	"github.com/open-falcon/graph/g"
+	"github.com/open-falcon/graph/store"
 )
 
 var Counter uint64
@@ -23,7 +23,10 @@ func Start() {
 	if err := file.EnsureDirRW(dataDir); err != nil {
 		log.Fatalln("rrdtool.Start error, bad data dir", dataDir+",", err)
 	}
-	log.Println("rrdtool.Start, ok")
+
+	// sync disk
+	go syncDisk()
+	log.Println("rrdtool.Start ok")
 }
 
 // RRD Files' Lock
@@ -50,6 +53,15 @@ var (
 	}
 )
 
+// RRA.Point.Size
+const (
+	RRA1PointCnt   = 720 // 1m一个点存12h
+	RRA5PointCnt   = 576 // 5m一个点存2d
+	RRA20PointCnt  = 504 // 20m一个点存7d
+	RRA180PointCnt = 766 // 3h一个点存3month
+	RRA720PointCnt = 730 // 12h一个点存1year
+)
+
 func create(filename string, item *cmodel.GraphItem) error {
 	now := time.Now()
 	start := now.Add(time.Duration(-24) * time.Hour)
@@ -60,27 +72,27 @@ func create(filename string, item *cmodel.GraphItem) error {
 
 	// 设置各种归档策略
 	// 1分钟一个点存 12小时
-	c.RRA("AVERAGE", 0.5, 1, 720)
+	c.RRA("AVERAGE", 0.5, 1, RRA1PointCnt)
 
 	// 5m一个点存2d
-	c.RRA("AVERAGE", 0.5, 5, 576)
-	c.RRA("MAX", 0.5, 5, 576)
-	c.RRA("MIN", 0.5, 5, 576)
+	c.RRA("AVERAGE", 0.5, 5, RRA5PointCnt)
+	c.RRA("MAX", 0.5, 5, RRA5PointCnt)
+	c.RRA("MIN", 0.5, 5, RRA5PointCnt)
 
 	// 20m一个点存7d
-	c.RRA("AVERAGE", 0.5, 20, 504)
-	c.RRA("MAX", 0.5, 20, 504)
-	c.RRA("MIN", 0.5, 20, 504)
+	c.RRA("AVERAGE", 0.5, 20, RRA20PointCnt)
+	c.RRA("MAX", 0.5, 20, RRA20PointCnt)
+	c.RRA("MIN", 0.5, 20, RRA20PointCnt)
 
 	// 3小时一个点存3个月
-	c.RRA("AVERAGE", 0.5, 180, 766)
-	c.RRA("MAX", 0.5, 180, 766)
-	c.RRA("MIN", 0.5, 180, 766)
+	c.RRA("AVERAGE", 0.5, 180, RRA180PointCnt)
+	c.RRA("MAX", 0.5, 180, RRA180PointCnt)
+	c.RRA("MIN", 0.5, 180, RRA180PointCnt)
 
-	// 1天一个点存5year
-	c.RRA("AVERAGE", 0.5, 720, 730)
-	c.RRA("MAX", 0.5, 720, 730)
-	c.RRA("MIN", 0.5, 720, 730)
+	// 12小时一个点存1year
+	c.RRA("AVERAGE", 0.5, 720, RRA720PointCnt)
+	c.RRA("MAX", 0.5, 720, RRA720PointCnt)
+	c.RRA("MIN", 0.5, 720, RRA720PointCnt)
 
 	return c.Create(true)
 }
@@ -105,8 +117,8 @@ func update(filename string, items []*cmodel.GraphItem) error {
 
 // flush to disk from memory
 // 最新的数据在列表的最后面
+// TODO fix me, filename fmt from item[0], it's hard to keep consistent
 func Flush(filename string, items []*cmodel.GraphItem) error {
-
 	if items == nil || len(items) == 0 {
 		return errors.New("empty items")
 	}
@@ -179,50 +191,28 @@ func FlushAll() {
 }
 
 func FlushRRD(idx int) {
-	var debug_checksum string
-	var debug bool
-
 	storageDir := g.Config().RRD.Storage
-	if g.Config().Debug {
-		debug = true
-		debug_checksum = g.Config().DebugChecksum
-	} else {
-		debug = false
-	}
 
 	keys := store.GraphItems.KeysByIndex(idx)
 	if len(keys) == 0 {
 		return
 	}
 
-	for _, checksum := range keys {
+	for _, ckey := range keys {
+		// get md5, dstype, step
+		checksum, dsType, step, err := g.SplitRrdCacheKey(ckey)
+		if err != nil {
+			continue
+		}
 
-		items := store.GraphItems.PopAll(checksum)
+		items := store.GraphItems.PopAll(ckey)
 		size := len(items)
 		if size == 0 {
 			continue
 		}
 
-		first := items[0]
-		filename := fmt.Sprintf("%s/%s/%s_%s_%d.rrd", storageDir, checksum[0:2], checksum, first.DsType, first.Step)
-		if debug && debug_checksum == checksum {
-			for _, item := range items {
-				log.Printf(
-					"2-flush:%d:%s:%lf",
-					item.Timestamp,
-					time.Unix(item.Timestamp, 0).Format("2006-01-02 15:04:05"),
-					item.Value,
-				)
-			}
-		}
-
-		err := Flush(filename, items)
-		if err != nil && debug && debug_checksum == checksum {
-			log.Println("flush fail:", err, "filename:", filename)
-		}
+		filename := g.RrdFileName(storageDir, checksum, dsType, step)
+		Flush(filename, items)
 		Counter += 1
-	}
-	if debug {
-		log.Println("flushrrd counter:", Counter)
 	}
 }
