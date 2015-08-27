@@ -2,10 +2,11 @@ package http
 
 import (
 	"encoding/json"
-	"github.com/open-falcon/query/g"
 	"log"
 	"net/http"
 	_ "net/http/pprof"
+
+	"github.com/open-falcon/query/g"
 )
 
 type Dto struct {
@@ -13,9 +14,26 @@ type Dto struct {
 	Data interface{} `json:"data"`
 }
 
-func init() {
+func Start() {
+	if !g.Config().Http.Enable {
+		log.Println("http.Start warning, not enable")
+		return
+	}
+
+	// config http routes
 	configCommonRoutes()
+	configProcHttpRoutes()
 	configGraphRoutes()
+
+	// start http server
+	addr := g.Config().Http.Listen
+	s := &http.Server{
+		Addr:           addr,
+		MaxHeaderBytes: 1 << 30,
+	}
+
+	log.Println("http.Start ok, listening on", addr)
+	log.Fatalln(s.ListenAndServe())
 }
 
 func RenderJson(w http.ResponseWriter, v interface{}) {
@@ -51,17 +69,4 @@ func StdRender(w http.ResponseWriter, data interface{}, err error) {
 		return
 	}
 	RenderJson(w, data)
-}
-
-func Start() {
-	addr := g.Config().Http.Listen
-	if addr == "" {
-		return
-	}
-	s := &http.Server{
-		Addr:           addr,
-		MaxHeaderBytes: 1 << 30,
-	}
-	log.Println("listening", addr)
-	log.Fatalln(s.ListenAndServe())
 }

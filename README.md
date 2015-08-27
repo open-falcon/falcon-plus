@@ -1,8 +1,9 @@
-## Introduction
+# Introduction
 
 Query面向终端用户，收到查询请求后，根据一致性哈希算法，会去相应的Graph里面，查询不同metric的数据，汇总后统一返回给用户。
 
-## python query 历史数据的例子
+## 查询历史数据
+查询过去一段时间内的历史数据，使用接口 `HTTP POST /graph/history`。该接口不能查询最新上报的两个数据点。一个python例子，如下
 
 ```python
 #!-*- coding:utf8 -*-
@@ -38,50 +39,92 @@ print r.text
 
 其中cf的值可以为：AVERAGE、MAX、MIN ，具体可以参考RRDtool的相关概念
 
-## Installation
+## 查询最新上报的数据
+查询最新上报的一个数据点，使用接口`HTTP POST /graph/last`。一个bash的例子，如下
 
 ```bash
-# set $GOPATH and $GOROOT
+#!/bin/bash
+if [ $# != 2 ];then
+    printf "format:./last \"endpoint\" \"counter\"\n"
+    exit 1
+fi
 
-mkdir -p $GOPATH/src/github.com/open-falcon
+# args
+endpoint=$1
+counter=$2
+
+# form request body
+req="[{\"endpoint\":\"$endpoint\", \"counter\":\"$counter\"}]"
+
+# request 
+url="http://127.0.0.1:9966/graph/last"
+curl -s -X POST -d "$req" "$url" | python -m json.tool
+
+```
+
+## 源码编译
+
+```bash
+# download source
 cd $GOPATH/src/github.com/open-falcon
-git clone https://github.com/open-falcon/query.git
+git clone https://github.com/open-falcon/query.git # or use git pull to update query
 
+# update dependencies: open-falcon/common, toolkits/consistent, toolkits/pool
 cd query
 go get ./...
+
+# compile and pack
 ./control build
-
-./control start
+./control pack
 ```
+最后一步会pack出一个tar.gz的安装包，拿着这个包去部署服务即可。你也可以在[这里](https://github.com/open-falcon/query/releases)，下载最新发布的代码。
 
-## Configuration
-
-    log_level: 可选 error/warn/info/debug/trace，默认为info
-
-    slow_log: 单位是毫秒，query的时候，较慢的请求，会被打印到日志中，默认是2000ms
-
-    debug: true/false, 如果为true，日志中会打印debug信息
-
-    http
-        - enable: true/false, 表示是否开启该http端口，该端口为数据查询接口（即提供http api给用户查询数据）
-        - listen: 表示监听的http端口
-
-    graph
-        - backends: 后端graph列表文件，格式参考下面的介绍，该文件默认是./graph_backends.txt
-        - reload_interval: 单位是秒，表示每隔多久自动reload一次backends列表文件中的内容
-        - timeout: 单位是毫秒，表示和后端graph组件交互的超时时间，可以根据网络质量微调，建议保持默认
-        - pingMethod: 后端提供的ping接口，用来探测连接是否可用，必须保持默认
-        - max_conns: 连接池相关配置，最大连接数，建议保持默认
-        - max_idle: 连接池相关配置，最大空闲连接数，建议保持默认
-        - replicas: 这是一致性hash算法需要的节点副本数量，建议不要变更，保持默认即可
-
-## backends 文件格式
-1. 每行由空格分割的两列组成，第一列表示graph的名字，第二列表示具体的ip:port
-2. 该文件需要和transfer配置文件中的cluster的配置项，保持一致
+## 服务部署
+服务部署，包括配置修改、启动服务、检验服务、停止服务等。这之前，需要将安装包解压到服务的部署目录下。
 
 ```bash
-$ cat ./graph_backends.txt
+# 修改配置, 配置项含义见下文, 注意graph集群的配置
+mv cfg.example.json cfg.json
+vim cfg.json
+# 注意: 从v1.4.0开始, 我们把graph列表的配置信息，移动到了cfg.json中，不再需要graph_backends.txt
 
-graph-00 127.0.0.1:6070
-graph-01 127.0.0.2:6070
+# 启动服务
+./control start
+
+# 校验服务,这里假定服务开启了9966的http监听端口。检验结果为ok表明服务正常启动。
+curl -s "127.0.0.1:9966/health"
+
+...
+# 停止服务
+./control stop
+
 ```
+服务启动后，可以通过日志查看服务的运行状态，日志文件地址为./var/app.log。可以通过`./test/debug`，查看服务的内部状态数据。可以通过scripts下的`query last`等脚本，进行数据查询。
+
+## 配置文件格式说明
+
+```bash
+{
+    "debug": "false",   // 是否开启debug日志
+    "http": {
+        "enable":  true,           // 是否开启http.server
+        "listen":   "0.0.0.0:9966" // http.server监听地址&端口
+    },
+    "graph": {
+        "connTimeout": 1000, // 单位是毫秒，与后端graph建立连接的超时时间，可以根据网络质量微调，建议保持默认
+        "callTimeout": 5000, // 单位是毫秒，从后端graph读取数据的超时时间，可以根据网络质量微调，建议保持默认
+        "maxConns": 32,      // 连接池相关配置，最大连接数，建议保持默认
+        "maxIdle": 32,       // 连接池相关配置，最大空闲连接数，建议保持默认
+        "replicas": 500,     // 这是一致性hash算法需要的节点副本数量，应该与transfer配置保持一致
+        "cluster": {         // 后端的graph列表，应该与transfer配置保持一致；不支持一条记录中配置两个地址
+            "node-00": "test.hostname01:6070",
+            "node-00": "test.hostname02:6070"
+        }
+    }
+}
+```
+值得注意的是，`graph.replicas`和`graph.cluster`要和transfer的配置保持一致。
+
+## 补充说明
+部署完成query组件后，请修改dashboard组件的配置、使其能够正确寻址到query组件。请确保query组件的graph列表 与 transfer的配置 一致。
+

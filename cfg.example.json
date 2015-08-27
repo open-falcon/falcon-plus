@@ -1,16 +1,17 @@
 {
-    "log_level":    "info",
-    "slowlog":      2000,
+    "debug": "false",
     "http": {
-        "enabled":  true,
+        "enable":  true,
         "listen":   "0.0.0.0:9966"
     },
     "graph": {
-        "backends":         "./graph_backends.txt",
-        "reload_interval":  60,
-        "timeout":          4000,
-        "max_conns":        200,
-        "max_idle":         50,
-        "replicas":         500
+        "connTimeout": 1000,
+        "callTimeout": 5000,
+        "maxConns": 32,
+        "maxIdle": 32,
+        "replicas": 500,
+        "cluster": {
+            "node-00": "127.0.0.1:6070"
+        }
     }
 }

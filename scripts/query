@@ -11,7 +11,7 @@ cf="AVERAGE"
 
 # form request body
 end_ts=`date +%s`
-start_ts=`expr $end_ts - 3600`
+start_ts=`expr $end_ts - 180`
 req="{\"start\":$start_ts, \"end\":$end_ts, \"cf\":\"$cf\", \"endpoint_counters\": [{\"endpoint\":\"$endpoint\", \"counter\":\"$counter\"}]}"
 
 # request 

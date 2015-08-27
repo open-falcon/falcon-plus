@@ -11,20 +11,22 @@ d = {
         "cf": "AVERAGE",
         "endpoint_counters": [
             {
-                "endpoint": "host1",
+                "endpoint": "lg-op-mon-onebox01.bj",
                 "counter": "load.1min",
             },
             {
-                "endpoint": "host1",
+                "endpoint": "lg-op-mon-onebox01.bj",
                 "counter": "load.5min",
             },
             {
-                "endpoint": "host1",
+                "endpoint": "lg-op-mon-onebox01.bj",
                 "counter": "load.15min",
             },
         ],
 }
 
-url = "http://127.0.0.1:9966/graph/history"
+url = "http://localhost:19966/graph/history"
 r = requests.post(url, data=json.dumps(d))
 print r.text
+
+#curl "http://query.falcon.miliao.srv:9966/graph/history/one?cf=AVERAGE&endpoint=`hostname`&start=`date -d '1 hours ago' +%s`&counter=load.1min" |python -m json.tool

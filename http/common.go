@@ -2,26 +2,28 @@ package http
 
 import (
 	"fmt"
-	"github.com/open-falcon/query/g"
-	"github.com/toolkits/file"
 	"net/http"
+
+	"github.com/toolkits/file"
+
+	"github.com/open-falcon/query/g"
 )
 
 func configCommonRoutes() {
 	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("ok"))
+		w.Write([]byte("ok\n"))
 	})
 
 	http.HandleFunc("/version", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte(g.VERSION))
-	})
-
-	http.HandleFunc("/versiongit", func(w http.ResponseWriter, r *http.Request) {
-		s := fmt.Sprintf("%s %s", g.VERSION, g.COMMIT)
-		w.Write([]byte(s))
+		w.Write([]byte(fmt.Sprintf("%s\n", g.VERSION)))
 	})
 
 	http.HandleFunc("/workdir", func(w http.ResponseWriter, r *http.Request) {
-		RenderDataJson(w, file.SelfDir())
+		w.Write([]byte(fmt.Sprintf("%s\n", file.SelfDir())))
 	})
+
+	http.HandleFunc("/config", func(w http.ResponseWriter, r *http.Request) {
+		RenderDataJson(w, g.Config())
+	})
+
 }
