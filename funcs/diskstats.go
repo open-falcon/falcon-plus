@@ -210,6 +210,6 @@ func IOStatsForPage() (L [][]string) {
 
 func ShouldHandleDevice(device string) bool {
 	normal := len(device) == 3 && (strings.HasPrefix(device, "sd") || strings.HasPrefix(device, "vd"))
-	aws := len(device) == 4 && strings.HasPrefix(device, "xvd")
+	aws := len(device) >= 4 && strings.HasPrefix(device, "xvd")
 	return normal || aws
 }
