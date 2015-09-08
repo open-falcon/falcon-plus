@@ -63,6 +63,7 @@ curl -s -X POST -d "$req" "$url" | python -m json.tool
 ```
 
 ## 源码编译
+注意: 请首先更新common模块
 
 ```bash
 # download source
@@ -102,6 +103,7 @@ curl -s "127.0.0.1:9966/health"
 服务启动后，可以通过日志查看服务的运行状态，日志文件地址为./var/app.log。可以通过`./test/debug`，查看服务的内部状态数据。可以通过scripts下的`query last`等脚本，进行数据查询。
 
 ## 配置文件格式说明
+注意: 配置文件格式有更新; 请确保 `graph.replicas`和`graph.cluster` 的内容与transfer的配置**完全一致**
 
 ```bash
 {
@@ -117,13 +119,12 @@ curl -s "127.0.0.1:9966/health"
         "maxIdle": 32,       // 连接池相关配置，最大空闲连接数，建议保持默认
         "replicas": 500,     // 这是一致性hash算法需要的节点副本数量，应该与transfer配置保持一致
         "cluster": {         // 后端的graph列表，应该与transfer配置保持一致；不支持一条记录中配置两个地址
-            "node-00": "test.hostname01:6070",
-            "node-01": "test.hostname02:6070"
+            "graph-00": "test.hostname01:6070",
+            "graph-01": "test.hostname02:6070"
         }
     }
 }
 ```
-值得注意的是，`graph.replicas`和`graph.cluster`要和transfer的配置保持一致。
 
 ## 补充说明
 部署完成query组件后，请修改dashboard组件的配置、使其能够正确寻址到query组件。请确保query组件的graph列表 与 transfer的配置 一致。
