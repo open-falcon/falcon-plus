@@ -9,14 +9,13 @@ import (
 	"syscall"
 
 	"github.com/open-falcon/graph/api"
-	"github.com/open-falcon/graph/cron"
 	"github.com/open-falcon/graph/g"
 	"github.com/open-falcon/graph/http"
 	"github.com/open-falcon/graph/index"
 	"github.com/open-falcon/graph/rrdtool"
 )
 
-func start_signal(pid int, conf g.GlobalConfig) {
+func start_signal(pid int, cfg *g.GlobalConfig) {
 	sigs := make(chan os.Signal, 1)
 	log.Println(pid, "register signal notify")
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
@@ -28,32 +27,38 @@ func start_signal(pid int, conf g.GlobalConfig) {
 		switch s {
 		case syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT:
 			log.Println("gracefull shut down")
-			http.Close_chan <- 1
-			api.Close_chan <- 1
-			cron.Out_done_chan <- 1
-			<-http.Close_done_chan
-			<-api.Close_done_chan
-			log.Println(pid, "remove ", conf.Pid)
-			os.Remove(conf.Pid)
+			if cfg.Http.Enable {
+				http.Close_chan <- 1
+				<-http.Close_done_chan
+			}
+			log.Println("http stop ok")
+
+			if cfg.Rpc.Enable {
+				api.Close_chan <- 1
+				<-api.Close_done_chan
+			}
+			log.Println("rpc stop ok")
+
+			rrdtool.Out_done_chan <- 1
 			rrdtool.FlushAll()
-			log.Println(pid, "flush done, exiting")
+			log.Println("rrdtool stop ok")
+
+			log.Println(pid, "exit")
 			os.Exit(0)
 		}
 	}
 }
 
 func main() {
-
-	cfg := flag.String("c", "cfg.json", "configuration file")
+	cfg := flag.String("c", "cfg.json", "specify config file")
 	version := flag.Bool("v", false, "show version")
-	versionGit := flag.Bool("vg", false, "show version")
+	versionGit := flag.Bool("vg", false, "show version and git commit log")
 	flag.Parse()
 
 	if *version {
 		fmt.Println(g.VERSION)
 		os.Exit(0)
 	}
-
 	if *versionGit {
 		fmt.Println(g.VERSION, g.COMMIT)
 		os.Exit(0)
@@ -61,23 +66,17 @@ func main() {
 
 	// global config
 	g.ParseConfig(*cfg)
-
 	// init db
 	g.InitDB()
+
 	// start rrdtool
 	rrdtool.Start()
-
+	// start api
 	go api.Start()
-
-	// 刷硬盘
-	go cron.SyncDisk()
-
-	// 索引更新2.0
+	// start indexing
 	index.Start()
-
-	// http
+	// start http server
 	go http.Start()
 
-	start_signal(os.Getpid(), *g.Config())
-
+	start_signal(os.Getpid(), g.Config())
 }

@@ -1,10 +1,12 @@
 package http
 
 import (
-	"github.com/open-falcon/graph/g"
-	"github.com/toolkits/file"
 	"net/http"
 	"strings"
+
+	"github.com/toolkits/file"
+
+	"github.com/open-falcon/graph/g"
 )
 
 func configCommonRoutes() {

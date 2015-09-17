@@ -14,8 +14,8 @@ httpprex="127.0.0.1:6071"
 rpcprex="127.0.0.1:6070"
 
 ## statistics
-function statistics(){
-    curl -s "$httpprex/statistics/all" | python -m json.tool
+function counter(){
+    curl -s "$httpprex/counter/all" | python -m json.tool
 }
 
 ## config
@@ -31,6 +31,25 @@ function config(){
     esac
 }
 
+
+function index(){
+    e="test.graph.endpoint.niean.1"
+    m="test.graph.metric.1"
+    t="tag0=tag0-dummy-1,tag1=tag1-dummy-1,tag2=tag2-dummy-1"
+    dt="GAUGE"
+    step="60"
+    curl -s "$httpprex/index/cache/$e/$m/$step/$dt/$t" | python -m json.tool
+}
+
+function index_v2(){
+    e="test.graph.endpoint.niean/1"
+    m="test.graph.metric/1"
+    t="tag/0=tag0-dummy-1,tag1=tag1-dummy-1,tag2=tag2-dummy-1"
+    dt="GAUGE"
+    step="60"
+    curl -s "$httpprex/v2/index/cache?e=$e&m=$m&t=$t&type=$dt&step=$step" | python -m json.tool
+}
+
 function index_update_all(){
     curl -s "$httpprex/index/updateAll" | python -m json.tool
 }
@@ -44,30 +63,18 @@ function index_update_one(){
     curl -s "$httpprex/index/updateOne?EndPoint=$e&Metric=$m&Tags=$tags&DsType=$dt&Step=$step" | python -m json.tool
 }
 
-## trace
-function trace_recv(){
-    e="test.graph.endpoint.niean.1"
-    m="test.graph.metric.1"
-    tags="tag0=tag0-dummy-1,tag1=tag1-dummy-1,tag2=tag2-dummy-1"
-    curl -s "$httpprex/trace/$e/$m/$tags" | python -m json.tool
-}
-
-## filter
-function filter_recv(){
-    e="test.graph.endpoint.niean.1"
-    m="test.graph.metric.1"
-    opt="gt"
-    threshhold="50.0"
-    tags="tag0=tag0-dummy-1,tag1=tag1-dummy-1,tag2=tag2-dummy-1"
-    curl -s "$httpprex/filter/$e/$m/$opt/$threshhold/$tags" | python -m json.tool
-}
-
 ## history
 function fetch_history(){
     e="test.graph.endpoint.niean.1"
     m="test.graph.metric.1"
     tags="tag0=tag0-dummy-1,tag1=tag1-dummy-1,tag2=tag2-dummy-1"
     curl -s "$httpprex/history/$e/$m/$tags" | python -m json.tool
+}
+function fetch_history_v2(){
+    e="test.graph.endpoint.niean/1"
+    m="test.graph.metric/1"
+    tags="tag/0=tag0-dummy-1,tag1=tag1-dummy-1,tag2=tag2-dummy-1"
+    curl -s "$httpprex/v2/history?e=$e&m=$m&t=$tags" | python -m json.tool
 }
 
 ## last
@@ -90,6 +97,18 @@ function api_send(){
     curl -s "$httpprex/api/recv/$e/$m/$ts/$step/$dsType/$value/$tags" | python -m json.tool
 }
 
+function api_send_v2(){
+    e="test.graph.endpoint.niean/1"
+    m="test.graph.metric/1"
+    ts=`date +%s`
+    dsType="GAUGE"
+    step=60
+    value=`expr $ts % 60`
+    tags="tag/0=tag0-dummy-1,tag1=tag1-dummy-1,tag2=tag2-dummy-1"
+    curl -s "$httpprex/v2/api/recv?e=$e&m=$m&ts=$ts&step=$step&type=$dsType&v=$value&t=$tags" | python -m json.tool
+}
+
+
 ## tail
 function tail_log(){
     $control tail
@@ -104,64 +123,9 @@ function start(){
     $control start
 }
 function stop(){
-    $control kill9
+    $control stop
 }
 
-## mock
-srcname=mocktransfer
-appname=$srcname-debug
-builddir=$testdir/build
-masrc=$testdir/$srcname.go
-matarget=$builddir/$appname.bin
-
-function buildm(){
-	rm -rf $matarget &&\
-	go build -o $matarget $masrc &>/dev/null
-    ec=$?
-    [ $ec -eq 0 ] && echo -e "build mock, ok" || { echo -e "build mock, error"; exit $ec;}
-}
-
-function cleanm(){
-    rm -rf $builddir  
-    ec=$?
-    [ $ec -eq 0 ] && echo -e "clean mock, ok" || { echo -e "clean mock, error"; exit $ec; }
-}
-
-function killm(){
-    pids=`ps -ef | grep $appname.bin | grep -v grep | awk '{print $2}'`
-    for pid in $pids
-    do
-        kill -9  $pid &>/dev/null
-        echo -e "kill mock, $pid"
-        sleep 0.01
-    done 
-    echo -e "kill mock, ok"
-}
-
-function startm(){
-    cnt=$1
-    if [ "X$cnt" == "X" ];then
-        cnt=1
-    fi
-
-    rpc=$2
-    if [ "X$rpc" == "X" ];then
-        rpc=$rpcprex
-    fi
-
-    step=$3
-    if [ "X$step" == "X" ];then
-        step=0
-    fi
-
-    for i in `seq 1 $cnt`
-    do
-        id=$rpc.$step.`date +%s`.$i
-        $matarget -h $rpc -s $step -i 100 &> $builddir/malog.$id.log &
-        echo -e "start mock, $id"
-        sleep 0.2
-    done
-}
 
 action=$1
 case $action in
@@ -180,14 +144,17 @@ case $action in
     "config")
         config $2
         ;;
+    "index")
+        index
+        ;;
+    "index2")
+        index_v2
+        ;;
     "index_update_all")
         index_update_all
         ;;
     "index_update_one")
         index_update_one
-        ;;
-    "trace")
-        trace_recv
         ;;
     "filter")
         filter_recv
@@ -195,29 +162,23 @@ case $action in
     "history")
         fetch_history
         ;;
+    "history2")
+        fetch_history_v2
+        ;;
     "last")
         fetch_last
         ;;
     "send")
         api_send
         ;;
+    "send2")
+        api_send_v2
+        ;;
     "tail")
         tail_log
         ;;
-    "startm")
-        startm $2 $3 $4
-        ;;
-    "killm")
-        killm
-        ;;
-    "cleanm")
-        cleanm 
-        ;;
-    "buildm")
-        buildm
-        ;;
     *)
-        statistics
+        counter
         ;;
 esac
 

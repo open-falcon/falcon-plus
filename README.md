@@ -12,6 +12,8 @@ graph所做的事情，就是把用户每次push上来的数据，进行采样�
 
 ## Installation
 
+源码安装过程，如下
+
 ```bash
 # set $GOPATH and $GOROOT
 
@@ -26,16 +28,12 @@ go get ./...
 ./control start
 ```
 
+你可以从[这里](https://github.com/open-falcon/graph/releases)，下载最新的release安装包，避免源码编译的种种问题。
+
 ## Configuration
 
-    pid: 绝对路径，进程启动后的pid文件，这对于graph的平滑重启很重要（如有必要，请修改）
-
-    log: error/warn/info/debug/trace, 默认为info
-
-    debug: true/false, 如果为true，配合debugChecksum一起使用
-
-    debugChecksum: 如果debug为true，那么符合该checksum的counter，整个处理过程会在日志文件中详细打印，主要用于debug和排错
-
+    debug: true/false, 是否开启debug日志
+    
     http
         - enable: true/false, 表示是否开启该http端口，该端口为控制端口，主要用来对graph发送控制命令、统计命令、debug命令等
         - listen: 表示监听的http端口

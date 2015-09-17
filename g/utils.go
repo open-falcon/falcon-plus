@@ -2,9 +2,10 @@ package g
 
 import (
 	"fmt"
-	"github.com/toolkits/file"
 	"strconv"
 	"strings"
+
+	"github.com/toolkits/file"
 )
 
 // RRDTOOL UTILS

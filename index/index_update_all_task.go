@@ -3,14 +3,16 @@ package index
 import (
 	"database/sql"
 	"fmt"
+	"log"
+	"time"
+
+	nsema "github.com/toolkits/concurrent/semaphore"
+	ntime "github.com/toolkits/time"
+
 	cmodel "github.com/open-falcon/common/model"
 	cutils "github.com/open-falcon/common/utils"
 	"github.com/open-falcon/graph/g"
 	proc "github.com/open-falcon/graph/proc"
-	nsema "github.com/toolkits/concurrent/semaphore"
-	ntime "github.com/toolkits/time"
-	"log"
-	"time"
 )
 
 const (
@@ -25,7 +27,6 @@ var (
 
 // 更新一条监控数据对应的索引. 用于手动添加索引,一般情况下不会使用
 func UpdateIndexOne(endpoint string, metric string, tags map[string]string, dstype string, step int) error {
-	log.Println("1")
 	itemDemo := &cmodel.GraphItem{
 		Endpoint: endpoint,
 		Metric:   metric,
@@ -47,15 +48,11 @@ func UpdateIndexOne(endpoint string, metric string, tags map[string]string, dsty
 	}
 	gitem := icitem.Item
 
-	log.Println("2")
-
 	dbConn, err := g.GetDbConn("UpdateIndexAllTask")
 	if err != nil {
 		log.Println("[ERROR] make dbConn fail", err)
 		return err
 	}
-
-	log.Println("3")
 
 	return updateIndexFromOneItem(gitem, dbConn)
 }
@@ -151,7 +148,7 @@ func updateIndexFromOneItem(item *cmodel.GraphItem, conn *sql.DB) error {
 
 	// endpoint表
 	{
-		sqlStr := "INSERT INTO endpoint (endpoint, ts, t_create) VALUES (?, ?, now())" + sqlDuplicateString
+		sqlStr := "INSERT INTO endpoint(endpoint, ts, t_create) VALUES (?, ?, now())" + sqlDuplicateString
 		ret, err := conn.Exec(sqlStr, endpoint, ts)
 		if err != nil {
 			log.Println(err)
@@ -167,7 +164,7 @@ func updateIndexFromOneItem(item *cmodel.GraphItem, conn *sql.DB) error {
 
 	// tag_endpoint表
 	{
-		sqlStr := "INSERT INTO tag_endpoint (tag, endpoint_id, ts, t_create) VALUES (?, ?, ?, now())" + sqlDuplicateString
+		sqlStr := "INSERT INTO tag_endpoint(tag, endpoint_id, ts, t_create) VALUES (?, ?, ?, now())" + sqlDuplicateString
 		for tagKey, tagVal := range item.Tags {
 			tag := fmt.Sprintf("%s=%s", tagKey, tagVal)
 
@@ -192,7 +189,7 @@ func updateIndexFromOneItem(item *cmodel.GraphItem, conn *sql.DB) error {
 			counter = fmt.Sprintf("%s/%s", counter, cutils.SortedTags(item.Tags))
 		}
 
-		sqlStr := "INSERT INTO endpoint_counter (endpoint_id,counter,step,type,ts,t_create) VALUES (?,?,?,?,?,now())" + sqlDuplicateString
+		sqlStr := "INSERT INTO endpoint_counter(endpoint_id,counter,step,type,ts,t_create) VALUES (?,?,?,?,?,now())" + sqlDuplicateString
 		ret, err := conn.Exec(sqlStr, endpointId, counter, item.Step, item.DsType, ts)
 		if err != nil {
 			log.Println(err)

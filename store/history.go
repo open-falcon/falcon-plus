@@ -1,9 +1,10 @@
 package store
 
 import (
-	"github.com/open-falcon/common/model"
 	tlist "github.com/toolkits/container/list"
 	tmap "github.com/toolkits/container/nmap"
+
+	cmodel "github.com/open-falcon/common/model"
 )
 
 const (
@@ -11,25 +12,27 @@ const (
 )
 
 var (
+	// mem:  front = = = back
+	// time: latest ...  old
 	HistoryCache = tmap.NewSafeMap()
 )
 
-func GetLastItem(key string) *model.GraphItem {
+func GetLastItem(key string) *cmodel.GraphItem {
 	itemlist, found := HistoryCache.Get(key)
 	if !found || itemlist == nil {
-		return &model.GraphItem{}
+		return &cmodel.GraphItem{}
 	}
 
 	first := itemlist.(*tlist.SafeListLimited).Front()
 	if first == nil {
-		return &model.GraphItem{}
+		return &cmodel.GraphItem{}
 	}
 
-	return first.(*model.GraphItem)
+	return first.(*cmodel.GraphItem)
 }
 
-func GetAllItems(key string) []*model.GraphItem {
-	ret := make([]*model.GraphItem, 0)
+func GetAllItems(key string) []*cmodel.GraphItem {
+	ret := make([]*cmodel.GraphItem, 0)
 	itemlist, found := HistoryCache.Get(key)
 	if !found || itemlist == nil {
 		return ret
@@ -40,12 +43,12 @@ func GetAllItems(key string) []*model.GraphItem {
 		if item == nil {
 			continue
 		}
-		ret = append(ret, item.(*model.GraphItem))
+		ret = append(ret, item.(*cmodel.GraphItem))
 	}
 	return ret
 }
 
-func AddItem(key string, val *model.GraphItem) {
+func AddItem(key string, val *cmodel.GraphItem) {
 	itemlist, found := HistoryCache.Get(key)
 	var slist *tlist.SafeListLimited
 	if !found {
@@ -54,5 +57,10 @@ func AddItem(key string, val *model.GraphItem) {
 	} else {
 		slist = itemlist.(*tlist.SafeListLimited)
 	}
-	slist.PushFrontViolently(val)
+
+	// old item should be drop
+	first := slist.Front()
+	if first == nil || first.(*cmodel.GraphItem).Timestamp < val.Timestamp { // first item or latest one
+		slist.PushFrontViolently(val)
+	}
 }

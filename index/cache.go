@@ -3,16 +3,18 @@ package index
 import (
 	"database/sql"
 	"fmt"
-	cmodel "github.com/open-falcon/common/model"
-	cutils "github.com/open-falcon/common/utils"
-	"github.com/open-falcon/graph/g"
-	"github.com/open-falcon/graph/proc"
-	tcache "github.com/toolkits/cache/localcache/timedcache"
 	"log"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
+
+	tcache "github.com/toolkits/cache/localcache/timedcache"
+
+	cmodel "github.com/open-falcon/common/model"
+	cutils "github.com/open-falcon/common/utils"
+	"github.com/open-falcon/graph/g"
+	"github.com/open-falcon/graph/proc"
 )
 
 const (

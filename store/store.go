@@ -3,11 +3,12 @@ package store
 import (
 	"container/list"
 	"hash/crc32"
-
-	cmodel "github.com/open-falcon/common/model"
-	"github.com/open-falcon/graph/g"
 	"log"
 	"sync"
+
+	cmodel "github.com/open-falcon/common/model"
+
+	"github.com/open-falcon/graph/g"
 )
 
 var GraphItems *GraphItemMap
@@ -49,18 +50,6 @@ func (this *GraphItemMap) Len() int {
 		l += len(this.A[i])
 	}
 	return l
-}
-
-func (this *GraphItemMap) LenOf(key string) int {
-	this.RLock()
-	defer this.RUnlock()
-
-	idx := hashKey(key) % uint32(this.Size)
-	L, ok := this.A[idx][key]
-	if !ok {
-		return 0
-	}
-	return L.Len()
 }
 
 func (this *GraphItemMap) First(key string) *cmodel.GraphItem {
@@ -147,12 +136,11 @@ func (this *GraphItemMap) KeysByIndex(idx int) []string {
 }
 
 func init() {
-	size32 := int32(uint32(g.CACHE_TIME / g.FLUSH_DISK_STEP))
-	if size32 < 0 {
-		log.Panicf("store.init, bad size %d\n", size32)
+	size := g.CACHE_TIME / g.FLUSH_DISK_STEP
+	if size < 0 {
+		log.Panicf("store.init, bad size %d\n", size)
 	}
 
-	size := int(size32)
 	GraphItems = &GraphItemMap{
 		A:    make([]map[string]*SafeLinkedList, size),
 		Size: size,

@@ -23,7 +23,7 @@ func InitDB() {
 	}
 
 	dbConnMap = make(map[string]*sql.DB)
-	log.Println("g.InitDB, ok")
+	log.Println("g.InitDB ok")
 }
 
 func GetDbConn(connName string) (c *sql.DB, e error) {
