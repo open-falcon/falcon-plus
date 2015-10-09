@@ -12,9 +12,10 @@ import (
 // 1.4.0 restruct query: use simple rpc conn pool
 // 1.4.1 add last item counter, add proc for connpool
 // 1.4.2 rm nil items in http.responses
+// 1.4.3 spell check, make config consistent with previous
 
 const (
-	VERSION = "1.4.2"
+	VERSION = "1.4.3"
 )
 
 func init() {

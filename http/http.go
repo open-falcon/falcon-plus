@@ -15,8 +15,8 @@ type Dto struct {
 }
 
 func Start() {
-	if !g.Config().Http.Enable {
-		log.Println("http.Start warning, not enable")
+	if !g.Config().Http.Enabled {
+		log.Println("http.Start warning, not enabled")
 		return
 	}
 

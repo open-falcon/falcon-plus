@@ -9,8 +9,8 @@ import (
 )
 
 type HttpConfig struct {
-	Enable bool   `json:"enable"`
-	Listen string `json:"listen"`
+	Enabled bool   `json:"enabled"`
+	Listen  string `json:"listen"`
 }
 
 type GraphConfig struct {

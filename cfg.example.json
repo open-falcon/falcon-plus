@@ -1,7 +1,7 @@
 {
     "debug": "false",
     "http": {
-        "enable":  true,
+        "enabled":  true,
         "listen":   "0.0.0.0:9966"
     },
     "graph": {
