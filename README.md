@@ -35,11 +35,11 @@ go get ./...
     debug: true/false, 是否开启debug日志
     
     http
-        - enable: true/false, 表示是否开启该http端口，该端口为控制端口，主要用来对graph发送控制命令、统计命令、debug命令等
+        - enabled: true/false, 表示是否开启该http端口，该端口为控制端口，主要用来对graph发送控制命令、统计命令、debug命令等
         - listen: 表示监听的http端口
 
     rpc
-        - enable: true/false, 表示是否开启该rpc端口，该端口为数据接收端口
+        - enabled: true/false, 表示是否开启该rpc端口，该端口为数据接收端口
         - listen: 表示监听的rpc端口
 
     rrd

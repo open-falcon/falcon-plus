@@ -1,11 +1,11 @@
 {
     "debug": false,
     "http": {
-        "enable": true,
+        "enabled": true,
         "listen": "0.0.0.0:6071"
     },
     "rpc": {
-        "enable": true,
+        "enabled": true,
         "listen": "0.0.0.0:6070"
     },
     "rrd": {

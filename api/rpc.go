@@ -37,8 +37,8 @@ func init() {
 }
 
 func Start() {
-	if !g.Config().Rpc.Enable {
-		log.Println("rpc.Start warning, not enable")
+	if !g.Config().Rpc.Enabled {
+		log.Println("rpc.Start warning, not enabled")
 		return
 	}
 	addr := g.Config().Rpc.Listen
