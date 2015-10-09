@@ -109,7 +109,7 @@ curl -s "127.0.0.1:9966/health"
 {
     "debug": "false",   // 是否开启debug日志
     "http": {
-        "enable":  true,           // 是否开启http.server
+        "enabled":  true,          // 是否开启http.server
         "listen":   "0.0.0.0:9966" // http.server监听地址&端口
     },
     "graph": {
