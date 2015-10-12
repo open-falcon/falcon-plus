@@ -25,7 +25,7 @@ func AddNewPlugins(newPlugins map[string]*Plugin) {
 		if _, ok := Plugins[fpath]; ok && newPlugin.MTime == Plugins[fpath].MTime {
 			continue
 		}
-		deletePlugin(fpath)
+
 		Plugins[fpath] = newPlugin
 		sch := NewPluginScheduler(newPlugin)
 		PluginsWithScheduler[fpath] = sch
