@@ -33,12 +33,11 @@ func Collect() {
 func collect(sec int64, fns []func() []*model.MetricValue) {
 
 	for {
-	REST:
 		time.Sleep(time.Duration(sec) * time.Second)
 
 		hostname, err := g.Hostname()
 		if err != nil {
-			goto REST
+			continue
 		}
 
 		mvs := []*model.MetricValue{}
