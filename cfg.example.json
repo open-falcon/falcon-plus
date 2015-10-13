@@ -5,7 +5,7 @@
     "plugin": {
         "enabled": false,
         "dir": "./plugin",
-        "git": "https://coding.net/ulricqin/plugin.git",
+        "git": "https://github.com/open-falcon/plugin.git",
         "logs": "./logs"
     },
     "heartbeat": {
