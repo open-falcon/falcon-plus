@@ -48,7 +48,7 @@ func UpdateIndexOne(endpoint string, metric string, tags map[string]string, dsty
 	}
 	gitem := icitem.Item
 
-	dbConn, err := g.GetDbConn("UpdateIndexAllTask")
+	dbConn, err := g.GetDbConn("UpdateIndexIncrTask")
 	if err != nil {
 		log.Println("[ERROR] make dbConn fail", err)
 		return err
@@ -97,7 +97,7 @@ func updateIndexAll(updateStepInSec int64) int {
 		return ret
 	}
 
-	dbConn, err := g.GetDbConn("UpdateIndexAllTask")
+	dbConn, err := g.GetDbConn("UpdateIndexIncrTask")
 	if err != nil {
 		log.Println("[ERROR] make dbConn fail", err)
 		return ret
