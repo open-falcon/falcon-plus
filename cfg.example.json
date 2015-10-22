@@ -1,0 +1,40 @@
+{
+    "debug": true,
+    "http": {
+        "enabled": true,
+        "listen": "0.0.0.0:6090"
+    },
+    "query":{
+        "connectTimeout": 5000,
+        "requestTimeout": 30000,
+        "queryAddr": "127.0.0.1:9966"
+    },
+    "config": {
+        "enabled": true,
+        "dsn": "root:@tcp(127.0.0.1:3306)/falcon_portal?loc=Local&parseTime=true&wait_timeout=604800",
+        "maxIdle": 4
+    },
+    "collector":{
+        "enabled": true,
+        "batch": 200,
+        "concurrent": 10
+    },
+    "sender":{
+        "enabled": true,
+        "connectTimeout": 5000,
+        "requestTimeout": 30000,
+        "transferAddr": "127.0.0.1:6060",
+        "batch": 500,
+        "block": {
+            "enabled": true,
+            "threshold": 32,
+            "setBlock": false,
+            "enableGauss": false,
+            "gaussFilter": 1,
+            "gauss3SigmaMin": 2,
+            "gauss3SigmaMax": 5,
+            "hostname": "",
+            "floodCounter": "",
+        }
+    }
+}

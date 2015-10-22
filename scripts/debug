@@ -1,0 +1,76 @@
+#!/bin/bash
+## test home
+testdir=$(cd $(dirname $0)/; pwd)
+## word home
+workdir=$(dirname $testdir)
+cd $workdir
+
+control=./control
+
+cfg=./cfg.json
+httpport=`cat cfg.json | grep -A3 "\"http\":" | grep "\"listen\"" | cut -d\" -f4 | cut -d: -f2`
+httpprex="127.0.0.1:$httpport"
+
+## proc
+function proc(){
+    args=$@
+    for i in $@; do
+        url="$url/$i"
+    done
+    curl -s "$httpprex$url" | python -m json.tool
+}
+
+## config
+function config(){
+    args=$@
+    for i in $@; do
+        url="$url/$i"
+    done
+    curl -s "$httpprex$url" | python -m json.tool
+}
+
+## api
+function api(){
+    args=$@
+    for i in $@; do
+        url="$url/$i"
+    done
+    curl -s "$httpprex$url" | python -m json.tool
+}
+
+## debug
+function debug(){
+    args=$@
+    for i in $@; do
+        url="$url/$i"
+    done
+    curl -s "$httpprex$url" | python -m json.tool
+}
+
+## control
+function control(){
+    $control $@
+}
+
+action=$1
+case $action in
+    "proc")
+        proc $@
+        ;;
+    "config")
+        config $@
+        ;;
+    "api")
+        api $@
+        ;;
+    "debug")
+        debug $@
+        ;;
+    "")
+        proc "proc" "counters"
+        ;;
+    *)
+        control $@
+        ;;
+esac
+
