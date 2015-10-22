@@ -20,7 +20,6 @@ CREATE TABLE `mockcfg` (
   `t_create` DATETIME NOT NULL COMMENT 'create time',
   `t_modify` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'last modify time',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uniq_name` (`name`),
-  UNIQUE KEY `uniq_o_m_t` (`obj`, `obj_type`, `metric`, `tags`)
+  UNIQUE KEY `uniq_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 

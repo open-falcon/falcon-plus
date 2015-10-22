@@ -27,14 +27,7 @@
         "batch": 500,
         "block": {
             "enabled": true,
-            "threshold": 32,
-            "setBlock": false,
-            "enableGauss": false,
-            "gaussFilter": 1,
-            "gauss3SigmaMin": 2,
-            "gauss3SigmaMax": 5,
-            "hostname": "",
-            "floodCounter": "",
+            "threshold": 32
         }
     }
 }
