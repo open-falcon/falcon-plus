@@ -23,7 +23,6 @@ func syncBuiltinMetrics() {
 	duration := time.Duration(g.Config().Heartbeat.Interval) * time.Second
 
 	for {
-	REST:
 		time.Sleep(duration)
 
 		var ports = []int64{}
@@ -32,7 +31,7 @@ func syncBuiltinMetrics() {
 
 		hostname, err := g.Hostname()
 		if err != nil {
-			goto REST
+			continue
 		}
 
 		req := model.AgentHeartbeatRequest{
@@ -44,15 +43,15 @@ func syncBuiltinMetrics() {
 		err = g.HbsClient.Call("Agent.BuiltinMetrics", req, &resp)
 		if err != nil {
 			log.Println("ERROR:", err)
-			goto REST
+			continue
 		}
 
 		if resp.Timestamp <= timestamp {
-			goto REST
+			continue
 		}
 
 		if resp.Checksum == checksum {
-			goto REST
+			continue
 		}
 
 		timestamp = resp.Timestamp

@@ -35,12 +35,11 @@ func syncMinePlugins() {
 	duration := time.Duration(g.Config().Heartbeat.Interval) * time.Second
 
 	for {
-	REST:
 		time.Sleep(duration)
 
 		hostname, err := g.Hostname()
 		if err != nil {
-			goto REST
+			continue
 		}
 
 		req := model.AgentHeartbeatRequest{
@@ -51,11 +50,11 @@ func syncMinePlugins() {
 		err = g.HbsClient.Call("Agent.MinePlugins", req, &resp)
 		if err != nil {
 			log.Println("ERROR:", err)
-			goto REST
+			continue
 		}
 
 		if resp.Timestamp <= timestamp {
-			goto REST
+			continue
 		}
 
 		pluginDirs = resp.Plugins
