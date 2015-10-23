@@ -4,6 +4,7 @@
 + [系统安装](#系统安装)
 + [用户手册](#用户手册)
 + [系统运维](#系统运维)
++ [常见问题](#FAQ)
 
 nodata用于检测监控数据的上报异常。nodata和实时报警judge模块协同工作，过程为: 配置了nodata的采集项超时未上报数据，nodata生成一条默认的模拟数据；用户配置相应的报警策略，收到mock数据就产生报警。采集项上报异常检测，作为judge模块的一个必要补充，能够使judge的实时报警功能更加可靠、完善。
 
@@ -181,3 +182,85 @@ nodata采用"阈值检测"方法，简答的解决上述误报问题。nodata服
 #### 自监控
 nodata服务为单实例部署、存在单点故障风险，需要做好自监控。具体的，请参考[Falcon自监控实践](http://blog.niean.name/2015/08/16/falcon-self-monitor-availability/)一文。
 
+## FAQ
+#### 没有产生mock数据
+假设没有生效的机器为hostA，指标项为agent.alive，tags串为空。按照如下步骤进行问题排查:
+0.查看日志文件，检查nodata服务是否有异常、是否处于报警阻塞状态("nodata blocking")等。nodata是否处于报警阻塞状态，可以查看日志文件中 是否有 "nodata blocking" 字样。默认的，nodata服务会关闭报警阻塞功能。报警阻塞的描述，见[这里](#阻塞设置)。
+
+1.查看，是否对该指标项，配置了nodata监控。如果没有配置nodata监控，需要先进行配置。
+
+运行如下指令 `./scripts/debug proc config/hostA/agent.alive`，返回结果分析如下:
+
+```bash
+# a. nodata配置正确
+{
+    "data": {
+        "endpoint": "work",
+        "id": 1,
+        "metric": "agent.alive",
+        "mock": -1,
+        "name": "agent.alive.group",
+        "objType": "group",
+        "step": 60,
+        "tags": {},
+        "type": "GAUGE"
+    },
+    "msg": "success"
+}
+
+# b. 该指标项没有配置nodata
+{
+    "data": {
+        "endpoint": "",
+        "id": 0,
+        "metric": "",
+        "mock": 0,
+        "name": "",
+        "objType": "",
+        "step": 0,
+        "tags": null,
+        "type": ""
+    },
+    "msg": "success"
+}
+```
+
+2.查看，是否采集了该指标项的数据。如果数据采集失败，请检查nodata服务的query地址配置是否正确、query组件是否正常工作等。
+
+运行指令`./scripts/debug proc collect/hostA/agent.alive`，结果如下:
+
+```bash
+# a. 数据采集正常: fstatus为OK，fts和ts相差不大于5min
+{
+    "data": "ts:2015-10-23 12:45:00, value:1.000000, fts:2015-10-23 12:46:20, fstatus:OK",
+    "msg": "success"
+}
+
+# b. 数据采集失败: fstatus不是OK，或者 fts和ts相差大于5min
+{
+    "data": "ts:1970-01-01 00:00:00, value:0.000000, fts:1970-01-01 00:00:00, fstatus:",
+    "msg": "success"
+}
+
+```
+
+3.查看，该指标项当前状态。如果处于NODATA状态，但是dashboard或者judge没有收到mock数据，请检查nodata服务的transfer地址配置是否正确、transfer服务数据上报服务是否正常等。
+
+运行命令`./scripts/debug proc status/hostA/agent.alive`，结果如下:
+
+```bash
+# a. 数据上报正常: Status为OK
+{
+    "data": {
+        "Cnt": 0,
+        "Key": "hostA/agent.alive",
+        "Status": "OK",
+        "Ts": 1445575800
+    },
+    "msg": "success"
+}
+
+# b. 数据上报中断: Status为NODATA
+{    "data": {        "Cnt": 17,         "Key": "hostA/agent.alive",         "Status": "NODATA",         "Ts": 1445576100    },     "msg": "success"}
+
+```
