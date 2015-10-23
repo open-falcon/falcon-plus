@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/open-falcon/nodata/collector"
+	"github.com/open-falcon/nodata/config"
 	"github.com/open-falcon/nodata/config/service"
 	"github.com/open-falcon/nodata/g"
 	"github.com/open-falcon/nodata/judge"
@@ -34,6 +35,12 @@ func configProcHttpRoutes() {
 	// config.mockcfg
 	http.HandleFunc("/proc/config", func(w http.ResponseWriter, r *http.Request) {
 		RenderDataJson(w, service.GetMockCfgFromDB())
+	})
+	// config.mockcfg /proc/config/$endpoint/$metric/$tags-pairs
+	http.HandleFunc("/proc/config/", func(w http.ResponseWriter, r *http.Request) {
+		urlParam := r.URL.Path[len("/proc/config/"):]
+		cfg, _ := config.GetNdConfig(urlParam)
+		RenderDataJson(w, cfg)
 	})
 
 	// config.hostgroup, /group/$grpname
