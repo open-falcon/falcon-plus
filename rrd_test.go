@@ -26,7 +26,7 @@ func init() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 }
 
-func testAll(t *testing.T) {
+func TestAll(t *testing.T) {
 	// Create
 
 	c := NewCreator(dbfile, time.Now(), step)
