@@ -1,11 +1,13 @@
 package rpc
 
 import (
-	"github.com/open-falcon/hbs/g"
 	"log"
 	"net"
 	"net/rpc"
 	"net/rpc/jsonrpc"
+	"time"
+
+	"github.com/open-falcon/hbs/g"
 )
 
 type Hbs int
@@ -30,6 +32,7 @@ func Start() {
 		conn, err := l.Accept()
 		if err != nil {
 			log.Println("listener accept fail:", err)
+			time.Sleep(time.Duration(100) * time.Millisecond)
 			continue
 		}
 		go server.ServeCodec(jsonrpc.NewServerCodec(conn))
