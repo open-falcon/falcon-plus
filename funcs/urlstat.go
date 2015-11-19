@@ -35,7 +35,7 @@ func UrlMetrics() (L []*model.MetricValue) {
 }
 
 func probeUrl(furl string, timeout string) (bool, error) {
-	bs, err := sys.CmdOutBytes("curl", "max-filesize", "102400", "-I", "-m", timeout, "-o", "/dev/null", "-s", "-w", "%{http_code}", furl)
+	bs, err := sys.CmdOutBytes("curl", "--max-filesize", "102400", "-I", "-m", timeout, "-o", "/dev/null", "-s", "-w", "%{http_code}", furl)
 	if err != nil {
 		log.Printf("probe url [%v] failed.the err is: [%v]\n", furl, err)
 		return false, err
