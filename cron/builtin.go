@@ -60,7 +60,7 @@ func syncBuiltinMetrics() {
 
 		for _, metric := range resp.Metrics {
 
-			if metric.Metric == "url.check.health" {
+			if metric.Metric == g.URL_CHECK_HEALTH {
 				arr := strings.Split(metric.Tags, ",")
 				if len(arr) != 2 {
 					continue
@@ -80,7 +80,7 @@ func syncBuiltinMetrics() {
 				}
 			}
 
-			if metric.Metric == "net.port.listen" {
+			if metric.Metric == g.NET_PORT_LISTEN {
 				arr := strings.Split(metric.Tags, "=")
 				if len(arr) != 2 {
 					continue
@@ -95,7 +95,7 @@ func syncBuiltinMetrics() {
 				continue
 			}
 
-			if metric.Metric == "du.bs" {
+			if metric.Metric == g.DU_BS {
 				arr := strings.Split(metric.Tags, "=")
 				if len(arr) != 2 {
 					continue
@@ -105,7 +105,7 @@ func syncBuiltinMetrics() {
 				continue
 			}
 
-			if metric.Metric == "proc.num" {
+			if metric.Metric == g.PROC_NUM {
 				arr := strings.Split(metric.Tags, ",")
 
 				tmpMap := make(map[int]string)
