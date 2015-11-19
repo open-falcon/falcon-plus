@@ -19,9 +19,12 @@ func UrlMetrics() (L []*model.MetricValue) {
 	if sz == 0 {
 		return
 	}
-
+	hostname, err := g.Hostname()
+	if err != nil {
+		hostname = "None"
+	}
 	for furl, timeout := range reportUrls {
-		tags := fmt.Sprintf("url=%v,timeout=%v", furl, timeout)
+		tags := fmt.Sprintf("url=%v,timeout=%v,src_ip=%v", furl, timeout, hostname)
 		if ok, _ := probeUrl(furl, timeout); !ok {
 			L = append(L, GaugeValue("url.check.health", 0, tags))
 			continue
@@ -32,7 +35,7 @@ func UrlMetrics() (L []*model.MetricValue) {
 }
 
 func probeUrl(furl string, timeout string) (bool, error) {
-	bs, err := sys.CmdOutBytes("curl", "-I", "-m", timeout, "-o", "/dev/null", "-s", "-w", "%{http_code}", furl)
+	bs, err := sys.CmdOutBytes("curl", "max-filesize", "102400", "-I", "-m", timeout, "-o", "/dev/null", "-s", "-w", "%{http_code}", furl)
 	if err != nil {
 		log.Printf("probe url [%v] failed.the err is: [%v]\n", furl, err)
 		return false, err
