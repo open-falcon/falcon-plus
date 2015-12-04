@@ -64,7 +64,7 @@ func socketTelnetHandle(conn net.Conn) {
 	proc.SocketRecvCnt.IncrBy(int64(len(items)))
 	proc.RecvCnt.IncrBy(int64(len(items)))
 
-	if cfg.Transfer.Enable {
+	if cfg.Transfer.Enabled {
 		sender.Push2SendQueue(items)
 	}
 

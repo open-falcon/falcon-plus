@@ -9,29 +9,29 @@ import (
 )
 
 type HttpConfig struct {
-	Enable bool   `json:"enable"`
-	Listen string `json:"listen"`
+	Enabled bool   `json:"enabled"`
+	Listen  string `json:"listen"`
 }
 
 type RpcConfig struct {
-	Enable bool   `json:"enable"`
-	Listen string `json:"listen"`
+	Enabled bool   `json:"enabled"`
+	Listen  string `json:"listen"`
 }
 
 type SocketConfig struct {
-	Enable  bool   `json:"enable"`
+	Enabled bool   `json:"enabled"`
 	Listen  string `json:"listen"`
 	Timeout int32  `json:"timeout"`
 }
 
 type TransferConfig struct {
-	Enable      bool   `json:"enable"`
-	Batch       int32  `json:"batch"`
-	ConnTimeout int32  `json:"connTimeout"`
-	CallTimeout int32  `json:"callTimeout"`
-	MaxConns    int32  `json:"maxConns"`
-	MaxIdle     int32  `json:"maxIdle"`
-	Addr        string `json:"addr"`
+	Enabled     bool              `json:"enabled"`
+	Batch       int32             `json:"batch"`
+	ConnTimeout int32             `json:"connTimeout"`
+	CallTimeout int32             `json:"callTimeout"`
+	MaxConns    int32             `json:"maxConns"`
+	MaxIdle     int32             `json:"maxIdle"`
+	Cluster     map[string]string `json:"cluster"`
 }
 
 type GlobalConfig struct {

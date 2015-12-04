@@ -20,7 +20,7 @@ go get ./...
 ./control build
 ./control pack
 ```
-最后一步会pack出一个`falcon-gateway-$vsn.tar.gz`的安装包，拿着这个包去部署服务即可。我们也提供了编译好的安装包，在[这里](https://github.com/open-falcon/gateway/releases/tag/v0.0.5)。
+最后一步会pack出一个`falcon-gateway-$vsn.tar.gz`的安装包，拿着这个包去部署服务即可。我们也提供了编译好的安装包，在[这里](https://github.com/nieanan/gateway/releases/tag/v0.0.7)。
 
 ### Deploy
 服务部署，包括配置修改、启动服务、检验服务、停止服务等。这之前，需要将安装包解压到服务的部署目录下。
@@ -62,31 +62,42 @@ curl -s -X POST -d "[{\"metric\":\"$m\", \"endpoint\":\"$e\", \"timestamp\":$ts,
 ```
 
 ## Configuration
+**注意: 从v0.0.4版以后，配置文件格式发生了变更。**主要变更项，为
 
-    debug: true/false, 如果为true，日志中会打印debug信息
+1. 开关控制符更名为enabled，原来为enable
+2. transfer地址配置改为集群形式cluster，原来为单个地址addr
 
-    http
-        - enable: true/false, 表示是否开启该http端口，该端口为控制端口，主要用来对transfer发送控制命令、统计命令、debug命令等
-        - listen: 表示监听的http端口
 
-    rpc
-        - enable: true/false, 表示是否开启该jsonrpc数据接收端口, Agent发送数据使用的就是该端口
-        - listen: 表示监听的jsonrpc端口
+```python
+{
+    "debug": true,
+    "http": {
+        "enabled": true,
+        "listen": "0.0.0.0:6060" //http服务的监听端口
+    },
+    "rpc": {
+        "enabled": true,
+        "listen": "0.0.0.0:8433" //go-rpc服务的监听端口
+    },
+    "socket": { //即将被废弃,请避免使用
+        "enabled": true,
+        "listen": "0.0.0.0:4444", //telnet服务的监听端口
+        "timeout": 3600
+    },
+    "transfer": {
+        "enabled": true, //true/false, 表示是否开启向tranfser转发数据
+        "batch": 200, //数据转发的批量大小，可以加快发送速度，建议保持默认值
+        "connTimeout": 1000, //毫秒，与后端建立连接的超时时间，可以根据网络质量微调，建议保持默认
+        "callTimeout": 5000, //毫秒，发送数据给后端的超时时间，可以根据网络质量微调，建议保持默认
+        "maxConns": 32, //连接池相关配置，最大连接数，建议保持默认
+        "maxIdle": 32, //连接池相关配置，最大空闲连接数，建议保持默认
+        "cluster": { //transfer服务器集群，支持多条记录
+            "t1": "127.0.0.1:8433" //一个transfer实例，形如"node":"$hostname:$port"
+        }
+    }
+}
+```
 
-    socket #即将被废弃,请避免使用
-        - enable: true/false, 表示是否开启该telnet方式的数据接收端口，这是为了方便用户一行行的发送数据给transfer
-        - listen: 表示监听的socket端口
-
-    transfer
-        - enable: true/false, 表示是否开启向tranfser转发数据
-        - batch: 数据转发的批量大小，可以加快发送速度，建议保持默认值
-        - connTimeout: 单位是毫秒，与后端建立连接的超时时间，可以根据网络质量微调，建议保持默认
-        - callTimeout: 单位是毫秒，发送数据给后端的超时时间，可以根据网络质量微调，建议保持默认
-        - maxConns: 连接池相关配置，最大连接数，建议保持默认
-        - maxIdle: 连接池相关配置，最大空闲连接数，建议保持默认
-        - addr: transfer服务的地址，形如 $hostname:$port
-
-注意: `transfer.addr`应该指向一台transfer服务器，或者，指向一个挂在了transfer服务器集群的 域名或vip。这里，不提供指向transfer集群列表的功能，有此需求的用户可以进行二次开发。
 
 ## Debug
 可以通过调试脚本./test/debug查看服务器的内部状态数据，含义如下

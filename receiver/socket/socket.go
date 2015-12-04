@@ -8,7 +8,7 @@ import (
 )
 
 func StartSocket() {
-	if !g.Config().Socket.Enable {
+	if !g.Config().Socket.Enabled {
 		return
 	}
 

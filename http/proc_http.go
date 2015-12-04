@@ -8,6 +8,7 @@ import (
 	cutils "github.com/open-falcon/common/utils"
 
 	"github.com/open-falcon/gateway/proc"
+	"github.com/open-falcon/gateway/sender"
 )
 
 func configProcHttpRoutes() {
@@ -18,6 +19,23 @@ func configProcHttpRoutes() {
 	// TO BE DISCARDed
 	http.HandleFunc("/statistics/all", func(w http.ResponseWriter, r *http.Request) {
 		RenderDataJson(w, proc.GetAll())
+	})
+
+	// proc
+	http.HandleFunc("/proc/counters", func(w http.ResponseWriter, r *http.Request) {
+		RenderDataJson(w, proc.GetAll())
+	})
+
+	http.HandleFunc("/proc/transfer/pools", func(w http.ResponseWriter, r *http.Request) {
+		RenderDataJson(w, sender.SenderConnPools.Proc())
+	})
+
+	http.HandleFunc("/proc/transfer/sendcnt", func(w http.ResponseWriter, r *http.Request) {
+		ret := make([]interface{}, 0)
+		for _, p := range sender.TransferSendCnt {
+			ret = append(ret, p.Get())
+		}
+		RenderDataJson(w, ret)
 	})
 
 	// trace
