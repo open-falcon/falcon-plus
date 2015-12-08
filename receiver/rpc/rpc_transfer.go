@@ -124,7 +124,7 @@ func RecvMetricValues(args []*cmodel.MetricValue, reply *g.TransferResp, from st
 	}
 
 	cfg := g.Config()
-	if cfg.Transfer.Enable {
+	if cfg.Transfer.Enabled {
 		sender.Push2SendQueue(items)
 	}
 

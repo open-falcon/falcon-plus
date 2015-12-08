@@ -2,6 +2,7 @@ package sender
 
 import (
 	"log"
+	"math/rand"
 	"time"
 
 	cmodel "github.com/open-falcon/common/model"
@@ -13,11 +14,6 @@ import (
 	"github.com/open-falcon/gateway/proc"
 )
 
-// send
-const (
-	DefaultSendTaskSleepInterval = time.Millisecond * 50 //默认睡眠间隔为50ms
-)
-
 func startSendTasks() {
 	cfg := g.Config()
 	concurrent := cfg.Transfer.MaxIdle
@@ -27,14 +23,14 @@ func startSendTasks() {
 func forward2TransferTask(Q *nlist.SafeListLimited, concurrent int32) {
 	cfg := g.Config()
 	batch := int(cfg.Transfer.Batch)
-	addr := cfg.Transfer.Addr
 	sema := nsema.NewSemaphore(int(concurrent))
+	transNum := len(TransferHostnames)
 
 	for {
 		items := Q.PopBackBy(batch)
 		count := len(items)
 		if count == 0 {
-			time.Sleep(DefaultSendTaskSleepInterval)
+			time.Sleep(time.Millisecond * 50)
 			continue
 		}
 
@@ -44,28 +40,47 @@ func forward2TransferTask(Q *nlist.SafeListLimited, concurrent int32) {
 		}
 
 		sema.Acquire()
-		go func(addr string, transItems []*cmodel.MetricValue, count int) {
+		go func(transItems []*cmodel.MetricValue, count int) {
 			defer sema.Release()
-
-			resp := &g.TransferResp{}
 			var err error
+
+			// 随机遍历transfer列表，直到数据发送成功 或者 遍历完;随机遍历，可以缓解慢transfer
+			resp := &g.TransferResp{}
 			sendOk := false
-			for i := 0; i < 3; i++ { //最多重试3次
-				err = SenderConnPools.Call(addr, "Transfer.Update", transItems, resp)
-				if err == nil {
-					sendOk = true
-					break
+			rint := rand.Int()
+			for i := 0; i < transNum && !sendOk; i++ {
+				idx := (i + rint) % transNum
+				host := TransferHostnames[idx]
+				addr := TransferMap[host]
+
+				// 对每一个tranfer地址，最多做3次尝试
+				TryCnt := 3
+				j := 0
+				for j = 0; j < TryCnt && !sendOk; j++ { //最多重试3次
+					err = SenderConnPools.Call(addr, "Transfer.Update", transItems, resp)
+					if err == nil {
+						sendOk = true
+					}
+					time.Sleep(time.Millisecond * 10)
 				}
-				time.Sleep(time.Millisecond * 10)
+				if j == TryCnt {
+					log.Printf("try sending to transfer %s:%s fail: %v connpool:%v", host, addr, err, SenderConnPools.M[addr].Proc())
+				}
+
+				// statistics
+				if sendOk {
+					TransferSendCnt[host].IncrBy(int64(count))
+				}
 			}
+
 			// statistics
 			if !sendOk {
-				log.Printf("send to transfer %s fail: %v connpool:%v", addr, err, SenderConnPools.Proc())
+				log.Printf("send to transfer fail, connpool:%v", SenderConnPools.Proc())
 				proc.SendFailCnt.IncrBy(int64(count))
 			} else {
 				proc.SendCnt.IncrBy(int64(count))
 			}
-		}(addr, transItems, count)
+		}(transItems, count)
 	}
 }
 

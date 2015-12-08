@@ -10,7 +10,7 @@ import (
 )
 
 func StartRpc() {
-	if !g.Config().Rpc.Enable {
+	if !g.Config().Rpc.Enabled {
 		return
 	}
 

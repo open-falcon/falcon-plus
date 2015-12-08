@@ -57,15 +57,21 @@ function start() {
         return 1
     fi
 
-    nohup ./$app -c $conf &> $logfile &
+    nohup ./$app -c $conf >>$logfile 2>&1 &
     echo $! > $pidfile
-    echo "start ok, pid=$!"
+    echo "$app start ok, pid=$!"
 }
 
 function stop() {
     pid=`cat $pidfile`
+    kill $pid
+    echo "$app stoped"
+}
+
+function kill9() {
+    pid=`cat $pidfile`
     kill -9 $pid
-    echo "stoped"
+    echo "$app killed"
 }
 
 function restart() {
@@ -79,10 +85,10 @@ function status() {
     check_pid
     running=$?
     if [ $running -gt 0 ];then
-        echo -n "running, pid="
+        echo -n "$app running, pid="
         cat $pidfile
     else
-        echo "stoped"
+        echo "$app stoped"
     fi
 }
 
@@ -130,6 +136,9 @@ case $action in
         ;;
     "stop" )
         stop
+        ;;
+    "kill" )
+        kill9
         ;;
     "restart" )
         restart

@@ -19,7 +19,7 @@ func Start() {
 }
 
 func startHttpServer() {
-	if !g.Config().Http.Enable {
+	if !g.Config().Http.Enabled {
 		return
 	}
 
