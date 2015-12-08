@@ -29,7 +29,7 @@ func DuMetrics() (L []*model.MetricValue) {
 			continue
 		}
 
-		L = append(L, GaugeValue("du.bs", size, "path="+path))
+		L = append(L, GaugeValue(g.DU_BS, size, "path="+path))
 	}
 
 	return

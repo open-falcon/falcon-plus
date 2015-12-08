@@ -24,12 +24,12 @@ func UrlMetrics() (L []*model.MetricValue) {
 		hostname = "None"
 	}
 	for furl, timeout := range reportUrls {
-		tags := fmt.Sprintf("url=%v,timeout=%v,src_ip=%v", furl, timeout, hostname)
+		tags := fmt.Sprintf("url=%v,timeout=%v,src=%v", furl, timeout, hostname)
 		if ok, _ := probeUrl(furl, timeout); !ok {
-			L = append(L, GaugeValue("url.check.health", 0, tags))
+			L = append(L, GaugeValue(g.URL_CHECK_HEALTH, 0, tags))
 			continue
 		}
-		L = append(L, GaugeValue("url.check.health", 1, tags))
+		L = append(L, GaugeValue(g.URL_CHECK_HEALTH, 1, tags))
 	}
 	return
 }

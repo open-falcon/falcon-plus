@@ -32,7 +32,7 @@ func ProcMetrics() (L []*model.MetricValue) {
 			}
 		}
 
-		L = append(L, GaugeValue("proc.num", cnt, tags))
+		L = append(L, GaugeValue(g.PROC_NUM, cnt, tags))
 	}
 
 	return
