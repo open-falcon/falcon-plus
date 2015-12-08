@@ -8,7 +8,7 @@ import (
 
 func ReadClusterMonitorItems() (M map[string]*g.Cluster, err error) {
 	M = make(map[string]*g.Cluster)
-	sql := "SELECT `id`, `node`, `numerator`, `denominator`, `endpoint`, `metric`, `tags`, `ds_type`, `step`, `last_update` FROM `cluster`"
+	sql := "SELECT `id`, `grp_id`, `numerator`, `denominator`, `endpoint`, `metric`, `tags`, `ds_type`, `step`, `last_update` FROM `cluster`"
 
 	cfg := g.Config()
 	ids := cfg.Database.Ids
@@ -41,7 +41,7 @@ func ReadClusterMonitorItems() (M map[string]*g.Cluster, err error) {
 	defer rows.Close()
 	for rows.Next() {
 		var c g.Cluster
-		err = rows.Scan(&c.Id, &c.Node, &c.Numerator, &c.Denominator, &c.Endpoint, &c.Metric, &c.Tags, &c.DsType, &c.Step, &c.LastUpdate)
+		err = rows.Scan(&c.Id, &c.GroupId, &c.Numerator, &c.Denominator, &c.Endpoint, &c.Metric, &c.Tags, &c.DsType, &c.Step, &c.LastUpdate)
 		if err != nil {
 			log.Println("[E]", err)
 			continue

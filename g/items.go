@@ -8,7 +8,7 @@ import (
 
 type Cluster struct {
 	Id          int64
-	Node        string
+	GroupId     int64
 	Numerator   string
 	Denominator string
 	Endpoint    string
@@ -21,9 +21,9 @@ type Cluster struct {
 
 func (this *Cluster) String() string {
 	return fmt.Sprintf(
-		"<Id:%d, Node:%s, Numerator:%s, Denominator:%s, Endpoint:%s, Metric:%s, Tags:%s, DsType:%s, Step:%d, LastUpdate:%v>",
+		"<Id:%d, GroupId:%d, Numerator:%s, Denominator:%s, Endpoint:%s, Metric:%s, Tags:%s, DsType:%s, Step:%d, LastUpdate:%v>",
 		this.Id,
-		this.Node,
+		this.GroupId,
 		this.Numerator,
 		this.Denominator,
 		this.Endpoint,
