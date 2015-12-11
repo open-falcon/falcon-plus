@@ -28,12 +28,14 @@ type DBConfig struct {
 }
 
 type GlobalConfig struct {
-	Pid   string      `json:"pid"`
-	Debug bool        `json:"debug"`
-	Http  *HttpConfig `json:"http"`
-	Rpc   *RpcConfig  `json:"rpc"`
-	RRD   *RRDConfig  `json:"rrd"`
-	DB    *DBConfig   `json:"db"`
+	Pid     string            `json:"pid"`
+	Debug   bool              `json:"debug"`
+	Migrate bool              `json:"migrate"`
+	Http    *HttpConfig       `json:"http"`
+	Rpc     *RpcConfig        `json:"rpc"`
+	RRD     *RRDConfig        `json:"rrd"`
+	DB      *DBConfig         `json:"db"`
+	Cluster map[string]string `json:"cluster"`
 }
 
 var (
@@ -68,6 +70,10 @@ func ParseConfig(cfg string) {
 	err = json.Unmarshal([]byte(configContent), &c)
 	if err != nil {
 		log.Fatalln("parse config file", cfg, "error:", err.Error())
+	}
+
+	if c.Migrate && len(c.Clusterl) == 0 {
+		c.Migrate = false
 	}
 
 	// set config

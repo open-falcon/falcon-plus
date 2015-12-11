@@ -14,5 +14,10 @@
     "db": {
         "dsn": "root:@tcp(127.0.0.1:3306)/graph?loc=Local&parseTime=true",
         "maxIdle": 4
+    },
+	"migrate": true,
+    "cluster": {
+        "graph-00" : "127.0.0.1:6070",
+        "graph-01" : "127.0.0.1:6170"
     }
 }
