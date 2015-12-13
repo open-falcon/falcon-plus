@@ -1,23 +1,24 @@
 {
-    "debug": false,
-    "http": {
-        "enabled": true,
-        "listen": "0.0.0.0:6071"
-    },
-    "rpc": {
-        "enabled": true,
-        "listen": "0.0.0.0:6070"
-    },
-    "rrd": {
-        "storage": "/home/work/data/6070"
-    },
-    "db": {
-        "dsn": "root:@tcp(127.0.0.1:3306)/graph?loc=Local&parseTime=true",
-        "maxIdle": 4
-    },
-	"migrate": true,
-    "cluster": {
-        "graph-00" : "127.0.0.1:6070",
-        "graph-01" : "127.0.0.1:6170"
-    }
+	"debug": false,
+	"http": {
+		"enabled": true,
+		"listen": "0.0.0.0:6071"
+	},
+	"rpc": {
+		"enabled": true,
+		"listen": "0.0.0.0:6070"
+	},
+	"rrd": {
+		"storage": "/home/work/data/6070"
+	},
+	"db": {
+		"dsn": "root:@tcp(127.0.0.1:3306)/graph?loc=Local&parseTime=true",
+		"maxIdle": 4
+	},
+	"migrate": {
+		"enabled": false,
+		"cluster": {
+			"graph-00" : "127.0.0.1:6070"
+		}
+	}
 }
