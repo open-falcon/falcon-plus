@@ -13,7 +13,6 @@ import (
 	"github.com/open-falcon/graph/http"
 	"github.com/open-falcon/graph/index"
 	"github.com/open-falcon/graph/rrdtool"
-	"github.com/open-falcon/graph/sender"
 )
 
 func start_signal(pid int, cfg *g.GlobalConfig) {
@@ -70,7 +69,7 @@ func main() {
 	// init db
 	g.InitDB()
 
-	sender.Start()
+	//sender.Start()
 
 	// start rrdtool
 	rrdtool.Start()

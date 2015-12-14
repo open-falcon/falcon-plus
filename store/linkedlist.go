@@ -7,9 +7,15 @@ import (
 	cmodel "github.com/open-falcon/common/model"
 )
 
+const (
+	GRAPH_F_MISS     = 0x01
+	GRAPH_F_FETCHING = 0x02
+)
+
 type SafeLinkedList struct {
 	sync.RWMutex
-	L *list.List
+	Flag uint32
+	L    *list.List
 }
 
 // 新创建SafeLinkedList容器
@@ -69,9 +75,9 @@ func (this *SafeLinkedList) PopAll() []*cmodel.GraphItem {
 	ret := make([]*cmodel.GraphItem, 0, size)
 
 	for i := 0; i < size; i++ {
-		back := this.L.Back()
-		ret = append(ret, back.Value.(*cmodel.GraphItem))
-		this.L.Remove(back)
+		item := this.L.Back()
+		ret = append(ret, item.Value.(*cmodel.GraphItem))
+		this.L.Remove(item)
 	}
 
 	return ret

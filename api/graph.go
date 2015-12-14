@@ -41,6 +41,8 @@ func handleItems(items []*cmodel.GraphItem) {
 		return
 	}
 
+	cfg := g.config
+
 	for i := 0; i < count; i++ {
 		if items[i] == nil {
 			continue
@@ -58,7 +60,7 @@ func handleItems(items []*cmodel.GraphItem) {
 		if first != nil && items[i].Timestamp <= first.Timestamp {
 			continue
 		}
-		store.GraphItems.PushFront(ckey, items[i])
+		store.GraphItems.PushFront(ckey, items[i], checksum, cfg)
 
 		// To Index
 		index.ReceiveItem(items[i], checksum)

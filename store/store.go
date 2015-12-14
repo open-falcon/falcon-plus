@@ -5,6 +5,7 @@ import (
 	"hash/crc32"
 	"log"
 	"sync"
+	"time"
 
 	cmodel "github.com/open-falcon/common/model"
 
@@ -13,10 +14,18 @@ import (
 
 var GraphItems *GraphItemMap
 
+type fetch_rrd struct {
+	md5    string
+	dstype string
+	step   int
+	sl     *SafeLinkedList
+}
+
 type GraphItemMap struct {
 	sync.RWMutex
-	A    []map[string]*SafeLinkedList
-	Size int
+	A          []map[string]*SafeLinkedList
+	Size       int
+	fetch_list map[string]*SafeLinkedList
 }
 
 func (this *GraphItemMap) Get(key string) (*SafeLinkedList, bool) {
@@ -74,7 +83,7 @@ func (this *GraphItemMap) PopAll(key string) []*cmodel.GraphItem {
 	defer this.Unlock()
 	idx := hashKey(key) % uint32(this.Size)
 	L, ok := this.A[idx][key]
-	if !ok {
+	if !ok || (L.Flag & GRAPH_F_MISS) {
 		return []*cmodel.GraphItem{}
 	}
 	return L.PopAll()
@@ -106,14 +115,21 @@ func getWts(key string, now int64) int64 {
 	return now + interval - (int64(hashKey(key)) % interval)
 }
 
-func (this *GraphItemMap) PushFront(key string, val *cmodel.GraphItem) {
+func (this *GraphItemMap) PushFront(key string,
+	item *cmodel.GraphItem, md5 string, cfg *g.GlobalConfig) {
 	if linkedList, exists := this.Get(key); exists {
-		linkedList.PushFront(val)
+		linkedList.PushFront(item)
 	} else {
 		//log.Println("new key:", key)
-		NL := list.New()
-		NL.PushFront(val)
-		safeList := &SafeLinkedList{L: NL}
+		safeList := &SafeLinkedList{L: list.New()}
+		safeList.L.PushFront(item)
+
+		if cfg.Migrate.Enabled && !g.IsRrdFileExist(g.RrdFileName(
+			cfg.RRD.Storage, md5, item.DsType, item.Step)) {
+			safeList.Flag = GRAPH_F_MISS
+			f := &fetch_rrd{md5, dstype, step, sl}
+			this.fetch_list.PushFront(f)
+		}
 		this.Set(key, safeList)
 	}
 }
@@ -135,6 +151,28 @@ func (this *GraphItemMap) KeysByIndex(idx int) []string {
 	return keys
 }
 
+func fetch_rrd(queue *SafeLinkedList, node, addr string) {
+	for {
+		entry := queue.PopBack()
+		if entry == nil {
+			time.Sleep(time.Second)
+			continue
+		}
+		//todo: call jsonrpc to fetch rrd file
+		time.Sleep(time.Second)
+	}
+}
+
+func (this *GraphItemMap) Migrate_start() {
+	cfg = g.Config()
+	if cfg.Migrate.Enabled {
+		for node, addr := range cfg.Migrate.Cluster {
+			this.fetch_list[node] = &SafeLinkedList{L: list.New()}
+			go fetch_rrd(this.fetch_list[node], node, addr)
+		}
+	}
+}
+
 func init() {
 	size := g.CACHE_TIME / g.FLUSH_DISK_STEP
 	if size < 0 {
@@ -142,10 +180,12 @@ func init() {
 	}
 
 	GraphItems = &GraphItemMap{
-		A:    make([]map[string]*SafeLinkedList, size),
-		Size: size,
+		A:          make([]map[string]*SafeLinkedList, size),
+		Size:       size,
+		fetch_list: make(map[string]*SafeLinkedList),
 	}
 	for i := 0; i < size; i++ {
 		GraphItems.A[i] = make(map[string]*SafeLinkedList)
 	}
+
 }
