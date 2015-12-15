@@ -35,8 +35,9 @@ type GlobalConfig struct {
 	RRD     *RRDConfig  `json:"rrd"`
 	DB      *DBConfig   `json:"db"`
 	Migrate struct {
-		Enabled bool              `json:"enabled"`
-		Cluster map[string]string `json:"cluster"`
+		Enabled  bool              `json:"enabled"`
+		Replicas int               `json:"replicas"`
+		Cluster  map[string]string `json:"cluster"`
 	} `json:"migrate"`
 }
 

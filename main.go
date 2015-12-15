@@ -13,6 +13,7 @@ import (
 	"github.com/open-falcon/graph/http"
 	"github.com/open-falcon/graph/index"
 	"github.com/open-falcon/graph/rrdtool"
+	"github.com/open-falcon/graph/store"
 )
 
 func start_signal(pid int, cfg *g.GlobalConfig) {
@@ -79,6 +80,7 @@ func main() {
 	index.Start()
 	// start http server
 	go http.Start()
+	store.Start()
 
 	start_signal(os.Getpid(), g.Config())
 }

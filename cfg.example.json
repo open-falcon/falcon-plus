@@ -17,6 +17,7 @@
 	},
 	"migrate": {
 		"enabled": false,
+		"replicas": 500,
 		"cluster": {
 			"graph-00" : "127.0.0.1:6070"
 		}

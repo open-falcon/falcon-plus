@@ -2,22 +2,32 @@ package store
 
 import (
 	"container/list"
+	"encoding/base64"
 	"hash/crc32"
+	"io/ioutil"
 	"log"
+	"net/rpc"
+	"net/rpc/jsonrpc"
 	"sync"
 	"time"
 
 	cmodel "github.com/open-falcon/common/model"
 
 	"github.com/open-falcon/graph/g"
+	"stathat.com/c/consistent"
 )
 
 var GraphItems *GraphItemMap
 
-type fetch_rrd struct {
-	md5    string
-	dstype string
-	step   int
+type File64 struct {
+	Filename string
+	Body64   string
+}
+
+type Fetch_rrd struct {
+	Md5    string
+	Dstype string
+	Step   int
 	sl     *SafeLinkedList
 }
 
@@ -26,6 +36,8 @@ type GraphItemMap struct {
 	A          []map[string]*SafeLinkedList
 	Size       int
 	fetch_list map[string]*SafeLinkedList
+	client     map[string]*rpc.Client
+	consistent *consistent.Consistent
 }
 
 func (this *GraphItemMap) Get(key string) (*SafeLinkedList, bool) {
@@ -83,7 +95,7 @@ func (this *GraphItemMap) PopAll(key string) []*cmodel.GraphItem {
 	defer this.Unlock()
 	idx := hashKey(key) % uint32(this.Size)
 	L, ok := this.A[idx][key]
-	if !ok || (L.Flag & GRAPH_F_MISS) {
+	if !ok || (L.Flag&GRAPH_F_MISS) != 0 {
 		return []*cmodel.GraphItem{}
 	}
 	return L.PopAll()
@@ -127,8 +139,12 @@ func (this *GraphItemMap) PushFront(key string,
 		if cfg.Migrate.Enabled && !g.IsRrdFileExist(g.RrdFileName(
 			cfg.RRD.Storage, md5, item.DsType, item.Step)) {
 			safeList.Flag = GRAPH_F_MISS
-			f := &fetch_rrd{md5, dstype, step, sl}
-			this.fetch_list.PushFront(f)
+			f := &Fetch_rrd{Md5: md5,
+				Dstype: item.DsType,
+				Step:   item.Step,
+				sl:     safeList}
+			node, _ := this.consistent.Get(item.PrimaryKey())
+			this.fetch_list[node].PushFront(f)
 		}
 		this.Set(key, safeList)
 	}
@@ -151,24 +167,75 @@ func (this *GraphItemMap) KeysByIndex(idx int) []string {
 	return keys
 }
 
-func fetch_rrd(queue *SafeLinkedList, node, addr string) {
+func fetch_rrd(client *rpc.Client, queue *SafeLinkedList, node, addr string) {
+	var rrdfile File64
+	var err error
+	var ctx []byte
+	cfg := g.Config()
+
 	for {
 		entry := queue.PopBack()
 		if entry == nil {
 			time.Sleep(time.Second)
 			continue
 		}
+		rrd := entry.Value.(*Fetch_rrd)
 		//todo: call jsonrpc to fetch rrd file
 		time.Sleep(time.Second)
+		err = client.Call("Graph.GetRrd", rrd, &rrdfile)
+
+		// reconnection
+		if err != nil {
+			client.Close()
+			client, err = jsonrpc.Dial("tcp", addr)
+			for err != nil {
+				time.Sleep(time.Millisecond * 500)
+				client, err = jsonrpc.Dial("tcp", addr)
+			}
+		}
+
+		if ctx, err = base64.StdEncoding.DecodeString(rrdfile.Body64); err != nil {
+			// what?
+			log.Println(err)
+			rrd.sl.Lock()
+			defer rrd.sl.Unlock()
+			rrd.sl.Flag |= GRAPH_F_ERR
+		} else {
+			if err = ioutil.WriteFile(g.RrdFileName(cfg.RRD.Storage, rrd.Md5,
+				rrd.Dstype, rrd.Step), ctx, 0644); err != nil {
+				// what?
+				log.Println(err)
+				rrd.sl.Lock()
+				defer rrd.sl.Unlock()
+				rrd.sl.Flag |= GRAPH_F_ERR
+
+			} else {
+				// ok !!
+				rrd.sl.Lock()
+				defer rrd.sl.Unlock()
+				rrd.sl.Flag &= ^uint32(GRAPH_F_MISS)
+			}
+		}
 	}
 }
 
-func (this *GraphItemMap) Migrate_start() {
-	cfg = g.Config()
+func Start() {
+	var err error
+	cfg := g.Config()
+
 	if cfg.Migrate.Enabled {
+		GraphItems.consistent = consistent.New()
+		GraphItems.consistent.NumberOfReplicas = cfg.Migrate.Replicas
+
 		for node, addr := range cfg.Migrate.Cluster {
-			this.fetch_list[node] = &SafeLinkedList{L: list.New()}
-			go fetch_rrd(this.fetch_list[node], node, addr)
+			GraphItems.consistent.Add(node)
+			if GraphItems.client[node], err = jsonrpc.Dial("tcp", addr); err != nil {
+				log.Fatalf("node:%s addr:%s err:%s\n", node, addr, err)
+			}
+			GraphItems.fetch_list[node] = &SafeLinkedList{L: list.New()}
+			go fetch_rrd(GraphItems.client[node], GraphItems.fetch_list[node],
+				node, addr)
+			log.Printf("store.Start()[%s][%s] done\n", node, addr)
 		}
 	}
 }
@@ -183,6 +250,7 @@ func init() {
 		A:          make([]map[string]*SafeLinkedList, size),
 		Size:       size,
 		fetch_list: make(map[string]*SafeLinkedList),
+		client:     make(map[string]*rpc.Client),
 	}
 	for i := 0; i < size; i++ {
 		GraphItems.A[i] = make(map[string]*SafeLinkedList)

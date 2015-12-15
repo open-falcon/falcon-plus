@@ -1,7 +1,9 @@
 package api
 
 import (
+	"encoding/base64"
 	"fmt"
+	"io/ioutil"
 	"math"
 	"time"
 
@@ -15,6 +17,19 @@ import (
 )
 
 type Graph int
+
+func (this *Graph) GetRrd(entry store.Fetch_rrd, rrdfile *store.File64) error {
+
+	rrdfile.Filename = g.RrdFileName(g.Config().RRD.Storage, entry.Md5, entry.Dstype, entry.Step)
+
+	if f, err := ioutil.ReadFile(rrdfile.Filename); err != nil {
+		return err
+	} else {
+		rrdfile.Body64 = base64.StdEncoding.EncodeToString(f)
+		return nil
+	}
+
+}
 
 func (this *Graph) Ping(req cmodel.NullRpcRequest, resp *cmodel.SimpleRpcResponse) error {
 	return nil
@@ -41,7 +56,7 @@ func handleItems(items []*cmodel.GraphItem) {
 		return
 	}
 
-	cfg := g.config
+	cfg := g.Config()
 
 	for i := 0; i < count; i++ {
 		if items[i] == nil {

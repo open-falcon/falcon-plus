@@ -10,6 +10,7 @@ import (
 const (
 	GRAPH_F_MISS     = 0x01
 	GRAPH_F_FETCHING = 0x02
+	GRAPH_F_ERR      = 0x04
 )
 
 type SafeLinkedList struct {
