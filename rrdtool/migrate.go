@@ -4,38 +4,118 @@ import (
 	"encoding/base64"
 	"errors"
 	"io/ioutil"
+	"log"
 	"net/rpc"
 	"net/rpc/jsonrpc"
 	"sync/atomic"
 	"time"
+
+	"stathat.com/c/consistent"
 
 	cmodel "github.com/open-falcon/common/model"
 	"github.com/open-falcon/graph/g"
 	"github.com/open-falcon/graph/store"
 )
 
-func task_worker(idx int) {
-	for {
-		select {
-		case key := <-task_key_ch:
-			if atomic.LoadInt32(&flushrrd_timeout) != 0 {
-				// hope this more faster than fetch_rrd
-				send_data(key)
-			} else {
-				fetch_rrd(key)
+type Task_ch_t struct {
+	Method string
+	Key    string
+	Done   chan error
+	Args   interface{}
+	Reply  interface{}
+}
+
+var (
+	Consistent       *consistent.Consistent
+	Task_ch          map[string]chan Task_ch_t
+	clients          map[string][]*rpc.Client
+	flushrrd_timeout int32
+)
+
+func init() {
+	Consistent = consistent.New()
+	Task_ch = make(map[string]chan Task_ch_t)
+	clients = make(map[string][]*rpc.Client)
+}
+
+func migrate_start(cfg *g.GlobalConfig) {
+	var err error
+	var i int
+	var client *rpc.Client
+	if cfg.Migrate.Enabled {
+		Consistent.NumberOfReplicas = cfg.Migrate.Replicas
+
+		for node, addr := range cfg.Migrate.Cluster {
+			Consistent.Add(node)
+			Task_ch[node] = make(chan Task_ch_t, 1)
+			clients[node] = make([]*rpc.Client, cfg.Migrate.Concurrency)
+
+			for i = 0; i < cfg.Migrate.Concurrency; i++ {
+				if client, err = jsonrpc.Dial("tcp", addr); err != nil {
+					log.Fatalf("node:%s addr:%s err:%s\n", node, addr, err)
+				}
+				clients[node][i] = client
+				go task_worker(i, Task_ch[node], client, node, addr)
 			}
 		}
 	}
 }
 
-func send_data(key string) error {
+func task_worker(idx int, ch chan Task_ch_t, client *rpc.Client, node, addr string) {
+	var err error
+	for {
+		select {
+		case task := <-ch:
+			if task.Method == "Graph.Send" {
+				err = send_data(client, task.Key, addr)
+			} else if task.Method == "Graph.Query" {
+				err = query_data(client, addr, task.Args, task.Reply)
+			} else {
+				if atomic.LoadInt32(&flushrrd_timeout) != 0 {
+					// hope this more faster than fetch_rrd
+					err = send_data(client, task.Key, addr)
+				} else {
+					err = fetch_rrd(client, task.Key, addr)
+				}
+			}
+			if task.Done != nil {
+				task.Done <- err
+			}
+		}
+	}
+}
+
+func reconnection(client *rpc.Client, addr string) {
+	var err error
+	client.Close()
+	client, err = jsonrpc.Dial("tcp", addr)
+	for err != nil {
+		//danger!! block routine
+		time.Sleep(time.Millisecond * 500)
+		client, err = jsonrpc.Dial("tcp", addr)
+	}
+}
+
+func query_data(client *rpc.Client, addr string,
+	args interface{}, resp interface{}) error {
 	var (
-		err    error
-		flag   uint32
-		node   string
-		addr   string
-		client *rpc.Client
-		resp   *cmodel.SimpleRpcResponse
+		err error
+	)
+
+	err = Jsonrpc_call(client, "Graph.Query", args, resp,
+		time.Duration(g.Config().CallTimeout)*time.Millisecond)
+
+	if err != nil {
+		reconnection(client, addr)
+	}
+	return err
+}
+
+func send_data(client *rpc.Client, key string, addr string) error {
+	var (
+		err  error
+		flag uint32
+		resp *cmodel.SimpleRpcResponse
 	)
 
 	//remote
@@ -51,31 +131,14 @@ func send_data(key string) error {
 	if items_size == 0 {
 		goto out
 	}
-
-	node, _ = Consistent.Get(items[0].PrimaryKey())
-	client = Client[node]
 	resp = &cmodel.SimpleRpcResponse{}
 
 	err = Jsonrpc_call(client, "Graph.Send", items, resp,
 		time.Duration(cfg.CallTimeout)*time.Millisecond)
 
-	// reconnection
 	if err != nil {
 		store.GraphItems.PushAll(key, items)
-
-		conn.Lock()
-		client.Close()
-		addr = cfg.Migrate.Cluster[node]
-		client, err = jsonrpc.Dial("tcp", addr)
-		conn.Unlock()
-
-		for err != nil {
-			//danger!! block routine
-			time.Sleep(time.Millisecond * 500)
-			conn.Lock()
-			client, err = jsonrpc.Dial("tcp", addr)
-			conn.Unlock()
-		}
+		reconnection(client, addr)
 		goto err_out
 	}
 	goto out
@@ -89,8 +152,7 @@ out:
 
 }
 
-//func fetch_rrd(client *rpc.Client, queue *store.SafeLinkedList, node, addr string) {
-func fetch_rrd(key string) error {
+func fetch_rrd(client *rpc.Client, key string, addr string) error {
 	var (
 		err      error
 		flag     uint32
@@ -100,9 +162,6 @@ func fetch_rrd(key string) error {
 		step     int
 		rrdfile  g.File64
 		ctx      []byte
-		node     string
-		addr     string
-		client   *rpc.Client
 	)
 
 	cfg := g.Config()
@@ -123,24 +182,12 @@ func fetch_rrd(key string) error {
 		goto out
 	}
 
-	node, _ = Consistent.Get(items[0].PrimaryKey())
-	client = Client[node]
-
 	err = Jsonrpc_call(client, "Graph.GetRrd", key, &rrdfile,
 		time.Duration(cfg.CallTimeout)*time.Millisecond)
 
-	// reconnection
 	if err != nil {
 		store.GraphItems.PushAll(key, items)
-
-		client.Close()
-		addr = cfg.Migrate.Cluster[node]
-		client, err = jsonrpc.Dial("tcp", addr)
-		for err != nil {
-			//danger!! block routine
-			time.Sleep(time.Millisecond * 500)
-			client, err = jsonrpc.Dial("tcp", addr)
-		}
+		reconnection(client, addr)
 		goto err_out
 	}
 

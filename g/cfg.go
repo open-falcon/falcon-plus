@@ -13,6 +13,7 @@ type File64 struct {
 	Filename string
 	Body64   string
 }
+
 type HttpConfig struct {
 	Enabled bool   `json:"enabled"`
 	Listen  string `json:"listen"`
@@ -41,10 +42,10 @@ type GlobalConfig struct {
 	DB          *DBConfig   `json:"db"`
 	CallTimeout int32       `json:"callTimeout"`
 	Migrate     struct {
-		Enabled       bool              `json:"enabled"`
-		Worker_number int               `json:"worker_number"`
-		Replicas      int               `json:"replicas"`
-		Cluster       map[string]string `json:"cluster"`
+		Concurrency int               `json:"concurrency"` //number of multiple worker per node
+		Enabled     bool              `json:"enabled"`
+		Replicas    int               `json:"replicas"`
+		Cluster     map[string]string `json:"cluster"`
 	} `json:"migrate"`
 }
 

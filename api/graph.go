@@ -73,17 +73,17 @@ func handleItems(items []*cmodel.GraphItem) {
 		dsType := items[i].DsType
 		step := items[i].Step
 		checksum := items[i].Checksum()
-		ckey := g.FormRrdCacheKey(checksum, dsType, step)
+		key := g.FormRrdCacheKey(checksum, dsType, step)
 
 		//statistics
 		proc.GraphRpcRecvCnt.Incr()
 
 		// To Graph
-		first := store.GraphItems.First(ckey)
+		first := store.GraphItems.First(key)
 		if first != nil && items[i].Timestamp <= first.Timestamp {
 			continue
 		}
-		store.GraphItems.PushFront(ckey, items[i], checksum, cfg)
+		store.GraphItems.PushFront(key, items[i], checksum, cfg)
 
 		// To Index
 		index.ReceiveItem(items[i], checksum)
@@ -122,31 +122,35 @@ func (this *Graph) Query(param cmodel.GraphQueryParam, resp *cmodel.GraphQueryRe
 	}
 
 	md5 := cutils.Md5(param.Endpoint + "/" + param.Counter)
-	ckey := g.FormRrdCacheKey(md5, dsType, step)
+	key := g.FormRrdCacheKey(md5, dsType, step)
 	filename := g.RrdFileName(cfg.RRD.Storage, md5, dsType, step)
 
 	// read cached items
-	items, flag := store.GraphItems.FetchAll(ckey)
+	items, flag := store.GraphItems.FetchAll(key)
 	items_size := len(items)
 
 	if cfg.Migrate.Enabled && flag&g.GRAPH_F_MISS != 0 {
-		items := store.GraphItems.PopAll(ckey)
-		items_size := len(items)
-		node, _ := rrdtool.Consistent.Get(param.Endpoint + "/" + param.Counter)
-		client := rrdtool.Client[node]
 		//update items befor get from remote
+		node, _ := rrdtool.Consistent.Get(param.Endpoint + "/" + param.Counter)
+		done := make(chan error, 1)
 		if items_size > 0 {
-			resp := &cmodel.SimpleRpcResponse{}
-			err := rrdtool.Jsonrpc_call(client, "Graph.Send", items, resp,
-				time.Duration(cfg.CallTimeout)*time.Millisecond)
-			if err != nil {
-				store.GraphItems.PushAll(ckey, items)
+			//rrdtool.Task_ch
+			rrdtool.Task_ch[node] <- rrdtool.Task_ch_t{
+				Method: "Graph.Send",
+				Done:   done,
+				Key:    key,
 			}
+			<-done
 		}
-		resp := &cmodel.SimpleRpcResponse{}
+		rrdtool.Task_ch[node] <- rrdtool.Task_ch_t{
+			Method: "Graph.Query",
+			Done:   done,
+			Args:   param,
+			Reply:  resp,
+		}
+		err := <-done
 		// danger!!! query call query!!!
-		return rrdtool.Jsonrpc_call(client, "Graph.Query", param, resp,
-			time.Duration(cfg.CallTimeout)*time.Millisecond)
+		return err
 	}
 
 	// read data from rrd file
