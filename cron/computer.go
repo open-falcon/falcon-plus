@@ -14,7 +14,7 @@ func compute(operands []string, operators []uint8, hostname string, valMap map[s
 	val = vals[0]
 
 	for i := 1; i < count; i++ {
-		if operators[i] == '+' {
+		if operators[i-1] == '+' {
 			val += vals[i]
 		} else {
 			val -= vals[i]
