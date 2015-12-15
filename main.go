@@ -80,6 +80,7 @@ func main() {
 	index.Start()
 	// start http server
 	go http.Start()
+	// migrate routine
 	store.Start()
 
 	start_signal(os.Getpid(), g.Config())
