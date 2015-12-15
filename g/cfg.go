@@ -29,13 +29,14 @@ type DBConfig struct {
 }
 
 type GlobalConfig struct {
-	Pid     string      `json:"pid"`
-	Debug   bool        `json:"debug"`
-	Http    *HttpConfig `json:"http"`
-	Rpc     *RpcConfig  `json:"rpc"`
-	RRD     *RRDConfig  `json:"rrd"`
-	DB      *DBConfig   `json:"db"`
-	Migrate struct {
+	Pid         string      `json:"pid"`
+	Debug       bool        `json:"debug"`
+	Http        *HttpConfig `json:"http"`
+	Rpc         *RpcConfig  `json:"rpc"`
+	RRD         *RRDConfig  `json:"rrd"`
+	DB          *DBConfig   `json:"db"`
+	CallTimeout int32       `json:"callTimeout"`
+	Migrate     struct {
 		Enabled  bool              `json:"enabled"`
 		Replicas int               `json:"replicas"`
 		Cluster  map[string]string `json:"cluster"`

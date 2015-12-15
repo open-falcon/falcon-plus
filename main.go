@@ -70,7 +70,8 @@ func main() {
 	// init db
 	g.InitDB()
 
-	//sender.Start()
+	// migrate routine
+	store.Start()
 
 	// start rrdtool
 	rrdtool.Start()
@@ -80,8 +81,6 @@ func main() {
 	index.Start()
 	// start http server
 	go http.Start()
-	// migrate routine
-	store.Start()
 
 	start_signal(os.Getpid(), g.Config())
 }

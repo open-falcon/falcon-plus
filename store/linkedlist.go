@@ -8,9 +8,9 @@ import (
 )
 
 const (
-	GRAPH_F_MISS     = 0x01
-	GRAPH_F_FETCHING = 0x02
-	GRAPH_F_ERR      = 0x04
+	GRAPH_F_MISS    uint32 = 0x01
+	GRAPH_F_SENDING uint32 = 0x02
+	GRAPH_F_ERR     uint32 = 0x04
 )
 
 type SafeLinkedList struct {
@@ -64,13 +64,13 @@ func (this *SafeLinkedList) Len() int {
 // remain参数表示要给linkedlist中留几个元素
 // 在cron中刷磁盘的时候要留一个，用于创建数据库索引
 // 在程序退出的时候要一个不留的全部刷到磁盘
-func (this *SafeLinkedList) PopAll() []*cmodel.GraphItem {
+func (this *SafeLinkedList) PopAll() ([]*cmodel.GraphItem, uint32) {
 	this.Lock()
 	defer this.Unlock()
 
 	size := this.L.Len()
 	if size <= 0 {
-		return []*cmodel.GraphItem{}
+		return []*cmodel.GraphItem{}, 0
 	}
 
 	ret := make([]*cmodel.GraphItem, 0, size)
@@ -81,7 +81,20 @@ func (this *SafeLinkedList) PopAll() []*cmodel.GraphItem {
 		this.L.Remove(item)
 	}
 
-	return ret
+	return ret, this.Flag
+}
+
+//restore PushAll
+func (this *SafeLinkedList) PushAll(items []*cmodel.GraphItem) {
+	this.Lock()
+	defer this.Unlock()
+
+	size := len(items)
+	if size > 0 {
+		for i := size - 1; i >= 0; i-- {
+			this.L.PushBack(items[i])
+		}
+	}
 }
 
 //return为倒叙的?

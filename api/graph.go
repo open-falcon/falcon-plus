@@ -86,8 +86,15 @@ func handleItems(items []*cmodel.GraphItem) {
 }
 
 func (this *Graph) Query(param cmodel.GraphQueryParam, resp *cmodel.GraphQueryResponse) error {
+	var (
+		datas      []*cmodel.RRDData
+		datas_size int
+	)
+
 	// statistics
 	proc.GraphQueryCnt.Incr()
+
+	cfg := g.Config()
 
 	// form empty response
 	resp.Values = []*cmodel.RRDData{}
@@ -108,13 +115,35 @@ func (this *Graph) Query(param cmodel.GraphQueryParam, resp *cmodel.GraphQueryRe
 
 	md5 := cutils.Md5(param.Endpoint + "/" + param.Counter)
 	ckey := g.FormRrdCacheKey(md5, dsType, step)
-	filename := g.RrdFileName(g.Config().RRD.Storage, md5, dsType, step)
-	// read data from rrd file
-	datas, _ := rrdtool.Fetch(filename, param.ConsolFun, start_ts, end_ts, step)
-	datas_size := len(datas)
+	filename := g.RrdFileName(cfg.RRD.Storage, md5, dsType, step)
+
 	// read cached items
-	items := store.GraphItems.FetchAll(ckey)
+	items, flag := store.GraphItems.FetchAll(ckey)
 	items_size := len(items)
+
+	if cfg.Migrate.Enabled && flag&store.GRAPH_F_MISS != 0 {
+		items, _ := store.GraphItems.PopAll(ckey)
+		items_size := len(items)
+		node, _ := store.GraphItems.Consistent.Get(param.Endpoint + "/" + param.Counter)
+		client := store.GraphItems.Client[node]
+		//update items befor get from remote
+		if items_size > 0 {
+			resp := &cmodel.SimpleRpcResponse{}
+			err := store.Jsonrpc_call(client, "Graph.Send", items, resp,
+				time.Duration(cfg.CallTimeout)*time.Millisecond)
+			if err != nil {
+				store.GraphItems.PushAll(ckey, items)
+			}
+		}
+		resp := &cmodel.SimpleRpcResponse{}
+		// danger!!! query call query!!!
+		return store.Jsonrpc_call(client, "Graph.Query", param, resp,
+			time.Duration(cfg.CallTimeout)*time.Millisecond)
+	}
+
+	// read data from rrd file
+	datas, _ = rrdtool.Fetch(filename, param.ConsolFun, start_ts, end_ts, step)
+	datas_size = len(datas)
 
 	nowTs := time.Now().Unix()
 	lastUpTs := nowTs - nowTs%int64(step)

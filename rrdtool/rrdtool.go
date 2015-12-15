@@ -191,7 +191,9 @@ func FlushAll() {
 }
 
 func FlushRRD(idx int) {
-	storageDir := g.Config().RRD.Storage
+	cfg := g.Config()
+
+	storageDir := cfg.RRD.Storage
 
 	keys := store.GraphItems.KeysByIndex(idx)
 	if len(keys) == 0 {
@@ -205,14 +207,29 @@ func FlushRRD(idx int) {
 			continue
 		}
 
-		items := store.GraphItems.PopAll(ckey)
+		items, flag := store.GraphItems.PopAll(ckey)
 		size := len(items)
 		if size == 0 {
 			continue
 		}
 
-		filename := g.RrdFileName(storageDir, checksum, dsType, step)
-		Flush(filename, items)
-		Counter += 1
+		if flag&store.GRAPH_F_MISS != 0 {
+			//remote
+			store.GraphItems.SetFlag(ckey, flag|store.GRAPH_F_SENDING)
+			defer store.GraphItems.SetFlag(ckey, flag)
+			node, _ := store.GraphItems.Consistent.Get(items[0].PrimaryKey())
+			client := store.GraphItems.Client[node]
+			resp := &cmodel.SimpleRpcResponse{}
+			err := store.Jsonrpc_call(client, "Graph.Send", items, resp,
+				time.Duration(cfg.CallTimeout)*time.Millisecond)
+			if err != nil {
+				store.GraphItems.PushAll(ckey, items)
+			}
+		} else {
+			//local
+			filename := g.RrdFileName(storageDir, checksum, dsType, step)
+			Flush(filename, items)
+			Counter += 1
+		}
 	}
 }

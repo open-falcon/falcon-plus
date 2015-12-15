@@ -3,6 +3,7 @@ package store
 import (
 	"container/list"
 	"encoding/base64"
+	"errors"
 	"hash/crc32"
 	"io/ioutil"
 	"log"
@@ -35,9 +36,9 @@ type GraphItemMap struct {
 	sync.RWMutex
 	A          []map[string]*SafeLinkedList
 	Size       int
-	fetch_list map[string]*SafeLinkedList
-	client     map[string]*rpc.Client
-	consistent *consistent.Consistent
+	Fetch_list map[string]*SafeLinkedList
+	Client     map[string]*rpc.Client
+	Consistent *consistent.Consistent
 }
 
 func (this *GraphItemMap) Get(key string) (*SafeLinkedList, bool) {
@@ -90,27 +91,51 @@ func (this *GraphItemMap) First(key string) *cmodel.GraphItem {
 	return first.Value.(*cmodel.GraphItem)
 }
 
-func (this *GraphItemMap) PopAll(key string) []*cmodel.GraphItem {
+func (this *GraphItemMap) PushAll(key string, items []*cmodel.GraphItem) error {
 	this.Lock()
 	defer this.Unlock()
 	idx := hashKey(key) % uint32(this.Size)
 	L, ok := this.A[idx][key]
-	if !ok || (L.Flag&GRAPH_F_MISS) != 0 {
-		return []*cmodel.GraphItem{}
+	if !ok {
+		return errors.New("not exist")
+	}
+	L.PushAll(items)
+	return nil
+}
+
+func (this *GraphItemMap) SetFlag(key string, flag uint32) error {
+	this.Lock()
+	defer this.Unlock()
+	idx := hashKey(key) % uint32(this.Size)
+	L, ok := this.A[idx][key]
+	if !ok {
+		return errors.New("not exist")
+	}
+	L.Flag = flag
+	return nil
+}
+
+func (this *GraphItemMap) PopAll(key string) ([]*cmodel.GraphItem, uint32) {
+	this.Lock()
+	defer this.Unlock()
+	idx := hashKey(key) % uint32(this.Size)
+	L, ok := this.A[idx][key]
+	if !ok {
+		return []*cmodel.GraphItem{}, 0
 	}
 	return L.PopAll()
 }
 
-func (this *GraphItemMap) FetchAll(key string) []*cmodel.GraphItem {
+func (this *GraphItemMap) FetchAll(key string) ([]*cmodel.GraphItem, uint32) {
 	this.RLock()
 	defer this.RUnlock()
 	idx := hashKey(key) % uint32(this.Size)
 	L, ok := this.A[idx][key]
 	if !ok {
-		return []*cmodel.GraphItem{}
+		return []*cmodel.GraphItem{}, 0
 	}
 
-	return L.FetchAll()
+	return L.FetchAll(), L.Flag
 }
 
 func hashKey(key string) uint32 {
@@ -143,8 +168,8 @@ func (this *GraphItemMap) PushFront(key string,
 				Dstype: item.DsType,
 				Step:   item.Step,
 				sl:     safeList}
-			node, _ := this.consistent.Get(item.PrimaryKey())
-			this.fetch_list[node].PushFront(f)
+			node, _ := this.Consistent.Get(item.PrimaryKey())
+			this.Fetch_list[node].PushFront(f)
 		}
 		this.Set(key, safeList)
 	}
@@ -167,6 +192,22 @@ func (this *GraphItemMap) KeysByIndex(idx int) []string {
 	return keys
 }
 
+func Jsonrpc_call(client *rpc.Client, method string, args interface{},
+	reply interface{}, timeout time.Duration) error {
+	done := make(chan *rpc.Call, 1)
+	client.Go(method, args, reply, done)
+	select {
+	case <-time.After(timeout):
+		return errors.New("timeout")
+	case call := <-done:
+		if call.Error == nil {
+			return nil
+		} else {
+			return call.Error
+		}
+	}
+}
+
 func fetch_rrd(client *rpc.Client, queue *SafeLinkedList, node, addr string) {
 	var rrdfile File64
 	var err error
@@ -180,9 +221,9 @@ func fetch_rrd(client *rpc.Client, queue *SafeLinkedList, node, addr string) {
 			continue
 		}
 		rrd := entry.Value.(*Fetch_rrd)
-		//todo: call jsonrpc to fetch rrd file
 		time.Sleep(time.Second)
-		err = client.Call("Graph.GetRrd", rrd, &rrdfile)
+		err = Jsonrpc_call(client, "Graph.GetRrd", rrd, &rrdfile,
+			time.Duration(cfg.CallTimeout)*time.Millisecond)
 
 		// reconnection
 		if err != nil {
@@ -224,16 +265,16 @@ func Start() {
 	cfg := g.Config()
 
 	if cfg.Migrate.Enabled {
-		GraphItems.consistent = consistent.New()
-		GraphItems.consistent.NumberOfReplicas = cfg.Migrate.Replicas
+		GraphItems.Consistent = consistent.New()
+		GraphItems.Consistent.NumberOfReplicas = cfg.Migrate.Replicas
 
 		for node, addr := range cfg.Migrate.Cluster {
-			GraphItems.consistent.Add(node)
-			if GraphItems.client[node], err = jsonrpc.Dial("tcp", addr); err != nil {
+			GraphItems.Consistent.Add(node)
+			if GraphItems.Client[node], err = jsonrpc.Dial("tcp", addr); err != nil {
 				log.Fatalf("node:%s addr:%s err:%s\n", node, addr, err)
 			}
-			GraphItems.fetch_list[node] = &SafeLinkedList{L: list.New()}
-			go fetch_rrd(GraphItems.client[node], GraphItems.fetch_list[node],
+			GraphItems.Fetch_list[node] = &SafeLinkedList{L: list.New()}
+			go fetch_rrd(GraphItems.Client[node], GraphItems.Fetch_list[node],
 				node, addr)
 			log.Printf("store.Start()[%s][%s] done\n", node, addr)
 		}
@@ -249,8 +290,8 @@ func init() {
 	GraphItems = &GraphItemMap{
 		A:          make([]map[string]*SafeLinkedList, size),
 		Size:       size,
-		fetch_list: make(map[string]*SafeLinkedList),
-		client:     make(map[string]*rpc.Client),
+		Fetch_list: make(map[string]*SafeLinkedList),
+		Client:     make(map[string]*rpc.Client),
 	}
 	for i := 0; i < size; i++ {
 		GraphItems.A[i] = make(map[string]*SafeLinkedList)
