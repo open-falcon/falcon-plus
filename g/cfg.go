@@ -3,7 +3,8 @@ package g
 import (
 	"encoding/json"
 	"log"
-	"sync"
+	"sync/atomic"
+	"unsafe"
 
 	"github.com/toolkits/file"
 )
@@ -43,14 +44,11 @@ type GlobalConfig struct {
 
 var (
 	ConfigFile string
-	config     *GlobalConfig
-	configLock = new(sync.RWMutex)
+	ptr        unsafe.Pointer
 )
 
 func Config() *GlobalConfig {
-	configLock.RLock()
-	defer configLock.RUnlock()
-	return config
+	return (*GlobalConfig)(atomic.LoadPointer(&ptr))
 }
 
 func ParseConfig(cfg string) {
@@ -80,9 +78,7 @@ func ParseConfig(cfg string) {
 	}
 
 	// set config
-	configLock.Lock()
-	defer configLock.Unlock()
-	config = &c
+	atomic.StorePointer(&ptr, unsafe.Pointer(&c))
 
 	log.Println("g.ParseConfig ok, file", cfg)
 }
