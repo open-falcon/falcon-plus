@@ -15,8 +15,10 @@
 		"dsn": "root:@tcp(127.0.0.1:3306)/graph?loc=Local&parseTime=true",
 		"maxIdle": 4
 	},
+	"callTimeout": 5000,
 	"migrate": {
 		"enabled": false,
+		"worker_size": 5,
 		"replicas": 500,
 		"cluster": {
 			"graph-00" : "127.0.0.1:6070"

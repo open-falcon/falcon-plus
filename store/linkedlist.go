@@ -7,12 +7,6 @@ import (
 	cmodel "github.com/open-falcon/common/model"
 )
 
-const (
-	GRAPH_F_MISS    uint32 = 0x01
-	GRAPH_F_SENDING uint32 = 0x02
-	GRAPH_F_ERR     uint32 = 0x04
-)
-
 type SafeLinkedList struct {
 	sync.RWMutex
 	Flag uint32
@@ -64,13 +58,13 @@ func (this *SafeLinkedList) Len() int {
 // remain参数表示要给linkedlist中留几个元素
 // 在cron中刷磁盘的时候要留一个，用于创建数据库索引
 // 在程序退出的时候要一个不留的全部刷到磁盘
-func (this *SafeLinkedList) PopAll() ([]*cmodel.GraphItem, uint32) {
+func (this *SafeLinkedList) PopAll() []*cmodel.GraphItem {
 	this.Lock()
 	defer this.Unlock()
 
 	size := this.L.Len()
 	if size <= 0 {
-		return []*cmodel.GraphItem{}, 0
+		return []*cmodel.GraphItem{}
 	}
 
 	ret := make([]*cmodel.GraphItem, 0, size)
@@ -81,7 +75,7 @@ func (this *SafeLinkedList) PopAll() ([]*cmodel.GraphItem, uint32) {
 		this.L.Remove(item)
 	}
 
-	return ret, this.Flag
+	return ret
 }
 
 //restore PushAll

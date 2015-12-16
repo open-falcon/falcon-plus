@@ -4,7 +4,10 @@ import (
 	"errors"
 	"log"
 	"math"
+	"net/rpc"
+	"net/rpc/jsonrpc"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	cmodel "github.com/open-falcon/common/model"
@@ -13,15 +16,48 @@ import (
 
 	"github.com/open-falcon/graph/g"
 	"github.com/open-falcon/graph/store"
+	"stathat.com/c/consistent"
 )
 
-var Counter uint64
+var (
+	Out_done_chan    chan int
+	Counter          uint64
+	Fetch_list       map[string]*store.SafeLinkedList
+	Client           map[string]*rpc.Client
+	Consistent       *consistent.Consistent
+	task_key_ch      chan string
+	flushrrd_timeout int32
+)
+
+func init() {
+	Out_done_chan = make(chan int, 1)
+	Consistent = consistent.New()
+	Client = make(map[string]*rpc.Client)
+	task_key_ch = make(chan string, 1)
+}
 
 func Start() {
+	cfg := g.Config()
+	var err error
 	// check data dir
-	dataDir := g.Config().RRD.Storage
-	if err := file.EnsureDirRW(dataDir); err != nil {
-		log.Fatalln("rrdtool.Start error, bad data dir", dataDir+",", err)
+	if err = file.EnsureDirRW(cfg.RRD.Storage); err != nil {
+		log.Fatalln("rrdtool.Start error, bad data dir "+cfg.RRD.Storage+",", err)
+	}
+
+	if cfg.Migrate.Enabled {
+		Consistent.NumberOfReplicas = cfg.Migrate.Replicas
+
+		for node, addr := range cfg.Migrate.Cluster {
+			Consistent.Add(node)
+			if Client[node], err = jsonrpc.Dial("tcp", addr); err != nil {
+				log.Fatalf("node:%s addr:%s err:%s\n", node, addr, err)
+			}
+		}
+
+		// task workers
+		for i := int(0); i < cfg.Migrate.Worker_number; i++ {
+			go task_worker(i)
+		}
 	}
 
 	// sync disk
@@ -192,6 +228,8 @@ func FlushAll() {
 
 func FlushRRD(idx int) {
 	cfg := g.Config()
+	begin := time.Now()
+	atomic.StoreInt32(&flushrrd_timeout, 0)
 
 	storageDir := cfg.RRD.Storage
 
@@ -200,34 +238,28 @@ func FlushRRD(idx int) {
 		return
 	}
 
-	for _, ckey := range keys {
+	for _, key := range keys {
+		if time.Since(begin) > time.Millisecond*g.FLUSH_DISK_STEP {
+			atomic.StoreInt32(&flushrrd_timeout, 1)
+		}
 		// get md5, dstype, step
-		checksum, dsType, step, err := g.SplitRrdCacheKey(ckey)
+		md5, dsType, step, err := g.SplitRrdCacheKey(key)
 		if err != nil {
 			continue
 		}
+		filename := g.RrdFileName(storageDir, md5, dsType, step)
+		flag, _ := store.GraphItems.GetFlag(key)
 
-		items, flag := store.GraphItems.PopAll(ckey)
-		size := len(items)
-		if size == 0 {
-			continue
-		}
-
-		if flag&store.GRAPH_F_MISS != 0 {
-			//remote
-			store.GraphItems.SetFlag(ckey, flag|store.GRAPH_F_SENDING)
-			defer store.GraphItems.SetFlag(ckey, flag)
-			node, _ := store.GraphItems.Consistent.Get(items[0].PrimaryKey())
-			client := store.GraphItems.Client[node]
-			resp := &cmodel.SimpleRpcResponse{}
-			err := store.Jsonrpc_call(client, "Graph.Send", items, resp,
-				time.Duration(cfg.CallTimeout)*time.Millisecond)
-			if err != nil {
-				store.GraphItems.PushAll(ckey, items)
-			}
+		if cfg.Migrate.Enabled && flag&g.GRAPH_F_MISS != 0 {
+			task_key_ch <- key
 		} else {
 			//local
-			filename := g.RrdFileName(storageDir, checksum, dsType, step)
+			items := store.GraphItems.PopAll(key)
+			size := len(items)
+			if size == 0 {
+				continue
+			}
+
 			Flush(filename, items)
 			Counter += 1
 		}

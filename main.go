@@ -13,7 +13,6 @@ import (
 	"github.com/open-falcon/graph/http"
 	"github.com/open-falcon/graph/index"
 	"github.com/open-falcon/graph/rrdtool"
-	"github.com/open-falcon/graph/store"
 )
 
 func start_signal(pid int, cfg *g.GlobalConfig) {
@@ -69,14 +68,10 @@ func main() {
 	g.ParseConfig(*cfg)
 	// init db
 	g.InitDB()
-
-	// migrate routine
-	store.Start()
-
-	// start rrdtool
-	rrdtool.Start()
 	// start api
 	go api.Start()
+	// start rrdtool
+	rrdtool.Start()
 	// start indexing
 	index.Start()
 	// start http server

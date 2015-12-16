@@ -18,9 +18,12 @@ import (
 
 type Graph int
 
-func (this *Graph) GetRrd(entry store.Fetch_rrd, rrdfile *store.File64) error {
-
-	rrdfile.Filename = g.RrdFileName(g.Config().RRD.Storage, entry.Md5, entry.Dstype, entry.Step)
+func (this *Graph) GetRrd(key string, rrdfile *g.File64) error {
+	if md5, dsType, step, err := g.SplitRrdCacheKey(key); err != nil {
+		return err
+	} else {
+		rrdfile.Filename = g.RrdFileName(g.Config().RRD.Storage, md5, dsType, step)
+	}
 
 	if f, err := ioutil.ReadFile(rrdfile.Filename); err != nil {
 		return err
@@ -121,15 +124,15 @@ func (this *Graph) Query(param cmodel.GraphQueryParam, resp *cmodel.GraphQueryRe
 	items, flag := store.GraphItems.FetchAll(ckey)
 	items_size := len(items)
 
-	if cfg.Migrate.Enabled && flag&store.GRAPH_F_MISS != 0 {
-		items, _ := store.GraphItems.PopAll(ckey)
+	if cfg.Migrate.Enabled && flag&g.GRAPH_F_MISS != 0 {
+		items := store.GraphItems.PopAll(ckey)
 		items_size := len(items)
-		node, _ := store.GraphItems.Consistent.Get(param.Endpoint + "/" + param.Counter)
-		client := store.GraphItems.Client[node]
+		node, _ := rrdtool.Consistent.Get(param.Endpoint + "/" + param.Counter)
+		client := rrdtool.Client[node]
 		//update items befor get from remote
 		if items_size > 0 {
 			resp := &cmodel.SimpleRpcResponse{}
-			err := store.Jsonrpc_call(client, "Graph.Send", items, resp,
+			err := rrdtool.Jsonrpc_call(client, "Graph.Send", items, resp,
 				time.Duration(cfg.CallTimeout)*time.Millisecond)
 			if err != nil {
 				store.GraphItems.PushAll(ckey, items)
@@ -137,7 +140,7 @@ func (this *Graph) Query(param cmodel.GraphQueryParam, resp *cmodel.GraphQueryRe
 		}
 		resp := &cmodel.SimpleRpcResponse{}
 		// danger!!! query call query!!!
-		return store.Jsonrpc_call(client, "Graph.Query", param, resp,
+		return rrdtool.Jsonrpc_call(client, "Graph.Query", param, resp,
 			time.Duration(cfg.CallTimeout)*time.Millisecond)
 	}
 
