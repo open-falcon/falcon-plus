@@ -222,7 +222,11 @@ func FlushRRD(idx int) {
 	for _, key := range keys {
 		flag, _ = store.GraphItems.GetFlag(key)
 
-		if cfg.Migrate.Enabled && flag&g.GRAPH_F_MISS != 0 {
+		//write err data to local filename
+		if cfg.Migrate.Enabled &&
+			flag&g.GRAPH_F_MISS != 0 &&
+			flag&g.GRAPH_F_ERR == 0 {
+
 			if time.Since(begin) > time.Millisecond*g.FLUSH_DISK_STEP {
 				atomic.StoreInt32(&flushrrd_timeout, 1)
 			}
@@ -234,6 +238,9 @@ func FlushRRD(idx int) {
 			}
 			Task_ch[node] <- &Task_t{Key: key}
 		} else {
+			if flag&g.GRAPH_F_ERR != 0 {
+				store.GraphItems.SetFlag(key, 0)
+			}
 			if md5, dsType, step, err = g.SplitRrdCacheKey(key); err != nil {
 				continue
 			}
