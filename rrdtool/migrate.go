@@ -33,6 +33,7 @@ func send_data(key string) error {
 		err    error
 		flag   uint32
 		node   string
+		addr   string
 		client *rpc.Client
 		resp   *cmodel.SimpleRpcResponse
 	)
@@ -55,9 +56,26 @@ func send_data(key string) error {
 	client = Client[node]
 	resp = &cmodel.SimpleRpcResponse{}
 
-	if err = Jsonrpc_call(client, "Graph.Send", items, resp,
-		time.Duration(cfg.CallTimeout)*time.Millisecond); err != nil {
+	err = Jsonrpc_call(client, "Graph.Send", items, resp,
+		time.Duration(cfg.CallTimeout)*time.Millisecond)
+
+	// reconnection
+	if err != nil {
 		store.GraphItems.PushAll(key, items)
+
+		conn.Lock()
+		client.Close()
+		addr = cfg.Migrate.Cluster[node]
+		client, err = jsonrpc.Dial("tcp", addr)
+		conn.Unlock()
+
+		for err != nil {
+			//danger!! block routine
+			time.Sleep(time.Millisecond * 500)
+			conn.Lock()
+			client, err = jsonrpc.Dial("tcp", addr)
+			conn.Unlock()
+		}
 		goto err_out
 	}
 	goto out

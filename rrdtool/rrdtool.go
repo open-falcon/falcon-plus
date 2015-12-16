@@ -24,6 +24,7 @@ var (
 	Counter          uint64
 	Fetch_list       map[string]*store.SafeLinkedList
 	Client           map[string]*rpc.Client
+	conn             *sync.Mutex
 	Consistent       *consistent.Consistent
 	task_key_ch      chan string
 	flushrrd_timeout int32
@@ -34,6 +35,7 @@ func init() {
 	Consistent = consistent.New()
 	Client = make(map[string]*rpc.Client)
 	task_key_ch = make(chan string, 1)
+	conn = &sync.Mutex{}
 }
 
 func Start() {
