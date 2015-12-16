@@ -25,6 +25,11 @@ func (this *Graph) GetRrd(key string, rrdfile *g.File64) error {
 		rrdfile.Filename = g.RrdFileName(g.Config().RRD.Storage, md5, dsType, step)
 	}
 
+	items := store.GraphItems.PopAll(key)
+	if len(items) > 0 {
+		rrdtool.Flush(rrdfile.Filename, items)
+	}
+
 	if f, err := ioutil.ReadFile(rrdfile.Filename); err != nil {
 		return err
 	} else {
