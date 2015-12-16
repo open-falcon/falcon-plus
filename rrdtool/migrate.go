@@ -3,6 +3,7 @@ package rrdtool
 import (
 	"encoding/base64"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/rpc"
@@ -25,17 +26,42 @@ type Task_t struct {
 	Reply  interface{}
 }
 
+const (
+	FETCH_S_SUCCESS = iota
+	FETCH_S_ERR
+	SEND_S_SUCCESS
+	SEND_S_ERR
+	QUERY_S_SUCCESS
+	QUERY_S_ERR
+	CONN_S_ERR
+	CONN_S_DIAL
+	STAT_SIZE
+)
+
 var (
 	Consistent       *consistent.Consistent
 	Task_ch          map[string]chan *Task_t
 	clients          map[string][]*rpc.Client
 	flushrrd_timeout int32
+	stat_cnt         [STAT_SIZE]uint64
 )
 
 func init() {
 	Consistent = consistent.New()
 	Task_ch = make(map[string]chan *Task_t)
 	clients = make(map[string][]*rpc.Client)
+}
+
+func GetCounter() (ret string) {
+	return fmt.Sprintf("FETCH_S_SUCCESS[%d] FETCH_S_ERR[%d] SEND_S_SUCCESS[%d] SEND_S_ERR[%d] QUERY_S_SUCCESS[%d] QUERY_S_ERR[%d] CONN_S_ERR[%d] CONN_S_DIAL[%d]",
+		atomic.LoadUint64(&stat_cnt[FETCH_S_SUCCESS]),
+		atomic.LoadUint64(&stat_cnt[FETCH_S_ERR]),
+		atomic.LoadUint64(&stat_cnt[SEND_S_SUCCESS]),
+		atomic.LoadUint64(&stat_cnt[SEND_S_ERR]),
+		atomic.LoadUint64(&stat_cnt[QUERY_S_SUCCESS]),
+		atomic.LoadUint64(&stat_cnt[QUERY_S_ERR]),
+		atomic.LoadUint64(&stat_cnt[CONN_S_ERR]),
+		atomic.LoadUint64(&stat_cnt[CONN_S_DIAL]))
 }
 
 func migrate_start(cfg *g.GlobalConfig) {
@@ -67,15 +93,31 @@ func task_worker(idx int, ch chan *Task_t, client *rpc.Client, node, addr string
 		select {
 		case task := <-ch:
 			if task.Method == "Graph.Send" {
-				err = send_data(client, task.Key, addr)
+				if err = send_data(client, task.Key, addr); err != nil {
+					atomic.AddUint64(&stat_cnt[SEND_S_ERR], 1)
+				} else {
+					atomic.AddUint64(&stat_cnt[SEND_S_SUCCESS], 1)
+				}
 			} else if task.Method == "Graph.Query" {
-				err = query_data(client, addr, task.Args, task.Reply)
+				if err = query_data(client, addr, task.Args, task.Reply); err != nil {
+					atomic.AddUint64(&stat_cnt[QUERY_S_ERR], 1)
+				} else {
+					atomic.AddUint64(&stat_cnt[QUERY_S_SUCCESS], 1)
+				}
 			} else {
 				if atomic.LoadInt32(&flushrrd_timeout) != 0 {
 					// hope this more faster than fetch_rrd
-					err = send_data(client, task.Key, addr)
+					if err = send_data(client, task.Key, addr); err != nil {
+						atomic.AddUint64(&stat_cnt[SEND_S_ERR], 1)
+					} else {
+						atomic.AddUint64(&stat_cnt[SEND_S_SUCCESS], 1)
+					}
 				} else {
-					err = fetch_rrd(client, task.Key, addr)
+					if err = fetch_rrd(client, task.Key, addr); err != nil {
+						atomic.AddUint64(&stat_cnt[FETCH_S_ERR], 1)
+					} else {
+						atomic.AddUint64(&stat_cnt[FETCH_S_SUCCESS], 1)
+					}
 				}
 			}
 			if task.Done != nil {
@@ -87,12 +129,18 @@ func task_worker(idx int, ch chan *Task_t, client *rpc.Client, node, addr string
 
 func reconnection(client *rpc.Client, addr string) {
 	var err error
+
+	atomic.AddUint64(&stat_cnt[CONN_S_ERR], 1)
 	client.Close()
+
 	client, err = jsonrpc.Dial("tcp", addr)
+	atomic.AddUint64(&stat_cnt[CONN_S_DIAL], 1)
+
 	for err != nil {
 		//danger!! block routine
 		time.Sleep(time.Millisecond * 500)
 		client, err = jsonrpc.Dial("tcp", addr)
+		atomic.AddUint64(&stat_cnt[CONN_S_DIAL], 1)
 	}
 }
 
