@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net"
 	"net/rpc"
 	"net/rpc/jsonrpc"
 	"sync/atomic"
@@ -64,10 +65,18 @@ func GetCounter() (ret string) {
 		atomic.LoadUint64(&stat_cnt[CONN_S_DIAL]))
 }
 
+func dial(network, address string, timeout time.Duration) (*rpc.Client, error) {
+	d := net.Dialer{Timeout: timeout}
+	conn, err := d.Dial(network, address)
+	if err != nil {
+		return nil, err
+	}
+	return jsonrpc.NewClient(conn), err
+}
+
 func migrate_start(cfg *g.GlobalConfig) {
 	var err error
 	var i int
-	var client *rpc.Client
 	if cfg.Migrate.Enabled {
 		Consistent.NumberOfReplicas = cfg.Migrate.Replicas
 
@@ -77,17 +86,16 @@ func migrate_start(cfg *g.GlobalConfig) {
 			clients[node] = make([]*rpc.Client, cfg.Migrate.Concurrency)
 
 			for i = 0; i < cfg.Migrate.Concurrency; i++ {
-				if client, err = jsonrpc.Dial("tcp", addr); err != nil {
+				if clients[node][i], err = dial("tcp", addr, time.Second); err != nil {
 					log.Fatalf("node:%s addr:%s err:%s\n", node, addr, err)
 				}
-				clients[node][i] = client
-				go task_worker(i, Task_ch[node], client, node, addr)
+				go task_worker(i, Task_ch[node], clients[node][i], addr)
 			}
 		}
 	}
 }
 
-func task_worker(idx int, ch chan *Task_t, client *rpc.Client, node, addr string) {
+func task_worker(idx int, ch chan *Task_t, client *rpc.Client, addr string) {
 	var err error
 	for {
 		select {
@@ -133,13 +141,13 @@ func reconnection(client *rpc.Client, addr string) {
 	atomic.AddUint64(&stat_cnt[CONN_S_ERR], 1)
 	client.Close()
 
-	client, err = jsonrpc.Dial("tcp", addr)
+	client, err = dial("tcp", addr, time.Second)
 	atomic.AddUint64(&stat_cnt[CONN_S_DIAL], 1)
 
 	for err != nil {
 		//danger!! block routine
 		time.Sleep(time.Millisecond * 500)
-		client, err = jsonrpc.Dial("tcp", addr)
+		client, err = dial("tcp", addr, time.Second)
 		atomic.AddUint64(&stat_cnt[CONN_S_DIAL], 1)
 	}
 }
@@ -269,7 +277,7 @@ func jsonrpc_call(client *rpc.Client, method string, args interface{},
 	client.Go(method, args, reply, done)
 	select {
 	case <-time.After(timeout):
-		return errors.New("timeout")
+		return errors.New("i/o timeout[jsonrpc]")
 	case call := <-done:
 		if call.Error == nil {
 			return nil
