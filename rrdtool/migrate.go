@@ -65,11 +65,17 @@ func GetCounter() (ret string) {
 		atomic.LoadUint64(&stat_cnt[CONN_S_DIAL]))
 }
 
-func dial(network, address string, timeout time.Duration) (*rpc.Client, error) {
+func dial(address string, timeout time.Duration) (*rpc.Client, error) {
 	d := net.Dialer{Timeout: timeout}
-	conn, err := d.Dial(network, address)
+	conn, err := d.Dial("tcp", address)
 	if err != nil {
 		return nil, err
+	}
+	if tc, ok := conn.(*net.TCPConn); ok {
+		if err := tc.SetKeepAlive(true); err != nil {
+			conn.Close()
+			return nil, err
+		}
 	}
 	return jsonrpc.NewClient(conn), err
 }
@@ -86,16 +92,16 @@ func migrate_start(cfg *g.GlobalConfig) {
 			clients[node] = make([]*rpc.Client, cfg.Migrate.Concurrency)
 
 			for i = 0; i < cfg.Migrate.Concurrency; i++ {
-				if clients[node][i], err = dial("tcp", addr, time.Second); err != nil {
+				if clients[node][i], err = dial(addr, time.Second); err != nil {
 					log.Fatalf("node:%s addr:%s err:%s\n", node, addr, err)
 				}
-				go task_worker(i, Task_ch[node], clients[node][i], addr)
+				go task_worker(i, Task_ch[node], &clients[node][i], addr)
 			}
 		}
 	}
 }
 
-func task_worker(idx int, ch chan *Task_t, client *rpc.Client, addr string) {
+func task_worker(idx int, ch chan *Task_t, client **rpc.Client, addr string) {
 	var err error
 	for {
 		select {
@@ -135,43 +141,52 @@ func task_worker(idx int, ch chan *Task_t, client *rpc.Client, addr string) {
 	}
 }
 
-func reconnection(client *rpc.Client, addr string) {
+func reconnection(client **rpc.Client, addr string) {
 	var err error
 
 	atomic.AddUint64(&stat_cnt[CONN_S_ERR], 1)
-	client.Close()
+	if *client != nil {
+		(*client).Close()
+	}
 
-	client, err = dial("tcp", addr, time.Second)
+	*client, err = dial(addr, time.Second)
 	atomic.AddUint64(&stat_cnt[CONN_S_DIAL], 1)
 
 	for err != nil {
 		//danger!! block routine
 		time.Sleep(time.Millisecond * 500)
-		client, err = dial("tcp", addr, time.Second)
+		*client, err = dial(addr, time.Second)
 		atomic.AddUint64(&stat_cnt[CONN_S_DIAL], 1)
 	}
 }
 
-func query_data(client *rpc.Client, addr string,
+func query_data(client **rpc.Client, addr string,
 	args interface{}, resp interface{}) error {
 	var (
 		err error
+		i   int
 	)
 
-	err = jsonrpc_call(client, "Graph.Query", args, resp,
-		time.Duration(g.Config().CallTimeout)*time.Millisecond)
+	for i = 0; i < 3; i++ {
+		err = jsonrpc_call(*client, "Graph.Query", args, resp,
+			time.Duration(g.Config().CallTimeout)*time.Millisecond)
 
-	if err != nil {
-		reconnection(client, addr)
+		if err == nil {
+			break
+		}
+		if err == rpc.ErrShutdown {
+			reconnection(client, addr)
+		}
 	}
 	return err
 }
 
-func send_data(client *rpc.Client, key string, addr string) error {
+func send_data(client **rpc.Client, key string, addr string) error {
 	var (
 		err  error
 		flag uint32
 		resp *cmodel.SimpleRpcResponse
+		i    int
 	)
 
 	//remote
@@ -189,17 +204,19 @@ func send_data(client *rpc.Client, key string, addr string) error {
 	}
 	resp = &cmodel.SimpleRpcResponse{}
 
-	err = jsonrpc_call(client, "Graph.Send", items, resp,
-		time.Duration(cfg.CallTimeout)*time.Millisecond)
+	for i = 0; i < 3; i++ {
+		err = jsonrpc_call(*client, "Graph.Send", items, resp,
+			time.Duration(cfg.CallTimeout)*time.Millisecond)
 
-	if err != nil {
-		store.GraphItems.PushAll(key, items)
-		reconnection(client, addr)
-		goto err_out
+		if err == nil {
+			goto out
+		}
+		if err == rpc.ErrShutdown {
+			reconnection(client, addr)
+		}
 	}
-	goto out
-
-err_out:
+	// err
+	store.GraphItems.PushAll(key, items)
 	flag |= g.GRAPH_F_ERR
 out:
 	flag &= ^g.GRAPH_F_SENDING
@@ -208,14 +225,14 @@ out:
 
 }
 
-func fetch_rrd(client *rpc.Client, key string, addr string) error {
+func fetch_rrd(client **rpc.Client, key string, addr string) error {
 	var (
 		err      error
 		flag     uint32
 		md5      string
 		dsType   string
 		filename string
-		step     int
+		step, i  int
 		rrdfile  g.File64
 		ctx      []byte
 	)
@@ -238,32 +255,30 @@ func fetch_rrd(client *rpc.Client, key string, addr string) error {
 		goto out
 	}
 
-	err = jsonrpc_call(client, "Graph.GetRrd", key, &rrdfile,
-		time.Duration(cfg.CallTimeout)*time.Millisecond)
+	for i = 0; i < 3; i++ {
+		err = jsonrpc_call(*client, "Graph.GetRrd", key, &rrdfile,
+			time.Duration(cfg.CallTimeout)*time.Millisecond)
 
-	if err != nil {
-		store.GraphItems.PushAll(key, items)
-		reconnection(client, addr)
-		goto err_out
-	}
-
-	if ctx, err = base64.StdEncoding.DecodeString(rrdfile.Body64); err != nil {
-		store.GraphItems.PushAll(key, items)
-		goto err_out
-	} else {
-		if err = ioutil.WriteFile(filename, ctx, 0644); err != nil {
-			store.GraphItems.PushAll(key, items)
-			goto err_out
-		} else {
-			flag &= ^g.GRAPH_F_MISS
-			Flush(filename, items)
-			goto out
+		if err == nil {
+			if ctx, err = base64.StdEncoding.DecodeString(rrdfile.Body64); err != nil {
+				goto err_out
+			} else {
+				if err = ioutil.WriteFile(filename, ctx, 0644); err != nil {
+					goto err_out
+				} else {
+					flag &= ^g.GRAPH_F_MISS
+					Flush(filename, items)
+					goto out
+				}
+			}
+		}
+		if err == rpc.ErrShutdown {
+			reconnection(client, addr)
 		}
 	}
-	//noneed
-	goto out
-
+	// err
 err_out:
+	store.GraphItems.PushAll(key, items)
 	flag |= g.GRAPH_F_ERR
 out:
 	flag &= ^g.GRAPH_F_FETCHING
