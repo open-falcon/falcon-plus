@@ -44,6 +44,7 @@ function start() {
     else
         echo "$app failed to start."
         return 1
+    fi
 }
 
 function stop() {
