@@ -92,7 +92,7 @@ func (this *SafeLinkedList) PushAll(items []*cmodel.GraphItem) {
 }
 
 //return为倒叙的?
-func (this *SafeLinkedList) FetchAll() []*cmodel.GraphItem {
+func (this *SafeLinkedList) FetchAll() ([]*cmodel.GraphItem, uint32) {
 	this.Lock()
 	defer this.Unlock()
 	count := this.L.Len()
@@ -104,5 +104,5 @@ func (this *SafeLinkedList) FetchAll() []*cmodel.GraphItem {
 		p = p.Prev()
 	}
 
-	return ret
+	return ret, this.Flag
 }

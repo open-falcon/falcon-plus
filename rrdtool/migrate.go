@@ -17,7 +17,7 @@ import (
 	"github.com/open-falcon/graph/store"
 )
 
-type Task_ch_t struct {
+type Task_t struct {
 	Method string
 	Key    string
 	Done   chan error
@@ -27,14 +27,14 @@ type Task_ch_t struct {
 
 var (
 	Consistent       *consistent.Consistent
-	Task_ch          map[string]chan Task_ch_t
+	Task_ch          map[string]chan *Task_t
 	clients          map[string][]*rpc.Client
 	flushrrd_timeout int32
 )
 
 func init() {
 	Consistent = consistent.New()
-	Task_ch = make(map[string]chan Task_ch_t)
+	Task_ch = make(map[string]chan *Task_t)
 	clients = make(map[string][]*rpc.Client)
 }
 
@@ -47,7 +47,7 @@ func migrate_start(cfg *g.GlobalConfig) {
 
 		for node, addr := range cfg.Migrate.Cluster {
 			Consistent.Add(node)
-			Task_ch[node] = make(chan Task_ch_t, 1)
+			Task_ch[node] = make(chan *Task_t, 1)
 			clients[node] = make([]*rpc.Client, cfg.Migrate.Concurrency)
 
 			for i = 0; i < cfg.Migrate.Concurrency; i++ {
@@ -61,7 +61,7 @@ func migrate_start(cfg *g.GlobalConfig) {
 	}
 }
 
-func task_worker(idx int, ch chan Task_ch_t, client *rpc.Client, node, addr string) {
+func task_worker(idx int, ch chan *Task_t, client *rpc.Client, node, addr string) {
 	var err error
 	for {
 		select {
@@ -102,7 +102,7 @@ func query_data(client *rpc.Client, addr string,
 		err error
 	)
 
-	err = Jsonrpc_call(client, "Graph.Query", args, resp,
+	err = jsonrpc_call(client, "Graph.Query", args, resp,
 		time.Duration(g.Config().CallTimeout)*time.Millisecond)
 
 	if err != nil {
@@ -133,7 +133,7 @@ func send_data(client *rpc.Client, key string, addr string) error {
 	}
 	resp = &cmodel.SimpleRpcResponse{}
 
-	err = Jsonrpc_call(client, "Graph.Send", items, resp,
+	err = jsonrpc_call(client, "Graph.Send", items, resp,
 		time.Duration(cfg.CallTimeout)*time.Millisecond)
 
 	if err != nil {
@@ -182,7 +182,7 @@ func fetch_rrd(client *rpc.Client, key string, addr string) error {
 		goto out
 	}
 
-	err = Jsonrpc_call(client, "Graph.GetRrd", key, &rrdfile,
+	err = jsonrpc_call(client, "Graph.GetRrd", key, &rrdfile,
 		time.Duration(cfg.CallTimeout)*time.Millisecond)
 
 	if err != nil {
@@ -215,7 +215,7 @@ out:
 	return err
 }
 
-func Jsonrpc_call(client *rpc.Client, method string, args interface{},
+func jsonrpc_call(client *rpc.Client, method string, args interface{},
 	reply interface{}, timeout time.Duration) error {
 	done := make(chan *rpc.Call, 1)
 	client.Go(method, args, reply, done)

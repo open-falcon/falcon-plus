@@ -36,7 +36,6 @@ func (this *Graph) GetRrd(key string, rrdfile *g.File64) error {
 		rrdfile.Body64 = base64.StdEncoding.EncodeToString(f)
 		return nil
 	}
-
 }
 
 func (this *Graph) Ping(req cmodel.NullRpcRequest, resp *cmodel.SimpleRpcResponse) error {
@@ -135,14 +134,14 @@ func (this *Graph) Query(param cmodel.GraphQueryParam, resp *cmodel.GraphQueryRe
 		done := make(chan error, 1)
 		if items_size > 0 {
 			//rrdtool.Task_ch
-			rrdtool.Task_ch[node] <- rrdtool.Task_ch_t{
+			rrdtool.Task_ch[node] <- &rrdtool.Task_t{
 				Method: "Graph.Send",
 				Done:   done,
 				Key:    key,
 			}
 			<-done
 		}
-		rrdtool.Task_ch[node] <- rrdtool.Task_ch_t{
+		rrdtool.Task_ch[node] <- &rrdtool.Task_t{
 			Method: "Graph.Query",
 			Done:   done,
 			Args:   param,

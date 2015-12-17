@@ -125,7 +125,7 @@ func (this *GraphItemMap) FetchAll(key string) ([]*cmodel.GraphItem, uint32) {
 		return []*cmodel.GraphItem{}, 0
 	}
 
-	return sl.FetchAll(), sl.Flag
+	return sl.FetchAll()
 }
 
 func hashKey(key string) uint32 {

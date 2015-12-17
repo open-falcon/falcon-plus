@@ -17,13 +17,8 @@ import (
 )
 
 var (
-	Out_done_chan chan int
-	Counter       uint64
+	Counter uint64
 )
-
-func init() {
-	Out_done_chan = make(chan int, 1)
-}
 
 func Start() {
 	cfg := g.Config()
@@ -237,7 +232,7 @@ func FlushRRD(idx int) {
 			if node, err = Consistent.Get(item.PrimaryKey()); err != nil {
 				continue
 			}
-			Task_ch[node] <- Task_ch_t{Key: key}
+			Task_ch[node] <- &Task_t{Key: key}
 		} else {
 			if md5, dsType, step, err = g.SplitRrdCacheKey(key); err != nil {
 				continue

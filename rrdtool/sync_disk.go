@@ -8,6 +8,14 @@ import (
 	"github.com/open-falcon/graph/store"
 )
 
+var (
+	Out_done_chan chan int
+)
+
+func init() {
+	Out_done_chan = make(chan int, 1)
+}
+
 func syncDisk() {
 	time.Sleep(time.Second * 300)
 	ticker := time.NewTicker(time.Millisecond * g.FLUSH_DISK_STEP).C
