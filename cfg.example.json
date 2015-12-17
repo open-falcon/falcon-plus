@@ -18,7 +18,7 @@
 	"callTimeout": 5000,
 	"migrate": {
 		"enabled": false,
-		"worker_size": 5,
+		"concurrency": 2,
 		"replicas": 500,
 		"cluster": {
 			"graph-00" : "127.0.0.1:6070"

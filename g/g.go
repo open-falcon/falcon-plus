@@ -22,18 +22,20 @@ import (
 // 0.5.5 use commom(rm model), fix sync disk
 
 const (
-	VERSION                 = "0.5.6"
-	GAUGE                   = "GAUGE"
-	DERIVE                  = "DERIVE"
-	COUNTER                 = "COUNTER"
-	CACHE_TIME              = 1800000 //ms
-	FLUSH_DISK_STEP         = 1000    //ms
-	DEFAULT_STEP            = 60      //s
-	MIN_STEP                = 30      //s
-	GRAPH_F_MISS     uint32 = 0x01
-	GRAPH_F_ERR      uint32 = 0x02
-	GRAPH_F_SENDING  uint32 = 0x04
-	GRAPH_F_FETCHING uint32 = 0x08
+	VERSION         = "0.5.6"
+	GAUGE           = "GAUGE"
+	DERIVE          = "DERIVE"
+	COUNTER         = "COUNTER"
+	CACHE_TIME      = 1800000 //ms
+	FLUSH_DISK_STEP = 1000    //ms
+	DEFAULT_STEP    = 60      //s
+	MIN_STEP        = 30      //s
+)
+const (
+	GRAPH_F_MISS uint32 = 1 << iota
+	GRAPH_F_ERR
+	GRAPH_F_SENDING
+	GRAPH_F_FETCHING
 )
 
 func init() {
