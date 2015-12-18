@@ -46,11 +46,12 @@ nodata所谓的异常，限定为 用户数据采集服务异常、falcon数据�
 ## 系统安装
 
 #### 准备工作
-这一节是写给Open-Falcon老用户的，新用户请忽略本小节、直接跳到[源码编译](#源码编译)部分即可。如果你已经使用Open-Falcon有一段时间，本次只是新增加一个nodata服务，那么你需要依次完成如下工作:
+nodata服务正常运行，依赖如下准备工作:
 
 + 确保已经建立mysql数据表falcon_portal.mockcfg。其中，[falcon_portal](https://github.com/open-falcon/scripts/blob/master/db_schema/portal-db-schema.sql)为portal组件的mysql数据库，mockcfg为存放nodata配置的数据表。mockcfg的建表语句，见[这里](https://github.com/nieanan/nodata/blob/master/scripts/nodata-db-schema.sql)。
-+ 确保已经更新了[portal组件](https://github.com/open-falcon/portal)。portal组件中，新增了对nodata配置的UI支持。
-+ 安装nodata后端服务。即本文的[后续部分](#源码编译)。
++ 确保[portal组件](https://github.com/open-falcon/portal)已经更新。portal组件中，新增了对nodata配置的UI支持。
++ 确保query组件版本不低于```1.4.3```。
++ 确保graph组件版本不低于```0.5.5```。
 
 #### 源码编译
 
