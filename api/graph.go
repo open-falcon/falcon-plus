@@ -96,6 +96,7 @@ func (this *Graph) Query(param cmodel.GraphQueryParam, resp *cmodel.GraphQueryRe
 	var (
 		datas      []*cmodel.RRDData
 		datas_size int
+		retry_nb   int
 	)
 
 	// statistics
@@ -128,7 +129,15 @@ func (this *Graph) Query(param cmodel.GraphQueryParam, resp *cmodel.GraphQueryRe
 	items, flag := store.GraphItems.FetchAll(key)
 	items_size := len(items)
 
+retry:
 	if cfg.Migrate.Enabled && flag&g.GRAPH_F_MISS != 0 {
+		/* Code is ugly, but sort of works, chan maybe better */
+		/* https://github.com/tjgq/broadcast/blob/master/broadcast.go  */
+		if flag&g.GRAPH_F_FETCHING != 0 && retry_nb < 20 {
+			time.Sleep(time.Millisecond * 100)
+			retry_nb++
+			goto retry
+		}
 		//update items befor get from remote
 		node, _ := rrdtool.Consistent.Get(param.Endpoint + "/" + param.Counter)
 		done := make(chan error, 1)
