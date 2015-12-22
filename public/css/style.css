@@ -1344,7 +1344,7 @@ overflow: hidden;
 padding: 20px 0 40px;
 }
 footer .site-source {
-background: url("/img/code.png") no-repeat scroll 0 2px transparent;
+background: url("../img/code.png") no-repeat scroll 0 2px transparent;
 float: left;
 padding-left: 46px;
 }
