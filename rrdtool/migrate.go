@@ -17,6 +17,7 @@ import (
 	cmodel "github.com/open-falcon/common/model"
 	"github.com/open-falcon/graph/g"
 	"github.com/open-falcon/graph/store"
+	"github.com/toolkits/file"
 )
 
 type Task_t struct {
@@ -263,6 +264,12 @@ func fetch_rrd(client **rpc.Client, key string, addr string) error {
 			if ctx, err = base64.StdEncoding.DecodeString(rrdfile.Body64); err != nil {
 				goto err_out
 			} else {
+
+				baseDir := file.Dir(filename)
+				if err = file.InsureDir(baseDir); err != nil {
+					goto err_out
+				}
+
 				if err = ioutil.WriteFile(filename, ctx, 0644); err != nil {
 					goto err_out
 				} else {
@@ -271,6 +278,8 @@ func fetch_rrd(client **rpc.Client, key string, addr string) error {
 					goto out
 				}
 			}
+		} else {
+			log.Println(err)
 		}
 		if err == rpc.ErrShutdown {
 			reconnection(client, addr)
