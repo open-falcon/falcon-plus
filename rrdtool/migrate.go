@@ -257,6 +257,8 @@ func fetch_rrd(client **rpc.Client, key string, addr string) error {
 	}
 
 	for i = 0; i < 3; i++ {
+		// use net/rpc maybe better than net/rpc/jsonrpc
+		// e.g. https://github.com/yubo/program/blob/master/go/example/46_net_rpc/main.go
 		err = jsonrpc_call(*client, "Graph.GetRrd", key, &rrdfile,
 			time.Duration(cfg.CallTimeout)*time.Millisecond)
 
