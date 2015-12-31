@@ -20,6 +20,16 @@ var (
 	Counter uint64
 )
 
+type flushfile_t struct {
+	filename string
+	items    []*cmodel.GraphItem
+}
+
+type readfile_t struct {
+	filename string
+	data     []byte
+}
+
 func Start() {
 	cfg := g.Config()
 	var err error
@@ -32,6 +42,7 @@ func Start() {
 
 	// sync disk
 	go syncDisk()
+	go ioWorker()
 	log.Println("rrdtool.Start ok")
 }
 
@@ -124,7 +135,7 @@ func update(filename string, items []*cmodel.GraphItem) error {
 // flush to disk from memory
 // 最新的数据在列表的最后面
 // TODO fix me, filename fmt from item[0], it's hard to keep consistent
-func Flush(filename string, items []*cmodel.GraphItem) error {
+func flushrrd(filename string, items []*cmodel.GraphItem) error {
 	if items == nil || len(items) == 0 {
 		return errors.New("empty items")
 	}
@@ -148,6 +159,32 @@ func Flush(filename string, items []*cmodel.GraphItem) error {
 	}
 
 	return update(filename, items)
+}
+
+func ReadFile(filename string) ([]byte, error) {
+	done := make(chan error)
+	task := &io_task_t{
+		method: IO_TASK_M_READ,
+		args:   &readfile_t{filename: filename},
+		done:   done,
+	}
+
+	io_task_chan <- task
+	err := <-done
+	return task.args.(*readfile_t).data, err
+}
+
+func FlushFile(filename string, items []*cmodel.GraphItem) error {
+	done := make(chan error)
+	io_task_chan <- &io_task_t{
+		method: IO_TASK_M_FLUSH,
+		args: &flushfile_t{
+			filename: filename,
+			items:    items,
+		},
+		done: done,
+	}
+	return <-done
 }
 
 func Fetch(filename string, cf string, start, end int64, step int) ([]*cmodel.RRDData, error) {
@@ -220,6 +257,7 @@ func FlushRRD(idx int) {
 	}
 
 	for _, key := range keys {
+		done := make(chan error, 1)
 		flag, _ = store.GraphItems.GetFlag(key)
 
 		//write err data to local filename
@@ -236,23 +274,28 @@ func FlushRRD(idx int) {
 			if node, err = Consistent.Get(item.PrimaryKey()); err != nil {
 				continue
 			}
-			Task_ch[node] <- &Task_t{Key: key}
-		} else {
-			if flag&g.GRAPH_F_ERR != 0 {
-				store.GraphItems.SetFlag(key, 0)
-			}
-			if md5, dsType, step, err = g.SplitRrdCacheKey(key); err != nil {
+			Task_ch[node] <- &Task_t{Key: key, Done: done}
+			err := <-done
+			if err != nil {
+				log.Printf("get %s from remote err[%s]\n", key, err)
 				continue
 			}
-			filename = g.RrdFileName(cfg.RRD.Storage, md5, dsType, step)
-
-			items = store.GraphItems.PopAll(key)
-			if len(items) == 0 {
-				continue
-			}
-
-			Flush(filename, items)
-			Counter += 1
+			//todo: flushfile after getfile?
 		}
+		if flag&g.GRAPH_F_ERR != 0 {
+			store.GraphItems.SetFlag(key, 0)
+		}
+		if md5, dsType, step, err = g.SplitRrdCacheKey(key); err != nil {
+			continue
+		}
+		filename = g.RrdFileName(cfg.RRD.Storage, md5, dsType, step)
+
+		items = store.GraphItems.PopAll(key)
+		if len(items) == 0 {
+			continue
+		}
+
+		FlushFile(filename, items)
+		Counter += 1
 	}
 }

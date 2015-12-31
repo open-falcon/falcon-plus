@@ -249,13 +249,6 @@ func fetch_rrd(client **rpc.Client, key string, addr string) error {
 	md5, dsType, step, _ = g.SplitRrdCacheKey(key)
 	filename = g.RrdFileName(cfg.RRD.Storage, md5, dsType, step)
 
-	items := store.GraphItems.PopAll(key)
-	items_size := len(items)
-	if items_size == 0 {
-		// impossible
-		goto out
-	}
-
 	for i = 0; i < 3; i++ {
 		// use net/rpc maybe better than net/rpc/jsonrpc
 		// e.g. https://github.com/yubo/program/blob/master/go/example/46_net_rpc/main.go
@@ -276,7 +269,6 @@ func fetch_rrd(client **rpc.Client, key string, addr string) error {
 					goto err_out
 				} else {
 					flag &= ^g.GRAPH_F_MISS
-					Flush(filename, items)
 					goto out
 				}
 			}
@@ -289,7 +281,6 @@ func fetch_rrd(client **rpc.Client, key string, addr string) error {
 	}
 	// err
 err_out:
-	store.GraphItems.PushAll(key, items)
 	flag |= g.GRAPH_F_ERR
 out:
 	flag &= ^g.GRAPH_F_FETCHING

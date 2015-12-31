@@ -3,7 +3,6 @@ package api
 import (
 	"encoding/base64"
 	"fmt"
-	"io/ioutil"
 	"math"
 	"time"
 
@@ -27,10 +26,10 @@ func (this *Graph) GetRrd(key string, rrdfile *g.File64) error {
 
 	items := store.GraphItems.PopAll(key)
 	if len(items) > 0 {
-		rrdtool.Flush(rrdfile.Filename, items)
+		rrdtool.FlushFile(rrdfile.Filename, items)
 	}
 
-	if f, err := ioutil.ReadFile(rrdfile.Filename); err != nil {
+	if f, err := rrdtool.ReadFile(rrdfile.Filename); err != nil {
 		return err
 	} else {
 		rrdfile.Body64 = base64.StdEncoding.EncodeToString(f)
