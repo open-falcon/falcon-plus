@@ -68,10 +68,10 @@ func main() {
 	g.ParseConfig(*cfg)
 	// init db
 	g.InitDB()
+	// rrdtool before api for disable loopback connection
+	rrdtool.Start()
 	// start api
 	go api.Start()
-	// start rrdtool
-	rrdtool.Start()
 	// start indexing
 	index.Start()
 	// start http server
