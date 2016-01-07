@@ -4,7 +4,6 @@ import (
 	"errors"
 	"log"
 	"math"
-	"sync"
 	"sync/atomic"
 	"time"
 
@@ -19,6 +18,15 @@ import (
 var (
 	Counter uint64
 )
+
+type fetch_t struct {
+	filename string
+	cf       string
+	start    int64
+	end      int64
+	step     int
+	data     []*cmodel.RRDData
+}
 
 type flushfile_t struct {
 	filename string
@@ -45,30 +53,6 @@ func Start() {
 	go ioWorker()
 	log.Println("rrdtool.Start ok")
 }
-
-// RRD Files' Lock
-type RRDLocker struct {
-	sync.Mutex
-	M map[string]*sync.Mutex
-}
-
-func (t *RRDLocker) GetLock(key string) *sync.Mutex {
-	t.Lock()
-	defer t.Unlock()
-
-	if lock, exists := t.M[key]; !exists {
-		t.M[key] = new(sync.Mutex)
-		return t.M[key]
-	} else {
-		return lock
-	}
-}
-
-var (
-	L *RRDLocker = &RRDLocker{
-		M: make(map[string]*sync.Mutex),
-	}
-)
 
 // RRA.Point.Size
 const (
@@ -140,10 +124,6 @@ func flushrrd(filename string, items []*cmodel.GraphItem) error {
 		return errors.New("empty items")
 	}
 
-	lock := L.GetLock(filename)
-	lock.Lock()
-	defer lock.Unlock()
-
 	if !g.IsRrdFileExist(filename) {
 		baseDir := file.Dir(filename)
 
@@ -162,7 +142,7 @@ func flushrrd(filename string, items []*cmodel.GraphItem) error {
 }
 
 func ReadFile(filename string) ([]byte, error) {
-	done := make(chan error)
+	done := make(chan error, 1)
 	task := &io_task_t{
 		method: IO_TASK_M_READ,
 		args:   &readfile_t{filename: filename},
@@ -175,7 +155,7 @@ func ReadFile(filename string) ([]byte, error) {
 }
 
 func FlushFile(filename string, items []*cmodel.GraphItem) error {
-	done := make(chan error)
+	done := make(chan error, 1)
 	io_task_chan <- &io_task_t{
 		method: IO_TASK_M_FLUSH,
 		args: &flushfile_t{
@@ -188,13 +168,27 @@ func FlushFile(filename string, items []*cmodel.GraphItem) error {
 }
 
 func Fetch(filename string, cf string, start, end int64, step int) ([]*cmodel.RRDData, error) {
+	done := make(chan error, 1)
+	task := &io_task_t{
+		method: IO_TASK_M_FETCH,
+		args: &fetch_t{
+			filename: filename,
+			cf:       cf,
+			start:    start,
+			end:      end,
+			step:     step,
+		},
+		done: done,
+	}
+	io_task_chan <- task
+	err := <-done
+	return task.args.(*fetch_t).data, err
+}
+
+func fetch(filename string, cf string, start, end int64, step int) ([]*cmodel.RRDData, error) {
 	start_t := time.Unix(start, 0)
 	end_t := time.Unix(end, 0)
 	step_t := time.Duration(step) * time.Second
-
-	lock := L.GetLock(filename)
-	lock.Lock()
-	defer lock.Unlock()
 
 	fetchRes, err := rrdlite.Fetch(filename, cf, start_t, end_t, step_t)
 	if err != nil {
@@ -257,7 +251,7 @@ func FlushRRD(idx int) {
 	}
 
 	for _, key := range keys {
-		done := make(chan error, 1)
+		done := make(chan error)
 		flag, _ = store.GraphItems.GetFlag(key)
 
 		//write err data to local filename

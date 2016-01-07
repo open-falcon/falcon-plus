@@ -13,6 +13,7 @@ const (
 	_ = iota
 	IO_TASK_M_READ
 	IO_TASK_M_FLUSH
+	IO_TASK_M_FETCH
 )
 
 type io_task_t struct {
@@ -28,7 +29,7 @@ var (
 
 func init() {
 	Out_done_chan = make(chan int, 1)
-	io_task_chan = make(chan *io_task_t, 1)
+	io_task_chan = make(chan *io_task_t, 16)
 }
 
 func syncDisk() {
@@ -62,6 +63,11 @@ func ioWorker() {
 			} else if task.method == IO_TASK_M_FLUSH {
 				if args, ok := task.args.(*flushfile_t); ok {
 					task.done <- flushrrd(args.filename, args.items)
+				}
+			} else if task.method == IO_TASK_M_FETCH {
+				if args, ok := task.args.(*fetch_t); ok {
+					args.data, err = fetch(args.filename, args.cf, args.start, args.end, args.step)
+					task.done <- err
 				}
 			}
 		}
