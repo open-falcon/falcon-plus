@@ -1,11 +1,13 @@
 package sender
 
 import (
+	"encoding/json"
 	cmodel "github.com/open-falcon/common/model"
 	"github.com/open-falcon/transfer/g"
 	"github.com/open-falcon/transfer/proc"
 	nsema "github.com/toolkits/concurrent/semaphore"
 	"github.com/toolkits/container/list"
+	"github.com/toolkits/net/httplib"
 	"log"
 	"time"
 )
@@ -21,9 +23,16 @@ func startSendTasks() {
 	// init semaphore
 	judgeConcurrent := cfg.Judge.MaxIdle
 	graphConcurrent := cfg.Graph.MaxIdle
+	tsdbConcurrent := cfg.Tsdb.Concurrent
+
+	if tsdbConcurrent < 1 {
+		tsdbConcurrent = 1
+	}
+
 	if judgeConcurrent < 1 {
 		judgeConcurrent = 1
 	}
+
 	if graphConcurrent < 1 {
 		graphConcurrent = 1
 	}
@@ -48,6 +57,10 @@ func startSendTasks() {
 				go forward2GraphMigratingTask(queue, node, addr, graphConcurrent)
 			}
 		}
+	}
+
+	if cfg.Tsdb.Enabled {
+		go forward2TsdbTask(tsdbConcurrent)
 	}
 }
 
@@ -185,5 +198,58 @@ func forward2GraphMigratingTask(Q *list.SafeListLimited, node string, addr strin
 				proc.SendToGraphMigratingCnt.IncrBy(int64(count))
 			}
 		}(addr, graphItems, count)
+	}
+}
+
+// Tsdb定时任务, 将数据通过api发送到tsdb
+func forward2TsdbTask(concurrent int) {
+	batch := g.Config().Tsdb.Batch // 一次发送,最多batch条数据
+	tsdbUrl := g.Config().Tsdb.TsdbUrl
+	sema := nsema.NewSemaphore(concurrent)
+
+	for {
+		items := TsdbQueue.PopBackBy(batch)
+		if len(items) == 0 {
+			time.Sleep(DefaultSendTaskSleepInterval)
+			continue
+		}
+		//  同步Call + 有限并发 进行发送
+		sema.Acquire()
+		go func(itemList []interface{}) {
+			defer sema.Release()
+
+			tmpList := make([]*cmodel.TsdbItem, len(itemList))
+			for i := 0; i < len(itemList); i++ {
+				tmpList[i] = itemList[i].(*cmodel.TsdbItem)
+			}
+
+			postStrJson, err := json.Marshal(tmpList)
+			if err != nil {
+				log.Println(err)
+				return
+			}
+			req := httplib.Post(tsdbUrl).SetTimeout(5*time.Second, 2*time.Minute)
+			req.Body(string(postStrJson))
+
+			respond, err := req.Response()
+			if err != nil {
+				log.Println(err)
+				return
+			}
+
+			if respond.StatusCode == 204 || respond.StatusCode == 200 {
+				proc.SendToTsdbCnt.IncrBy(int64(len(itemList)))
+			} else {
+				var v cmodel.TsdbRespond
+				data, _ := req.Bytes()
+				err := json.Unmarshal(data, v)
+				if err != nil {
+					log.Println(err, respond.StatusCode)
+					return
+				}
+				proc.SendToTsdbFailCnt.IncrBy(int64(v.Failed))
+				proc.SendToTsdbCnt.IncrBy(int64(v.Success))
+			}
+		}(items)
 	}
 }

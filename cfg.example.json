@@ -40,4 +40,10 @@
         "clusterMigrating": {
         }
     }
+    "tsdb": {
+        "enabled": true,
+        "batch": 200,
+        "concurrent": 32,
+        "tsdbUrl": "http://mytsdb.com/api/put?summary"
+    }
 }
