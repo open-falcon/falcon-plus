@@ -1,7 +1,6 @@
 package api
 
 import (
-	"encoding/base64"
 	"fmt"
 	"math"
 	"time"
@@ -17,7 +16,7 @@ import (
 
 type Graph int
 
-func (this *Graph) GetRrd(key string, rrdfile *g.File64) error {
+func (this *Graph) GetRrd(key string, rrdfile *g.File) (err error) {
 	if md5, dsType, step, err := g.SplitRrdCacheKey(key); err != nil {
 		return err
 	} else {
@@ -29,12 +28,8 @@ func (this *Graph) GetRrd(key string, rrdfile *g.File64) error {
 		rrdtool.FlushFile(rrdfile.Filename, items)
 	}
 
-	if f, err := rrdtool.ReadFile(rrdfile.Filename); err != nil {
-		return err
-	} else {
-		rrdfile.Body64 = base64.StdEncoding.EncodeToString(f)
-		return nil
-	}
+	rrdfile.Body, err = rrdtool.ReadFile(rrdfile.Filename)
+	return
 }
 
 func (this *Graph) Ping(req cmodel.NullRpcRequest, resp *cmodel.SimpleRpcResponse) error {

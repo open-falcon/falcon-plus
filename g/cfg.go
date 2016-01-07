@@ -9,9 +9,9 @@ import (
 	"github.com/toolkits/file"
 )
 
-type File64 struct {
+type File struct {
 	Filename string
-	Body64   string
+	Body     []byte
 }
 
 type HttpConfig struct {

@@ -1,14 +1,12 @@
 package rrdtool
 
 import (
-	"encoding/base64"
 	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net"
 	"net/rpc"
-	"net/rpc/jsonrpc"
 	"sync/atomic"
 	"time"
 
@@ -78,7 +76,7 @@ func dial(address string, timeout time.Duration) (*rpc.Client, error) {
 			return nil, err
 		}
 	}
-	return jsonrpc.NewClient(conn), err
+	return rpc.NewClient(conn), err
 }
 
 func migrate_start(cfg *g.GlobalConfig) {
@@ -169,7 +167,7 @@ func query_data(client **rpc.Client, addr string,
 	)
 
 	for i = 0; i < 3; i++ {
-		err = jsonrpc_call(*client, "Graph.Query", args, resp,
+		err = rpc_call(*client, "Graph.Query", args, resp,
 			time.Duration(g.Config().CallTimeout)*time.Millisecond)
 
 		if err == nil {
@@ -206,7 +204,7 @@ func send_data(client **rpc.Client, key string, addr string) error {
 	resp = &cmodel.SimpleRpcResponse{}
 
 	for i = 0; i < 3; i++ {
-		err = jsonrpc_call(*client, "Graph.Send", items, resp,
+		err = rpc_call(*client, "Graph.Send", items, resp,
 			time.Duration(cfg.CallTimeout)*time.Millisecond)
 
 		if err == nil {
@@ -234,8 +232,7 @@ func fetch_rrd(client **rpc.Client, key string, addr string) error {
 		dsType   string
 		filename string
 		step, i  int
-		rrdfile  g.File64
-		ctx      []byte
+		rrdfile  g.File
 	)
 
 	cfg := g.Config()
@@ -250,27 +247,20 @@ func fetch_rrd(client **rpc.Client, key string, addr string) error {
 	filename = g.RrdFileName(cfg.RRD.Storage, md5, dsType, step)
 
 	for i = 0; i < 3; i++ {
-		// use net/rpc maybe better than net/rpc/jsonrpc
-		// e.g. https://github.com/yubo/program/blob/master/go/example/46_net_rpc/main.go
-		err = jsonrpc_call(*client, "Graph.GetRrd", key, &rrdfile,
+		err = rpc_call(*client, "Graph.GetRrd", key, &rrdfile,
 			time.Duration(cfg.CallTimeout)*time.Millisecond)
 
 		if err == nil {
-			if ctx, err = base64.StdEncoding.DecodeString(rrdfile.Body64); err != nil {
+			baseDir := file.Dir(filename)
+			if err = file.InsureDir(baseDir); err != nil {
+				goto err_out
+			}
+
+			if err = ioutil.WriteFile(filename, rrdfile.Body, 0644); err != nil {
 				goto err_out
 			} else {
-
-				baseDir := file.Dir(filename)
-				if err = file.InsureDir(baseDir); err != nil {
-					goto err_out
-				}
-
-				if err = ioutil.WriteFile(filename, ctx, 0644); err != nil {
-					goto err_out
-				} else {
-					flag &= ^g.GRAPH_F_MISS
-					goto out
-				}
+				flag &= ^g.GRAPH_F_MISS
+				goto out
 			}
 		} else {
 			log.Println(err)
@@ -288,13 +278,13 @@ out:
 	return err
 }
 
-func jsonrpc_call(client *rpc.Client, method string, args interface{},
+func rpc_call(client *rpc.Client, method string, args interface{},
 	reply interface{}, timeout time.Duration) error {
 	done := make(chan *rpc.Call, 1)
 	client.Go(method, args, reply, done)
 	select {
 	case <-time.After(timeout):
-		return errors.New("i/o timeout[jsonrpc]")
+		return errors.New("i/o timeout[rpc]")
 	case call := <-done:
 		if call.Error == nil {
 			return nil

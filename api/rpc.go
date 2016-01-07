@@ -5,7 +5,6 @@ import (
 	"log"
 	"net"
 	"net/rpc"
-	"net/rpc/jsonrpc"
 	"sync"
 	"time"
 
@@ -77,7 +76,7 @@ func Start() {
 			go func() {
 				e := connects.insert(conn)
 				defer connects.remove(e)
-				jsonrpc.ServeConn(conn)
+				rpc.ServeConn(conn)
 			}()
 		}
 	}()
