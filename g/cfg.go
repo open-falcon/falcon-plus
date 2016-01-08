@@ -54,23 +54,23 @@ type GraphConfig struct {
 }
 
 type TsdbConfig struct {
-	Enabled    bool   `json:"enabled"`
-	Batch      int    `json:"batch"`
-	Concurrent int    `json:"concurrent"`
-	TsdbUrl    string `json:"tsdbUrl"`
+	Enabled     bool   `json:"enabled"`
+	Batch       int    `json:"batch"`
+	ConnTimeout int    `json:"connTimeout"`
+	CallTimeout int    `json:"callTimeout"`
+	Concurrent  int    `json:"concurrent"`
+	TsdbUrl     string `json:"tsdbUrl"`
+	Retry       int    `json:"retry"`
 }
 
 type GlobalConfig struct {
-	Debug      bool          `json:"debug"`
-	Database   string        `json:"database"`
-	Interval   int           `json:interval`
-	SqlMaxIdle int           `json:"sqlmaxIdle"`
-	Http       *HttpConfig   `json:"http"`
-	Rpc        *RpcConfig    `json:"rpc"`
-	Socket     *SocketConfig `json:"socket"`
-	Judge      *JudgeConfig  `json:"judge"`
-	Graph      *GraphConfig  `json:"graph"`
-	Tsdb       *TsdbConfig   `json:"tsdb"`
+	Debug  bool          `json:"debug"`
+	Http   *HttpConfig   `json:"http"`
+	Rpc    *RpcConfig    `json:"rpc"`
+	Socket *SocketConfig `json:"socket"`
+	Judge  *JudgeConfig  `json:"judge"`
+	Graph  *GraphConfig  `json:"graph"`
+	Tsdb   *TsdbConfig   `json:"tsdb"`
 }
 
 var (

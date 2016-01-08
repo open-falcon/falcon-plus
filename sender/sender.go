@@ -188,8 +188,7 @@ func convert2GraphItem(d *cmodel.MetaData) (*cmodel.GraphItem, error) {
 func Push2TsdbSendQueue(items []*cmodel.MetaData) {
 	for _, item := range items {
 		tsdbItem := convert2TsdbItem(item)
-		Q := TsdbQueue
-		isSuccess := Q.PushFront(tsdbItem)
+		isSuccess := TsdbQueue.PushFront(tsdbItem)
 
 		if !isSuccess {
 			proc.SendToTsdbDropCnt.Incr()
@@ -204,7 +203,7 @@ func convert2TsdbItem(d *cmodel.MetaData) *cmodel.TsdbItem {
 	for k, v := range d.Tags {
 		t.Tags[k] = v
 	}
-	t.Tags["host"] = d.Endpoint
+	t.Tags["endpoint"] = d.Endpoint
 	t.Metric = d.Metric
 	t.Timestamp = d.Timestamp
 	t.Value = d.Value

@@ -8,7 +8,9 @@ import (
 	nsema "github.com/toolkits/concurrent/semaphore"
 	"github.com/toolkits/container/list"
 	"github.com/toolkits/net/httplib"
+	"io/ioutil"
 	"log"
+	"net/http"
 	"time"
 )
 
@@ -205,6 +207,9 @@ func forward2GraphMigratingTask(Q *list.SafeListLimited, node string, addr strin
 func forward2TsdbTask(concurrent int) {
 	batch := g.Config().Tsdb.Batch // 一次发送,最多batch条数据
 	tsdbUrl := g.Config().Tsdb.TsdbUrl
+	retry := g.Config().Tsdb.Retry
+	connTimeout := g.Config().Tsdb.ConnTimeout
+	callTimeout := g.Config().Tsdb.CallTimeout
 	sema := nsema.NewSemaphore(concurrent)
 
 	for {
@@ -223,28 +228,46 @@ func forward2TsdbTask(concurrent int) {
 				tmpList[i] = itemList[i].(*cmodel.TsdbItem)
 			}
 
-			postStrJson, err := json.Marshal(tmpList)
+			postJson, err := json.Marshal(tmpList)
 			if err != nil {
-				log.Println(err)
-				return
-			}
-			req := httplib.Post(tsdbUrl).SetTimeout(5*time.Second, 2*time.Minute)
-			req.Body(string(postStrJson))
-
-			respond, err := req.Response()
-			if err != nil {
-				log.Println(err)
+				proc.SendToTsdbDropCnt.IncrBy(int64(len(itemList)))
 				return
 			}
 
+			req := httplib.Post(tsdbUrl).SetTimeout(time.Duration(connTimeout)*time.Millisecond,
+				time.Duration(callTimeout)*time.Millisecond)
+			req.Body(string(postJson))
+
+			var respond *http.Response
+			for i := 0; i < retry; i++ {
+				respond, err = req.Response()
+				if err == nil {
+					break
+				}
+				time.Sleep(100 * time.Millisecond)
+			}
+
+			if err != nil {
+				log.Printf("send to tsdb http fail: %v", err)
+				proc.SendToTsdbDropCnt.IncrBy(int64(len(itemList)))
+				return
+			}
+
+			defer respond.Body.Close()
 			if respond.StatusCode == 204 || respond.StatusCode == 200 {
 				proc.SendToTsdbCnt.IncrBy(int64(len(itemList)))
 			} else {
 				var v cmodel.TsdbRespond
-				data, _ := req.Bytes()
-				err := json.Unmarshal(data, v)
+
+				data, err := ioutil.ReadAll(respond.Body)
 				if err != nil {
-					log.Println(err, respond.StatusCode)
+					proc.SendToTsdbDropCnt.IncrBy(int64(len(itemList)))
+					return
+				}
+				err = json.Unmarshal(data, v)
+				if err != nil {
+					log.Printf("send to tsdb http status code: %d, json fail: %v", respond.StatusCode, err)
+					proc.SendToTsdbDropCnt.IncrBy(int64(len(itemList)))
 					return
 				}
 				proc.SendToTsdbFailCnt.IncrBy(int64(v.Failed))
