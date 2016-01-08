@@ -136,16 +136,16 @@ retry:
 		node, _ := rrdtool.Consistent.Get(param.Endpoint + "/" + param.Counter)
 		done := make(chan error, 1)
 		if items_size > 0 {
-			//rrdtool.Task_ch
-			rrdtool.Task_ch[node] <- &rrdtool.Task_t{
-				Method: "Graph.Send",
+			//rrdtool.Net_task_ch
+			rrdtool.Net_task_ch[node] <- &rrdtool.Net_task_t{
+				Method: rrdtool.NET_TASK_M_FETCH,
 				Done:   done,
 				Key:    key,
 			}
 			<-done
 		}
-		rrdtool.Task_ch[node] <- &rrdtool.Task_t{
-			Method: "Graph.Query",
+		rrdtool.Net_task_ch[node] <- &rrdtool.Net_task_t{
+			Method: rrdtool.NET_TASK_M_QUERY,
 			Done:   done,
 			Args:   param,
 			Reply:  resp,

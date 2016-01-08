@@ -7,11 +7,13 @@ import (
 
 	"github.com/open-falcon/graph/g"
 	"github.com/open-falcon/graph/store"
+	"github.com/toolkits/file"
 )
 
 const (
 	_ = iota
 	IO_TASK_M_READ
+	IO_TASK_M_WRITE
 	IO_TASK_M_FLUSH
 	IO_TASK_M_FETCH
 )
@@ -59,6 +61,14 @@ func ioWorker() {
 				if args, ok := task.args.(*readfile_t); ok {
 					args.data, err = ioutil.ReadFile(args.filename)
 					task.done <- err
+				}
+			} else if task.method == IO_TASK_M_WRITE {
+				if args, ok := task.args.(*g.File); ok {
+					baseDir := file.Dir(args.Filename)
+					if err = file.InsureDir(baseDir); err != nil {
+						task.done <- err
+					}
+					task.done <- ioutil.WriteFile(args.Filename, args.Body, 0644)
 				}
 			} else if task.method == IO_TASK_M_FLUSH {
 				if args, ok := task.args.(*flushfile_t); ok {

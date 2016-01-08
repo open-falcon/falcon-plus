@@ -3,7 +3,6 @@ package rrdtool
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net"
 	"net/rpc"
@@ -15,11 +14,17 @@ import (
 	cmodel "github.com/open-falcon/common/model"
 	"github.com/open-falcon/graph/g"
 	"github.com/open-falcon/graph/store"
-	"github.com/toolkits/file"
 )
 
-type Task_t struct {
-	Method string
+const (
+	_ = iota
+	NET_TASK_M_SEND
+	NET_TASK_M_QUERY
+	NET_TASK_M_FETCH
+)
+
+type Net_task_t struct {
+	Method int
 	Key    string
 	Done   chan error
 	Args   interface{}
@@ -40,7 +45,7 @@ const (
 
 var (
 	Consistent       *consistent.Consistent
-	Task_ch          map[string]chan *Task_t
+	Net_task_ch      map[string]chan *Net_task_t
 	clients          map[string][]*rpc.Client
 	flushrrd_timeout int32
 	stat_cnt         [STAT_SIZE]uint64
@@ -48,7 +53,7 @@ var (
 
 func init() {
 	Consistent = consistent.New()
-	Task_ch = make(map[string]chan *Task_t)
+	Net_task_ch = make(map[string]chan *Net_task_t)
 	clients = make(map[string][]*rpc.Client)
 }
 
@@ -87,37 +92,37 @@ func migrate_start(cfg *g.GlobalConfig) {
 
 		for node, addr := range cfg.Migrate.Cluster {
 			Consistent.Add(node)
-			Task_ch[node] = make(chan *Task_t, 1)
+			Net_task_ch[node] = make(chan *Net_task_t, 16)
 			clients[node] = make([]*rpc.Client, cfg.Migrate.Concurrency)
 
 			for i = 0; i < cfg.Migrate.Concurrency; i++ {
 				if clients[node][i], err = dial(addr, time.Second); err != nil {
 					log.Fatalf("node:%s addr:%s err:%s\n", node, addr, err)
 				}
-				go task_worker(i, Task_ch[node], &clients[node][i], addr)
+				go net_task_worker(i, Net_task_ch[node], &clients[node][i], addr)
 			}
 		}
 	}
 }
 
-func task_worker(idx int, ch chan *Task_t, client **rpc.Client, addr string) {
+func net_task_worker(idx int, ch chan *Net_task_t, client **rpc.Client, addr string) {
 	var err error
 	for {
 		select {
 		case task := <-ch:
-			if task.Method == "Graph.Send" {
+			if task.Method == NET_TASK_M_SEND {
 				if err = send_data(client, task.Key, addr); err != nil {
 					atomic.AddUint64(&stat_cnt[SEND_S_ERR], 1)
 				} else {
 					atomic.AddUint64(&stat_cnt[SEND_S_SUCCESS], 1)
 				}
-			} else if task.Method == "Graph.Query" {
+			} else if task.Method == NET_TASK_M_QUERY {
 				if err = query_data(client, addr, task.Args, task.Reply); err != nil {
 					atomic.AddUint64(&stat_cnt[QUERY_S_ERR], 1)
 				} else {
 					atomic.AddUint64(&stat_cnt[QUERY_S_SUCCESS], 1)
 				}
-			} else {
+			} else if task.Method == NET_TASK_M_FETCH {
 				if atomic.LoadInt32(&flushrrd_timeout) != 0 {
 					// hope this more faster than fetch_rrd
 					if err = send_data(client, task.Key, addr); err != nil {
@@ -132,6 +137,8 @@ func task_worker(idx int, ch chan *Task_t, client **rpc.Client, addr string) {
 						atomic.AddUint64(&stat_cnt[FETCH_S_SUCCESS], 1)
 					}
 				}
+			} else {
+				err = errors.New("error net task method")
 			}
 			if task.Done != nil {
 				task.Done <- err
@@ -251,12 +258,16 @@ func fetch_rrd(client **rpc.Client, key string, addr string) error {
 			time.Duration(cfg.CallTimeout)*time.Millisecond)
 
 		if err == nil {
-			baseDir := file.Dir(filename)
-			if err = file.InsureDir(baseDir); err != nil {
-				goto err_out
+			done := make(chan error, 1)
+			io_task_chan <- &io_task_t{
+				method: IO_TASK_M_WRITE,
+				args: &g.File{
+					Filename: filename,
+					Body:     rrdfile.Body[:],
+				},
+				done: done,
 			}
-
-			if err = ioutil.WriteFile(filename, rrdfile.Body, 0644); err != nil {
+			if err = <-done; err != nil {
 				goto err_out
 			} else {
 				flag &= ^g.GRAPH_F_MISS

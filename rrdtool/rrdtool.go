@@ -16,7 +16,8 @@ import (
 )
 
 var (
-	Counter uint64
+	disk_counter uint64
+	net_counter  uint64
 )
 
 type fetch_t struct {
@@ -164,6 +165,7 @@ func FlushFile(filename string, items []*cmodel.GraphItem) error {
 		},
 		done: done,
 	}
+	atomic.AddUint64(&disk_counter, 1)
 	return <-done
 }
 
@@ -221,10 +223,11 @@ func FlushAll() {
 	for i := 0; i < store.GraphItems.Size; i++ {
 		FlushRRD(i)
 		if i%n == 0 {
-			log.Println("flush hash idx:", i, "size", store.GraphItems.Size, "counter", Counter)
+			log.Printf("flush hash idx:%03d size:03d disk:%08d disk:%08ld net:%08ld\n",
+				i, store.GraphItems.Size, disk_counter, net_counter)
 		}
 	}
-	log.Println("flush hash done. counter", Counter)
+	log.Printf("flush hash done (disk:%08ld net:%08ld)\n", disk_counter, net_counter)
 }
 
 func FlushRRD(idx int) {
@@ -251,13 +254,13 @@ func FlushRRD(idx int) {
 	}
 
 	for _, key := range keys {
-		done := make(chan error)
 		flag, _ = store.GraphItems.GetFlag(key)
 
 		//write err data to local filename
 		if cfg.Migrate.Enabled &&
 			flag&g.GRAPH_F_MISS != 0 &&
 			flag&g.GRAPH_F_ERR == 0 {
+			done := make(chan error)
 
 			if time.Since(begin) > time.Millisecond*g.FLUSH_DISK_STEP {
 				atomic.StoreInt32(&flushrrd_timeout, 1)
@@ -268,28 +271,36 @@ func FlushRRD(idx int) {
 			if node, err = Consistent.Get(item.PrimaryKey()); err != nil {
 				continue
 			}
-			Task_ch[node] <- &Task_t{Key: key, Done: done}
-			err := <-done
-			if err != nil {
-				log.Printf("get %s from remote err[%s]\n", key, err)
+			Net_task_ch[node] <- &Net_task_t{
+				Method: NET_TASK_M_FETCH,
+				Key:    key,
+				Done:   done,
+			}
+			// net_task slow, shouldn't block syncDisk() or FlushAll()
+			// warning: recev sigout when migrating, maybe lost memory data
+			go func() {
+				err := <-done
+				if err != nil {
+					log.Printf("get %s from remote err[%s]\n", key, err)
+					return
+				}
+				atomic.AddUint64(&net_counter, 1)
+				//todo: flushfile after getfile? not yet
+			}()
+		} else {
+			if flag&g.GRAPH_F_ERR != 0 {
+				store.GraphItems.SetFlag(key, 0)
+			}
+			if md5, dsType, step, err = g.SplitRrdCacheKey(key); err != nil {
 				continue
 			}
-			//todo: flushfile after getfile?
-		}
-		if flag&g.GRAPH_F_ERR != 0 {
-			store.GraphItems.SetFlag(key, 0)
-		}
-		if md5, dsType, step, err = g.SplitRrdCacheKey(key); err != nil {
-			continue
-		}
-		filename = g.RrdFileName(cfg.RRD.Storage, md5, dsType, step)
+			filename = g.RrdFileName(cfg.RRD.Storage, md5, dsType, step)
 
-		items = store.GraphItems.PopAll(key)
-		if len(items) == 0 {
-			continue
+			items = store.GraphItems.PopAll(key)
+			if len(items) == 0 {
+				continue
+			}
+			FlushFile(filename, items)
 		}
-
-		FlushFile(filename, items)
-		Counter += 1
 	}
 }
