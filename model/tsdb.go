@@ -2,12 +2,8 @@ package model
 
 import (
 	"fmt"
+	"strings"
 )
-
-type TsdbRespond struct {
-	Failed  int `json:"failed"`
-	Success int `json:"success"`
-}
 
 type TsdbItem struct {
 	Metric    string            `json:"metric"`
@@ -24,4 +20,16 @@ func (this *TsdbItem) String() string {
 		this.Value,
 		this.Timestamp,
 	)
+}
+
+func (this *TsdbItem) TsdbString() (s string) {
+	s = fmt.Sprintf("put %s %d %.3f ", this.Metric, this.Timestamp, this.Value)
+
+	for k, v := range this.Tags {
+		key := strings.ToLower(strings.Replace(k, " ", "_", -1))
+		value := strings.Replace(v, " ", "_", -1)
+		s += key + "=" + value + " "
+	}
+
+	return s
 }
