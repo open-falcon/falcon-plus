@@ -1,16 +1,13 @@
 package sender
 
 import (
-	"encoding/json"
+	"bytes"
 	cmodel "github.com/open-falcon/common/model"
 	"github.com/open-falcon/transfer/g"
 	"github.com/open-falcon/transfer/proc"
 	nsema "github.com/toolkits/concurrent/semaphore"
 	"github.com/toolkits/container/list"
-	"github.com/toolkits/net/httplib"
-	"io/ioutil"
 	"log"
-	"net/http"
 	"time"
 )
 
@@ -206,10 +203,7 @@ func forward2GraphMigratingTask(Q *list.SafeListLimited, node string, addr strin
 // Tsdb定时任务, 将数据通过api发送到tsdb
 func forward2TsdbTask(concurrent int) {
 	batch := g.Config().Tsdb.Batch // 一次发送,最多batch条数据
-	tsdbUrl := g.Config().Tsdb.TsdbUrl
-	retry := g.Config().Tsdb.Retry
-	connTimeout := g.Config().Tsdb.ConnTimeout
-	callTimeout := g.Config().Tsdb.CallTimeout
+	retry := g.Config().Tsdb.MaxRetry
 	sema := nsema.NewSemaphore(concurrent)
 
 	for {
@@ -223,55 +217,26 @@ func forward2TsdbTask(concurrent int) {
 		go func(itemList []interface{}) {
 			defer sema.Release()
 
-			tmpList := make([]*cmodel.TsdbItem, len(itemList))
+			var tsdbBuffer bytes.Buffer
 			for i := 0; i < len(itemList); i++ {
-				tmpList[i] = itemList[i].(*cmodel.TsdbItem)
+				tsdbItem := itemList[i].(*cmodel.TsdbItem)
+				tsdbBuffer.WriteString(tsdbItem.TsdbString())
+				tsdbBuffer.WriteString("\n")
 			}
 
-			postJson, err := json.Marshal(tmpList)
-			if err != nil {
-				proc.SendToTsdbDropCnt.IncrBy(int64(len(itemList)))
-				return
-			}
-
-			req := httplib.Post(tsdbUrl).SetTimeout(time.Duration(connTimeout)*time.Millisecond,
-				time.Duration(callTimeout)*time.Millisecond)
-			req.Body(string(postJson))
-
-			var respond *http.Response
+			var err error
 			for i := 0; i < retry; i++ {
-				respond, err = req.Response()
+				err = TsdbConnPools.Send(tsdbBuffer.Bytes())
 				if err == nil {
+					proc.SendToTsdbCnt.IncrBy(int64(len(itemList)))
 					break
 				}
 				time.Sleep(100 * time.Millisecond)
 			}
 
 			if err != nil {
-				log.Printf("send to tsdb http fail: %v", err)
-				proc.SendToTsdbDropCnt.IncrBy(int64(len(itemList)))
+				proc.SendToTsdbFailCnt.IncrBy(int64(len(itemList)))
 				return
-			}
-
-			defer respond.Body.Close()
-			if respond.StatusCode == 204 || respond.StatusCode == 200 {
-				proc.SendToTsdbCnt.IncrBy(int64(len(itemList)))
-			} else {
-				var v cmodel.TsdbRespond
-
-				data, err := ioutil.ReadAll(respond.Body)
-				if err != nil {
-					proc.SendToTsdbDropCnt.IncrBy(int64(len(itemList)))
-					return
-				}
-				err = json.Unmarshal(data, v)
-				if err != nil {
-					log.Printf("send to tsdb http status code: %d, json fail: %v", respond.StatusCode, err)
-					proc.SendToTsdbDropCnt.IncrBy(int64(len(itemList)))
-					return
-				}
-				proc.SendToTsdbFailCnt.IncrBy(int64(v.Failed))
-				proc.SendToTsdbCnt.IncrBy(int64(v.Success))
 			}
 		}(items)
 	}

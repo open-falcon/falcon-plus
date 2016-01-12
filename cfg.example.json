@@ -47,6 +47,6 @@
         "callTimeout": 5000,
         "retry": 3,
         "concurrent": 32,
-        "tsdbUrl": "http://mytsdb.com/api/put?summary"
+        "adress": "127.0.0.1:8088"
     }
 }

@@ -2,6 +2,7 @@ package conn_pool
 
 import (
 	"fmt"
+	"log"
 	"net"
 	"net/rpc"
 	"sync"
@@ -143,4 +144,100 @@ func createOnePool(name string, address string, connTimeout time.Duration, maxCo
 	}
 
 	return p
+}
+
+type SafeTcpConnPools struct {
+	sync.RWMutex
+	M           chan net.Conn
+	MaxSize     int
+	ConnTimeout int
+	CallTimeout int
+	MaxRetry    int
+	Address     string
+}
+
+func (this *SafeTcpConnPools) Send(data []byte) (err error) {
+	this.Lock()
+	defer this.Unlock()
+
+	conn := <-this.M
+	if conn == nil {
+		conn, err = createOneTcpConn(this.Address, this.ConnTimeout, this.MaxRetry)
+		if err != nil {
+			return err
+		}
+	}
+
+	done := make(chan error)
+	go func() {
+		_, err = conn.Write(data)
+		done <- err
+	}()
+
+	select {
+	case <-time.After(time.Duration(this.CallTimeout) * time.Millisecond):
+		this.ForceClose(conn)
+		err = fmt.Errorf("%s, call timeout", this.Address)
+	case err = <-done:
+		if err != nil {
+			this.ForceClose(conn)
+			err = fmt.Errorf("%s send data fail: %v", this.Address, err)
+		} else {
+			this.M <- conn
+		}
+	}
+
+	return err
+}
+
+func (this *SafeTcpConnPools) ForceClose(conn net.Conn) {
+	this.Lock()
+	defer this.Unlock()
+
+	if conn != nil {
+		conn.Close()
+		conn, err := createOneTcpConn(this.Address, this.ConnTimeout, this.MaxRetry)
+		if err != nil {
+			this.M <- nil
+			return
+		}
+		this.M <- conn
+	}
+}
+
+func CreateSafeTcpConnPools(maxRetry, maxSize, connTimeout, callTimeout int, address string) *SafeTcpConnPools {
+	cp := &SafeTcpConnPools{M: make(chan net.Conn, maxSize), MaxRetry: maxRetry, MaxSize: maxSize,
+		ConnTimeout: connTimeout, CallTimeout: callTimeout, Address: address}
+
+	for i := 0; i < maxSize; i++ {
+		conn, err := createOneTcpConn(address, connTimeout, maxRetry)
+		if err != nil {
+			cp.M <- nil
+			continue
+		}
+		cp.M <- conn
+	}
+	return cp
+}
+
+func createOneTcpConn(address string, connTimeout, retry int) (conn net.Conn, err error) {
+	ct := time.Duration(connTimeout) * time.Millisecond
+
+	for i := 0; i < retry; i++ {
+		_, err = net.ResolveTCPAddr("tcp", address)
+		if err != nil {
+			continue
+		}
+
+		conn, err = net.DialTimeout("tcp", address, ct)
+		if err == nil {
+			break
+		}
+	}
+
+	if err != nil {
+		log.Printf("build %s tcp connect fail: %v", address, err)
+	}
+
+	return
 }

@@ -111,8 +111,8 @@ u want sending items via java jsonrpc client? turn to one java example: [jsonrpc
     tsdb
         - enabled: true/false, 表示是否开启向open tsdb发送数据
         - batch: 数据转发的批量大小，可以加快发送速度
-        - concurrent: 并发数
-        - retry: http重试次数
+        - concurrent: 并发数和tcp连接池的连接数 
+        - retry: 连接后端的重试次数和发送数据的重试次数
         - connTimeout: 单位是毫秒，与后端建立连接的超时时间，可以根据网络质量微调，建议保持默认
         - callTimeout: 单位是毫秒，发送数据给后端的超时时间，可以根据网络质量微调，建议保持默认
-        - tsdbUrl: tsdb的url地址 
+        - adress: tsdb地址或者tsdb集群vip地址, 通过tcp连接tsdb. 

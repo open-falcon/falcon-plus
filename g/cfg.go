@@ -59,8 +59,8 @@ type TsdbConfig struct {
 	ConnTimeout int    `json:"connTimeout"`
 	CallTimeout int    `json:"callTimeout"`
 	Concurrent  int    `json:"concurrent"`
-	TsdbUrl     string `json:"tsdbUrl"`
-	Retry       int    `json:"retry"`
+	Adress      string `json:"adress"`
+	MaxRetry    int    `json:"retry"`
 }
 
 type GlobalConfig struct {
