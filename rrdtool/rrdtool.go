@@ -230,19 +230,30 @@ func FlushAll() {
 	log.Printf("flush hash done (disk:%08ld net:%08ld)\n", disk_counter, net_counter)
 }
 
+func FlushKey(key string) {
+
+	md5, dsType, step, err := g.SplitRrdCacheKey(key)
+	if err != nil {
+		return
+	}
+	filename := g.RrdFileName(g.Config().RRD.Storage, md5, dsType, step)
+
+	items := store.GraphItems.PopAll(key)
+	if len(items) == 0 {
+		return
+	}
+	FlushFile(filename, items)
+}
+
 func FlushRRD(idx int) {
 	var (
-		cfg       *g.GlobalConfig
-		begin     time.Time
-		keys      []string
-		items     []*cmodel.GraphItem
-		item      *cmodel.GraphItem
-		node, md5 string
-		dsType    string
-		step      int
-		err       error
-		filename  string
-		flag      uint32
+		cfg   *g.GlobalConfig
+		begin time.Time
+		keys  []string
+		item  *cmodel.GraphItem
+		node  string
+		err   error
+		flag  uint32
 	)
 	cfg = g.Config()
 	begin = time.Now()
@@ -257,9 +268,7 @@ func FlushRRD(idx int) {
 		flag, _ = store.GraphItems.GetFlag(key)
 
 		//write err data to local filename
-		if cfg.Migrate.Enabled &&
-			flag&g.GRAPH_F_MISS != 0 &&
-			flag&g.GRAPH_F_ERR == 0 {
+		if cfg.Migrate.Enabled && flag&g.GRAPH_F_MISS != 0 {
 			done := make(chan error)
 
 			if time.Since(begin) > time.Millisecond*g.FLUSH_DISK_STEP {
@@ -288,19 +297,7 @@ func FlushRRD(idx int) {
 				//todo: flushfile after getfile? not yet
 			}()
 		} else {
-			if flag&g.GRAPH_F_ERR != 0 {
-				store.GraphItems.SetFlag(key, 0)
-			}
-			if md5, dsType, step, err = g.SplitRrdCacheKey(key); err != nil {
-				continue
-			}
-			filename = g.RrdFileName(cfg.RRD.Storage, md5, dsType, step)
-
-			items = store.GraphItems.PopAll(key)
-			if len(items) == 0 {
-				continue
-			}
-			FlushFile(filename, items)
+			FlushKey(key)
 		}
 	}
 }

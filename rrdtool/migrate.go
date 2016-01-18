@@ -21,6 +21,7 @@ const (
 	NET_TASK_M_SEND
 	NET_TASK_M_QUERY
 	NET_TASK_M_FETCH
+	NET_TASK_M_FETCH1
 )
 
 type Net_task_t struct {
@@ -132,10 +133,20 @@ func net_task_worker(idx int, ch chan *Net_task_t, client **rpc.Client, addr str
 					}
 				} else {
 					if err = fetch_rrd(client, task.Key, addr); err != nil {
+						store.GraphItems.SetFlag(task.Key, 0)
+						FlushKey(task.Key)
 						atomic.AddUint64(&stat_cnt[FETCH_S_ERR], 1)
 					} else {
 						atomic.AddUint64(&stat_cnt[FETCH_S_SUCCESS], 1)
 					}
+				}
+			} else if task.Method == NET_TASK_M_FETCH1 {
+				if err = fetch_rrd(client, task.Key, addr); err != nil {
+					store.GraphItems.SetFlag(task.Key, 0)
+					FlushKey(task.Key)
+					atomic.AddUint64(&stat_cnt[FETCH_S_ERR], 1)
+				} else {
+					atomic.AddUint64(&stat_cnt[FETCH_S_SUCCESS], 1)
 				}
 			} else {
 				err = errors.New("error net task method")
@@ -223,7 +234,7 @@ func send_data(client **rpc.Client, key string, addr string) error {
 	}
 	// err
 	store.GraphItems.PushAll(key, items)
-	flag |= g.GRAPH_F_ERR
+	//flag |= g.GRAPH_F_ERR
 out:
 	flag &= ^g.GRAPH_F_SENDING
 	store.GraphItems.SetFlag(key, flag)
@@ -268,7 +279,7 @@ func fetch_rrd(client **rpc.Client, key string, addr string) error {
 				done: done,
 			}
 			if err = <-done; err != nil {
-				goto err_out
+				goto out
 			} else {
 				flag &= ^g.GRAPH_F_MISS
 				goto out
@@ -281,8 +292,7 @@ func fetch_rrd(client **rpc.Client, key string, addr string) error {
 		}
 	}
 	// err
-err_out:
-	flag |= g.GRAPH_F_ERR
+	//flag |= g.GRAPH_F_ERR
 out:
 	flag &= ^g.GRAPH_F_FETCHING
 	store.GraphItems.SetFlag(key, flag)

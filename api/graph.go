@@ -132,27 +132,19 @@ retry:
 			retry_nb++
 			goto retry
 		}
-		//update items befor get from remote
+		//fetch rrdfile from remote and retry
 		node, _ := rrdtool.Consistent.Get(param.Endpoint + "/" + param.Counter)
 		done := make(chan error, 1)
 		if items_size > 0 {
 			//rrdtool.Net_task_ch
 			rrdtool.Net_task_ch[node] <- &rrdtool.Net_task_t{
-				Method: rrdtool.NET_TASK_M_SEND,
+				Method: rrdtool.NET_TASK_M_FETCH1,
 				Done:   done,
 				Key:    key,
 			}
 			<-done
 		}
-		rrdtool.Net_task_ch[node] <- &rrdtool.Net_task_t{
-			Method: rrdtool.NET_TASK_M_QUERY,
-			Done:   done,
-			Args:   param,
-			Reply:  resp,
-		}
-		err := <-done
-		// danger!!! query call query!!!
-		return err
+		goto retry
 	}
 
 	// read data from rrd file

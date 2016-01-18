@@ -1,8 +1,10 @@
 package rrdtool
 
 import (
+	"io"
 	"io/ioutil"
 	"log"
+	"os"
 	"time"
 
 	"github.com/open-falcon/graph/g"
@@ -52,6 +54,23 @@ func syncDisk() {
 	}
 }
 
+// WriteFile writes data to a file named by filename.
+// file must not exist
+func writeFile(filename string, data []byte, perm os.FileMode) error {
+	f, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_EXCL, perm)
+	if err != nil {
+		return err
+	}
+	n, err := f.Write(data)
+	if err == nil && n < len(data) {
+		err = io.ErrShortWrite
+	}
+	if err1 := f.Close(); err == nil {
+		err = err1
+	}
+	return err
+}
+
 func ioWorker() {
 	var err error
 	for {
@@ -63,12 +82,13 @@ func ioWorker() {
 					task.done <- err
 				}
 			} else if task.method == IO_TASK_M_WRITE {
+				//filename must not exist
 				if args, ok := task.args.(*g.File); ok {
 					baseDir := file.Dir(args.Filename)
 					if err = file.InsureDir(baseDir); err != nil {
 						task.done <- err
 					}
-					task.done <- ioutil.WriteFile(args.Filename, args.Body, 0644)
+					task.done <- writeFile(args.Filename, args.Body, 0644)
 				}
 			} else if task.method == IO_TASK_M_FLUSH {
 				if args, ok := task.args.(*flushfile_t); ok {
