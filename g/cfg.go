@@ -59,7 +59,7 @@ type TsdbConfig struct {
 	ConnTimeout int    `json:"connTimeout"`
 	CallTimeout int    `json:"callTimeout"`
 	Concurrent  int    `json:"concurrent"`
-	Adress      string `json:"adress"`
+	Address      string `json:"address"`
 	MaxRetry    int    `json:"retry"`
 }
 

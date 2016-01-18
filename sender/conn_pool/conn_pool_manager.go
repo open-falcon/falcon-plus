@@ -161,10 +161,14 @@ func (this *SafeTcpConnPools) Send(data []byte) (err error) {
 	defer this.Unlock()
 
 	conn := <-this.M
+	defer func() {
+		this.M <- conn
+	}()
+
 	if conn == nil {
 		conn, err = createOneTcpConn(this.Address, this.ConnTimeout, this.MaxRetry)
 		if err != nil {
-			return err
+			return
 		}
 	}
 
@@ -176,33 +180,18 @@ func (this *SafeTcpConnPools) Send(data []byte) (err error) {
 
 	select {
 	case <-time.After(time.Duration(this.CallTimeout) * time.Millisecond):
-		this.ForceClose(conn)
+		conn.Close()
+		conn = nil
 		err = fmt.Errorf("%s, call timeout", this.Address)
 	case err = <-done:
 		if err != nil {
-			this.ForceClose(conn)
+			conn.Close()
+			conn = nil
 			err = fmt.Errorf("%s send data fail: %v", this.Address, err)
-		} else {
-			this.M <- conn
 		}
 	}
 
-	return err
-}
-
-func (this *SafeTcpConnPools) ForceClose(conn net.Conn) {
-	this.Lock()
-	defer this.Unlock()
-
-	if conn != nil {
-		conn.Close()
-		conn, err := createOneTcpConn(this.Address, this.ConnTimeout, this.MaxRetry)
-		if err != nil {
-			this.M <- nil
-			return
-		}
-		this.M <- conn
-	}
+	return
 }
 
 func CreateSafeTcpConnPools(maxRetry, maxSize, connTimeout, callTimeout int, address string) *SafeTcpConnPools {

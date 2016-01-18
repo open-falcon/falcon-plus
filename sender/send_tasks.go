@@ -236,6 +236,7 @@ func forward2TsdbTask(concurrent int) {
 
 			if err != nil {
 				proc.SendToTsdbFailCnt.IncrBy(int64(len(itemList)))
+				log.Println(err)
 				return
 			}
 		}(items)

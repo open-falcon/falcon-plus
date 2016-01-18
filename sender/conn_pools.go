@@ -19,7 +19,7 @@ func initConnPools() {
 	// tsdb
 	if cfg.Tsdb.Enabled {
 		TsdbConnPools = cpool.CreateSafeTcpConnPools(cfg.Tsdb.MaxRetry, cfg.Tsdb.Concurrent, cfg.Tsdb.ConnTimeout,
-			cfg.Tsdb.CallTimeout, cfg.Tsdb.Adress)
+			cfg.Tsdb.CallTimeout, cfg.Tsdb.Address)
 	}
 
 	// graph

@@ -115,4 +115,4 @@ u want sending items via java jsonrpc client? turn to one java example: [jsonrpc
         - retry: 连接后端的重试次数和发送数据的重试次数
         - connTimeout: 单位是毫秒，与后端建立连接的超时时间，可以根据网络质量微调，建议保持默认
         - callTimeout: 单位是毫秒，发送数据给后端的超时时间，可以根据网络质量微调，建议保持默认
-        - adress: tsdb地址或者tsdb集群vip地址, 通过tcp连接tsdb. 
+        - address: tsdb地址或者tsdb集群vip地址, 通过tcp连接tsdb. 
