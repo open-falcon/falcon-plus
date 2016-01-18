@@ -119,11 +119,11 @@ func (this *Graph) Query(param cmodel.GraphQueryParam, resp *cmodel.GraphQueryRe
 	key := g.FormRrdCacheKey(md5, dsType, step)
 	filename := g.RrdFileName(cfg.RRD.Storage, md5, dsType, step)
 
+retry:
 	// read cached items
 	items, flag := store.GraphItems.FetchAll(key)
 	items_size := len(items)
 
-retry:
 	if cfg.Migrate.Enabled && flag&g.GRAPH_F_MISS != 0 {
 		/* Code is ugly, but sort of works, chan maybe better */
 		/* https://github.com/tjgq/broadcast/blob/master/broadcast.go  */
@@ -138,7 +138,7 @@ retry:
 		if items_size > 0 {
 			//rrdtool.Net_task_ch
 			rrdtool.Net_task_ch[node] <- &rrdtool.Net_task_t{
-				Method: rrdtool.NET_TASK_M_FETCH,
+				Method: rrdtool.NET_TASK_M_SEND,
 				Done:   done,
 				Key:    key,
 			}
