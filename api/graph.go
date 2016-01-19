@@ -90,7 +90,6 @@ func (this *Graph) Query(param cmodel.GraphQueryParam, resp *cmodel.GraphQueryRe
 	var (
 		datas      []*cmodel.RRDData
 		datas_size int
-		retry_nb   int
 	)
 
 	// statistics
@@ -119,32 +118,22 @@ func (this *Graph) Query(param cmodel.GraphQueryParam, resp *cmodel.GraphQueryRe
 	key := g.FormRrdCacheKey(md5, dsType, step)
 	filename := g.RrdFileName(cfg.RRD.Storage, md5, dsType, step)
 
-retry:
 	// read cached items
 	items, flag := store.GraphItems.FetchAll(key)
 	items_size := len(items)
 
 	if cfg.Migrate.Enabled && flag&g.GRAPH_F_MISS != 0 {
-		/* Code is ugly, but sort of works, chan maybe better */
-		/* https://github.com/tjgq/broadcast/blob/master/broadcast.go  */
-		if flag&g.GRAPH_F_FETCHING != 0 && retry_nb < 20 {
-			time.Sleep(time.Millisecond * 100)
-			retry_nb++
-			goto retry
-		}
-		//fetch rrdfile from remote and retry
+		//迁移过程中新数据无法查看
 		node, _ := rrdtool.Consistent.Get(param.Endpoint + "/" + param.Counter)
 		done := make(chan error, 1)
-		if items_size > 0 {
-			//rrdtool.Net_task_ch
-			rrdtool.Net_task_ch[node] <- &rrdtool.Net_task_t{
-				Method: rrdtool.NET_TASK_M_FETCH1,
-				Done:   done,
-				Key:    key,
-			}
-			<-done
+		rrdtool.Net_task_ch[node] <- &rrdtool.Net_task_t{
+			Method: rrdtool.NET_TASK_M_QUERY,
+			Done:   done,
+			Args:   param,
+			Reply:  resp,
 		}
-		goto retry
+		err := <-done
+		return err
 	}
 
 	// read data from rrd file

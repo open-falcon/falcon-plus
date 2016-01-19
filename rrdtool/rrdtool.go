@@ -230,7 +230,7 @@ func FlushAll() {
 	log.Printf("flush hash done (disk:%08ld net:%08ld)\n", disk_counter, net_counter)
 }
 
-func FlushKey(key string) {
+func FlushByKey(key string) {
 
 	md5, dsType, step, err := g.SplitRrdCacheKey(key)
 	if err != nil {
@@ -245,59 +245,55 @@ func FlushKey(key string) {
 	FlushFile(filename, items)
 }
 
+func FetchByKey(key string) {
+	done := make(chan error)
+
+	item := store.GraphItems.First(key)
+	if item == nil {
+		return
+	}
+	node, err := Consistent.Get(item.PrimaryKey())
+	if err != nil {
+		return
+	}
+	Net_task_ch[node] <- &Net_task_t{
+		Method: NET_TASK_M_FETCH,
+		Key:    key,
+		Done:   done,
+	}
+	// net_task slow, shouldn't block syncDisk() or FlushAll()
+	// warning: recev sigout when migrating, maybe lost memory data
+	go func() {
+		err := <-done
+		if err != nil {
+			log.Printf("get %s from remote err[%s]\n", key, err)
+			return
+		}
+		atomic.AddUint64(&net_counter, 1)
+		//todo: flushfile after getfile? not yet
+	}()
+}
+
 func FlushRRD(idx int) {
-	var (
-		cfg   *g.GlobalConfig
-		begin time.Time
-		keys  []string
-		item  *cmodel.GraphItem
-		node  string
-		err   error
-		flag  uint32
-	)
-	cfg = g.Config()
-	begin = time.Now()
+	begin := time.Now()
 	atomic.StoreInt32(&flushrrd_timeout, 0)
 
-	keys = store.GraphItems.KeysByIndex(idx)
+	keys := store.GraphItems.KeysByIndex(idx)
 	if len(keys) == 0 {
 		return
 	}
 
 	for _, key := range keys {
-		flag, _ = store.GraphItems.GetFlag(key)
+		flag, _ := store.GraphItems.GetFlag(key)
 
 		//write err data to local filename
-		if cfg.Migrate.Enabled && flag&g.GRAPH_F_MISS != 0 {
-			done := make(chan error)
-
+		if g.Config().Migrate.Enabled && flag&g.GRAPH_F_MISS != 0 {
 			if time.Since(begin) > time.Millisecond*g.FLUSH_DISK_STEP {
 				atomic.StoreInt32(&flushrrd_timeout, 1)
 			}
-			if item = store.GraphItems.First(key); item == nil {
-				continue
-			}
-			if node, err = Consistent.Get(item.PrimaryKey()); err != nil {
-				continue
-			}
-			Net_task_ch[node] <- &Net_task_t{
-				Method: NET_TASK_M_FETCH,
-				Key:    key,
-				Done:   done,
-			}
-			// net_task slow, shouldn't block syncDisk() or FlushAll()
-			// warning: recev sigout when migrating, maybe lost memory data
-			go func() {
-				err := <-done
-				if err != nil {
-					log.Printf("get %s from remote err[%s]\n", key, err)
-					return
-				}
-				atomic.AddUint64(&net_counter, 1)
-				//todo: flushfile after getfile? not yet
-			}()
+			FetchByKey(key)
 		} else {
-			FlushKey(key)
+			FlushByKey(key)
 		}
 	}
 }
