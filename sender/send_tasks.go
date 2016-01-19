@@ -20,9 +20,9 @@ const (
 func startSendTasks() {
 	cfg := g.Config()
 	// init semaphore
-	judgeConcurrent := cfg.Judge.MaxIdle
-	graphConcurrent := cfg.Graph.MaxIdle
-	tsdbConcurrent := cfg.Tsdb.Concurrent
+	judgeConcurrent := cfg.Judge.MaxConns
+	graphConcurrent := cfg.Graph.MaxConns
+	tsdbConcurrent := cfg.Tsdb.MaxConns
 
 	if tsdbConcurrent < 1 {
 		tsdbConcurrent = 1

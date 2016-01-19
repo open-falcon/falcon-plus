@@ -2,7 +2,6 @@ package conn_pool
 
 import (
 	"fmt"
-	"log"
 	"net"
 	"net/rpc"
 	"sync"
@@ -159,18 +158,27 @@ func (this TsdbClient) Closed() bool {
 	return this.cli == nil
 }
 
+func (this TsdbClient) Close() error {
+	if this.cli != nil {
+		err := this.cli.Close()
+		this.cli = nil
+		return err
+	}
+	return nil
+}
+
 func newTsdbConnPool(address string, maxConns int, maxIdle int, connTimeout int) *ConnPool {
 	pool := NewConnPool("tsdb", address, maxConns, maxIdle)
 
-	pool.New = func(name string) (TsdbClient, error) {
+	pool.New = func(name string) (NConn, error) {
 		_, err := net.ResolveTCPAddr("tcp", address)
 		if err != nil {
-			return TsdbClient{nil}, err
+			return nil, err
 		}
 
-		conn, err := net.DialTimeout("tcp", address, connTimeout)
+		conn, err := net.DialTimeout("tcp", address, time.Duration(connTimeout)*time.Millisecond)
 		if err != nil {
-			return TsdbClient{nil}, err
+			return nil, err
 		}
 
 		return TsdbClient{conn}, nil
@@ -214,15 +222,15 @@ func (this *TsdbConnPoolHelper) Send(data []byte) (err error) {
 	}()
 
 	select {
-	case <-time.After(time.Duration(this.p.callTimeout) * time.Millisecond):
-		connPool.ForceClose(conn)
-		return fmt.Errorf("%s, call timeout", this.p.address)
+	case <-time.After(time.Duration(this.callTimeout) * time.Millisecond):
+		this.p.ForceClose(conn)
+		return fmt.Errorf("%s, call timeout", this.address)
 	case err = <-done:
 		if err != nil {
-			connPool.ForceClose(conn)
-			err = fmt.Errorf("%s, call failed, err %v. proc: %s", this.p.address, err, connPool.Proc())
+			this.p.ForceClose(conn)
+			err = fmt.Errorf("%s, call failed, err %v. proc: %s", this.address, err, this.p.Proc())
 		} else {
-			connPool.Release(conn)
+			this.p.Release(conn)
 		}
 		return err
 	}
