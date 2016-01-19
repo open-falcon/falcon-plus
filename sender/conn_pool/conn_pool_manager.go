@@ -146,87 +146,92 @@ func createOnePool(name string, address string, connTimeout time.Duration, maxCo
 	return p
 }
 
-type SafeTcpConnPools struct {
-	sync.RWMutex
-	M           chan net.Conn
-	MaxSize     int
-	ConnTimeout int
-	CallTimeout int
-	MaxRetry    int
-	Address     string
+// TSDB
+type TsdbClient struct {
+	cli net.Conn
 }
 
-func (this *SafeTcpConnPools) Send(data []byte) (err error) {
-	this.Lock()
-	defer this.Unlock()
+func (this TsdbClient) Name() string {
+	return "tsdb"
+}
 
-	conn := <-this.M
-	defer func() {
-		this.M <- conn
-	}()
+func (this TsdbClient) Closed() bool {
+	return this.cli == nil
+}
 
-	if conn == nil {
-		conn, err = createOneTcpConn(this.Address, this.ConnTimeout, this.MaxRetry)
+func newTsdbConnPool(address string, maxConns int, maxIdle int, connTimeout int) *ConnPool {
+	pool := NewConnPool("tsdb", address, maxConns, maxIdle)
+
+	pool.New = func(name string) (TsdbClient, error) {
+		_, err := net.ResolveTCPAddr("tcp", address)
 		if err != nil {
-			return
+			return TsdbClient{nil}, err
 		}
+
+		conn, err := net.DialTimeout("tcp", address, connTimeout)
+		if err != nil {
+			return TsdbClient{nil}, err
+		}
+
+		return TsdbClient{conn}, nil
 	}
+
+	return pool
+}
+
+type TsdbConnPoolHelper struct {
+	p           *ConnPool
+	maxConns    int
+	maxIdle     int
+	connTimeout int
+	callTimeout int
+	address     string
+}
+
+func NewTsdbConnPoolHelper(address string, maxConns, maxIdle, connTimeout, callTimeout int) *TsdbConnPoolHelper {
+	return &TsdbConnPoolHelper{
+		p:           newTsdbConnPool(address, maxConns, maxIdle, connTimeout),
+		maxConns:    maxConns,
+		maxIdle:     maxIdle,
+		connTimeout: connTimeout,
+		callTimeout: callTimeout,
+		address:     address,
+	}
+}
+
+func (this *TsdbConnPoolHelper) Send(data []byte) (err error) {
+	conn, err := this.p.Fetch()
+	if err != nil {
+		return fmt.Errorf("get connection fail: err %v. proc: %s", err, this.p.Proc())
+	}
+
+	cli := conn.(TsdbClient).cli
 
 	done := make(chan error)
 	go func() {
-		_, err = conn.Write(data)
+		_, err = cli.Write(data)
 		done <- err
 	}()
 
 	select {
-	case <-time.After(time.Duration(this.CallTimeout) * time.Millisecond):
-		conn.Close()
-		conn = nil
-		err = fmt.Errorf("%s, call timeout", this.Address)
+	case <-time.After(time.Duration(this.p.callTimeout) * time.Millisecond):
+		connPool.ForceClose(conn)
+		return fmt.Errorf("%s, call timeout", this.p.address)
 	case err = <-done:
 		if err != nil {
-			conn.Close()
-			conn = nil
-			err = fmt.Errorf("%s send data fail: %v", this.Address, err)
+			connPool.ForceClose(conn)
+			err = fmt.Errorf("%s, call failed, err %v. proc: %s", this.p.address, err, connPool.Proc())
+		} else {
+			connPool.Release(conn)
 		}
+		return err
 	}
 
 	return
 }
 
-func CreateSafeTcpConnPools(maxRetry, maxSize, connTimeout, callTimeout int, address string) *SafeTcpConnPools {
-	cp := &SafeTcpConnPools{M: make(chan net.Conn, maxSize), MaxRetry: maxRetry, MaxSize: maxSize,
-		ConnTimeout: connTimeout, CallTimeout: callTimeout, Address: address}
-
-	for i := 0; i < maxSize; i++ {
-		conn, err := createOneTcpConn(address, connTimeout, maxRetry)
-		if err != nil {
-			cp.M <- nil
-			continue
-		}
-		cp.M <- conn
+func (this *TsdbConnPoolHelper) Destroy() {
+	if this.p != nil {
+		this.p.Destroy()
 	}
-	return cp
-}
-
-func createOneTcpConn(address string, connTimeout, retry int) (conn net.Conn, err error) {
-	ct := time.Duration(connTimeout) * time.Millisecond
-
-	for i := 0; i < retry; i++ {
-		_, err = net.ResolveTCPAddr("tcp", address)
-		if err != nil {
-			continue
-		}
-
-		conn, err = net.DialTimeout("tcp", address, ct)
-		if err == nil {
-			break
-		}
-	}
-
-	if err != nil {
-		log.Printf("build %s tcp connect fail: %v", address, err)
-	}
-
-	return
 }

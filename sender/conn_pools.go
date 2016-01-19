@@ -18,8 +18,7 @@ func initConnPools() {
 
 	// tsdb
 	if cfg.Tsdb.Enabled {
-		TsdbConnPools = cpool.CreateSafeTcpConnPools(cfg.Tsdb.MaxRetry, cfg.Tsdb.Concurrent, cfg.Tsdb.ConnTimeout,
-			cfg.Tsdb.CallTimeout, cfg.Tsdb.Address)
+		TsdbConnPoolHelper = cpool.NewTsdbConnPoolHelper(cfg.Tsdb.Address, cfg.Tsdb.MaxConns, cfg.Tsdb.MaxIdle, cfg.Tsdb.ConnTimeout, cfg.Tsdb.CallTimeout)
 	}
 
 	// graph
@@ -49,4 +48,5 @@ func DestroyConnPools() {
 	JudgeConnPools.Destroy()
 	GraphConnPools.Destroy()
 	GraphMigratingConnPools.Destroy()
+	TsdbConnPoolHelper.Destroy()
 }

@@ -35,7 +35,7 @@ var (
 // node_address -> connection_pool
 var (
 	JudgeConnPools          *cpool.SafeRpcConnPools
-	TsdbConnPools           *cpool.SafeTcpConnPools
+	TsdbConnPoolHelper      *cpool.TsdbConnPoolHelper
 	GraphConnPools          *cpool.SafeRpcConnPools
 	GraphMigratingConnPools *cpool.SafeRpcConnPools
 )

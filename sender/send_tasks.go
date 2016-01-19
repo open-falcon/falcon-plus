@@ -226,7 +226,7 @@ func forward2TsdbTask(concurrent int) {
 
 			var err error
 			for i := 0; i < retry; i++ {
-				err = TsdbConnPools.Send(tsdbBuffer.Bytes())
+				err = TsdbConnPoolHelper.Send(tsdbBuffer.Bytes())
 				if err == nil {
 					proc.SendToTsdbCnt.IncrBy(int64(len(itemList)))
 					break

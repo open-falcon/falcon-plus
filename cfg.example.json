@@ -45,8 +45,9 @@
         "batch": 200,
         "connTimeout": 1000,
         "callTimeout": 5000,
+        "maxConns": 32,
+        "maxIdle": 32,
         "retry": 3,
-        "concurrent": 32,
         "address": "127.0.0.1:8088"
     }
 }
