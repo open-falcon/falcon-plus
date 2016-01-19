@@ -39,7 +39,7 @@
         },
         "clusterMigrating": {
         }
-    }
+    },
     "tsdb": {
         "enabled": true,
         "batch": 200,
