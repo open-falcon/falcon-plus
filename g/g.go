@@ -12,9 +12,13 @@ import (
 // 0.0.5: use absolute paths in 'import'
 // 0.0.6: support load balance between transfer instances
 // 0.0.7: substitute common pkg for the old model pkg
+// 0.0.8: do not retry in send, change send concurrent
+// 0.0.9: add proc for send failure, rm git version
+// 0.0.10: control sending concurrent of slow transfers
+// 0.0.11: use pfc
 
 const (
-	VERSION      = "0.0.7"
+	VERSION      = "0.0.11"
 	GAUGE        = "GAUGE"
 	COUNTER      = "COUNTER"
 	DERIVE       = "DERIVE"

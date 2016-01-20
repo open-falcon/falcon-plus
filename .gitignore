@@ -32,5 +32,7 @@ _testmain.go
 /falcon-gateway*
 /cfg.json
 /test/build
+git.go
 
-gitversion
+.gitversion
+perfcounter.json
