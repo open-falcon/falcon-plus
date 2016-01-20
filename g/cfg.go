@@ -53,6 +53,17 @@ type GraphConfig struct {
 	ClusterMigrating2 map[string]*ClusterNode `json:"clusterMigrating2"`
 }
 
+type TsdbConfig struct {
+	Enabled     bool   `json:"enabled"`
+	Batch       int    `json:"batch"`
+	ConnTimeout int    `json:"connTimeout"`
+	CallTimeout int    `json:"callTimeout"`
+	MaxConns    int    `json:"maxConns"`
+	MaxIdle     int    `json:"maxIdle"`
+	MaxRetry    int    `json:"retry"`
+	Address     string `json:"address"`
+}
+
 type GlobalConfig struct {
 	Debug  bool          `json:"debug"`
 	Http   *HttpConfig   `json:"http"`
@@ -60,6 +71,7 @@ type GlobalConfig struct {
 	Socket *SocketConfig `json:"socket"`
 	Judge  *JudgeConfig  `json:"judge"`
 	Graph  *GraphConfig  `json:"graph"`
+	Tsdb   *TsdbConfig   `json:"tsdb"`
 }
 
 var (

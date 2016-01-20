@@ -16,6 +16,11 @@ func initConnPools() {
 	JudgeConnPools = cpool.CreateSafeRpcConnPools(cfg.Judge.MaxConns, cfg.Judge.MaxIdle,
 		cfg.Judge.ConnTimeout, cfg.Judge.CallTimeout, judgeInstances.ToSlice())
 
+	// tsdb
+	if cfg.Tsdb.Enabled {
+		TsdbConnPoolHelper = cpool.NewTsdbConnPoolHelper(cfg.Tsdb.Address, cfg.Tsdb.MaxConns, cfg.Tsdb.MaxIdle, cfg.Tsdb.ConnTimeout, cfg.Tsdb.CallTimeout)
+	}
+
 	// graph
 	graphInstances := nset.NewSafeSet()
 	for _, nitem := range cfg.Graph.Cluster2 {
@@ -43,4 +48,5 @@ func DestroyConnPools() {
 	JudgeConnPools.Destroy()
 	GraphConnPools.Destroy()
 	GraphMigratingConnPools.Destroy()
+	TsdbConnPoolHelper.Destroy()
 }

@@ -25,6 +25,7 @@ var (
 // 发送缓存队列
 // node -> queue_of_data
 var (
+	TsdbQueue            *nlist.SafeListLimited
 	JudgeQueues          = make(map[string]*nlist.SafeListLimited)
 	GraphQueues          = make(map[string]*nlist.SafeListLimited)
 	GraphMigratingQueues = make(map[string]*nlist.SafeListLimited)
@@ -34,6 +35,7 @@ var (
 // node_address -> connection_pool
 var (
 	JudgeConnPools          *cpool.SafeRpcConnPools
+	TsdbConnPoolHelper      *cpool.TsdbConnPoolHelper
 	GraphConnPools          *cpool.SafeRpcConnPools
 	GraphMigratingConnPools *cpool.SafeRpcConnPools
 )
@@ -181,6 +183,32 @@ func convert2GraphItem(d *cmodel.MetaData) (*cmodel.GraphItem, error) {
 	item.Timestamp = alignTs(item.Timestamp, int64(item.Step)) //item.Timestamp - item.Timestamp%int64(item.Step)
 
 	return item, nil
+}
+
+// 将原始数据入到tsdb发送缓存队列
+func Push2TsdbSendQueue(items []*cmodel.MetaData) {
+	for _, item := range items {
+		tsdbItem := convert2TsdbItem(item)
+		isSuccess := TsdbQueue.PushFront(tsdbItem)
+
+		if !isSuccess {
+			proc.SendToTsdbDropCnt.Incr()
+		}
+	}
+}
+
+// 转化为tsdb格式
+func convert2TsdbItem(d *cmodel.MetaData) *cmodel.TsdbItem {
+	t := cmodel.TsdbItem{Tags: make(map[string]string)}
+
+	for k, v := range d.Tags {
+		t.Tags[k] = v
+	}
+	t.Tags["endpoint"] = d.Endpoint
+	t.Metric = d.Metric
+	t.Timestamp = d.Timestamp
+	t.Value = d.Value
+	return &t
 }
 
 func alignTs(ts int64, period int64) int64 {
