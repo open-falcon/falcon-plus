@@ -123,26 +123,29 @@ func (this *Graph) Query(param cmodel.GraphQueryParam, resp *cmodel.GraphQueryRe
 	items_size := len(items)
 
 	if cfg.Migrate.Enabled && flag&g.GRAPH_F_MISS != 0 {
-		//迁移过程中新数据无法查看
 		node, _ := rrdtool.Consistent.Get(param.Endpoint + "/" + param.Counter)
 		done := make(chan error, 1)
+		res := &cmodel.GraphAccurateQueryResponse{}
 		rrdtool.Net_task_ch[node] <- &rrdtool.Net_task_t{
 			Method: rrdtool.NET_TASK_M_QUERY,
 			Done:   done,
 			Args:   param,
-			Reply:  resp,
+			Reply:  res,
 		}
-		err := <-done
-		return err
+		<-done
+		// fetch data from remote
+		datas = res.Values
+		datas_size = len(datas)
+	} else {
+		// read data from rrd file
+		datas, _ = rrdtool.Fetch(filename, param.ConsolFun, start_ts, end_ts, step)
+		datas_size = len(datas)
 	}
-
-	// read data from rrd file
-	datas, _ = rrdtool.Fetch(filename, param.ConsolFun, start_ts, end_ts, step)
-	datas_size = len(datas)
 
 	nowTs := time.Now().Unix()
 	lastUpTs := nowTs - nowTs%int64(step)
 	rra1StartTs := lastUpTs - int64(rrdtool.RRA1PointCnt*step)
+
 	// consolidated, do not merge
 	if start_ts < rra1StartTs {
 		resp.Values = datas
