@@ -148,10 +148,11 @@ func createOnePool(name string, address string, connTimeout time.Duration, maxCo
 // TSDB
 type TsdbClient struct {
 	cli net.Conn
+	name string
 }
 
 func (this TsdbClient) Name() string {
-	return "tsdb"
+	return this.name
 }
 
 func (this TsdbClient) Closed() bool {
@@ -181,7 +182,7 @@ func newTsdbConnPool(address string, maxConns int, maxIdle int, connTimeout int)
 			return nil, err
 		}
 
-		return TsdbClient{conn}, nil
+		return TsdbClient{conn, name}, nil
 	}
 
 	return pool
