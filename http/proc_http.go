@@ -7,32 +7,39 @@ import (
 
 	cutils "github.com/open-falcon/common/utils"
 
-	"github.com/open-falcon/gateway/proc"
+	"github.com/open-falcon/gateway/g"
 	"github.com/open-falcon/gateway/sender"
 )
 
 func configProcHttpRoutes() {
-	// counter
-	http.HandleFunc("/counter/all", func(w http.ResponseWriter, r *http.Request) {
-		RenderDataJson(w, proc.GetAll())
-	})
 	// TO BE DISCARDed
+	http.HandleFunc("/counter/all", func(w http.ResponseWriter, r *http.Request) {
+		RenderDataJson(w, make([]interface{}, 0))
+	})
 	http.HandleFunc("/statistics/all", func(w http.ResponseWriter, r *http.Request) {
-		RenderDataJson(w, proc.GetAll())
+		RenderDataJson(w, make([]interface{}, 0))
 	})
 
 	// proc
 	http.HandleFunc("/proc/counters", func(w http.ResponseWriter, r *http.Request) {
-		RenderDataJson(w, proc.GetAll())
+		RenderDataJson(w, make([]interface{}, 0))
 	})
 
 	http.HandleFunc("/proc/transfer/pools", func(w http.ResponseWriter, r *http.Request) {
 		RenderDataJson(w, sender.SenderConnPools.Proc())
 	})
 
-	http.HandleFunc("/proc/transfer/sendcnt", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/proc/transfer/send", func(w http.ResponseWriter, r *http.Request) {
 		ret := make([]interface{}, 0)
 		for _, p := range sender.TransferSendCnt {
+			ret = append(ret, p.Get())
+		}
+		RenderDataJson(w, ret)
+	})
+
+	http.HandleFunc("/proc/transfer/sendfail", func(w http.ResponseWriter, r *http.Request) {
+		ret := make([]interface{}, 0)
+		for _, p := range sender.TransferSendFailCnt {
 			ret = append(ret, p.Get())
 		}
 		RenderDataJson(w, ret)
@@ -56,8 +63,8 @@ func configProcHttpRoutes() {
 				}
 			}
 		}
-		proc.RecvDataTrace.SetPK(cutils.PK(endpoint, metric, tags))
-		RenderDataJson(w, proc.RecvDataTrace.GetAllTraced())
+		g.RecvDataTrace.SetPK(cutils.PK(endpoint, metric, tags))
+		RenderDataJson(w, g.RecvDataTrace.GetAllTraced())
 	})
 
 	// filter
@@ -88,12 +95,12 @@ func configProcHttpRoutes() {
 			}
 		}
 
-		err = proc.RecvDataFilter.SetFilter(cutils.PK(endpoint, metric, tags), opt, threadhold)
+		err = g.RecvDataFilter.SetFilter(cutils.PK(endpoint, metric, tags), opt, threadhold)
 		if err != nil {
 			RenderDataJson(w, err.Error())
 			return
 		}
 
-		RenderDataJson(w, proc.RecvDataFilter.GetAllFiltered())
+		RenderDataJson(w, g.RecvDataFilter.GetAllFiltered())
 	})
 }

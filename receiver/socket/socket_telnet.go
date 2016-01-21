@@ -8,10 +8,10 @@ import (
 	"strings"
 	"time"
 
+	pfc "github.com/niean/goperfcounter"
 	cmodel "github.com/open-falcon/common/model"
 
 	"github.com/open-falcon/gateway/g"
-	"github.com/open-falcon/gateway/proc"
 	"github.com/open-falcon/gateway/sender"
 )
 
@@ -61,8 +61,9 @@ func socketTelnetHandle(conn net.Conn) {
 	}
 
 	// statistics
-	proc.SocketRecvCnt.IncrBy(int64(len(items)))
-	proc.RecvCnt.IncrBy(int64(len(items)))
+	count := int64(len(items))
+	pfc.Meter("SocketRecv", count)
+	pfc.Meter("Recv", count)
 
 	if cfg.Transfer.Enabled {
 		sender.Push2SendQueue(items)

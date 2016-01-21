@@ -16,6 +16,7 @@
     "transfer": {
         "enabled": true,
         "batch": 200,
+        "retry": 1,
         "connTimeout": 1000,
         "callTimeout": 5000,
         "maxConns": 32,

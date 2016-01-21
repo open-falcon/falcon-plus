@@ -27,6 +27,7 @@ type SocketConfig struct {
 type TransferConfig struct {
 	Enabled     bool              `json:"enabled"`
 	Batch       int32             `json:"batch"`
+	Retry       int32             `json:"retry"`
 	ConnTimeout int32             `json:"connTimeout"`
 	CallTimeout int32             `json:"callTimeout"`
 	MaxConns    int32             `json:"maxConns"`

@@ -66,6 +66,7 @@ curl -s -X POST -d "[{\"metric\":\"$m\", \"endpoint\":\"$e\", \"timestamp\":$ts,
 
 1. 开关控制符更名为enabled，原来为enable
 2. transfer地址配置改为集群形式cluster，原来为单个地址addr
+3. transfer添加重试次数retry，默认1、不重试
 
 
 ```python
@@ -87,6 +88,7 @@ curl -s -X POST -d "[{\"metric\":\"$m\", \"endpoint\":\"$e\", \"timestamp\":$ts,
     "transfer": {
         "enabled": true, //true/false, 表示是否开启向tranfser转发数据
         "batch": 200, //数据转发的批量大小，可以加快发送速度，建议保持默认值
+        "retry": 2, //重试次数，默认1、不重试
         "connTimeout": 1000, //毫秒，与后端建立连接的超时时间，可以根据网络质量微调，建议保持默认
         "callTimeout": 5000, //毫秒，发送数据给后端的超时时间，可以根据网络质量微调，建议保持默认
         "maxConns": 32, //连接池相关配置，最大连接数，建议保持默认
@@ -98,6 +100,20 @@ curl -s -X POST -d "[{\"metric\":\"$m\", \"endpoint\":\"$e\", \"timestamp\":$ts,
 }
 ```
 
+从版本**v0.0.11**后，gateway组件引入了golang业务监控组件[GoPerfcounter](https://github.com/niean/goperfcounter)。GoPerfcounter会主动将gateway的内部状态数据，push给本地的falcon-agent，其配置文件`perfcounter.json`内容如下，含义见[这里](https://github.com/niean/goperfcounter/blob/master/README.md#配置)
+
+```python
+{
+    "tags": "service=gateway", // 业务监控数据的标签
+    "bases": ["debug","runtime"], // 开启gvm基础信息采集
+    "push": { // 开启主动推送,数据将被推送至本机的falcon-agent
+        "enabled": true
+    },
+    "http": { // 开启http调试，并复用gateway的http端口
+        "enabled": true
+    }
+}
+```
 
 ## Debug
 可以通过调试脚本./test/debug查看服务器的内部状态数据，含义如下
@@ -105,45 +121,45 @@ curl -s -X POST -d "[{\"metric\":\"$m\", \"endpoint\":\"$e\", \"timestamp\":$ts,
 ```bash
 # bash ./test/debug
 {
-    "data": [
-        { // counter of items received
-            "Cnt": 0,
-            "Name": "RecvCnt",
-            "Other": {},
-            "Qps": 0,
-            "Time": "2015-08-14 06:41:57"
+    "data": {
+        "gauge": {
+            "SendQueueSize": { // size of cached items
+                "value": 0
+            }
         },
-        { // counter of items sent to transfer
-            "Cnt": 0,
-            "Name": "SendCnt",
-            "Other": {},
-            "Qps": 0,
-            "Time": "2015-08-14 06:41:57"
-        },
-        { // counter of items drop(gateway would drop items when caching too many)
-            "Cnt": 0,
-            "Name": "SendDropCnt",
-            "Other": {},
-            "Qps": 0,
-            "Time": "2015-08-14 06:41:57"
-        },
-        { // counter of items sent to transfer failed
-            "Cnt": 0,
-            "Name": "SendFailCnt",
-            "Other": {},
-            "Qps": 0,
-            "Time": "2015-08-14 06:41:57"
-        },
-        { // size of cached items
-            "Cnt": 0,
-            "Name": "SendQueuesCnt",
-            "Other": {},
-            "Time": "2015-08-14 06:41:54"
+        "meter": {
+            "Recv": { // counter of items received
+                "rate": 954.88407253945127,
+                "rate.15min": 938.12973764674587,
+                "rate.1min": 892.82060496256759,
+                "rate.5min": 889.51059449035426,
+                "sum": 2460636
+            },
+            "Send": { // counter of items sent to transfer
+                "rate": 950.21411950079619,
+                "rate.15min": 918.55392627259835,
+                "rate.1min": 886.32981239416608,
+                "rate.5min": 888.16132862191205,
+                "sum": 2458708
+            },
+            "SendFail": { // counter of items sent to transfer failed
+                "rate": 0,
+                "rate.15min": 0,
+                "rate.1min": 0,
+                "rate.5min": 0,
+                "sum": 0
+            },  
+            "SendDrop": { // counter of items sent to transfer drop
+                "rate": 0,
+                "rate.15min": 0,
+                "rate.1min": 0,
+                "rate.5min": 0,
+                "sum": 0
+            },    
         }
-    ],
+    },
     "msg": "success"
 }
-
 ```
 
 ## TODO

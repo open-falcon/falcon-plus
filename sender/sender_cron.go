@@ -3,7 +3,7 @@ package sender
 import (
 	"time"
 
-	"github.com/open-falcon/gateway/proc"
+	pfc "github.com/niean/goperfcounter"
 )
 
 const (
@@ -23,5 +23,5 @@ func startProcCron() {
 }
 
 func refreshSendingCacheSize() {
-	proc.SendQueuesCnt.SetCnt(int64(SenderQueue.Len()))
+	pfc.Gauge("SendQueueSize", int64(SenderQueue.Len()))
 }
