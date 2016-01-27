@@ -50,5 +50,11 @@ func BuildMappers() {
 			},
 			Interval: interval,
 		},
+		FuncsAndInterval{
+			Fs: []func() []*model.MetricValue{
+				UrlMetrics,
+			},
+			Interval: interval,
+		},
 	}
 }

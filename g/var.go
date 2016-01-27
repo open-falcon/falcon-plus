@@ -89,6 +89,23 @@ func SendToTransfer(metrics []*model.MetricValue) {
 }
 
 var (
+	reportUrls     map[string]string
+	reportUrlsLock = new(sync.RWMutex)
+)
+
+func ReportUrls() map[string]string {
+	reportUrlsLock.RLock()
+	defer reportUrlsLock.RUnlock()
+	return reportUrls
+}
+
+func SetReportUrls(urls map[string]string) {
+	reportUrlsLock.RLock()
+	defer reportUrlsLock.RUnlock()
+	reportUrls = urls
+}
+
+var (
 	reportPorts     []int64
 	reportPortsLock = new(sync.RWMutex)
 )

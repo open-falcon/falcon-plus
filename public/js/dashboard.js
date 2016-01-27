@@ -109,7 +109,7 @@ jQuery.extend(jQuery.fn.dataTableExt.oSort, {
 var dashboard = {};
 
 dashboard.getRam = function () {
-    $.get("/page/memory", function (data) {
+    $.get("page/memory", function (data) {
         if (data.msg == "success") {
             var ram_total = data.data[0];
             var ram_used = Math.round((data.data[1] / ram_total) * 100);
@@ -126,7 +126,7 @@ dashboard.getRam = function () {
 }
 
 dashboard.getDf = function () {
-    $.get("/page/df", function (data) {
+    $.get("page/df", function (data) {
         var table = $("#df_dashboard");
         var ex = document.getElementById("df_dashboard");
         if ($.fn.DataTable.fnIsDataTable(ex)) {
@@ -158,7 +158,7 @@ dashboard.getDf = function () {
 }
 
 dashboard.getCpu = function () {
-    $.get("/page/cpu/usage", function (data) {
+    $.get("page/cpu/usage", function (data) {
         if (data.msg != "success") {
             return
         }
@@ -193,7 +193,7 @@ dashboard.getCpu = function () {
 }
 
 dashboard.getDiskstats = function () {
-    $.get("/page/diskio", function (data) {
+    $.get("page/diskio", function (data) {
         var table = $("#diskstats_dashboard");
         var ex = document.getElementById("diskstats_dashboard");
         if ($.fn.DataTable.fnIsDataTable(ex)) {
@@ -226,18 +226,18 @@ dashboard.getDiskstats = function () {
 }
 
 dashboard.getOs = function () {
-    generate_os_data("/proc/kernel/version", "#os-info");
-    generate_os_data("/proc/kernel/hostname", "#os-hostname");
-    generate_os_data("/system/date", "#os-time");
-    generate_os_data("/page/system/uptime", "#os-uptime");
+    generate_os_data("proc/kernel/version", "#os-info");
+    generate_os_data("proc/kernel/hostname", "#os-hostname");
+    generate_os_data("system/date", "#os-time");
+    generate_os_data("page/system/uptime", "#os-uptime");
 
-    $.get("/version", function(d){
+    $.get("version", function(d){
         $("#agent-version").text(d);
     });
 }
 
 dashboard.getLoadAverage = function () {
-    $.get("/page/system/loadavg", function (d) {
+    $.get("page/system/loadavg", function (d) {
         if (d.msg != "success") {
             return
         }
@@ -248,7 +248,7 @@ dashboard.getLoadAverage = function () {
         $("#cpu-5min-per").text(d.data[1][1]);
         $("#cpu-15min-per").text(d.data[2][1]);
     }, "json");
-    generate_os_data("/proc/cpu/num", "#core-number");
+    generate_os_data("proc/cpu/num", "#core-number");
 }
 
 /**
