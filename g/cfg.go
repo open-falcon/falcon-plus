@@ -2,10 +2,11 @@ package g
 
 import (
 	"encoding/json"
-	"github.com/toolkits/file"
 	"log"
 	"os"
 	"sync"
+
+	"github.com/toolkits/file"
 )
 
 type PluginConfig struct {
@@ -23,10 +24,10 @@ type HeartbeatConfig struct {
 }
 
 type TransferConfig struct {
-	Enabled  bool   `json:"enabled"`
-	Addr     string `json:"addr"`
-	Interval int    `json:"interval"`
-	Timeout  int    `json:"timeout"`
+	Enabled  bool     `json:"enabled"`
+	Addrs    []string `json:"addrs"`
+	Interval int      `json:"interval"`
+	Timeout  int      `json:"timeout"`
 }
 
 type HttpConfig struct {

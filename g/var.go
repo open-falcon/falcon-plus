@@ -1,14 +1,16 @@
 package g
 
 import (
-	"github.com/open-falcon/common/model"
-	"github.com/toolkits/net"
-	"github.com/toolkits/slice"
 	"log"
 	"os"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/CMGS/consistent"
+	"github.com/open-falcon/common/model"
+	"github.com/toolkits/net"
+	"github.com/toolkits/slice"
 )
 
 var Root string
@@ -32,8 +34,9 @@ func InitLocalIps() {
 }
 
 var (
-	HbsClient      *SingleConnRpcClient
-	TransferClient *SingleConnRpcClient
+	HbsClient       *SingleConnRpcClient
+	Transfers       *consistent.Consistent
+	TransferClients map[string]*SingleConnRpcClient = map[string]*SingleConnRpcClient{}
 )
 
 func InitRpcClients() {
@@ -45,9 +48,9 @@ func InitRpcClients() {
 	}
 
 	if Config().Transfer.Enabled {
-		TransferClient = &SingleConnRpcClient{
-			RpcServer: Config().Transfer.Addr,
-			Timeout:   time.Duration(Config().Transfer.Timeout) * time.Millisecond,
+		Transfers = consistent.New()
+		for _, transfer := range Config().Transfer.Addrs {
+			Transfers.Add(transfer)
 		}
 	}
 }
@@ -64,8 +67,19 @@ func SendToTransfer(metrics []*model.MetricValue) {
 	}
 
 	var resp model.TransferResponse
-	err := TransferClient.Call("Transfer.Update", metrics, &resp)
-	if err != nil {
+	for offset := 0; offset < Transfers.Len(); offset++ {
+		addr, _ := Transfers.Get(metrics[0].Endpoint, offset)
+		if _, ok := TransferClients[addr]; !ok {
+			TransferClients[addr] = &SingleConnRpcClient{
+				RpcServer: addr,
+				Timeout:   time.Duration(Config().Transfer.Timeout) * time.Millisecond,
+			}
+		}
+		err := TransferClients[addr].Call("Transfer.Update", metrics, &resp)
+		if err == nil {
+			break
+		}
+		delete(TransferClients, addr)
 		log.Println("call Transfer.Update fail", err)
 	}
 
