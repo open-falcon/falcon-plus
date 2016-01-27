@@ -80,7 +80,7 @@ func SendToTransfer(metrics []*model.MetricValue) {
 			break
 		}
 		delete(TransferClients, addr)
-		log.Println("call Transfer.Update fail", err)
+		log.Println("call Transfer.Update fail", addr, err)
 	}
 
 	if debug {
