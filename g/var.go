@@ -7,7 +7,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/CMGS/consistent"
 	"github.com/open-falcon/common/model"
 	"github.com/toolkits/net"
 	"github.com/toolkits/slice"
@@ -34,9 +33,7 @@ func InitLocalIps() {
 }
 
 var (
-	HbsClient       *SingleConnRpcClient
-	Transfers       *consistent.Consistent
-	TransferClients map[string]*SingleConnRpcClient = map[string]*SingleConnRpcClient{}
+	HbsClient *SingleConnRpcClient
 )
 
 func InitRpcClients() {
@@ -48,10 +45,7 @@ func InitRpcClients() {
 	}
 
 	if Config().Transfer.Enabled {
-		Transfers = consistent.New()
-		for _, transfer := range Config().Transfer.Addrs {
-			Transfers.Add(transfer)
-		}
+		InitTransfers()
 	}
 }
 
@@ -67,21 +61,7 @@ func SendToTransfer(metrics []*model.MetricValue) {
 	}
 
 	var resp model.TransferResponse
-	for offset := 0; offset < Transfers.Len(); offset++ {
-		addr, _ := Transfers.Get(metrics[0].Endpoint, offset)
-		if _, ok := TransferClients[addr]; !ok {
-			TransferClients[addr] = &SingleConnRpcClient{
-				RpcServer: addr,
-				Timeout:   time.Duration(Config().Transfer.Timeout) * time.Millisecond,
-			}
-		}
-		err := TransferClients[addr].Call("Transfer.Update", metrics, &resp)
-		if err == nil {
-			break
-		}
-		delete(TransferClients, addr)
-		log.Println("call Transfer.Update fail", addr, err)
-	}
+	SendMetrics(metrics, resp)
 
 	if debug {
 		log.Println("<=", &resp)
