@@ -218,10 +218,10 @@ func fetch(filename string, cf string, start, end int64, step int) ([]*cmodel.RR
 	return ret, nil
 }
 
-func FlushAll() {
+func FlushAll(force bool) {
 	n := store.GraphItems.Size / 10
 	for i := 0; i < store.GraphItems.Size; i++ {
-		FlushRRD(i)
+		FlushRRD(i, force)
 		if i%n == 0 {
 			log.Printf("flush hash idx:%03d size:03d disk:%08d disk:%08ld net:%08ld\n",
 				i, store.GraphItems.Size, disk_counter, net_counter)
@@ -230,7 +230,7 @@ func FlushAll() {
 	log.Printf("flush hash done (disk:%08ld net:%08ld)\n", disk_counter, net_counter)
 }
 
-func FlushByKey(key string) {
+func CommitByKey(key string) {
 
 	md5, dsType, step, err := g.SplitRrdCacheKey(key)
 	if err != nil {
@@ -245,7 +245,7 @@ func FlushByKey(key string) {
 	FlushFile(filename, items)
 }
 
-func FetchByKey(key string) {
+func PullByKey(key string) {
 	done := make(chan error)
 
 	item := store.GraphItems.First(key)
@@ -257,7 +257,7 @@ func FetchByKey(key string) {
 		return
 	}
 	Net_task_ch[node] <- &Net_task_t{
-		Method: NET_TASK_M_FETCH,
+		Method: NET_TASK_M_PULL,
 		Key:    key,
 		Done:   done,
 	}
@@ -274,7 +274,7 @@ func FetchByKey(key string) {
 	}()
 }
 
-func FlushRRD(idx int) {
+func FlushRRD(idx int, force bool) {
 	begin := time.Now()
 	atomic.StoreInt32(&flushrrd_timeout, 0)
 
@@ -287,13 +287,13 @@ func FlushRRD(idx int) {
 		flag, _ := store.GraphItems.GetFlag(key)
 
 		//write err data to local filename
-		if g.Config().Migrate.Enabled && flag&g.GRAPH_F_MISS != 0 {
+		if force == false && g.Config().Migrate.Enabled && flag&g.GRAPH_F_MISS != 0 {
 			if time.Since(begin) > time.Millisecond*g.FLUSH_DISK_STEP {
 				atomic.StoreInt32(&flushrrd_timeout, 1)
 			}
-			FetchByKey(key)
+			PullByKey(key)
 		} else {
-			FlushByKey(key)
+			CommitByKey(key)
 		}
 	}
 }

@@ -40,7 +40,7 @@ func start_signal(pid int, cfg *g.GlobalConfig) {
 			log.Println("rpc stop ok")
 
 			rrdtool.Out_done_chan <- 1
-			rrdtool.FlushAll()
+			rrdtool.FlushAll(true)
 			log.Println("rrdtool stop ok")
 
 			log.Println(pid, "exit")

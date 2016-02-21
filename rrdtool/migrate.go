@@ -6,6 +6,7 @@ import (
 	"log"
 	"net"
 	"net/rpc"
+	"os"
 	"sync/atomic"
 	"time"
 
@@ -20,7 +21,7 @@ const (
 	_ = iota
 	NET_TASK_M_SEND
 	NET_TASK_M_QUERY
-	NET_TASK_M_FETCH
+	NET_TASK_M_PULL
 )
 
 type Net_task_t struct {
@@ -34,6 +35,7 @@ type Net_task_t struct {
 const (
 	FETCH_S_SUCCESS = iota
 	FETCH_S_ERR
+	FETCH_S_ISNOTEXIST
 	SEND_S_SUCCESS
 	SEND_S_ERR
 	QUERY_S_SUCCESS
@@ -58,9 +60,10 @@ func init() {
 }
 
 func GetCounter() (ret string) {
-	return fmt.Sprintf("FETCH_S_SUCCESS[%d] FETCH_S_ERR[%d] SEND_S_SUCCESS[%d] SEND_S_ERR[%d] QUERY_S_SUCCESS[%d] QUERY_S_ERR[%d] CONN_S_ERR[%d] CONN_S_DIAL[%d]",
+	return fmt.Sprintf("FETCH_S_SUCCESS[%d] FETCH_S_ERR[%d] FETCH_S_ISNOTEXIST[%d] SEND_S_SUCCESS[%d] SEND_S_ERR[%d] QUERY_S_SUCCESS[%d] QUERY_S_ERR[%d] CONN_S_ERR[%d] CONN_S_DIAL[%d]",
 		atomic.LoadUint64(&stat_cnt[FETCH_S_SUCCESS]),
 		atomic.LoadUint64(&stat_cnt[FETCH_S_ERR]),
+		atomic.LoadUint64(&stat_cnt[FETCH_S_ISNOTEXIST]),
 		atomic.LoadUint64(&stat_cnt[SEND_S_SUCCESS]),
 		atomic.LoadUint64(&stat_cnt[SEND_S_ERR]),
 		atomic.LoadUint64(&stat_cnt[QUERY_S_SUCCESS]),
@@ -122,7 +125,7 @@ func net_task_worker(idx int, ch chan *Net_task_t, client **rpc.Client, addr str
 				} else {
 					atomic.AddUint64(&stat_cnt[QUERY_S_SUCCESS], 1)
 				}
-			} else if task.Method == NET_TASK_M_FETCH {
+			} else if task.Method == NET_TASK_M_PULL {
 				if atomic.LoadInt32(&flushrrd_timeout) != 0 {
 					// hope this more faster than fetch_rrd
 					if err = send_data(client, task.Key, addr); err != nil {
@@ -132,10 +135,15 @@ func net_task_worker(idx int, ch chan *Net_task_t, client **rpc.Client, addr str
 					}
 				} else {
 					if err = fetch_rrd(client, task.Key, addr); err != nil {
-						//fetch失败，直接将缓存数据刷入本地
-						store.GraphItems.SetFlag(task.Key, 0)
-						FlushByKey(task.Key)
-						atomic.AddUint64(&stat_cnt[FETCH_S_ERR], 1)
+						if os.IsNotExist(err) {
+							//文件不存在时，直接将缓存数据刷入本地
+							atomic.AddUint64(&stat_cnt[FETCH_S_ISNOTEXIST], 1)
+							store.GraphItems.SetFlag(task.Key, 0)
+							CommitByKey(task.Key)
+						} else {
+							//warning:其他异常情况，缓存数据会堆积
+							atomic.AddUint64(&stat_cnt[FETCH_S_ERR], 1)
+						}
 					} else {
 						atomic.AddUint64(&stat_cnt[FETCH_S_SUCCESS], 1)
 					}
