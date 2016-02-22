@@ -10,6 +10,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	pfc "github.com/niean/goperfcounter"
 	"stathat.com/c/consistent"
 
 	cmodel "github.com/open-falcon/common/model"
@@ -115,25 +116,32 @@ func net_task_worker(idx int, ch chan *Net_task_t, client **rpc.Client, addr str
 		case task := <-ch:
 			if task.Method == NET_TASK_M_SEND {
 				if err = send_data(client, task.Key, addr); err != nil {
+					pfc.Meter("migrate.Send.Err", 1)
 					atomic.AddUint64(&stat_cnt[SEND_S_ERR], 1)
 				} else {
+					pfc.Meter("migrate.Send.Ok", 1)
 					atomic.AddUint64(&stat_cnt[SEND_S_SUCCESS], 1)
 				}
 			} else if task.Method == NET_TASK_M_QUERY {
 				if err = query_data(client, addr, task.Args, task.Reply); err != nil {
+					pfc.Meter("migrate.Query.Err", 1)
 					atomic.AddUint64(&stat_cnt[QUERY_S_ERR], 1)
 				} else {
+					pfc.Meter("migrate.Query.Ok", 1)
 					atomic.AddUint64(&stat_cnt[QUERY_S_SUCCESS], 1)
 				}
 			} else if task.Method == NET_TASK_M_PULL {
 				if atomic.LoadInt32(&flushrrd_timeout) != 0 {
 					// hope this more faster than fetch_rrd
 					if err = send_data(client, task.Key, addr); err != nil {
+						pfc.Meter("migrate.SendBusy.Err", 1)
 						atomic.AddUint64(&stat_cnt[SEND_S_ERR], 1)
 					} else {
+						pfc.Meter("migrate.SendBusy.Ok", 1)
 						atomic.AddUint64(&stat_cnt[SEND_S_SUCCESS], 1)
 					}
 				} else {
+					pfc.Meter("migrate.ScpRrd", 1)
 					if err = fetch_rrd(client, task.Key, addr); err != nil {
 						if os.IsNotExist(err) {
 							//文件不存在时，直接将缓存数据刷入本地
@@ -145,6 +153,7 @@ func net_task_worker(idx int, ch chan *Net_task_t, client **rpc.Client, addr str
 							atomic.AddUint64(&stat_cnt[FETCH_S_ERR], 1)
 						}
 					} else {
+						pfc.Meter("migrate.ScpRrd.Ok", 1)
 						atomic.AddUint64(&stat_cnt[FETCH_S_SUCCESS], 1)
 					}
 				}
@@ -158,7 +167,10 @@ func net_task_worker(idx int, ch chan *Net_task_t, client **rpc.Client, addr str
 	}
 }
 
+// TODO addr to node
 func reconnection(client **rpc.Client, addr string) {
+	pfc.Meter("migrate.reconnection."+addr, 1)
+
 	var err error
 
 	atomic.AddUint64(&stat_cnt[CONN_S_ERR], 1)
