@@ -65,13 +65,14 @@ type TsdbConfig struct {
 }
 
 type GlobalConfig struct {
-	Debug  bool          `json:"debug"`
-	Http   *HttpConfig   `json:"http"`
-	Rpc    *RpcConfig    `json:"rpc"`
-	Socket *SocketConfig `json:"socket"`
-	Judge  *JudgeConfig  `json:"judge"`
-	Graph  *GraphConfig  `json:"graph"`
-	Tsdb   *TsdbConfig   `json:"tsdb"`
+	Debug   bool          `json:"debug"`
+	MinStep int           `json:"minStep"` //最小周期,单位sec
+	Http    *HttpConfig   `json:"http"`
+	Rpc     *RpcConfig    `json:"rpc"`
+	Socket  *SocketConfig `json:"socket"`
+	Judge   *JudgeConfig  `json:"judge"`
+	Graph   *GraphConfig  `json:"graph"`
+	Tsdb    *TsdbConfig   `json:"tsdb"`
 }
 
 var (

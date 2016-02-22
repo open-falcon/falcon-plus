@@ -3,6 +3,7 @@ package http
 import (
 	cutils "github.com/open-falcon/common/utils"
 	"github.com/open-falcon/transfer/proc"
+	"github.com/open-falcon/transfer/sender"
 	"net/http"
 	"strconv"
 	"strings"
@@ -17,6 +18,11 @@ func configProcHttpRoutes() {
 	// TO BE DISCARDed
 	http.HandleFunc("/statistics/all", func(w http.ResponseWriter, r *http.Request) {
 		RenderDataJson(w, proc.GetAll())
+	})
+
+	// step
+	http.HandleFunc("/proc/step", func(w http.ResponseWriter, r *http.Request) {
+		RenderDataJson(w, map[string]interface{}{"min_step": sender.MinStep})
 	})
 
 	// trace

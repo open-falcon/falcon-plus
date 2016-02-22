@@ -14,6 +14,11 @@ const (
 	DefaultSendQueueMaxSize = 102400 //10.24w
 )
 
+// 默认参数
+var (
+	MinStep int //最小上报周期,单位sec
+)
+
 // 服务节点的一致性哈希环
 // pk -> node
 var (
@@ -42,6 +47,12 @@ var (
 
 // 初始化数据发送服务, 在main函数中调用
 func Start() {
+	// 初始化默认参数
+	MinStep = g.Config().MinStep
+	if MinStep < 1 {
+		MinStep = 30 //默认30s
+	}
+	//
 	initConnPools()
 	initSendQueues()
 	initNodeRings()
@@ -63,8 +74,8 @@ func Push2JudgeSendQueue(items []*cmodel.MetaData) {
 
 		// align ts
 		step := int(item.Step)
-		if step < g.MIN_STEP {
-			step = g.MIN_STEP
+		if step < MinStep {
+			step = MinStep
 		}
 		ts := alignTs(item.Timestamp, int64(step))
 
@@ -159,8 +170,8 @@ func convert2GraphItem(d *cmodel.MetaData) (*cmodel.GraphItem, error) {
 	item.Timestamp = d.Timestamp
 	item.Value = d.Value
 	item.Step = int(d.Step)
-	if item.Step < g.MIN_STEP {
-		item.Step = g.MIN_STEP
+	if item.Step < MinStep {
+		item.Step = MinStep
 	}
 	item.Heartbeat = item.Step * 2
 
