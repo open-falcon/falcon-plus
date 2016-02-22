@@ -141,14 +141,15 @@ func net_task_worker(idx int, ch chan *Net_task_t, client **rpc.Client, addr str
 						atomic.AddUint64(&stat_cnt[SEND_S_SUCCESS], 1)
 					}
 				} else {
-					pfc.Meter("migrate.ScpRrd", 1)
 					if err = fetch_rrd(client, task.Key, addr); err != nil {
 						if os.IsNotExist(err) {
+							pfc.Meter("migrate.ScpRrd.Null", 1)
 							//文件不存在时，直接将缓存数据刷入本地
 							atomic.AddUint64(&stat_cnt[FETCH_S_ISNOTEXIST], 1)
 							store.GraphItems.SetFlag(task.Key, 0)
 							CommitByKey(task.Key)
 						} else {
+							pfc.Meter("migrate.ScpRrd.Err", 1)
 							//warning:其他异常情况，缓存数据会堆积
 							atomic.AddUint64(&stat_cnt[FETCH_S_ERR], 1)
 						}
