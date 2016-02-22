@@ -1,11 +1,10 @@
 package cron
 
 import (
-	"time"
-
 	"github.com/open-falcon/agent/funcs"
 	"github.com/open-falcon/agent/g"
 	"github.com/open-falcon/common/model"
+	"time"
 )
 
 func InitDataHistory() {
@@ -22,7 +21,7 @@ func Collect() {
 		return
 	}
 
-	if len(g.Config().Transfer.Addrs) == 0 {
+	if g.Config().Transfer.Addr == "" {
 		return
 	}
 
