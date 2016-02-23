@@ -13,5 +13,10 @@
         "cluster": {
             "node-00": "127.0.0.1:6070"
         }
+    },
+    "api": {
+        "query": "http://example.com:port",
+        "dashboard": "http://example.com:port",
+        "max": 500
     }
 }
