@@ -40,6 +40,7 @@ func initTransferClient(addr string) {
 func closeTransferClient(addr string) {
 	TransferLock.Lock()
 	defer TransferLock.Unlock()
+	TransferClients[addr].close()
 	delete(TransferClients, addr)
 }
 
