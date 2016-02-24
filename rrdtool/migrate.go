@@ -116,44 +116,45 @@ func net_task_worker(idx int, ch chan *Net_task_t, client **rpc.Client, addr str
 		case task := <-ch:
 			if task.Method == NET_TASK_M_SEND {
 				if err = send_data(client, task.Key, addr); err != nil {
-					pfc.Meter("migrate.Send.Err", 1)
+					pfc.Meter("migrate.send.err", 1)
 					atomic.AddUint64(&stat_cnt[SEND_S_ERR], 1)
 				} else {
-					pfc.Meter("migrate.Send.Ok", 1)
+					pfc.Meter("migrate.send.ok", 1)
 					atomic.AddUint64(&stat_cnt[SEND_S_SUCCESS], 1)
 				}
 			} else if task.Method == NET_TASK_M_QUERY {
 				if err = query_data(client, addr, task.Args, task.Reply); err != nil {
-					pfc.Meter("migrate.Query.Err", 1)
+					pfc.Meter("migrate.query.err", 1)
 					atomic.AddUint64(&stat_cnt[QUERY_S_ERR], 1)
 				} else {
-					pfc.Meter("migrate.Query.Ok", 1)
+					pfc.Meter("migrate.query.ok", 1)
 					atomic.AddUint64(&stat_cnt[QUERY_S_SUCCESS], 1)
 				}
 			} else if task.Method == NET_TASK_M_PULL {
 				if atomic.LoadInt32(&flushrrd_timeout) != 0 {
 					// hope this more faster than fetch_rrd
 					if err = send_data(client, task.Key, addr); err != nil {
-						pfc.Meter("migrate.SendBusy.Err", 1)
+						pfc.Meter("migrate.sendbusy.err", 1)
 						atomic.AddUint64(&stat_cnt[SEND_S_ERR], 1)
 					} else {
-						pfc.Meter("migrate.SendBusy.Ok", 1)
+						pfc.Meter("migrate.sendbusy.ok", 1)
 						atomic.AddUint64(&stat_cnt[SEND_S_SUCCESS], 1)
 					}
 				} else {
-					pfc.Meter("migrate.ScpRrd", 1)
 					if err = fetch_rrd(client, task.Key, addr); err != nil {
 						if os.IsNotExist(err) {
+							pfc.Meter("migrate.scprrd.null", 1)
 							//文件不存在时，直接将缓存数据刷入本地
 							atomic.AddUint64(&stat_cnt[FETCH_S_ISNOTEXIST], 1)
 							store.GraphItems.SetFlag(task.Key, 0)
 							CommitByKey(task.Key)
 						} else {
+							pfc.Meter("migrate.scprrd.err", 1)
 							//warning:其他异常情况，缓存数据会堆积
 							atomic.AddUint64(&stat_cnt[FETCH_S_ERR], 1)
 						}
 					} else {
-						pfc.Meter("migrate.ScpRrd.Ok", 1)
+						pfc.Meter("migrate.scprrd.ok", 1)
 						atomic.AddUint64(&stat_cnt[FETCH_S_SUCCESS], 1)
 					}
 				}
