@@ -57,7 +57,7 @@ func SendToTransfer(metrics []*model.MetricValue) {
 	}
 
 	var resp model.TransferResponse
-	SendMetrics(metrics, resp)
+	SendMetrics(metrics, &resp)
 
 	if debug {
 		log.Println("<=", &resp)

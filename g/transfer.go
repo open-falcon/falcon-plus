@@ -14,7 +14,7 @@ var (
 	TransferClients map[string]*SingleConnRpcClient = map[string]*SingleConnRpcClient{}
 )
 
-func SendMetrics(metrics []*model.MetricValue, resp model.TransferResponse) {
+func SendMetrics(metrics []*model.MetricValue, resp *model.TransferResponse) {
 	rand.Seed(time.Now().UnixNano())
 	for _, i := range rand.Perm(len(Config().Transfer.Addrs)) {
 		addr := Config().Transfer.Addrs[i]
@@ -44,10 +44,10 @@ func closeTransferClient(addr string) {
 	delete(TransferClients, addr)
 }
 
-func updateMetrics(addr string, metrics []*model.MetricValue, resp model.TransferResponse) bool {
+func updateMetrics(addr string, metrics []*model.MetricValue, resp *model.TransferResponse) bool {
 	TransferLock.RLock()
 	defer TransferLock.RUnlock()
-	err := TransferClients[addr].Call("Transfer.Update", metrics, &resp)
+	err := TransferClients[addr].Call("Transfer.Update", metrics, resp)
 	if err != nil {
 		log.Println("call Transfer.Update fail", addr, err)
 		return false
