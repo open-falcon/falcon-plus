@@ -40,7 +40,7 @@ func start_signal(pid int, cfg *g.GlobalConfig) {
 			log.Println("rpc stop ok")
 
 			rrdtool.Out_done_chan <- 1
-			rrdtool.FlushAll()
+			rrdtool.FlushAll(true)
 			log.Println("rrdtool stop ok")
 
 			log.Println(pid, "exit")
@@ -68,8 +68,7 @@ func main() {
 	g.ParseConfig(*cfg)
 	// init db
 	g.InitDB()
-
-	// start rrdtool
+	// rrdtool before api for disable loopback connection
 	rrdtool.Start()
 	// start api
 	go api.Start()

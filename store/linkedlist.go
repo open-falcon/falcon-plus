@@ -9,7 +9,8 @@ import (
 
 type SafeLinkedList struct {
 	sync.RWMutex
-	L *list.List
+	Flag uint32
+	L    *list.List
 }
 
 // 新创建SafeLinkedList容器
@@ -69,16 +70,29 @@ func (this *SafeLinkedList) PopAll() []*cmodel.GraphItem {
 	ret := make([]*cmodel.GraphItem, 0, size)
 
 	for i := 0; i < size; i++ {
-		back := this.L.Back()
-		ret = append(ret, back.Value.(*cmodel.GraphItem))
-		this.L.Remove(back)
+		item := this.L.Back()
+		ret = append(ret, item.Value.(*cmodel.GraphItem))
+		this.L.Remove(item)
 	}
 
 	return ret
 }
 
+//restore PushAll
+func (this *SafeLinkedList) PushAll(items []*cmodel.GraphItem) {
+	this.Lock()
+	defer this.Unlock()
+
+	size := len(items)
+	if size > 0 {
+		for i := size - 1; i >= 0; i-- {
+			this.L.PushBack(items[i])
+		}
+	}
+}
+
 //return为倒叙的?
-func (this *SafeLinkedList) FetchAll() []*cmodel.GraphItem {
+func (this *SafeLinkedList) FetchAll() ([]*cmodel.GraphItem, uint32) {
 	this.Lock()
 	defer this.Unlock()
 	count := this.L.Len()
@@ -90,5 +104,5 @@ func (this *SafeLinkedList) FetchAll() []*cmodel.GraphItem {
 		p = p.Prev()
 	}
 
-	return ret
+	return ret, this.Flag
 }

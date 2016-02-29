@@ -16,6 +16,22 @@ import (
 
 type Graph int
 
+func (this *Graph) GetRrd(key string, rrdfile *g.File) (err error) {
+	if md5, dsType, step, err := g.SplitRrdCacheKey(key); err != nil {
+		return err
+	} else {
+		rrdfile.Filename = g.RrdFileName(g.Config().RRD.Storage, md5, dsType, step)
+	}
+
+	items := store.GraphItems.PopAll(key)
+	if len(items) > 0 {
+		rrdtool.FlushFile(rrdfile.Filename, items)
+	}
+
+	rrdfile.Body, err = rrdtool.ReadFile(rrdfile.Filename)
+	return
+}
+
 func (this *Graph) Ping(req cmodel.NullRpcRequest, resp *cmodel.SimpleRpcResponse) error {
 	return nil
 }
@@ -41,6 +57,8 @@ func handleItems(items []*cmodel.GraphItem) {
 		return
 	}
 
+	cfg := g.Config()
+
 	for i := 0; i < count; i++ {
 		if items[i] == nil {
 			continue
@@ -48,17 +66,17 @@ func handleItems(items []*cmodel.GraphItem) {
 		dsType := items[i].DsType
 		step := items[i].Step
 		checksum := items[i].Checksum()
-		ckey := g.FormRrdCacheKey(checksum, dsType, step)
+		key := g.FormRrdCacheKey(checksum, dsType, step)
 
 		//statistics
 		proc.GraphRpcRecvCnt.Incr()
 
 		// To Graph
-		first := store.GraphItems.First(ckey)
+		first := store.GraphItems.First(key)
 		if first != nil && items[i].Timestamp <= first.Timestamp {
 			continue
 		}
-		store.GraphItems.PushFront(ckey, items[i])
+		store.GraphItems.PushFront(key, items[i], checksum, cfg)
 
 		// To Index
 		index.ReceiveItem(items[i], checksum)
@@ -69,8 +87,15 @@ func handleItems(items []*cmodel.GraphItem) {
 }
 
 func (this *Graph) Query(param cmodel.GraphQueryParam, resp *cmodel.GraphQueryResponse) error {
+	var (
+		datas      []*cmodel.RRDData
+		datas_size int
+	)
+
 	// statistics
 	proc.GraphQueryCnt.Incr()
+
+	cfg := g.Config()
 
 	// form empty response
 	resp.Values = []*cmodel.RRDData{}
@@ -90,18 +115,37 @@ func (this *Graph) Query(param cmodel.GraphQueryParam, resp *cmodel.GraphQueryRe
 	}
 
 	md5 := cutils.Md5(param.Endpoint + "/" + param.Counter)
-	ckey := g.FormRrdCacheKey(md5, dsType, step)
-	filename := g.RrdFileName(g.Config().RRD.Storage, md5, dsType, step)
-	// read data from rrd file
-	datas, _ := rrdtool.Fetch(filename, param.ConsolFun, start_ts, end_ts, step)
-	datas_size := len(datas)
+	key := g.FormRrdCacheKey(md5, dsType, step)
+	filename := g.RrdFileName(cfg.RRD.Storage, md5, dsType, step)
+
 	// read cached items
-	items := store.GraphItems.FetchAll(ckey)
+	items, flag := store.GraphItems.FetchAll(key)
 	items_size := len(items)
+
+	if cfg.Migrate.Enabled && flag&g.GRAPH_F_MISS != 0 {
+		node, _ := rrdtool.Consistent.Get(param.Endpoint + "/" + param.Counter)
+		done := make(chan error, 1)
+		res := &cmodel.GraphAccurateQueryResponse{}
+		rrdtool.Net_task_ch[node] <- &rrdtool.Net_task_t{
+			Method: rrdtool.NET_TASK_M_QUERY,
+			Done:   done,
+			Args:   param,
+			Reply:  res,
+		}
+		<-done
+		// fetch data from remote
+		datas = res.Values
+		datas_size = len(datas)
+	} else {
+		// read data from rrd file
+		datas, _ = rrdtool.Fetch(filename, param.ConsolFun, start_ts, end_ts, step)
+		datas_size = len(datas)
+	}
 
 	nowTs := time.Now().Unix()
 	lastUpTs := nowTs - nowTs%int64(step)
 	rra1StartTs := lastUpTs - int64(rrdtool.RRA1PointCnt*step)
+
 	// consolidated, do not merge
 	if start_ts < rra1StartTs {
 		resp.Values = datas

@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/open-falcon/graph/g"
+	"github.com/open-falcon/graph/rrdtool"
 )
 
 type Dto struct {
@@ -75,6 +76,13 @@ func Start() {
 	if !g.Config().Http.Enabled {
 		log.Println("http.Start warning, not enabled")
 		return
+	}
+
+	if g.Config().Migrate.Enabled {
+		http.HandleFunc("/counter/migrate",
+			func(w http.ResponseWriter, r *http.Request) {
+				RenderDataJson(w, rrdtool.GetCounter())
+			})
 	}
 
 	addr := g.Config().Http.Listen

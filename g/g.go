@@ -31,6 +31,12 @@ const (
 	DEFAULT_STEP    = 60      //s
 	MIN_STEP        = 30      //s
 )
+const (
+	GRAPH_F_MISS uint32 = 1 << iota
+	GRAPH_F_ERR
+	GRAPH_F_SENDING
+	GRAPH_F_FETCHING
+)
 
 func init() {
 	runtime.GOMAXPROCS(runtime.NumCPU())

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"log"
 	"math"
-	"sync"
+	"sync/atomic"
 	"time"
 
 	cmodel "github.com/open-falcon/common/model"
@@ -15,43 +15,45 @@ import (
 	"github.com/open-falcon/graph/store"
 )
 
-var Counter uint64
+var (
+	disk_counter uint64
+	net_counter  uint64
+)
+
+type fetch_t struct {
+	filename string
+	cf       string
+	start    int64
+	end      int64
+	step     int
+	data     []*cmodel.RRDData
+}
+
+type flushfile_t struct {
+	filename string
+	items    []*cmodel.GraphItem
+}
+
+type readfile_t struct {
+	filename string
+	data     []byte
+}
 
 func Start() {
+	cfg := g.Config()
+	var err error
 	// check data dir
-	dataDir := g.Config().RRD.Storage
-	if err := file.EnsureDirRW(dataDir); err != nil {
-		log.Fatalln("rrdtool.Start error, bad data dir", dataDir+",", err)
+	if err = file.EnsureDirRW(cfg.RRD.Storage); err != nil {
+		log.Fatalln("rrdtool.Start error, bad data dir "+cfg.RRD.Storage+",", err)
 	}
+
+	migrate_start(cfg)
 
 	// sync disk
 	go syncDisk()
+	go ioWorker()
 	log.Println("rrdtool.Start ok")
 }
-
-// RRD Files' Lock
-type RRDLocker struct {
-	sync.Mutex
-	M map[string]*sync.Mutex
-}
-
-func (t *RRDLocker) GetLock(key string) *sync.Mutex {
-	t.Lock()
-	defer t.Unlock()
-
-	if lock, exists := t.M[key]; !exists {
-		t.M[key] = new(sync.Mutex)
-		return t.M[key]
-	} else {
-		return lock
-	}
-}
-
-var (
-	L *RRDLocker = &RRDLocker{
-		M: make(map[string]*sync.Mutex),
-	}
-)
 
 // RRA.Point.Size
 const (
@@ -118,14 +120,10 @@ func update(filename string, items []*cmodel.GraphItem) error {
 // flush to disk from memory
 // 最新的数据在列表的最后面
 // TODO fix me, filename fmt from item[0], it's hard to keep consistent
-func Flush(filename string, items []*cmodel.GraphItem) error {
+func flushrrd(filename string, items []*cmodel.GraphItem) error {
 	if items == nil || len(items) == 0 {
 		return errors.New("empty items")
 	}
-
-	lock := L.GetLock(filename)
-	lock.Lock()
-	defer lock.Unlock()
 
 	if !g.IsRrdFileExist(filename) {
 		baseDir := file.Dir(filename)
@@ -144,14 +142,55 @@ func Flush(filename string, items []*cmodel.GraphItem) error {
 	return update(filename, items)
 }
 
+func ReadFile(filename string) ([]byte, error) {
+	done := make(chan error, 1)
+	task := &io_task_t{
+		method: IO_TASK_M_READ,
+		args:   &readfile_t{filename: filename},
+		done:   done,
+	}
+
+	io_task_chan <- task
+	err := <-done
+	return task.args.(*readfile_t).data, err
+}
+
+func FlushFile(filename string, items []*cmodel.GraphItem) error {
+	done := make(chan error, 1)
+	io_task_chan <- &io_task_t{
+		method: IO_TASK_M_FLUSH,
+		args: &flushfile_t{
+			filename: filename,
+			items:    items,
+		},
+		done: done,
+	}
+	atomic.AddUint64(&disk_counter, 1)
+	return <-done
+}
+
 func Fetch(filename string, cf string, start, end int64, step int) ([]*cmodel.RRDData, error) {
+	done := make(chan error, 1)
+	task := &io_task_t{
+		method: IO_TASK_M_FETCH,
+		args: &fetch_t{
+			filename: filename,
+			cf:       cf,
+			start:    start,
+			end:      end,
+			step:     step,
+		},
+		done: done,
+	}
+	io_task_chan <- task
+	err := <-done
+	return task.args.(*fetch_t).data, err
+}
+
+func fetch(filename string, cf string, start, end int64, step int) ([]*cmodel.RRDData, error) {
 	start_t := time.Unix(start, 0)
 	end_t := time.Unix(end, 0)
 	step_t := time.Duration(step) * time.Second
-
-	lock := L.GetLock(filename)
-	lock.Lock()
-	defer lock.Unlock()
 
 	fetchRes, err := rrdlite.Fetch(filename, cf, start_t, end_t, step_t)
 	if err != nil {
@@ -179,40 +218,82 @@ func Fetch(filename string, cf string, start, end int64, step int) ([]*cmodel.RR
 	return ret, nil
 }
 
-func FlushAll() {
+func FlushAll(force bool) {
 	n := store.GraphItems.Size / 10
 	for i := 0; i < store.GraphItems.Size; i++ {
-		FlushRRD(i)
+		FlushRRD(i, force)
 		if i%n == 0 {
-			log.Println("flush hash idx:", i, "size", store.GraphItems.Size, "counter", Counter)
+			log.Printf("flush hash idx:%03d size:03d disk:%08d disk:%08ld net:%08ld\n",
+				i, store.GraphItems.Size, disk_counter, net_counter)
 		}
 	}
-	log.Println("flush hash done. counter", Counter)
+	log.Printf("flush hash done (disk:%08ld net:%08ld)\n", disk_counter, net_counter)
 }
 
-func FlushRRD(idx int) {
-	storageDir := g.Config().RRD.Storage
+func CommitByKey(key string) {
+
+	md5, dsType, step, err := g.SplitRrdCacheKey(key)
+	if err != nil {
+		return
+	}
+	filename := g.RrdFileName(g.Config().RRD.Storage, md5, dsType, step)
+
+	items := store.GraphItems.PopAll(key)
+	if len(items) == 0 {
+		return
+	}
+	FlushFile(filename, items)
+}
+
+func PullByKey(key string) {
+	done := make(chan error)
+
+	item := store.GraphItems.First(key)
+	if item == nil {
+		return
+	}
+	node, err := Consistent.Get(item.PrimaryKey())
+	if err != nil {
+		return
+	}
+	Net_task_ch[node] <- &Net_task_t{
+		Method: NET_TASK_M_PULL,
+		Key:    key,
+		Done:   done,
+	}
+	// net_task slow, shouldn't block syncDisk() or FlushAll()
+	// warning: recev sigout when migrating, maybe lost memory data
+	go func() {
+		err := <-done
+		if err != nil {
+			log.Printf("get %s from remote err[%s]\n", key, err)
+			return
+		}
+		atomic.AddUint64(&net_counter, 1)
+		//todo: flushfile after getfile? not yet
+	}()
+}
+
+func FlushRRD(idx int, force bool) {
+	begin := time.Now()
+	atomic.StoreInt32(&flushrrd_timeout, 0)
 
 	keys := store.GraphItems.KeysByIndex(idx)
 	if len(keys) == 0 {
 		return
 	}
 
-	for _, ckey := range keys {
-		// get md5, dstype, step
-		checksum, dsType, step, err := g.SplitRrdCacheKey(ckey)
-		if err != nil {
-			continue
-		}
+	for _, key := range keys {
+		flag, _ := store.GraphItems.GetFlag(key)
 
-		items := store.GraphItems.PopAll(ckey)
-		size := len(items)
-		if size == 0 {
-			continue
+		//write err data to local filename
+		if force == false && g.Config().Migrate.Enabled && flag&g.GRAPH_F_MISS != 0 {
+			if time.Since(begin) > time.Millisecond*g.FLUSH_DISK_STEP {
+				atomic.StoreInt32(&flushrrd_timeout, 1)
+			}
+			PullByKey(key)
+		} else {
+			CommitByKey(key)
 		}
-
-		filename := g.RrdFileName(storageDir, checksum, dsType, step)
-		Flush(filename, items)
-		Counter += 1
 	}
 }

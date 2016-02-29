@@ -3,10 +3,16 @@ package g
 import (
 	"encoding/json"
 	"log"
-	"sync"
+	"sync/atomic"
+	"unsafe"
 
 	"github.com/toolkits/file"
 )
+
+type File struct {
+	Filename string
+	Body     []byte
+}
 
 type HttpConfig struct {
 	Enabled bool   `json:"enabled"`
@@ -28,24 +34,28 @@ type DBConfig struct {
 }
 
 type GlobalConfig struct {
-	Pid   string      `json:"pid"`
-	Debug bool        `json:"debug"`
-	Http  *HttpConfig `json:"http"`
-	Rpc   *RpcConfig  `json:"rpc"`
-	RRD   *RRDConfig  `json:"rrd"`
-	DB    *DBConfig   `json:"db"`
+	Pid         string      `json:"pid"`
+	Debug       bool        `json:"debug"`
+	Http        *HttpConfig `json:"http"`
+	Rpc         *RpcConfig  `json:"rpc"`
+	RRD         *RRDConfig  `json:"rrd"`
+	DB          *DBConfig   `json:"db"`
+	CallTimeout int32       `json:"callTimeout"`
+	Migrate     struct {
+		Concurrency int               `json:"concurrency"` //number of multiple worker per node
+		Enabled     bool              `json:"enabled"`
+		Replicas    int               `json:"replicas"`
+		Cluster     map[string]string `json:"cluster"`
+	} `json:"migrate"`
 }
 
 var (
 	ConfigFile string
-	config     *GlobalConfig
-	configLock = new(sync.RWMutex)
+	ptr        unsafe.Pointer
 )
 
 func Config() *GlobalConfig {
-	configLock.RLock()
-	defer configLock.RUnlock()
-	return config
+	return (*GlobalConfig)(atomic.LoadPointer(&ptr))
 }
 
 func ParseConfig(cfg string) {
@@ -70,10 +80,12 @@ func ParseConfig(cfg string) {
 		log.Fatalln("parse config file", cfg, "error:", err.Error())
 	}
 
+	if c.Migrate.Enabled && len(c.Migrate.Cluster) == 0 {
+		c.Migrate.Enabled = false
+	}
+
 	// set config
-	configLock.Lock()
-	defer configLock.Unlock()
-	config = &c
+	atomic.StorePointer(&ptr, unsafe.Pointer(&c))
 
 	log.Println("g.ParseConfig ok, file", cfg)
 }

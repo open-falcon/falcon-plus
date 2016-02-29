@@ -2,6 +2,7 @@ package store
 
 import (
 	"container/list"
+	"errors"
 	"hash/crc32"
 	"log"
 	"sync"
@@ -56,12 +57,12 @@ func (this *GraphItemMap) First(key string) *cmodel.GraphItem {
 	this.RLock()
 	defer this.RUnlock()
 	idx := hashKey(key) % uint32(this.Size)
-	L, ok := this.A[idx][key]
+	sl, ok := this.A[idx][key]
 	if !ok {
 		return nil
 	}
 
-	first := L.Front()
+	first := sl.Front()
 	if first == nil {
 		return nil
 	}
@@ -69,27 +70,62 @@ func (this *GraphItemMap) First(key string) *cmodel.GraphItem {
 	return first.Value.(*cmodel.GraphItem)
 }
 
+func (this *GraphItemMap) PushAll(key string, items []*cmodel.GraphItem) error {
+	this.Lock()
+	defer this.Unlock()
+	idx := hashKey(key) % uint32(this.Size)
+	sl, ok := this.A[idx][key]
+	if !ok {
+		return errors.New("not exist")
+	}
+	sl.PushAll(items)
+	return nil
+}
+
+func (this *GraphItemMap) GetFlag(key string) (uint32, error) {
+	this.Lock()
+	defer this.Unlock()
+	idx := hashKey(key) % uint32(this.Size)
+	sl, ok := this.A[idx][key]
+	if !ok {
+		return 0, errors.New("not exist")
+	}
+	return sl.Flag, nil
+}
+
+func (this *GraphItemMap) SetFlag(key string, flag uint32) error {
+	this.Lock()
+	defer this.Unlock()
+	idx := hashKey(key) % uint32(this.Size)
+	sl, ok := this.A[idx][key]
+	if !ok {
+		return errors.New("not exist")
+	}
+	sl.Flag = flag
+	return nil
+}
+
 func (this *GraphItemMap) PopAll(key string) []*cmodel.GraphItem {
 	this.Lock()
 	defer this.Unlock()
 	idx := hashKey(key) % uint32(this.Size)
-	L, ok := this.A[idx][key]
+	sl, ok := this.A[idx][key]
 	if !ok {
 		return []*cmodel.GraphItem{}
 	}
-	return L.PopAll()
+	return sl.PopAll()
 }
 
-func (this *GraphItemMap) FetchAll(key string) []*cmodel.GraphItem {
+func (this *GraphItemMap) FetchAll(key string) ([]*cmodel.GraphItem, uint32) {
 	this.RLock()
 	defer this.RUnlock()
 	idx := hashKey(key) % uint32(this.Size)
-	L, ok := this.A[idx][key]
+	sl, ok := this.A[idx][key]
 	if !ok {
-		return []*cmodel.GraphItem{}
+		return []*cmodel.GraphItem{}, 0
 	}
 
-	return L.FetchAll()
+	return sl.FetchAll()
 }
 
 func hashKey(key string) uint32 {
@@ -106,14 +142,19 @@ func getWts(key string, now int64) int64 {
 	return now + interval - (int64(hashKey(key)) % interval)
 }
 
-func (this *GraphItemMap) PushFront(key string, val *cmodel.GraphItem) {
+func (this *GraphItemMap) PushFront(key string,
+	item *cmodel.GraphItem, md5 string, cfg *g.GlobalConfig) {
 	if linkedList, exists := this.Get(key); exists {
-		linkedList.PushFront(val)
+		linkedList.PushFront(item)
 	} else {
 		//log.Println("new key:", key)
-		NL := list.New()
-		NL.PushFront(val)
-		safeList := &SafeLinkedList{L: NL}
+		safeList := &SafeLinkedList{L: list.New()}
+		safeList.L.PushFront(item)
+
+		if cfg.Migrate.Enabled && !g.IsRrdFileExist(g.RrdFileName(
+			cfg.RRD.Storage, md5, item.DsType, item.Step)) {
+			safeList.Flag = g.GRAPH_F_MISS
+		}
 		this.Set(key, safeList)
 	}
 }
