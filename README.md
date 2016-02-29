@@ -121,6 +121,11 @@ curl -s "127.0.0.1:9966/health"
         "cluster": {         // 后端的graph列表，应该与transfer配置保持一致；不支持一条记录中配置两个地址
             "graph-00": "test.hostname01:6070",
             "graph-01": "test.hostname02:6070"
+        },
+        "api": {  // 适配grafana需要的API配置
+            "query": "http://127.0.0.1:9966",     // query的http地址
+            "dashboard": "http://127.0.0.1:8081", // dashboard的http地址
+            "max": 500                            //API返回结果的最大数量
         }
     }
 }

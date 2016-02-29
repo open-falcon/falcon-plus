@@ -11,12 +11,12 @@
         "maxIdle": 32,
         "replicas": 500,
         "cluster": {
-            "node-00": "127.0.0.1:6070"
+            "graph-00": "127.0.0.1:6070"
         }
     },
     "api": {
-        "query": "http://example.com:port",
-        "dashboard": "http://example.com:port",
+        "query": "http://127.0.0.1:9966",
+        "dashboard": "http://127.0.0.1:8081",
         "max": 500
     }
 }
