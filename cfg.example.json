@@ -34,15 +34,12 @@
         "maxConns": 32,
         "maxIdle": 32,
         "replicas": 500,
-        "migrating": false,
         "cluster": {
             "graph-00" : "127.0.0.1:6070"
-        },
-        "clusterMigrating": {
         }
     },
     "tsdb": {
-        "enabled": true,
+        "enabled": false,
         "batch": 200,
         "connTimeout": 1000,
         "callTimeout": 5000,

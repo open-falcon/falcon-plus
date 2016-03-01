@@ -22,27 +22,24 @@ var (
 // 服务节点的一致性哈希环
 // pk -> node
 var (
-	JudgeNodeRing          *ConsistentHashNodeRing
-	GraphNodeRing          *ConsistentHashNodeRing
-	GraphMigratingNodeRing *ConsistentHashNodeRing
+	JudgeNodeRing *ConsistentHashNodeRing
+	GraphNodeRing *ConsistentHashNodeRing
 )
 
 // 发送缓存队列
 // node -> queue_of_data
 var (
-	TsdbQueue            *nlist.SafeListLimited
-	JudgeQueues          = make(map[string]*nlist.SafeListLimited)
-	GraphQueues          = make(map[string]*nlist.SafeListLimited)
-	GraphMigratingQueues = make(map[string]*nlist.SafeListLimited)
+	TsdbQueue   *nlist.SafeListLimited
+	JudgeQueues = make(map[string]*nlist.SafeListLimited)
+	GraphQueues = make(map[string]*nlist.SafeListLimited)
 )
 
 // 连接池
 // node_address -> connection_pool
 var (
-	JudgeConnPools          *cpool.SafeRpcConnPools
-	TsdbConnPoolHelper      *cpool.TsdbConnPoolHelper
-	GraphConnPools          *cpool.SafeRpcConnPools
-	GraphMigratingConnPools *cpool.SafeRpcConnPools
+	JudgeConnPools     *cpool.SafeRpcConnPools
+	TsdbConnPoolHelper *cpool.TsdbConnPoolHelper
+	GraphConnPools     *cpool.SafeRpcConnPools
 )
 
 // 初始化数据发送服务, 在main函数中调用
@@ -98,8 +95,7 @@ func Push2JudgeSendQueue(items []*cmodel.MetaData) {
 }
 
 // 将数据 打入 某个Graph的发送缓存队列, 具体是哪一个Graph 由一致性哈希 决定
-// 如果正在数据迁移, 数据除了打到原有配置上 还要向新的配置上打一份(新老重叠时要去重,防止将一条数据向一台Graph上打两次)
-func Push2GraphSendQueue(items []*cmodel.MetaData, migrating bool) {
+func Push2GraphSendQueue(items []*cmodel.MetaData) {
 	cfg := g.Config().Graph
 
 	for _, item := range items {
@@ -120,7 +116,7 @@ func Push2GraphSendQueue(items []*cmodel.MetaData, migrating bool) {
 			continue
 		}
 
-		cnode := cfg.Cluster2[node]
+		cnode := cfg.ClusterList[node]
 		errCnt := 0
 		for _, addr := range cnode.Addrs {
 			Q := GraphQueues[node+addr]
@@ -132,30 +128,6 @@ func Push2GraphSendQueue(items []*cmodel.MetaData, migrating bool) {
 		// statistics
 		if errCnt > 0 {
 			proc.SendToGraphDropCnt.Incr()
-		}
-
-		if migrating {
-			migratingNode, err := GraphMigratingNodeRing.GetNode(pk)
-			if err != nil {
-				log.Println("E:", err)
-				continue
-			}
-
-			if node != migratingNode { // 数据迁移时,进行新老去重
-				cnodem := cfg.ClusterMigrating2[migratingNode]
-				errCnt := 0
-				for _, addr := range cnodem.Addrs {
-					MQ := GraphMigratingQueues[migratingNode+addr]
-					if !MQ.PushFront(graphItem) {
-						errCnt += 1
-					}
-				}
-
-				// statistics
-				if errCnt > 0 {
-					proc.SendToGraphMigratingDropCnt.Incr()
-				}
-			}
 		}
 	}
 }
