@@ -227,7 +227,7 @@ func FlushAll(force bool) {
 				i, store.GraphItems.Size, disk_counter, net_counter)
 		}
 	}
-	log.Printf("flush hash done (disk:%08ld net:%08ld)\n", disk_counter, net_counter)
+	log.Printf("flush hash done (disk:%08d net:%08d)\n", disk_counter, net_counter)
 }
 
 func CommitByKey(key string) {
