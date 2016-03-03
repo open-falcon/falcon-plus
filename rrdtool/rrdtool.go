@@ -223,11 +223,11 @@ func FlushAll(force bool) {
 	for i := 0; i < store.GraphItems.Size; i++ {
 		FlushRRD(i, force)
 		if i%n == 0 {
-			log.Printf("flush hash idx:%03d size:03d disk:%08d disk:%08ld net:%08ld\n",
+			log.Printf("flush hash idx:%03d size:%03d disk:%08d net:%08d\n",
 				i, store.GraphItems.Size, disk_counter, net_counter)
 		}
 	}
-	log.Printf("flush hash done (disk:%08ld net:%08ld)\n", disk_counter, net_counter)
+	log.Printf("flush hash done (disk:%08d net:%08d)\n", disk_counter, net_counter)
 }
 
 func CommitByKey(key string) {
