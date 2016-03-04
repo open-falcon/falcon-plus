@@ -63,7 +63,7 @@ func socketTelnetHandle(conn net.Conn) {
 	proc.RecvCnt.IncrBy(int64(len(items)))
 
 	if cfg.Graph.Enabled {
-		sender.Push2GraphSendQueue(items, cfg.Graph.Migrating)
+		sender.Push2GraphSendQueue(items)
 	}
 
 	if cfg.Judge.Enabled {

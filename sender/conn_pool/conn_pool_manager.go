@@ -147,7 +147,7 @@ func createOnePool(name string, address string, connTimeout time.Duration, maxCo
 
 // TSDB
 type TsdbClient struct {
-	cli net.Conn
+	cli  net.Conn
 	name string
 }
 

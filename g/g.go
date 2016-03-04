@@ -15,9 +15,10 @@ import (
 // 0.0.14: support sending multi copies to graph node, align ts for judge, add filter
 // 0.0.15: support tsdb
 // 0.0.16: support config of min step
+// 0.0.17: remove migrating, which is implemented in graph
 
 const (
-	VERSION      = "0.0.16"
+	VERSION      = "0.0.17"
 	GAUGE        = "GAUGE"
 	COUNTER      = "COUNTER"
 	DERIVE       = "DERIVE"

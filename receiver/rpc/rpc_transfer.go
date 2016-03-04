@@ -135,7 +135,7 @@ func RecvMetricValues(args []*cmodel.MetricValue, reply *cmodel.TransferResponse
 	cfg := g.Config()
 
 	if cfg.Graph.Enabled {
-		sender.Push2GraphSendQueue(items, cfg.Graph.Migrating)
+		sender.Push2GraphSendQueue(items)
 	}
 
 	if cfg.Judge.Enabled {
