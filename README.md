@@ -2,7 +2,7 @@
 
 数据收集，是监控系统一个最基本的功能，在Open-Falcon中，Agent采集到的数据，会先发送给Transfer组件。Transfer在接收到客户端发送的数据，做一些数据规整，检查之后，转发到多个后端系统去处理。在转发到每个后端业务系统的时候，Transfer会根据一致性哈希算法，进行数据分片，来达到后端业务系统的水平扩展。Transfer自身是无状态的，挂掉一台或者多台不会有任何影响。
 
-Transfer支持的业务后端，有三种，Judge、Graph、OpenTSDB(开源版本尚未开放此功能)。Judge是我们开发的高性能告警判定组件，Graph是我们开发的高性能数据存储、归档、查询组件，OpenTSDB是开源的时间序列数据存储服务。每个业务后端，都可以通过Transfer的配置文件来开启。
+Transfer支持的业务后端，有三种，Judge、Graph、OpenTSDB。Judge是我们开发的高性能告警判定组件，Graph是我们开发的高性能数据存储、归档、查询组件，OpenTSDB是开源的时间序列数据存储服务。每个业务后端，都可以通过Transfer的配置文件来开启。
 
 Transfer的数据来源，一般有四种：
 
