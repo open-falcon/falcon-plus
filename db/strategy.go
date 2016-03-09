@@ -47,7 +47,7 @@ func QueryStrategies(tpls map[int]*model.Template) (map[int]*model.Strategy, err
 		if tags != "" {
 			arr := strings.Split(tags, ",")
 			for _, tag := range arr {
-				kv := strings.Split(tag, "=")
+				kv := strings.SplitN(tag, "=", 2)
 				if len(kv) != 2 {
 					continue
 				}
