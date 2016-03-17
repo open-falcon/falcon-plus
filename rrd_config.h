@@ -21,25 +21,29 @@
 # endif
 #endif
 
-
+#if defined(_LINUX_OS)
+#define HAVE_DECL_POSIX_FADVISE 1
+#define HAVE_FEATURES_H 1
+#define HAVE_POSIX_FADVISE 1
+#define HAVE_POSIX_FALLOCATE 1
+#define HAVE_MMAP 1
+#define HAVE_DECL_MADVISE 1
+#define HAVE_MADVISE 1
+#endif
+  
+#if defined(_DARWIN_OS)
+//#define HAVE_DECL_POSIX_FADVISE 0
+//#define HAVE_FEATURES_H 1
+//#define HAVE_POSIX_FADVISE 0
+//#define HAVE_POSIX_FALLOCATE 1
+#endif
 
 /* Define if building universal (internal helper macro) */
 /* #undef AC_APPLE_UNIVERSAL_BUILD */
 
-/* Define to 1 if translation of program messages to the user's native
-   language is requested. */
-#define ENABLE_NLS 1
 
 /* set to 1 if msync with MS_ASYNC fails to update mtime */
 /* #undef HAVE_BROKEN_MS_ASYNC */
-
-/* Define to 1 if you have the MacOS X function CFLocaleCopyCurrent in the
-   CoreFoundation framework. */
-/* #undef HAVE_CFLOCALECOPYCURRENT */
-
-/* Define to 1 if you have the MacOS X function CFPreferencesCopyAppValue in
-   the CoreFoundation framework. */
-/* #undef HAVE_CFPREFERENCESCOPYAPPVALUE */
 
 /* Define to 1 if you have the `chdir' function. */
 #define HAVE_CHDIR 1
@@ -53,17 +57,8 @@
 /* Define to 1 if you have the <ctype.h> header file. */
 #define HAVE_CTYPE_H 1
 
-/* Define if the GNU dcgettext() function is already present or preinstalled.
-   */
-#define HAVE_DCGETTEXT 1
 
-/* Define to 1 if you have the declaration of `madvise', and to 0 if you
-   don't. */
-#define HAVE_DECL_MADVISE 1
 
-/* Define to 1 if you have the declaration of `posix_fadvise', and to 0 if you
-   don't. */
-#define HAVE_DECL_POSIX_FADVISE 1
 
 /* Define to 1 if you have the declaration of `strerror_r', and to 0 if you
    don't. */
@@ -87,9 +82,6 @@
 
 /* Define to 1 if you have the `fdatasync' function. */
 #define HAVE_FDATASYNC 1
-
-/* Define to 1 if you have the <features.h> header file. */
-#define HAVE_FEATURES_H 1
 
 /* Define to 1 if you have the `finite' function. */
 /* #undef HAVE_FINITE */
@@ -121,9 +113,6 @@
 /* Define to 1 if you have the `getrusage' function. */
 #define HAVE_GETRUSAGE 1
 
-/* Define if the GNU gettext() function is already present or preinstalled. */
-#define HAVE_GETTEXT 1
-
 /* Define to 1 if you have the `gettimeofday' function. */
 #define HAVE_GETTIMEOFDAY 1
 
@@ -132,9 +121,6 @@
 
 /* Define to 1 if you have the `hosts_access' function. */
 /* #undef HAVE_HOSTS_ACCESS */
-
-/* Define if you have the iconv() function and it works. */
-/* #undef HAVE_ICONV */
 
 /* Define to 1 if you have the <ieeefp.h> header file. */
 /* #undef HAVE_IEEEFP_H */
@@ -163,9 +149,6 @@
 /* Define to 1 if you have the <libgen.h> header file. */
 #define HAVE_LIBGEN_H 1
 
-/* Define to 1 if you have the `m' library (-lm). */
-#define HAVE_LIBM 1
-
 /* have got libwrap installed */
 /* #undef HAVE_LIBWRAP */
 
@@ -175,11 +158,6 @@
 /* Define to 1 if you have the <lua.h> header file. */
 /* #undef HAVE_LUA_H */
 
-/* Define to 1 if you have the `madvise' function. */
-#define HAVE_MADVISE 1
-
-/* Define to 1 if you have the <malloc.h> header file. */
-#define HAVE_MALLOC_H 1
 
 /* Define to 1 if you have the <math.h> header file. */
 #define HAVE_MATH_H 1
@@ -196,8 +174,6 @@
 /* Define to 1 if you have the `mktime' function. */
 #define HAVE_MKTIME 1
 
-/* Define to 1 if you have the `mmap' function. */
-#define HAVE_MMAP 1
 
 /* Define to 1 if you have the `msync' function. */
 #define HAVE_MSYNC 1
@@ -213,12 +189,6 @@
 
 /* Define to 1 if you have the `opendir' function. */
 #define HAVE_OPENDIR 1
-
-/* Define to 1 if you have the `posix_fadvise' function. */
-#define HAVE_POSIX_FADVISE 1
-
-/* Define to 1 if you have the `posix_fallocate' function. */
-#define HAVE_POSIX_FALLOCATE 1
 
 /* Define to 1 if you have the `posix_madvise' function. */
 /* #undef HAVE_POSIX_MADVISE */
@@ -321,9 +291,6 @@
 /* Define to 1 if you have the `vsnprintf' function. */
 #define HAVE_VSNPRINTF 1
 
-/* Define to 1 if you have the `_NL_TIME_WEEK_1STDAY' function. */
-#define HAVE__NL_TIME_WEEK_1STDAY 1
-
 /* Define to the sub-directory in which libtool stores uninstalled libraries.
    */
 #define LT_OBJDIR ".libs/"
@@ -361,9 +328,6 @@
 
 /* Define to 1 if you have the ANSI C header files. */
 #define STDC_HEADERS 1
-
-/* Define to 1 if strerror_r returns char *. */
-#define STRERROR_R_CHAR_P 1
 
 /* Define to 1 if you can safely include both <sys/time.h> and <time.h>. */
 #define TIME_WITH_SYS_TIME 1

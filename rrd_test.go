@@ -2,17 +2,32 @@ package rrdlite
 
 import (
 	"fmt"
+	"os"
+	"os/exec"
+	"runtime"
+	"sync"
 	"testing"
 	"time"
 )
 
+const (
+	dbfile    = "/tmp/test.rrd"
+	step      = 1
+	heartbeat = 2 * step
+	b_size    = 100000
+	work_size = 10
+)
+
+var now time.Time
+var wg sync.WaitGroup
+
+func init() {
+	now = time.Now()
+	runtime.GOMAXPROCS(runtime.NumCPU())
+}
+
 func TestAll(t *testing.T) {
 	// Create
-	const (
-		dbfile    = "/tmp/test.rrd"
-		step      = 1
-		heartbeat = 2 * step
-	)
 
 	c := NewCreator(dbfile, time.Now(), step)
 	c.RRA("AVERAGE", 0.5, 1, 100)
@@ -84,4 +99,95 @@ func TestAll(t *testing.T) {
 		fmt.Printf("\n")
 		row++
 	}
+}
+
+func add(b *testing.B, filename string) {
+	c := NewCreator(filename, now, step)
+	c.RRA("AVERAGE", 0.5, 1, 100)
+	c.RRA("AVERAGE", 0.5, 5, 100)
+	c.DS("g", "GAUGE", heartbeat, 0, 60)
+	err := c.Create(true)
+	if err != nil {
+		b.Fatal(err)
+	}
+}
+
+func update(b *testing.B, filename string) {
+	u := NewUpdater(filename)
+	err := u.Update(now, 1.5)
+	if err != nil {
+		b.Fatal(err)
+	}
+}
+
+func fetch(b *testing.B, filename string, start, end time.Time) {
+	if fetchRes, err := Fetch(filename, "AVERAGE", start, end, step*time.Second); err != nil {
+		b.Fatal(err)
+	} else {
+		fetchRes.FreeValues()
+	}
+}
+
+func BenchmarkAdd(b *testing.B) {
+	b.StopTimer()
+	if err := exec.Command("rm", "-rf", "/tmp/rrd").Run(); err != nil {
+		b.Fatal(err)
+	}
+	if err := os.Mkdir("/tmp/rrd", 0755); err != nil {
+		b.Fatal(err)
+	}
+	for i := 0; i < 256; i++ {
+		if err := os.Mkdir(fmt.Sprintf("/tmp/rrd/%d", i), 0755); err != nil {
+			b.Fatal(err)
+		}
+	}
+	b.StartTimer()
+	b.N = b_size
+	n := b.N / work_size
+	for j := 0; j < work_size; j++ {
+		wg.Add(1)
+		go func(j int) {
+			defer wg.Done()
+			for i := 0; i < n; i++ {
+				filename := fmt.Sprintf("/tmp/rrd/%d/%d-%d.rrd", i%256, j, i)
+				add(b, filename)
+			}
+		}(j)
+	}
+	wg.Wait()
+}
+
+func BenchmarkUpdate(b *testing.B) {
+	b.N = b_size
+	n := b.N / work_size
+
+	for j := 0; j < work_size; j++ {
+		wg.Add(1)
+		go func(j int) {
+			defer wg.Done()
+			for i := 0; i < n; i++ {
+				filename := fmt.Sprintf("/tmp/rrd/%d/%d-%d.rrd", i%256, j, i)
+				update(b, filename)
+			}
+		}(j)
+	}
+	wg.Wait()
+}
+
+func BenchmarkFetch(b *testing.B) {
+	b.N = b_size
+	n := b.N / work_size
+	start := time.Unix(now.Unix()-step, 0)
+	end := start.Add(20 * step * time.Second)
+	for j := 0; j < work_size; j++ {
+		wg.Add(1)
+		go func(j int) {
+			defer wg.Done()
+			for i := 0; i < n; i++ {
+				filename := fmt.Sprintf("/tmp/rrd/%d/%d-%d.rrd", i%256, j, i)
+				fetch(b, filename, start, end)
+			}
+		}(j)
+	}
+	wg.Wait()
 }
