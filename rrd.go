@@ -2,6 +2,7 @@
 package rrdlite
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -114,8 +115,13 @@ func (u *Updater) SetTemplate(dsName ...string) {
 
 // Cache chaches data for later save using Update(). Use it to avoid
 // open/read/write/close for every update.
-func (u *Updater) Cache(args ...interface{}) {
-	u.args = append(u.args, newCstring(join(args)).p())
+func (u *Updater) Cache(args ...interface{}) error {
+	if p := newCstring(join(args)).p(); p == nil {
+		return errors.New("out of memory")
+	} else {
+		u.args = append(u.args, p)
+		return nil
+	}
 }
 
 // Update saves data in RRDB.
@@ -124,8 +130,16 @@ func (u *Updater) Cache(args ...interface{}) {
 func (u *Updater) Update(args ...interface{}) error {
 	if len(args) != 0 {
 		a := make([]unsafe.Pointer, 1)
+		if a == nil {
+			return errors.New("out of memory")
+		}
+
 		a[0] = newCstring(join(args)).p()
-		return u.update(a)
+		if a[0] == nil {
+			return errors.New("out of memory")
+		} else {
+			return u.update(a)
+		}
 	} else if len(u.args) != 0 {
 		err := u.update(u.args)
 		u.args = nil
