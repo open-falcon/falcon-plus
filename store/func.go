@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/open-falcon/common/model"
 	"math"
+    "github.com/open-falcon/judge/g"
 	"strconv"
 	"strings"
 )
@@ -209,10 +210,13 @@ func (this PDiffFunction) Compute(L *SafeLinkedList) (vs []*model.HistoryData, l
 // @str: e.g. all(#3) sum(#3) avg(#10) diff(#10)
 func ParseFuncFromString(str string, operator string, rightValue float64) (fn Function, err error) {
 	idx := strings.Index(str, "#")
-	limit, err := strconv.ParseInt(str[idx+1:len(str)-1], 10, 64)
+	limit, err := strconv.Atoi(str[idx+1:len(str)-1])
 	if err != nil {
 		return nil, err
 	}
+    if g.Config().Remain <= limit {
+        limit = g.Config().Remain    
+    }
 
 	switch str[:idx-1] {
 	case "max":
