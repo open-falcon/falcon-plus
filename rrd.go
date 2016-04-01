@@ -101,7 +101,7 @@ type Updater struct {
 	filename cstring
 	template cstring
 
-	args []unsafe.Pointer
+	args []string
 }
 
 func NewUpdater(filename string) *Updater {
@@ -115,7 +115,7 @@ func (u *Updater) SetTemplate(dsName ...string) {
 // Cache chaches data for later save using Update(). Use it to avoid
 // open/read/write/close for every update.
 func (u *Updater) Cache(args ...interface{}) {
-	u.args = append(u.args, newCstring(join(args)).p())
+	u.args = append(u.args, join(args))
 }
 
 // Update saves data in RRDB.
@@ -123,8 +123,8 @@ func (u *Updater) Cache(args ...interface{}) {
 // If you specify args it saves them immediately.
 func (u *Updater) Update(args ...interface{}) error {
 	if len(args) != 0 {
-		a := make([]unsafe.Pointer, 1)
-		a[0] = newCstring(join(args)).p()
+		a := make([]string, 1)
+		a[0] = join(args)
 		return u.update(a)
 	} else if len(u.args) != 0 {
 		err := u.update(u.args)

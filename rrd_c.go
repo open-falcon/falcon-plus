@@ -63,12 +63,16 @@ func (c *Creator) create() error {
 	return makeError(e)
 }
 
-func (u *Updater) update(args []unsafe.Pointer) error {
+func (u *Updater) update(_args []string) error {
+
+	args := makeArgs(_args)
+	defer freeArgs(args)
+
 	e := C.rrdUpdate(
 		(*C.char)(u.filename.p()),
 		(*C.char)(u.template.p()),
 		C.int(len(args)),
-		(**C.char)(unsafe.Pointer(&args[0])),
+		&args[0],
 	)
 	return makeError(e)
 }
