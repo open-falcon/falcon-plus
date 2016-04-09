@@ -1,0 +1,42 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+  
+Vagrant.configure(2) do |config|
+  config.vm.box = "openfalcon-docker"
+  config.vm.host_name = "openfalcon-docker"
+  
+  # Use default insecure key
+  config.ssh.insert_key = false
+  
+  # All configurations use 10.20.30.40 as entry.
+  config.vm.network "private_network", ip: "10.20.30.40"
+  
+  # MySQL needs at least 1024 MB
+  config.vm.provider "virtualbox" do |vb|
+    vb.memory = "2048"
+  end
+  
+  # Let timezone in guest be same as host
+  # Install timezone plugin:
+  #   $ vagrant plugin install vagrant-timezone
+  if Vagrant.has_plugin?("vagrant-timezone")
+    config.timezone.value = "Asia/Taipei"
+  end
+  
+  # Auto snapshot when vagrant up first
+  # Install trigger and snapshot plugin:
+  #   $ vagrant plugin install vagrant-triggers
+  #   $ vagrant plugin install vagrant-vbox-snapshot
+  if Vagrant.has_plugin?("vagrant-triggers") and Vagrant.has_plugin?("vagrant-vbox-snapshot")
+    config.trigger.after :up do
+      `vagrant snapshot list "#{@machine.name}"`
+      unless $?.exitstatus == 0
+        `vagrant snapshot take "#{@machine.name}" baseline`
+        @machine.ui.info("Took initial snapshot")
+      end
+    end
+    config.trigger.before :destroy do
+      `vagrant snapshot delete "#{@machine.name}" baseline`
+    end
+  end
+end

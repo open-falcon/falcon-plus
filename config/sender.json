@@ -1,0 +1,29 @@
+{
+    "debug": false,
+    "http": {
+        "enabled": true,
+        "listen": "0.0.0.0:6066"
+    },
+    "redis": {
+        "addr": "172.17.0.2:6379",
+        "maxIdle": 5
+    },
+    "queue": {
+        "sms": "/sms",
+        "mail": "/mail",
+        "qq": "/qq",
+        "serverchan": "/serverchan"
+    },
+    "worker": {
+        "sms": 10,
+        "mail": 50,
+        "qq": 10,
+        "serverchan": 10
+    },
+    "api": {
+        "sms": "http://172.17.0.5:8000/sms",
+        "mail": "http://172.17.0.6:9000/mail",
+        "qq": "http://172.17.0.0:5010",
+        "serverchan": "http://sc.ftqq.com"
+    }
+}

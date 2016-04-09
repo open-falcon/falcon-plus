@@ -1,0 +1,12 @@
+{
+    "debug": false,
+    "database": "root:password@tcp(172.17.0.3:3306)/falcon_portal?loc=Local&parseTime=true",
+    "hosts": "",
+    "maxIdle": 100,
+    "listen": ":6030",
+    "trustable": [""],
+    "http": {
+        "enabled": true,
+        "listen": "0.0.0.0:6031"
+    }
+}

@@ -1,0 +1,45 @@
+{
+    "log": "debug",
+    "company": "MI",
+    "http": {
+        "enabled": true,
+        "listen": "0.0.0.0:1234",
+        "cookie": ".example.com"
+    },
+    "cache": {
+        "enabled": true,
+        "redis": "172.17.0.2:6379",
+        "idle": 10,
+        "max": 1000,
+        "timeout": {
+            "conn": 10000,
+            "read": 5000,
+            "write": 5000
+        }
+    },
+    "salt": "",
+    "canRegister": true,
+    "ldap": {
+        "enabled": false,
+        "addr": "ldap.example.com:389"
+    },
+    "uic": {
+        "addr": "root:@tcp(172.17.0.3:3306)/uic?charset=utf8&loc=Asia%2FChongqing",
+        "idle": 10,
+        "max": 100
+    },
+    "shortcut": {
+        "falconPortal": "http://10.20.30.40:5050/",
+        "falconDashboard": "http://10.20.30.40:7070/",
+        "grafanaDashboard": "http://10.20.30.40:3001/",
+        "falconAlarm": "http://10.20.30.40:9912/"
+    },
+    "api": {
+        "key": "yourKey",
+        "redirect": "yourId||http://example.com/path_to_redirect/__TOKEN__",
+        "login": "https://example.com/path_to_login",
+        "access": "https://example.com/path_to_access",
+        "role": "https://example.com/path_to_role",
+        "logout": "https://example.com/path_to_logout"
+    }
+}

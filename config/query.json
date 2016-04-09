@@ -1,0 +1,32 @@
+{
+    "debug": false,
+    "http": {
+        "enabled": true,
+        "listen": "0.0.0.0:9966"
+    },
+    "graph": {
+        "connTimeout": 1000,
+        "callTimeout": 5000,
+        "maxConns": 32,
+        "maxIdle": 32,
+        "replicas": 500,
+        "cluster": {
+            "graph-00": "10.20.30.40:6070"
+        }
+    },
+    "api": {
+        "name": "api_owl",
+        "token": "fastweb_owl",
+        "event": "https://cdnboss-api.fastweb.com.cn/Monitor/add_zabbix_event",
+        "map": "https://cdnboss-api.fastweb.com.cn/Base/platform/get_ip",
+        "geo": "https://cdnboss-api.fastweb.com.cn/pop/get_area",
+        "query": "http://10.20.30.40:9966",
+        "dashboard": "http://172.17.0.12:8081",
+		"max": 1000
+    },
+    "db": {
+        "addr": "root:password@tcp(172.17.0.3:3306)/graph?charset=utf8&loc=Asia%2FTaipei",
+        "idle": 10,
+        "max": 100
+    }
+}
