@@ -1,3 +1,0 @@
-[submodule "modules/graph"]
-	path = modules/graph
-	url = https://github.com/open-falcon/graph
