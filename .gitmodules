@@ -1,0 +1,3 @@
+[submodule "modules/agent"]
+	path = modules/agent
+	url = https://github.com/open-falcon/agent
