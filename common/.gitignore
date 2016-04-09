@@ -1,0 +1,7 @@
+*.swp
+*.swo
+/var
+.DS_Store
+*.iml
+*.idea
+
