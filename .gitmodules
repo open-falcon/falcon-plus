@@ -1,0 +1,3 @@
+[submodule "scripts/mysql"]
+	path = scripts/mysql
+	url = https://github.com/open-falcon/scripts
