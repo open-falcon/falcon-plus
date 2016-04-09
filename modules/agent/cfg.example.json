@@ -1,0 +1,52 @@
+{
+    "debug": true,
+    "hostname": "",
+    "ip": "",
+    "plugin": {
+        "enabled": false,
+        "dir": "./plugin",
+        "git": "https://github.com/open-falcon/plugin.git",
+        "logs": "./logs"
+    },
+    "heartbeat": {
+        "enabled": true,
+        "addr": "127.0.0.1:6030",
+        "interval": 60,
+        "timeout": 1000
+    },
+    "transfer": {
+        "enabled": true,
+        "addrs": [
+            "127.0.0.1:8433",
+            "127.0.0.1:8433"
+        ],
+        "interval": 60,
+        "timeout": 1000
+    },
+    "http": {
+        "enabled": true,
+        "listen": ":1988",
+        "backdoor": false
+    },
+    "collector": {
+        "ifacePrefix": ["eth", "em"]
+    },
+    "ignore": {
+        "cpu.busy": true,
+        "df.bytes.free": true,
+        "df.bytes.total": true,
+        "df.bytes.used": true,
+        "df.bytes.used.percent": true,
+        "df.inodes.total": true,
+        "df.inodes.free": true,
+        "df.inodes.used": true,
+        "df.inodes.used.percent": true,
+        "mem.memtotal": true,
+        "mem.memused": true,
+        "mem.memused.percent": true,
+        "mem.memfree": true,
+        "mem.swaptotal": true,
+        "mem.swapused": true,
+        "mem.swapfree": true
+    }
+}
