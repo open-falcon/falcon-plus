@@ -1,0 +1,150 @@
+#!/bin/bash
+workspace=$(cd $(dirname $0) && pwd)
+cd $workspace
+
+module=task
+app=falcon-$module
+conf=cfg.json
+pidfile=var/app.pid
+logfile=var/app.log
+
+mkdir -p var &>/dev/null
+
+
+## build & pack
+function build() {
+    commit=$(git log -1 --pretty=%h)
+    cat <<EOF > ./g/git.go
+package g
+const (
+    COMMIT = "$commit"
+)
+EOF
+    go build -o $app main.go
+    sc=$?
+    if [ $sc -ne 0 ];then
+        echo "build error"
+        exit $sc
+    else
+        echo -n "build ok, vsn=" 
+        ./$app -v 
+    fi
+}
+
+function pack() {
+    build
+    git log -1 --pretty=%h > gitversion
+    version=`./$app -v`
+    tar zcvf $app-$version.tar.gz control $app cfg.example.json gitversion ./test
+    rm -f gitversion &>/dev/null
+}
+
+function packbin() {
+    build
+    git log -1 --pretty=%h > gitversion
+    version=`./$app -v`
+    tar zcvf $app-bin-$version.tar.gz $app gitversion
+    rm -f gitversion &>/dev/null
+}
+
+## opt
+function start() {
+    check_pid
+    running=$?
+    if [ $running -gt 0 ];then
+        echo -n "started, pid="
+        cat $pidfile
+        return 1
+    fi
+
+    nohup ./$app -c $conf &> $logfile &
+    echo $! > $pidfile
+    echo "start ok, pid=$!"
+}
+
+function stop() {
+    pid=`cat $pidfile`
+    kill -9 $pid
+    echo "stoped"
+}
+
+function restart() {
+    stop
+    sleep 1
+    start
+}
+
+## other
+function status() {
+    check_pid
+    running=$?
+    if [ $running -gt 0 ];then
+        echo -n "running, pid="
+        cat $pidfile
+    else
+        echo "stoped"
+    fi
+}
+
+function version() {
+    ./$app -vg
+}
+
+function tailf() {
+    tail -f $logfile
+}
+
+## internal
+function check_pid() {
+    if [ -f $pidfile ];then
+        pid=`cat $pidfile`
+        if [ -n $pid ]; then
+            running=`ps -p $pid|grep -v "PID TTY" |wc -l`
+            return $running
+        fi
+    fi
+    return 0
+}
+
+## usage
+function usage() {
+    echo "$0 build|pack|packbin|start|stop|restart|status|tail|version"
+}
+
+## main
+action=$1
+case $action in
+    ## build
+    "build" )
+        build
+        ;;
+    "pack" )
+        pack
+        ;;
+    "packbin" )
+        packbin
+        ;;
+    ## opt
+    "start" )
+        start
+        ;;
+    "stop" )
+        stop
+        ;;
+    "restart" )
+        restart
+        ;;
+    ## other
+    "status" )
+        status
+        ;;
+    "version" )
+        version
+        ;;
+    "tail" )
+        tailf
+        ;;
+    * )
+        usage
+        ;;
+esac
