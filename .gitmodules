@@ -1,0 +1,3 @@
+[submodule "modules/aggregator"]
+	path = modules/aggregator
+	url = https://github.com/open-falcon/aggregator
