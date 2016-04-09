@@ -1,0 +1,3 @@
+[submodule "modules/sender"]
+	path = modules/sender
+	url = https://github.com/open-falcon/sender
