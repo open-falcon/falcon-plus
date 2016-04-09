@@ -1,3 +1,0 @@
-[submodule "modules/judge"]
-	path = modules/judge
-	url = https://github.com/open-falcon/judge
