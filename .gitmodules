@@ -1,0 +1,3 @@
+[submodule "modules/transfer"]
+	path = modules/transfer
+	url = https://github.com/open-falcon/transfer
