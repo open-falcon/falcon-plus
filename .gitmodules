@@ -1,0 +1,3 @@
+[submodule "modules/query"]
+	path = modules/query
+	url = https://github.com/open-falcon/query
