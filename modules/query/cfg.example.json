@@ -1,0 +1,22 @@
+{
+    "debug": "false",
+    "http": {
+        "enabled":  true,
+        "listen":   "0.0.0.0:9966"
+    },
+    "graph": {
+        "connTimeout": 1000,
+        "callTimeout": 5000,
+        "maxConns": 32,
+        "maxIdle": 32,
+        "replicas": 500,
+        "cluster": {
+            "graph-00": "127.0.0.1:6070"
+        }
+    },
+    "api": {
+        "query": "http://127.0.0.1:9966",
+        "dashboard": "http://127.0.0.1:8081",
+        "max": 500
+    }
+}
