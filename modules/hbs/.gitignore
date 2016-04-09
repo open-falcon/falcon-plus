@@ -1,0 +1,13 @@
+*.log
+*.o
+*.so
+*.swp
+*.swo
+/falcon-hbs*
+/hbs*
+/log
+/var
+/tmp
+/cfg.json
+/gitversion
+
