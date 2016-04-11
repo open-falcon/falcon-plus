@@ -2,8 +2,8 @@ package tail
 
 import (
 	"fmt"
-	"github.com/open-falcon/open-falcon/g"
 	"github.com/mitchellh/cli"
+	"github.com/open-falcon/open-falcon/g"
 	"os"
 	"os/exec"
 	"strings"
@@ -44,7 +44,7 @@ func (c *Command) Run(args []string) int {
 		return 0
 	}
 
-	logPath := g.LogDir + "/" + moduleName + ".log"
+	logPath := "./" + moduleName + "/" + g.LogDir + "/" + moduleName + ".log"
 	cmd := exec.Command("tail", "-f", logPath)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr

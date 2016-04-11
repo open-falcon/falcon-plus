@@ -1,7 +1,7 @@
 package g
 
 const (
-	LogDir = "./logs"
+	LogDir = "logs"
 
 	// Modules' status
 	ModuleRunning            = 0
