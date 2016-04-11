@@ -40,7 +40,7 @@ pack: checkbin
 	$(foreach var,$(CMD),mkdir -p ./out/$(var)/bin;)
 	$(foreach var,$(CMD),mkdir -p ./out/$(var)/config;)
 	$(foreach var,$(CMD),mkdir -p ./out/$(var)/logs;)
-	$(foreach var,$(CMD),cp ./config/$(var).json ./out/$(var)/config;)
+	$(foreach var,$(CMD),cp ./config/$(var).json ./out/$(var)/config/cfg.json;)
 	$(foreach var,$(CMD),cp ./bin/falcon-$(var) ./out/$(var)/bin;)
 	cp cfg.json ./out/cfg.json
 	cp $(TARGET) ./out/$(TARGET)

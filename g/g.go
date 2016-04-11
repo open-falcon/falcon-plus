@@ -45,17 +45,17 @@ func init() {
 	}
 
 	ModuleConfs = map[string]string{
-		"agent":      "./agent/config/agent.json",
-		"aggregator": "./aggregator/config/aggregator.json",
-		"fe":         "./fe/config/api.json",
-		"graph":      "./graph/config/graph.json",
-		"hbs":        "./hbs/config/hbs.json",
-		"judge":      "./judge/config/judge.json",
-		"nodata":     "./nodata/config/nodata.json",
-		"query":      "./query/config/query.json",
-		"sender":     "./sender/config/sender.json",
-		"task":       "./task/config/task.json",
-		"transfer":   "./transfer/config/transfer.json",
+		"agent":      "./agent/config/cfg.json",
+		"aggregator": "./aggregator/config/cfg.json",
+		"fe":         "./fe/config/cfg.json",
+		"graph":      "./graph/config/cfg.json",
+		"hbs":        "./hbs/config/cfg.json",
+		"judge":      "./judge/config/cfg.json",
+		"nodata":     "./nodata/config/cfg.json",
+		"query":      "./query/config/cfg.json",
+		"sender":     "./sender/config/cfg.json",
+		"task":       "./task/config/cfg.json",
+		"transfer":   "./transfer/config/cfg.json",
 	}
 
 	ModuleApps = map[string]string{
