@@ -28,6 +28,7 @@ func init() {
 		"sender":     true,
 		"task":       true,
 		"transfer":   true,
+		"gateway":    true,
 	}
 
 	ModuleBins = map[string]string{
@@ -42,6 +43,7 @@ func init() {
 		"sender":     "./sender/bin/falcon-sender",
 		"task":       "./task/bin/falcon-task",
 		"transfer":   "./transfer/bin/falcon-transfer",
+		"gateway":    "./gateway/bin/falcon-gateway",
 	}
 
 	ModuleConfs = map[string]string{
@@ -56,6 +58,7 @@ func init() {
 		"sender":     "./sender/config/cfg.json",
 		"task":       "./task/config/cfg.json",
 		"transfer":   "./transfer/config/cfg.json",
+		"gateway":    "./gateway/config/cfg.json",
 	}
 
 	ModuleApps = map[string]string{
@@ -70,6 +73,7 @@ func init() {
 		"sender":     "falcon-sender",
 		"task":       "falcon-task",
 		"transfer":   "falcon-transfer",
+		"gateway":    "falcon-gateway",
 	}
 
 	// Modules are deployed in this order

@@ -36,3 +36,6 @@ import:
 
 - package: github.com/open-falcon/transfer
   version: origin/master
+
+- package: github.com/open-falcon/gateway
+  version: origin/master
