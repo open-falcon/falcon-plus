@@ -1,3 +1,0 @@
-[submodule "modules/gateway"]
-	path = modules/gateway
-	url = https://github.com/open-falcon/gateway
