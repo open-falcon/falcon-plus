@@ -11,7 +11,7 @@ import (
 	"time"
 
 	pfc "github.com/niean/goperfcounter"
-	"stathat.com/c/consistent"
+	"github.com/toolkits/consistent"
 
 	cmodel "github.com/open-falcon/common/model"
 	"github.com/open-falcon/graph/g"
