@@ -2,7 +2,7 @@ package sender
 
 import (
 	"github.com/open-falcon/transfer/g"
-	"stathat.com/c/consistent"
+	"github.com/toolkits/consistent"
 )
 
 func initNodeRings() {
