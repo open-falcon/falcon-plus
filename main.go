@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
+	"github.com/mitchellh/cli"
 	"github.com/open-falcon/open-falcon/commands/reload"
 	"github.com/open-falcon/open-falcon/commands/restart"
 	"github.com/open-falcon/open-falcon/commands/start"
 	"github.com/open-falcon/open-falcon/commands/status"
 	"github.com/open-falcon/open-falcon/commands/stop"
 	"github.com/open-falcon/open-falcon/commands/tail"
-	"github.com/mitchellh/cli"
 	"io/ioutil"
 	"log"
 	"os"

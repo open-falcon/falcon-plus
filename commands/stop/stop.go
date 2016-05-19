@@ -2,8 +2,8 @@ package stop
 
 import (
 	"fmt"
-	"github.com/open-falcon/open-falcon/g"
 	"github.com/mitchellh/cli"
+	"github.com/open-falcon/open-falcon/g"
 	"os"
 	"os/exec"
 	"strings"

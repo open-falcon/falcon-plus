@@ -2,10 +2,10 @@ package restart
 
 import (
 	"fmt"
+	"github.com/mitchellh/cli"
 	"github.com/open-falcon/open-falcon/commands/start"
 	"github.com/open-falcon/open-falcon/commands/stop"
 	"github.com/open-falcon/open-falcon/g"
-	"github.com/mitchellh/cli"
 	"strings"
 )
 
