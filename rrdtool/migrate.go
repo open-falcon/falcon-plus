@@ -14,6 +14,7 @@ import (
 	"github.com/toolkits/consistent"
 
 	cmodel "github.com/open-falcon/common/model"
+	cutils "github.com/open-falcon/common/utils"
 	"github.com/open-falcon/graph/g"
 	"github.com/open-falcon/graph/store"
 )
@@ -94,7 +95,9 @@ func migrate_start(cfg *g.GlobalConfig) {
 	if cfg.Migrate.Enabled {
 		Consistent.NumberOfReplicas = cfg.Migrate.Replicas
 
-		for node, addr := range cfg.Migrate.Cluster {
+		nodes := cutils.KeysOfMap(cfg.Migrate.Cluster)
+		for _, node := range nodes {
+			addr := cfg.Migrate.Cluster[node]
 			Consistent.Add(node)
 			Net_task_ch[node] = make(chan *Net_task_t, 16)
 			clients[node] = make([]*rpc.Client, cfg.Migrate.Concurrency)
