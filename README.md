@@ -7,7 +7,6 @@
 
     git clone https://github.com/open-falcon/open-falcon.git
     cd open-falcon
-    git submodule update --init
 
 # Compilation
 
