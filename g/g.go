@@ -1,13 +1,13 @@
 package g
 
-import (
-//	"io/ioutil"
-)
+import "path/filepath"
 
 var Modules map[string]bool
-var ModuleBins map[string]string
-var ModuleConfs map[string]string
+var BinOf map[string]string
+var cfgOf map[string]string
 var ModuleApps map[string]string
+var logpathOf map[string]string
+var PidOf map[string]string
 var AllModulesInOrder []string
 
 func init() {
@@ -19,7 +19,6 @@ func init() {
 	Modules = map[string]bool{
 		"agent":      true,
 		"aggregator": true,
-		"fe":         true,
 		"graph":      true,
 		"hbs":        true,
 		"judge":      true,
@@ -32,10 +31,9 @@ func init() {
 		"api":        true,
 	}
 
-	ModuleBins = map[string]string{
+	BinOf = map[string]string{
 		"agent":      "./agent/bin/falcon-agent",
 		"aggregator": "./aggregator/bin/falcon-aggregator",
-		"fe":         "./fe/bin/falcon-fe",
 		"graph":      "./graph/bin/falcon-graph",
 		"hbs":        "./hbs/bin/falcon-hbs",
 		"judge":      "./judge/bin/falcon-judge",
@@ -48,10 +46,9 @@ func init() {
 		"api":        "./api/bin/falcon-api",
 	}
 
-	ModuleConfs = map[string]string{
+	cfgOf = map[string]string{
 		"agent":      "./agent/config/cfg.json",
 		"aggregator": "./aggregator/config/cfg.json",
-		"fe":         "./fe/config/cfg.json",
 		"graph":      "./graph/config/cfg.json",
 		"hbs":        "./hbs/config/cfg.json",
 		"judge":      "./judge/config/cfg.json",
@@ -68,7 +65,6 @@ func init() {
 		"agent":      "falcon-agent",
 		"aggregator": "falcon-aggregator",
 		"graph":      "falcon-graph",
-		"fe":         "falcon-fe",
 		"hbs":        "falcon-hbs",
 		"judge":      "falcon-judge",
 		"nodata":     "falcon-nodata",
@@ -80,11 +76,40 @@ func init() {
 		"api":        "falcon-api",
 	}
 
+	logpathOf = map[string]string{
+		"agent":      "./agent/logs/agent.log",
+		"aggregator": "./aggregator/logs/aggregator.log",
+		"graph":      "./graph/logs/graph.log",
+		"hbs":        "./hbs/logs/hbs.log",
+		"judge":      "./judge/logs/judge.log",
+		"nodata":     "./nodata/logs/nodata.log",
+		"query":      "./query/logs/query.log",
+		"sender":     "./sender/logs/sender.log",
+		"task":       "./task/logs/task.log",
+		"transfer":   "./transfer/logs/transfer.log",
+		"gateway":    "./gateway/logs/gateway.log",
+		"api":        "./api/logs/api.log",
+	}
+
+	PidOf = map[string]string{
+		"agent":      "<NOT SET>",
+		"aggregator": "<NOT SET>",
+		"graph":      "<NOT SET>",
+		"hbs":        "<NOT SET>",
+		"judge":      "<NOT SET>",
+		"nodata":     "<NOT SET>",
+		"query":      "<NOT SET>",
+		"sender":     "<NOT SET>",
+		"task":       "<NOT SET>",
+		"transfer":   "<NOT SET>",
+		"gateway":    "<NOT SET>",
+		"api":        "<NOT SET>",
+	}
+
 	// Modules are deployed in this order
 	AllModulesInOrder = []string{
 		"graph",
 		"hbs",
-		"fe",
 		"sender",
 		"query",
 		"judge",
@@ -93,5 +118,27 @@ func init() {
 		"task",
 		"aggregator",
 		"agent",
+		"gateway",
+		"api",
 	}
+}
+
+func Bin(name string) string {
+	p, _ := filepath.Abs(BinOf[name])
+	return p
+}
+
+func Cfg(name string) string {
+	p, _ := filepath.Abs(cfgOf[name])
+	return p
+}
+
+func LogPath(name string) string {
+	p, _ := filepath.Abs(logpathOf[name])
+	return p
+}
+
+func LogDir(name string) string {
+	d, _ := filepath.Abs(filepath.Dir(logpathOf[name]))
+	return d
 }

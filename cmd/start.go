@@ -17,62 +17,109 @@ var Start = &cobra.Command{
 	Long: `
 Start the specified Open-Falcon modules and run until a stop command is received.
 A module represents a single node in a cluster.
+
+
 Modules:
 	` + "all " + strings.Join(g.AllModulesInOrder, " "),
-	RunE: start,
+	RunE:          start,
+	SilenceUsage:  true,
+	SilenceErrors: true,
+}
+
+func cmdArgs(name string) []string {
+	return []string{"-c", g.Cfg(name)}
+}
+
+func openLogFile(name string) (*os.File, error) {
+	logDir := g.LogDir(name)
+	if err := os.MkdirAll(logDir, 0755); err != nil {
+		return nil, err
+	}
+
+	logPath := g.LogPath(name)
+	logOutput, err := os.OpenFile(logPath, os.O_CREATE|os.O_RDWR|os.O_APPEND, 0666)
+	if err != nil {
+		return nil, err
+	}
+
+	return logOutput, nil
+}
+
+func checkPreq(name string) error {
+	if err := g.HasModule(name); err != nil {
+		return err
+	}
+
+	if err := g.HasCfg(name); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func isStarted(name string) bool {
+	timer := time.NewTimer(time.Second)
+	ticker := time.NewTicker(time.Millisecond * 100)
+
+	for {
+		select {
+		case <-ticker.C:
+			if g.IsRunning(name) {
+				return true
+			}
+		case <-timer.C:
+			return false
+		}
+	}
 }
 
 func start(c *cobra.Command, args []string) error {
 	if len(args) == 0 {
 		return c.Usage()
 	}
-	if (len(args) == 1) && (args[0] == "all") {
-		args = g.GetModuleArgsInOrder(g.AllModulesInOrder)
-	} else {
-		for _, moduleName := range args {
-			err := g.ModuleExists(moduleName)
-			if err != nil {
-				fmt.Println(err)
-				fmt.Println("** start failed **")
-				return nil //g.Command_EX_ERR
-			}
-		}
-		args = g.GetModuleArgsInOrder(args)
-	}
+	//if (len(args) == 1) && (args[0] == "all") {
+	//	args = g.GetModuleArgsInOrder(g.Order)
+	//} else {
+	//	for _, moduleName := range args {
+	//		err := g.HasModule(moduleName)
+	//		if err != nil {
+	//			return err
+	//		}
+	//	}
+	//	args = g.GetModuleArgsInOrder(args)
+	//}
+	g.GetModuleArgsInOrder(args)
+
 	for _, moduleName := range args {
-		moduleStatus := g.CheckModuleStatus(moduleName)
-
-		if moduleStatus == g.ModuleExistentNotRunning {
-			fmt.Print("Starting [", g.ModuleApps[moduleName], "]...")
-			cmdArgs, err := g.GetConfFileArgs(g.ModuleConfs[moduleName])
-			if err != nil {
-				fmt.Println(err)
-				return nil //g.Command_EX_ERR
-			}
-
-			logPath := "./" + moduleName + "/" + g.LogDir + "/" + moduleName + ".log"
-			LogOutput, err := os.OpenFile(logPath, os.O_CREATE|os.O_RDWR|os.O_APPEND, 0666)
-			if err != nil {
-				fmt.Println("Error in opening file:", err)
-				return nil //g.Command_EX_ERR
-			}
-			defer LogOutput.Close()
-
-			cmd := exec.Command(g.ModuleBins[moduleName], cmdArgs...)
-			cmd.Stdout = LogOutput
-			cmd.Stderr = LogOutput
-			dir, _ := os.Getwd()
-			cmd.Dir = dir
-			cmd.Start()
-			fmt.Println("successfully!!")
-			time.Sleep(1 * time.Second)
-			moduleStatus = g.CheckModuleStatus(moduleName)
-			if moduleStatus == g.ModuleExistentNotRunning {
-				fmt.Println("** start failed **")
-				return nil //g.Command_EX_ERR
-			}
-		}
 		// Skip starting if the module is already running
+		if g.IsRunning(moduleName) {
+			fmt.Print("[", g.ModuleApps[moduleName], "] ", g.Pid(moduleName), "\n")
+			continue
+		}
+
+		if err := checkPreq(moduleName); err != nil {
+			return err
+		}
+
+		logOutput, err := openLogFile(moduleName)
+		if err != nil {
+			return err
+		}
+		defer logOutput.Close()
+
+		cmd := exec.Command(g.Bin(moduleName), cmdArgs(moduleName)...)
+		cmd.Stdout = logOutput
+		cmd.Stderr = logOutput
+		dir, _ := os.Getwd()
+		cmd.Dir = dir
+		cmd.Start()
+
+		if isStarted(moduleName) {
+			fmt.Print("[", g.ModuleApps[moduleName], "] ", g.Pid(moduleName), "\n")
+			continue
+		}
+
+		return fmt.Errorf("[%s] Failed to start", g.ModuleApps[moduleName])
 	}
-	return nil //g.Command_EX_OK
+	return nil
 }

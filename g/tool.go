@@ -2,9 +2,13 @@ package g
 
 import (
 	"fmt"
-	"github.com/toolkits/file"
+	"os"
 	"os/exec"
+	"path/filepath"
+	"regexp"
 	"strings"
+
+	"github.com/toolkits/file"
 )
 
 func configExists(cfg string) bool {
@@ -14,8 +18,10 @@ func configExists(cfg string) bool {
 	return true
 }
 
-func GetConfFileArgs(cfg string) ([]string, error) {
-	if !configExists(cfg) {
+var regexpReplaceCurrentFolder, _ = regexp.Compile("^\\.")
+
+func ConfFileArgs(cfg string) ([]string, error) {
+	if !file.IsExist(cfg) {
 		return nil, fmt.Errorf("expect config file: %s\n", cfg)
 	}
 	return []string{"-c", cfg}, nil
@@ -75,4 +81,64 @@ func CheckModuleStatus(name string) int {
 
 	fmt.Println("running with PID [", pidStr, "]!!")
 	return ModuleRunning
+}
+
+func rel(p string) string {
+	wd, err := os.Getwd()
+	if err != nil {
+		return ""
+	}
+
+	// filepath.Abs() returns an error only when os.Getwd() returns an error;
+	abs, _ := filepath.Abs(p)
+
+	r, err := filepath.Rel(wd, abs)
+	if err != nil {
+		return ""
+	}
+
+	return r
+}
+
+func HasCfg(name string) error {
+	if err := HasModule(name); err != nil {
+		return err
+	}
+
+	cfg := Cfg(name)
+
+	if _, err := os.Stat(Cfg(name)); err != nil {
+		r := rel(cfg)
+		return fmt.Errorf("expect config file: %s\n", r)
+	}
+
+	return nil
+}
+
+func HasModule(name string) error {
+	if Modules[name] {
+		return nil
+	}
+	return fmt.Errorf("%s doesn't exist\n", name)
+}
+
+func setPid(name string) {
+	output, _ := exec.Command("pgrep", "-f", ModuleApps[name]).Output()
+	pidStr := strings.TrimSpace(string(output))
+	PidOf[name] = pidStr
+}
+
+func Pid(name string) string {
+	if PidOf[name] == "<NOT SET>" {
+		setPid(name)
+	}
+	return PidOf[name]
+}
+
+func IsRunning(name string) bool {
+	setPid(name)
+	if Pid(name) == "" {
+		return false
+	}
+	return true
 }

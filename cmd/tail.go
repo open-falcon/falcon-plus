@@ -33,7 +33,7 @@ func tail(c *cobra.Command, args []string) error {
 		return nil //g.Command_EX_ERR
 	}
 
-	logPath := "./" + moduleName + "/" + g.LogDir + "/" + moduleName + ".log"
+	logPath := g.LogPath(moduleName)
 	cmd := exec.Command("tail", "-f", logPath)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
