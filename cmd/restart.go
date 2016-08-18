@@ -24,7 +24,7 @@ func restart(c *cobra.Command, args []string) error {
 		return c.Usage()
 	}
 	if (len(args) == 1) && (args[0] == "all") {
-		args = g.GetModuleArgsInOrder(g.AllModulesInOrder)
+		args = g.PreqOrder(g.AllModulesInOrder)
 	} else {
 		for _, moduleName := range args {
 			err := g.ModuleExists(moduleName)

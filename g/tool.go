@@ -43,7 +43,7 @@ func CheckModulePid(name string) (string, error) {
 	return pidStr, nil
 }
 
-func GetModuleArgsInOrder(moduleArgs []string) []string {
+func PreqOrder(moduleArgs []string) []string {
 	var modulesInOrder []string
 
 	// get arguments which are found in the order
