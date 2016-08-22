@@ -19,6 +19,11 @@ func setup() {
 		"falcon-module":             true,
 		"falcon-module-without-cfg": true,
 	}
+	AllModulesInOrder = []string{
+		"1st-module",
+		"2nd-module",
+		"3rd-module",
+	}
 }
 
 func teardown() {
@@ -66,6 +71,27 @@ func TestHasCfg(t *testing.T) {
 		t.Logf("Check case %v: %v(actual) == %v(expected)", i, actual, expected)
 		if !reflect.DeepEqual(actual, expected) {
 			t.Errorf("Error on case %v: %v(actual) != %v(expected)", i, actual, expected)
+		}
+	}
+}
+
+func TestPreqOrder(t *testing.T) {
+	tests := []struct {
+		input    []string
+		expected []string
+	}{
+		{[]string{"2nd-module", "1st-module"}, []string{"1st-module", "2nd-module"}},
+		{[]string{"2nd-module", "1st-module", "3rd-module"}, []string{"1st-module", "2nd-module", "3rd-module"}},
+		{[]string{"3rd-module", "2nd-module", "1st-module"}, []string{"1st-module", "2nd-module", "3rd-module"}},
+		{[]string{"3rd-module", "other-module", "1st-module", "2nd-module"}, []string{"1st-module", "2nd-module", "3rd-module", "other-module"}},
+		{[]string{"other-module", "1st-module", "2nd-module", "3rd-module"}, []string{"1st-module", "2nd-module", "3rd-module", "other-module"}},
+	}
+	for i, v := range tests {
+		actual := PreqOrder(v.input)
+		expected := v.expected
+		t.Logf("Check case %d: %s(actual) == %s(expected)", i, actual, expected)
+		if !reflect.DeepEqual(actual, expected) {
+			t.Errorf("Error on case %d: %s(actual) != %s(expected)", i, actual, expected)
 		}
 	}
 }
