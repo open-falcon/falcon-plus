@@ -79,20 +79,10 @@ func start(c *cobra.Command, args []string) error {
 	if len(args) == 0 {
 		return c.Usage()
 	}
-	//if (len(args) == 1) && (args[0] == "all") {
-	//	args = g.GetModuleArgsInOrder(g.Order)
-	//} else {
-	//	for _, moduleName := range args {
-	//		err := g.HasModule(moduleName)
-	//		if err != nil {
-	//			return err
-	//		}
-	//	}
-	//	args = g.GetModuleArgsInOrder(args)
-	//}
-	g.PreqOrder(args)
+	if StartInPreqOrder {
+		args = g.PreqOrder(args)
+	}
 
-	fmt.Println(args)
 	for _, moduleName := range args {
 		// Skip starting if the module is already running
 		if g.IsRunning(moduleName) {
