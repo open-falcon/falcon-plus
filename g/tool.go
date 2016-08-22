@@ -83,7 +83,7 @@ func CheckModuleStatus(name string) int {
 	return ModuleRunning
 }
 
-func rel(p string) string {
+func Rel(p string) string {
 	wd, err := os.Getwd()
 	if err != nil {
 		return ""
@@ -100,26 +100,18 @@ func rel(p string) string {
 	return r
 }
 
-func HasCfg(name string) error {
-	if err := HasModule(name); err != nil {
-		return err
-	}
-
-	cfg := Cfg(name)
-
+func HasCfg(name string) bool {
 	if _, err := os.Stat(Cfg(name)); err != nil {
-		r := rel(cfg)
-		return fmt.Errorf("expect config file: %s\n", r)
+		return false
 	}
-
-	return nil
+	return true
 }
 
-func HasModule(name string) error {
+func HasModule(name string) bool {
 	if Modules[name] {
-		return nil
+		return true
 	}
-	return fmt.Errorf("%s doesn't exist\n", name)
+	return false
 }
 
 func setPid(name string) {

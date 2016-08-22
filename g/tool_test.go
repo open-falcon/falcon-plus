@@ -1,7 +1,6 @@
 package g
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -43,7 +42,7 @@ func TestRel(t *testing.T) {
 	}
 
 	for i, v := range tests {
-		actual := rel(v.input)
+		actual := Rel(v.input)
 		expected := v.expected
 		t.Logf("Check case %d: %s(actual) == %s(expected)", i, actual, expected)
 		if actual != expected {
@@ -55,32 +54,20 @@ func TestRel(t *testing.T) {
 func TestHasCfg(t *testing.T) {
 	tests := []struct {
 		input    string
-		expected error
+		expected bool
 	}{
-		{"falcon-module", nil},
-		{"falcon-module-without-cfg", fmt.Errorf("expect config file: falcon-module-without-cfg/config/cfg.json\n")},
-		{"falcon-module-nonexistent", fmt.Errorf("falcon-module-nonexistent doesn't exist\n")},
+		{"falcon-module", true},
+		{"falcon-module-without-cfg", false},
 	}
 
 	for i, v := range tests {
 		actual := HasCfg(v.input)
 		expected := v.expected
-		t.Logf("Check case %d: %s(actual) == %s(expected)", i, actual, expected)
+		t.Logf("Check case %v: %v(actual) == %v(expected)", i, actual, expected)
 		if !reflect.DeepEqual(actual, expected) {
-			t.Errorf("Error on case %d: %s(actual) != %s(expected)", i, actual, expected)
+			t.Errorf("Error on case %v: %v(actual) != %v(expected)", i, actual, expected)
 		}
 	}
-
-	//teardown()
-
-	//for i, v := range tests {
-	//	actual := HasCfg(v.input)
-	//	expected := v.expected
-	//	t.Logf("Check case %d: %s(actual) == %s(expected)", i, actual, expected)
-	//	if actual != expected {
-	//		t.Errorf("Error on case %d: %s(actual) != %s(expected)", i, actual, expected)
-	//	}
-	//}
 }
 
 func TestMain(m *testing.M) {

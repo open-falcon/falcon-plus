@@ -26,6 +26,8 @@ Modules:
 	SilenceErrors: true,
 }
 
+var StartInPreqOrder bool
+
 func cmdArgs(name string) []string {
 	return []string{"-c", g.Cfg(name)}
 }
@@ -46,12 +48,13 @@ func openLogFile(name string) (*os.File, error) {
 }
 
 func checkReq(name string) error {
-	if err := g.HasModule(name); err != nil {
-		return err
+	if !g.HasModule(name) {
+		return fmt.Errorf("%s doesn't exist\n", name)
 	}
 
-	if err := g.HasCfg(name); err != nil {
-		return err
+	if !g.HasCfg(name) {
+		r := g.Rel(g.Cfg(name))
+		return fmt.Errorf("expect config file: %s\n", r)
 	}
 
 	return nil
@@ -89,6 +92,7 @@ func start(c *cobra.Command, args []string) error {
 	//}
 	g.PreqOrder(args)
 
+	fmt.Println(args)
 	for _, moduleName := range args {
 		// Skip starting if the module is already running
 		if g.IsRunning(moduleName) {
