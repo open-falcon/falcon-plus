@@ -26,7 +26,8 @@ Modules:
 	SilenceErrors: true,
 }
 
-var StartInPreqOrder bool
+var PreqOrderFlag bool
+var LogfileFlag bool
 
 func cmdArgs(name string) []string {
 	return []string{"-c", g.Cfg(name)}
@@ -45,6 +46,24 @@ func openLogFile(name string) (*os.File, error) {
 	}
 
 	return logOutput, nil
+}
+
+func execModule(logfile bool, name string) error {
+	cmd := exec.Command(g.Bin(name), cmdArgs(name)...)
+	if logfile {
+		logOutput, err := openLogFile(name)
+		if err != nil {
+			return err
+		}
+		defer logOutput.Close()
+		cmd.Stdout = logOutput
+		cmd.Stderr = logOutput
+		return cmd.Start()
+	}
+
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	return cmd.Run()
 }
 
 func checkReq(name string) error {
@@ -79,7 +98,7 @@ func start(c *cobra.Command, args []string) error {
 	if len(args) == 0 {
 		return c.Usage()
 	}
-	if StartInPreqOrder {
+	if PreqOrderFlag {
 		args = g.PreqOrder(args)
 	}
 
@@ -94,18 +113,9 @@ func start(c *cobra.Command, args []string) error {
 			return err
 		}
 
-		logOutput, err := openLogFile(moduleName)
-		if err != nil {
+		if err := execModule(LogfileFlag, moduleName); err != nil {
 			return err
 		}
-		defer logOutput.Close()
-
-		cmd := exec.Command(g.Bin(moduleName), cmdArgs(moduleName)...)
-		cmd.Stdout = logOutput
-		cmd.Stderr = logOutput
-		dir, _ := os.Getwd()
-		cmd.Dir = dir
-		cmd.Start()
 
 		if isStarted(moduleName) {
 			fmt.Print("[", g.ModuleApps[moduleName], "] ", g.Pid(moduleName), "\n")
