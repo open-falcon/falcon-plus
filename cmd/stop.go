@@ -5,7 +5,6 @@ import (
 	"os"
 	"os/exec"
 	"strings"
-	"time"
 
 	"github.com/open-falcon/falcon-plus/g"
 	"github.com/spf13/cobra"
@@ -26,42 +25,25 @@ func stop(c *cobra.Command, args []string) error {
 	if len(args) == 0 {
 		return c.Usage()
 	}
-	if (len(args) == 1) && (args[0] == "all") {
-		args = g.AllModulesInOrder
-	} else {
-		for _, moduleName := range args {
-			err := g.ModuleExists(moduleName)
-			if err != nil {
-				fmt.Println(err)
-				fmt.Println("** stop failed **")
-				return nil //g.Command_EX_ERR
-			}
-		}
-	}
 	for _, moduleName := range args {
-		moduleStatus := g.CheckModuleStatus(moduleName)
+		if !g.HasModule(moduleName) {
+			return fmt.Errorf("%s doesn't exist\n", moduleName)
+		}
 
-		if moduleStatus == g.ModuleExistentNotRunning {
-			// Skip stopping if the module is stopped
+		if !g.IsRunning(moduleName) {
+			fmt.Print("[", g.ModuleApps[moduleName], "] down\n")
 			continue
 		}
 
-		fmt.Print("Stopping [", g.ModuleApps[moduleName], "] ")
-
-		pidStr, _ := g.CheckModulePid(g.ModuleApps[moduleName])
-
-		cmd := exec.Command("kill", "-9", pidStr)
+		cmd := exec.Command("kill", "-9", g.Pid(moduleName))
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
-		cmd.Start()
-		fmt.Println("with PID [", pidStr, "]...successfully!!")
-		time.Sleep(1 * time.Second)
-
-		moduleStatus = g.CheckModuleStatus(moduleName)
-		if moduleStatus == g.ModuleRunning {
-			fmt.Println("** stop failed **")
-			return nil //g.Command_EX_ERR
+		err := cmd.Run()
+		if err == nil {
+			fmt.Print("[", g.ModuleApps[moduleName], "] down\n")
+			continue
 		}
+		return err
 	}
-	return nil //g.Command_EX_OK
+	return nil
 }
