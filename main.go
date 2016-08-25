@@ -47,7 +47,7 @@ func init() {
 	RootCmd.AddCommand(cmd.Tail)
 	RootCmd.AddCommand(cmd.Reload)
 	cmd.Start.Flags().BoolVar(&cmd.PreqOrderFlag, "preq-order", false, "start modules in the order of prerequisites")
-	cmd.Start.Flags().BoolVar(&cmd.LogfileFlag, "logfile", false, "log modules' output to files")
+	cmd.Start.Flags().BoolVar(&cmd.ConsoleOutputFlag, "console-output", false, "print the module's output to the console")
 }
 
 // initConfig reads in config file and ENV variables if set.
