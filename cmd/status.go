@@ -8,17 +8,17 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var Status = &cobra.Command{
+var Check = &cobra.Command{
 	Use:   "status [Module ...]",
 	Short: "Check the status of Open-Falcon modules",
 	Long: `
 Check if the specified Open-Falcon modules are running, not running or noexistent.
 Modules:
   ` + "all " + strings.Join(g.AllModulesInOrder, " "),
-	RunE: status,
+	RunE: check,
 }
 
-func status(c *cobra.Command, args []string) error {
+func check(c *cobra.Command, args []string) error {
 	if len(args) == 0 {
 		return c.Usage()
 	}
