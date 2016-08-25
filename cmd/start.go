@@ -122,7 +122,7 @@ func start(c *cobra.Command, args []string) error {
 			continue
 		}
 
-		return fmt.Errorf("[%s] Failed to start", g.ModuleApps[moduleName])
+		return fmt.Errorf("[%s] failed to start", g.ModuleApps[moduleName])
 	}
 	return nil
 }
