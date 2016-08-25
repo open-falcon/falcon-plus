@@ -17,5 +17,5 @@ func reload(c *cobra.Command, args []string) error {
 	if len(args) != 1 {
 		return c.Usage()
 	}
-	return nil //g.Command_EX_OK
+	return nil
 }

@@ -12,7 +12,6 @@ var AllModulesInOrder []string
 
 func init() {
 	//	dirs, _ := ioutil.ReadDir("./modules")
-
 	//	for _, dir := range dirs {
 	//		Modules[dir.Name()] = true
 	//	}
