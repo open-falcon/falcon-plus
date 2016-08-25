@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/open-falcon/falcon-plus/g"
@@ -23,20 +22,13 @@ func restart(c *cobra.Command, args []string) error {
 	if len(args) == 0 {
 		return c.Usage()
 	}
-	if (len(args) == 1) && (args[0] == "all") {
-		args = g.PreqOrder(g.AllModulesInOrder)
-	} else {
-		for _, moduleName := range args {
-			err := g.ModuleExists(moduleName)
-			if err != nil {
-				fmt.Println(err)
-				fmt.Println("** restart failed **")
-				return nil //g.Command_EX_ERR
-			}
+	for _, moduleName := range args {
+		if err := stop(c, []string{moduleName}); err != nil {
+			return nil
+		}
+		if err := start(c, []string{moduleName}); err != nil {
+			return nil
 		}
 	}
-
-	stop(c, args)
-	start(c, args)
-	return nil //g.Command_EX_OK
+	return nil
 }
