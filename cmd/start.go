@@ -103,14 +103,14 @@ func start(c *cobra.Command, args []string) error {
 	}
 
 	for _, moduleName := range args {
+		if err := checkReq(moduleName); err != nil {
+			return err
+		}
+
 		// Skip starting if the module is already running
 		if g.IsRunning(moduleName) {
 			fmt.Print("[", g.ModuleApps[moduleName], "] ", g.Pid(moduleName), "\n")
 			continue
-		}
-
-		if err := checkReq(moduleName); err != nil {
-			return err
 		}
 
 		if err := execModule(LogfileFlag, moduleName); err != nil {
