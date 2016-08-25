@@ -7,6 +7,13 @@ import (
 	"strings"
 )
 
+func HasLogfile(name string) bool {
+	if _, err := os.Stat(LogPath(name)); err != nil {
+		return false
+	}
+	return true
+}
+
 func PreqOrder(moduleArgs []string) []string {
 	var modulesInOrder []string
 

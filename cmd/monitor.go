@@ -21,13 +21,26 @@ Modules:
 	RunE: monitor,
 }
 
+func checkMonReq(name string) error {
+	if !g.HasModule(name) {
+		return fmt.Errorf("%s doesn't exist\n", name)
+	}
+
+	if !g.HasLogfile(name) {
+		r := g.Rel(g.Cfg(name))
+		return fmt.Errorf("expect logfile: %s\n", r)
+	}
+
+	return nil
+}
+
 func monitor(c *cobra.Command, args []string) error {
 	if len(args) != 1 {
 		return c.Usage()
 	}
 	moduleName := args[0]
-	if !g.HasModule(moduleName) {
-		return fmt.Errorf("%s doesn't exist\n", moduleName)
+	if err := checkMonReq(moduleName); err != nil {
+		return err
 	}
 
 	logPath := g.LogPath(moduleName)

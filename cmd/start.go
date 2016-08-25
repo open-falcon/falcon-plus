@@ -67,7 +67,7 @@ func execModule(co bool, name string) error {
 	return cmd.Start()
 }
 
-func checkReq(name string) error {
+func checkStartReq(name string) error {
 	if !g.HasModule(name) {
 		return fmt.Errorf("%s doesn't exist\n", name)
 	}
@@ -104,7 +104,7 @@ func start(c *cobra.Command, args []string) error {
 	}
 
 	for _, moduleName := range args {
-		if err := checkReq(moduleName); err != nil {
+		if err := checkStartReq(moduleName); err != nil {
 			return err
 		}
 
