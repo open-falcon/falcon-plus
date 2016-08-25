@@ -11,7 +11,7 @@ import (
 )
 
 var Monitor = &cobra.Command{
-	Use:   "tail [Module ...]",
+	Use:   "monitor [Module ...]",
 	Short: "Display an Open-Falcon module's log",
 	Long: `
 Display the log of the specified Open-Falcon module.
@@ -26,23 +26,14 @@ func monitor(c *cobra.Command, args []string) error {
 		return c.Usage()
 	}
 	moduleName := args[0]
-	err := g.ModuleExists(moduleName)
-	if err != nil {
-		fmt.Println(err)
-		fmt.Println("** start failed **")
-		return nil //g.Command_EX_ERR
+	if !g.HasModule(moduleName) {
+		return fmt.Errorf("%s doesn't exist\n", moduleName)
 	}
 
 	logPath := g.LogPath(moduleName)
 	cmd := exec.Command("tail", "-f", logPath)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	dir, _ := os.Getwd()
-	cmd.Dir = dir
-	err = cmd.Run()
-	if err != nil {
-		fmt.Println("** tail failed **")
-		return nil //g.Command_EX_ERR
-	}
-	return nil //0
+
+	return cmd.Run()
 }
