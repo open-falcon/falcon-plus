@@ -24,10 +24,10 @@ func restart(c *cobra.Command, args []string) error {
 	}
 	for _, moduleName := range args {
 		if err := stop(c, []string{moduleName}); err != nil {
-			return nil
+			return err
 		}
 		if err := start(c, []string{moduleName}); err != nil {
-			return nil
+			return err
 		}
 	}
 	return nil
