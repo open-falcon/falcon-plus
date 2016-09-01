@@ -61,7 +61,7 @@ func (this *SingleConnRpcClient) Call(method string, args interface{}, reply int
 	this.insureConn()
 
 	timeout := time.Duration(50 * time.Second)
-	done := make(chan error)
+	done := make(chan error, 1)
 
 	go func() {
 		err := this.rpcClient.Call(method, args, reply)
