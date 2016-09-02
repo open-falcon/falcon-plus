@@ -84,8 +84,8 @@ func IP() string {
 		return ip
 	}
 
-	if len(LocalIps) > 0 {
-		ip = LocalIps[0]
+	if len(LocalIp) > 0 {
+		ip = LocalIp
 	}
 
 	return ip
