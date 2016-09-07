@@ -29,16 +29,25 @@ func (this *SingleConnRpcClient) serverConn() error {
 	}
 
 	var err error
+	var retry int = 1
 
-	if this.rpcClient != nil {
-		return nil
-	}
+	for {
+		if this.rpcClient != nil {
+			return nil
+		}
 
-	this.rpcClient, err = net.JsonRpcClient("tcp", this.RpcServer, this.Timeout)
-	if err != nil {
-		log.Printf("dial %s fail: %v", this.RpcServer, err)
+		this.rpcClient, err = net.JsonRpcClient("tcp", this.RpcServer, this.Timeout)
+		if err != nil {
+			log.Printf("dial %s fail: %v", this.RpcServer, err)
+			if retry > 3 {
+				return err
+			}
+			time.Sleep(time.Duration(math.Pow(2.0, float64(retry))) * time.Second)
+			retry++
+			continue
+		}
+		return err
 	}
-	return err
 }
 
 func (this *SingleConnRpcClient) Call(method string, args interface{}, reply interface{}) error {
