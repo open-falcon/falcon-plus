@@ -1,6 +1,8 @@
 package sender
 
 import (
+	"sort"
+
 	"github.com/open-falcon/transfer/g"
 	"github.com/toolkits/consistent"
 )
@@ -14,14 +16,15 @@ func initNodeRings() {
 
 // TODO 考虑放到公共组件库,或utils库
 func KeysOfMap(m map[string]string) []string {
-	keys := make([]string, len(m))
+	keys := make(sort.StringSlice, len(m))
 	i := 0
 	for key, _ := range m {
 		keys[i] = key
 		i++
 	}
 
-	return keys
+	keys.Sort()
+	return []string(keys)
 }
 
 // 一致性哈希环,用于管理服务器节点.
