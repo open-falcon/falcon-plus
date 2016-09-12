@@ -64,7 +64,7 @@ func (this *SafeRpcConnPools) Call(addr, method string, args interface{}, resp i
 	rpcClient := conn.(RpcClient)
 	callTimeout := time.Duration(this.CallTimeout) * time.Millisecond
 
-	done := make(chan error)
+	done := make(chan error, 1)
 	go func() {
 		done <- rpcClient.Call(method, args, resp)
 	}()
