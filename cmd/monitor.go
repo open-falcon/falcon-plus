@@ -23,12 +23,12 @@ Modules:
 
 func checkMonReq(name string) error {
 	if !g.HasModule(name) {
-		return fmt.Errorf("%s doesn't exist\n", name)
+		return fmt.Errorf("%s doesn't exist", name)
 	}
 
 	if !g.HasLogfile(name) {
 		r := g.Rel(g.Cfg(name))
-		return fmt.Errorf("expect logfile: %s\n", r)
+		return fmt.Errorf("expect logfile: %s", r)
 	}
 
 	return nil

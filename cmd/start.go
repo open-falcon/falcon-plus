@@ -69,12 +69,12 @@ func execModule(co bool, name string) error {
 
 func checkStartReq(name string) error {
 	if !g.HasModule(name) {
-		return fmt.Errorf("%s doesn't exist\n", name)
+		return fmt.Errorf("%s doesn't exist", name)
 	}
 
 	if !g.HasCfg(name) {
 		r := g.Rel(g.Cfg(name))
-		return fmt.Errorf("expect config file: %s\n", r)
+		return fmt.Errorf("expect config file: %s", r)
 	}
 
 	return nil
