@@ -15,7 +15,7 @@ $(CMD):
 	make bin/falcon-$@
 
 $(TARGET): $(TARGET_SOURCE)
-	go build -o open-falcon
+	go build -ldflags "-X main.GitCommit=`git rev-parse --short HEAD` -X main.Version=$(< VERSION)" -o open-falcon
 
 $(BIN):
 	go build -o $@ ./modules/$(@:bin/falcon-%=%)

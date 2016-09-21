@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/open-falcon/falcon-plus/cmd"
-	"github.com/open-falcon/falcon-plus/g"
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
 )
@@ -31,7 +30,7 @@ func init() {
 
 func main() {
 	if versionFlag {
-		fmt.Println(g.Version)
+		fmt.Printf("Open-Falcon version %s, build %s\n", Version, GitCommit)
 		os.Exit(0)
 	}
 	if err := RootCmd.Execute(); err != nil {
