@@ -92,3 +92,23 @@ func IsRunning(name string) bool {
 	}
 	return true
 }
+
+func RmDup(args []string) []string {
+	if len(args) == 0 {
+		return []string{}
+	}
+	if len(args) == 1 {
+		return args
+	}
+
+	ret := []string{}
+	isDup := make(map[string]bool)
+	for _, arg := range args {
+		if isDup[arg] == true {
+			continue
+		}
+		ret = append(ret, arg)
+		isDup[arg] = true
+	}
+	return ret
+}

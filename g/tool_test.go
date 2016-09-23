@@ -96,6 +96,33 @@ func TestPreqOrder(t *testing.T) {
 	}
 }
 
+func TestRmDup(t *testing.T) {
+	tests := []struct {
+		input    []string
+		expected []string
+	}{
+		{[]string{"2nd-module", "1st-module"}, []string{"2nd-module", "1st-module"}},
+		{[]string{"2nd-module", "1st-module", "1st-module"}, []string{"2nd-module", "1st-module"}},
+		{[]string{"2nd-module", "2nd-module", "1st-module"}, []string{"2nd-module", "1st-module"}},
+		{[]string{"1st-module", "2nd-module", "1st-module"}, []string{"1st-module", "2nd-module"}},
+		{[]string{"2nd-module", "1st-module", "2nd-module"}, []string{"2nd-module", "1st-module"}},
+		{[]string{"2nd-module", "2nd-module", "1st-module", "3rd-module"}, []string{"2nd-module", "1st-module", "3rd-module"}},
+		{[]string{"2nd-module", "1st-module", "1st-module", "3rd-module"}, []string{"2nd-module", "1st-module", "3rd-module"}},
+		{[]string{"2nd-module", "1st-module", "3rd-module", "3rd-module"}, []string{"2nd-module", "1st-module", "3rd-module"}},
+		{[]string{"2nd-module", "1st-module", "2nd-module", "1st-module", "3rd-module"}, []string{"2nd-module", "1st-module", "3rd-module"}},
+		{[]string{"2nd-module", "1st-module", "2nd-module", "3rd-module"}, []string{"2nd-module", "1st-module", "3rd-module"}},
+		{[]string{"2nd-module", "1st-module", "3rd-module", "1st-module"}, []string{"2nd-module", "1st-module", "3rd-module"}},
+	}
+	for i, v := range tests {
+		actual := RmDup(v.input)
+		expected := v.expected
+		t.Logf("Check case %d: %s(actual) == %s(expected)", i, actual, expected)
+		if !reflect.DeepEqual(actual, expected) {
+			t.Errorf("Error on case %d: %s(actual) != %s(expected)", i, actual, expected)
+		}
+	}
+}
+
 func TestMain(m *testing.M) {
 	setup()
 	code := m.Run()

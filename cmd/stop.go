@@ -25,6 +25,8 @@ func stop(c *cobra.Command, args []string) error {
 	if len(args) == 0 {
 		return c.Usage()
 	}
+	args = g.RmDup(args)
+
 	for _, moduleName := range args {
 		if !g.HasModule(moduleName) {
 			return fmt.Errorf("%s doesn't exist", moduleName)

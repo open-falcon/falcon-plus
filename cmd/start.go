@@ -99,6 +99,8 @@ func start(c *cobra.Command, args []string) error {
 	if len(args) == 0 {
 		return c.Usage()
 	}
+	args = g.RmDup(args)
+
 	if PreqOrderFlag {
 		args = g.PreqOrder(args)
 	}
