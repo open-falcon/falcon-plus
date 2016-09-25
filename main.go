@@ -12,11 +12,12 @@ var versionFlag bool
 
 var RootCmd = &cobra.Command{
 	Use: "open-falcon",
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(c *cobra.Command, args []string) error {
 		if versionFlag {
 			fmt.Printf("Open-Falcon version %s, build %s\n", Version, GitCommit)
-			os.Exit(0)
+			return nil
 		}
+		return c.Usage()
 	},
 }
 
