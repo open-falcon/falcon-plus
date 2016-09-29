@@ -96,13 +96,14 @@ func isStarted(name string) bool {
 }
 
 func start(c *cobra.Command, args []string) error {
-	if len(args) == 0 {
-		return c.Usage()
-	}
 	args = g.RmDup(args)
 
 	if PreqOrderFlag {
 		args = g.PreqOrder(args)
+	}
+
+	if len(args) == 0 {
+		args = g.AllModulesInOrder
 	}
 
 	for _, moduleName := range args {
