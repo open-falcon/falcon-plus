@@ -15,6 +15,10 @@ func HasLogfile(name string) bool {
 }
 
 func PreqOrder(moduleArgs []string) []string {
+	if len(moduleArgs) == 0 {
+		return []string{}
+	}
+
 	var modulesInOrder []string
 
 	// get arguments which are found in the order
