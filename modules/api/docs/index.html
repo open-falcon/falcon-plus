@@ -1,0 +1,20 @@
+---
+layout: default
+---
+
+<nav id='sidebar'>
+	{% include nav.html %}
+</nav>
+
+<section id='content'>
+{% for post in site.posts %}
+  <article class='{{ post.type }}'>
+    <a name='{{ post.url }}' href='#{{ post.url }}'>
+			<h2>{% if post.type %}<code><b>{{ post.type }}</b> {{ post.apiurl }}</code> {% endif %}{{ post.title }}</h2></a>
+    <section class='body'>
+      {{ post.content }}
+			<div>{% if post.sample_doc %} For more example, see the <a href=doc/{{post.sample_doc}}>{{post.sample_doc}}</a>{% endif %}</div>
+    </section>
+  </article>
+{% endfor %}
+</section>

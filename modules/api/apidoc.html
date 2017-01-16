@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <title> API Documentation </title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+    
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+    <style type="text/css">
+        body {
+            font-family: 'Roboto', sans-serif;
+        }
+        .hidden {
+            display:none;
+        }
+        pre {
+            outline: 1px solid #ccc;
+            padding: 5px; margin: 5px;
+        }
+
+        .string { color: green; }
+        .number { color: darkorange; }
+        .boolean { color: blue; }
+        .null { color: magenta; }
+        .key { color: red; }
+
+    </style>
+    <style type="text/css">
+        pre.prettyprint {
+            border: 1px solid #ccc;
+            margin-bottom: 0;
+            padding: 9.5px;
+        }
+    </style>
+    <script>
+         
+        function syntaxHighlight(json) {
+            json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+                var cls = 'number';
+                if (/^"/.test(match)) {
+                    if (/:$/.test(match)) {
+                        cls = 'key';
+                    } else {
+                        cls = 'string';
+                    }
+                } else if (/true|false/.test(match)) {
+                    cls = 'boolean';
+                } else if (/null/.test(match)) {
+                    cls = 'null';
+                }
+                return '<span class="' + cls + '">' + match + '</span>';
+            });
+        }
+
+        function spaceJson(json){
+            var validJson = JSON.parse(json);
+            return JSON.stringify(validJson, undefined, 4);
+        }
+    </script>
+
+</head>
+<body>
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container-fluid">
+        
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                    data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">Gin</a>
+            <p class="navbar-text">Developed by Gophers at <a href="http://betacraft.co">Betacraft</a></p>
+        </div>
+            
+        
+    </div>
+    
+</nav>
+<div class="container-fluid" style="margin-top: 70px;margin-bottom: 20px;">
+    <div class="container-fluid">
+    <div class="col-md-4">
+        <div class="panel panel-default">
+              <div class="panel-heading">Base Urls</div>
+              <div class="panel-body">
+                
+                    <p>Production : <strong>/</strong></p>
+                
+                    <p>Staging : <strong>/</strong></p>
+                
+              </div>
+            </div>    
+        <ul class="nav nav-pills nav-stacked" role="tablist">
+            
+                <li role="presentation"><a href="#0top" role="tab" data-toggle="tab">POST : /api/v1/user/login</a></li>
+            
+                <li role="presentation"><a href="#1top" role="tab" data-toggle="tab">GET : /api/v1/user/logout</a></li>
+            
+                <li role="presentation"><a href="#2top" role="tab" data-toggle="tab">GET : /api/v1/user/auth_session</a></li>
+            
+                <li role="presentation"><a href="#3top" role="tab" data-toggle="tab">GET : /api/v1/graph/endpoint</a></li>
+            
+                <li role="presentation"><a href="#4top" role="tab" data-toggle="tab">GET : /api/v1/graph/endpoint_counter</a></li>
+            
+                <li role="presentation"><a href="#5top" role="tab" data-toggle="tab">POST : /api/v1/user/create</a></li>
+            
+                <li role="presentation"><a href="#6top" role="tab" data-toggle="tab">GET : /api/v1/user/current</a></li>
+            
+                <li role="presentation"><a href="#7top" role="tab" data-toggle="tab">POST : /api/v1/user/update</a></li>
+            
+                <li role="presentation"><a href="#8top" role="tab" data-toggle="tab">POST : /api/v1/user/cgpasswd</a></li>
+            
+                <li role="presentation"><a href="#9top" role="tab" data-toggle="tab">POST : /api/v1/team/create</a></li>
+            
+                <li role="presentation"><a href="#10top" role="tab" data-toggle="tab">GET : /api/v1/team/list</a></li>
+            
+        <ul>
+    </div>
+    <div class="col-md-8 tab-content">
+        
+        <div id="0top"  role="tabpanel" class="tab-pane col-md-10">
+            
+                
+                <p> <H4> Request Headers </H4> </p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>X-Forwarded-For</td>
+                        <td>  </td>
+                    </tr>
+                    
+                </table>
+                
+                
+                
+                <p> <H4> URL Params </H4> </p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>name</td>
+                        <td> gg123</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>password</td>
+                        <td> willnotpass</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                <p><h4> Response Code</h4></p>
+                <pre class="prettyprint lang-json">400</pre>
+                
+                <p><h4> Response Headers</h4></p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Content-Type</td>
+                        <td> application/json; charset=utf-8</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                <hr>
+            
+                
+                <p> <H4> Request Headers </H4> </p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>X-Forwarded-For</td>
+                        <td>  </td>
+                    </tr>
+                    
+                </table>
+                
+                
+                
+                <p> <H4> URL Params </H4> </p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>name</td>
+                        <td> test2</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>password</td>
+                        <td> test2</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                <p><h4> Response Code</h4></p>
+                <pre class="prettyprint lang-json">200</pre>
+                
+                <p><h4> Response Headers</h4></p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Content-Type</td>
+                        <td> application/json; charset=utf-8</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                <hr>
+            
+        </div>
+        
+        <div id="1top"  role="tabpanel" class="tab-pane col-md-10">
+            
+                
+                <p> <H4> Request Headers </H4> </p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>X-Forwarded-For</td>
+                        <td>  </td>
+                    </tr>
+                    
+                </table>
+                
+                
+                
+                
+                <p><h4> Response Code</h4></p>
+                <pre class="prettyprint lang-json">200</pre>
+                
+                <p><h4> Response Headers</h4></p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Content-Type</td>
+                        <td> application/json; charset=utf-8</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                <hr>
+            
+        </div>
+        
+        <div id="2top"  role="tabpanel" class="tab-pane col-md-10">
+            
+                
+                <p> <H4> Request Headers </H4> </p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>X-Forwarded-For</td>
+                        <td>  </td>
+                    </tr>
+                    
+                </table>
+                
+                
+                
+                
+                <p><h4> Response Code</h4></p>
+                <pre class="prettyprint lang-json">200</pre>
+                
+                <p><h4> Response Headers</h4></p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Content-Type</td>
+                        <td> application/json; charset=utf-8</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                <hr>
+            
+                
+                <p> <H4> Request Headers </H4> </p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>X-Forwarded-For</td>
+                        <td>  </td>
+                    </tr>
+                    
+                </table>
+                
+                
+                
+                
+                <p><h4> Response Code</h4></p>
+                <pre class="prettyprint lang-json">401</pre>
+                
+                <p><h4> Response Headers</h4></p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Content-Type</td>
+                        <td> application/json; charset=utf-8</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                <hr>
+            
+        </div>
+        
+        <div id="3top"  role="tabpanel" class="tab-pane col-md-10">
+            
+                
+                <p> <H4> Request Headers </H4> </p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>X-Forwarded-For</td>
+                        <td>  </td>
+                    </tr>
+                    
+                </table>
+                
+                
+                
+                
+                <p><h4> Response Code</h4></p>
+                <pre class="prettyprint lang-json">400</pre>
+                
+                <p><h4> Response Headers</h4></p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Content-Type</td>
+                        <td> application/json; charset=utf-8</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                <hr>
+            
+                
+                <p> <H4> Request Headers </H4> </p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>X-Forwarded-For</td>
+                        <td>  </td>
+                    </tr>
+                    
+                </table>
+                
+                
+                
+                
+                <p><h4> Response Code</h4></p>
+                <pre class="prettyprint lang-json">401</pre>
+                
+                <p><h4> Response Headers</h4></p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Content-Type</td>
+                        <td> application/json; charset=utf-8</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                <hr>
+            
+                
+                <p> <H4> Request Headers </H4> </p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>X-Forwarded-For</td>
+                        <td>  </td>
+                    </tr>
+                    
+                </table>
+                
+                
+                
+                <p> <H4> URL Params </H4> </p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>q</td>
+                        <td> a.&#43;</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                <p><h4> Response Code</h4></p>
+                <pre class="prettyprint lang-json">200</pre>
+                
+                <p><h4> Response Headers</h4></p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Content-Type</td>
+                        <td> application/json; charset=utf-8</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                <hr>
+            
+        </div>
+        
+        <div id="4top"  role="tabpanel" class="tab-pane col-md-10">
+            
+                
+                <p> <H4> Request Headers </H4> </p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>X-Forwarded-For</td>
+                        <td>  </td>
+                    </tr>
+                    
+                </table>
+                
+                
+                
+                
+                <p><h4> Response Code</h4></p>
+                <pre class="prettyprint lang-json">400</pre>
+                
+                <p><h4> Response Headers</h4></p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Content-Type</td>
+                        <td> application/json; charset=utf-8</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                <hr>
+            
+                
+                <p> <H4> Request Headers </H4> </p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>X-Forwarded-For</td>
+                        <td>  </td>
+                    </tr>
+                    
+                </table>
+                
+                
+                
+                <p> <H4> URL Params </H4> </p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>eid</td>
+                        <td> 6,7</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>metricQuery</td>
+                        <td> disk.&#43;</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                <p><h4> Response Code</h4></p>
+                <pre class="prettyprint lang-json">200</pre>
+                
+                <p><h4> Response Headers</h4></p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Content-Type</td>
+                        <td> application/json; charset=utf-8</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                <hr>
+            
+        </div>
+        
+        <div id="5top"  role="tabpanel" class="tab-pane col-md-10">
+            
+                
+                <p> <H4> Request Headers </H4> </p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>X-Forwarded-For</td>
+                        <td>  </td>
+                    </tr>
+                    
+                </table>
+                
+                
+                
+                <p> <H4> URL Params </H4> </p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>cnname</td>
+                        <td> 翱惡</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>email</td>
+                        <td> root123@cepave.com</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>im</td>
+                        <td> 44955834958</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>name</td>
+                        <td> owltester</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>password</td>
+                        <td> mypassword</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>phone</td>
+                        <td>  9999 9999 999</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>qq</td>
+                        <td> 182938210</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                <p><h4> Response Code</h4></p>
+                <pre class="prettyprint lang-json">400</pre>
+                
+                <p><h4> Response Headers</h4></p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Content-Type</td>
+                        <td> application/json; charset=utf-8</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                <hr>
+            
+                
+                <p> <H4> Request Headers </H4> </p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>X-Forwarded-For</td>
+                        <td>  </td>
+                    </tr>
+                    
+                </table>
+                
+                
+                
+                <p> <H4> URL Params </H4> </p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>cnname</td>
+                        <td> 翱惡</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>email</td>
+                        <td> root123@cepave.com</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>im</td>
+                        <td> 44955834958</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>name</td>
+                        <td> owltester</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>password</td>
+                        <td> mypassword</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>phone</td>
+                        <td>  9999 9999 999</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>qq</td>
+                        <td> 182938210</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                <p><h4> Response Code</h4></p>
+                <pre class="prettyprint lang-json">200</pre>
+                
+                <p><h4> Response Headers</h4></p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Content-Type</td>
+                        <td> application/json; charset=utf-8</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                <hr>
+            
+        </div>
+        
+        <div id="6top"  role="tabpanel" class="tab-pane col-md-10">
+            
+                
+                <p> <H4> Request Headers </H4> </p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Postman-Token</td>
+                        <td>  7dcf9ba0-b450-c0b8-6a18-cc47ef84108a</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>X-Forwarded-For</td>
+                        <td>  </td>
+                    </tr>
+                    
+                </table>
+                
+                
+                
+                
+                <p><h4> Response Code</h4></p>
+                <pre class="prettyprint lang-json">401</pre>
+                
+                <p><h4> Response Headers</h4></p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Content-Type</td>
+                        <td> application/json; charset=utf-8</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                <hr>
+            
+                
+                <p> <H4> Request Headers </H4> </p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Cookie</td>
+                        <td>  name=owltester; sig=3f22dbd7bde411e6b0ba001500c6ca5a</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Postman-Token</td>
+                        <td>  7be3effb-42cb-791e-bbd1-7808ce2ebce7</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>X-Forwarded-For</td>
+                        <td>  </td>
+                    </tr>
+                    
+                </table>
+                
+                
+                
+                
+                <p><h4> Response Code</h4></p>
+                <pre class="prettyprint lang-json">200</pre>
+                
+                <p><h4> Response Headers</h4></p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Content-Type</td>
+                        <td> application/json; charset=utf-8</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                <hr>
+            
+        </div>
+        
+        <div id="7top"  role="tabpanel" class="tab-pane col-md-10">
+            
+                
+                <p> <H4> Request Headers </H4> </p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Cookie</td>
+                        <td>  name=owltester; sig=3f22dbd7bde411e6b0ba001500c6ca5a</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>X-Forwarded-For</td>
+                        <td>  </td>
+                    </tr>
+                    
+                </table>
+                
+                
+                
+                <p> <H4> URL Params </H4> </p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>cnname</td>
+                        <td> 翱惡</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>email</td>
+                        <td> root123@cepave.com</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>im</td>
+                        <td> 44499949494</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>phone</td>
+                        <td> 9999 9999 998</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>qq</td>
+                        <td> 213213121123</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                <p><h4> Response Code</h4></p>
+                <pre class="prettyprint lang-json">200</pre>
+                
+                <p><h4> Response Headers</h4></p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Content-Type</td>
+                        <td> application/json; charset=utf-8</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                <hr>
+            
+        </div>
+        
+        <div id="8top"  role="tabpanel" class="tab-pane col-md-10">
+            
+                
+                <p> <H4> Request Headers </H4> </p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Cookie</td>
+                        <td>  sig=3f22dbd7bde411e6b0ba001500c6ca5a; name=owltester</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>X-Forwarded-For</td>
+                        <td>  </td>
+                    </tr>
+                    
+                </table>
+                
+                
+                
+                <p> <H4> URL Params </H4> </p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>new_password</td>
+                        <td> gg</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>old_password</td>
+                        <td> imtester</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                <p><h4> Response Code</h4></p>
+                <pre class="prettyprint lang-json">400</pre>
+                
+                <p><h4> Response Headers</h4></p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Content-Type</td>
+                        <td> application/json; charset=utf-8</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                <hr>
+            
+                
+                <p> <H4> Request Headers </H4> </p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Cookie</td>
+                        <td>  name=owltester; sig=3f22dbd7bde411e6b0ba001500c6ca5a</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>X-Forwarded-For</td>
+                        <td>  </td>
+                    </tr>
+                    
+                </table>
+                
+                
+                
+                <p> <H4> URL Params </H4> </p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>new_password</td>
+                        <td> mypassword</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>old_password</td>
+                        <td> mypassword</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                <p><h4> Response Code</h4></p>
+                <pre class="prettyprint lang-json">200</pre>
+                
+                <p><h4> Response Headers</h4></p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Content-Type</td>
+                        <td> application/json; charset=utf-8</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                <hr>
+            
+        </div>
+        
+        <div id="9top"  role="tabpanel" class="tab-pane col-md-10">
+            
+                
+                <p> <H4> Request Headers </H4> </p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Cookie</td>
+                        <td>  name=owltester; sig=3f22dbd7bde411e6b0ba001500c6ca5a</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>X-Forwarded-For</td>
+                        <td>  </td>
+                    </tr>
+                    
+                </table>
+                
+                
+                
+                <p> <H4> URL Params </H4> </p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>resume</td>
+                        <td> test</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>team_name</td>
+                        <td> </td>
+                    </tr>
+                    
+                </table>
+                
+                
+                <p><h4> Response Code</h4></p>
+                <pre class="prettyprint lang-json">400</pre>
+                
+                <p><h4> Response Headers</h4></p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Content-Type</td>
+                        <td> application/json; charset=utf-8</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                <hr>
+            
+                
+                <p> <H4> Request Headers </H4> </p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Cookie</td>
+                        <td>  name=owltester; sig=3f22dbd7bde411e6b0ba001500c6ca5a</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>X-Forwarded-For</td>
+                        <td>  </td>
+                    </tr>
+                    
+                </table>
+                
+                
+                
+                <p> <H4> URL Params </H4> </p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>resume</td>
+                        <td> i&#39;m test</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>team_name</td>
+                        <td> testteam</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                <p><h4> Response Code</h4></p>
+                <pre class="prettyprint lang-json">200</pre>
+                
+                <p><h4> Response Headers</h4></p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Content-Type</td>
+                        <td> application/json; charset=utf-8</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                <hr>
+            
+        </div>
+        
+        <div id="10top"  role="tabpanel" class="tab-pane col-md-10">
+            
+                
+                <p> <H4> Request Headers </H4> </p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Cookie</td>
+                        <td>  name=owltester; sig=3f22dbd7bde411e6b0ba001500c6ca5a</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>X-Forwarded-For</td>
+                        <td>  </td>
+                    </tr>
+                    
+                </table>
+                
+                
+                
+                <p> <H4> URL Params </H4> </p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>query</td>
+                        <td> t.&#43;</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                <p><h4> Response Code</h4></p>
+                <pre class="prettyprint lang-json">200</pre>
+                
+                <p><h4> Response Headers</h4></p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Content-Type</td>
+                        <td> application/json; charset=utf-8</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                <hr>
+            
+        </div>
+        
+    </div>
+</div>
+</div>
+<hr>
+</body>
+</html>

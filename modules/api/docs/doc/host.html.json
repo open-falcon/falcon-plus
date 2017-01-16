@@ -1,0 +1,64 @@
+{
+  "ApiSpecs": [
+    {
+      "HttpVerb": "GET",
+      "Path": "/api/v1/host/1647/template",
+      "Calls": [
+        {
+          "Id": 0,
+          "CurrentPath": "/api/v1/host/1647/template",
+          "MethodType": "GET",
+          "PostForm": null,
+          "RequestHeader": {
+            "Apitoken": "{\"name\":\"root\",\"sig\":\"427d6803b78311e68afd0242ac130006\"}",
+            "X-Forwarded-For": " 127.0.0.1\r"
+          },
+          "CommonRequestHeaders": null,
+          "ResponseHeader": {
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Allow-Headers": "Content-Type, Content-Length, Apitoken",
+            "Access-Control-Allow-Methods": "POST, GET, OPTIONS, PUT, DELETE, UPDATE",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Expose-Headers": "Content-Length",
+            "Access-Control-Max-Age": "86400",
+            "Content-Type": "application/json; charset=utf-8"
+          },
+          "RequestUrlParams": {},
+          "RequestBody": "",
+          "ResponseBody": "[{\"id\":125,\"tpl_name\":\"tplA\",\"parent_id\":0,\"action_id\":99,\"create_user\":\"root\"},{\"id\":142,\"tpl_name\":\"tplB\",\"parent_id\":0,\"action_id\":111,\"create_user\":\"root\"},{\"id\":180,\"tpl_name\":\"tplC\",\"parent_id\":0,\"action_id\":142,\"create_user\":\"root\"}]",
+          "ResponseCode": 200
+        }
+      ]
+    },
+    {
+      "HttpVerb": "GET",
+      "Path": "/api/v1/host/1647/hostgroup",
+      "Calls": [
+        {
+          "Id": 1,
+          "CurrentPath": "/api/v1/host/1647/hostgroup",
+          "MethodType": "GET",
+          "PostForm": null,
+          "RequestHeader": {
+            "Apitoken": "{\"name\":\"root\",\"sig\":\"427d6803b78311e68afd0242ac130006\"}",
+            "X-Forwarded-For": " 127.0.0.1\r"
+          },
+          "CommonRequestHeaders": null,
+          "ResponseHeader": {
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Allow-Headers": "Content-Type, Content-Length, Apitoken",
+            "Access-Control-Allow-Methods": "POST, GET, OPTIONS, PUT, DELETE, UPDATE",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Expose-Headers": "Content-Length",
+            "Access-Control-Max-Age": "86400",
+            "Content-Type": "application/json; charset=utf-8"
+          },
+          "RequestUrlParams": {},
+          "RequestBody": "",
+          "ResponseBody": "[{\"id\":78,\"grp_name\":\"tplB\",\"create_user\":\"userA\"},{\"id\":145,\"grp_name\":\"Owl_Default_Group\",\"create_user\":\"userA\"}]",
+          "ResponseCode": 200
+        }
+      ]
+    }
+  ]
+}
