@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/masato25/owl_backend/app/utils"
-	"github.com/masato25/owl_backend/config"
+	"github.com/open-falcon/open-falcon/modules/api/app/utils"
+	"github.com/open-falcon/open-falcon/modules/api/config"
 )
 
 var db config.DBPool

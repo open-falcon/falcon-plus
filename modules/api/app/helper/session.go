@@ -8,8 +8,8 @@ import (
 	log "github.com/Sirupsen/logrus"
 
 	"github.com/gin-gonic/gin"
-	"github.com/masato25/owl_backend/app/model/uic"
-	"github.com/masato25/owl_backend/config"
+	"github.com/open-falcon/open-falcon/modules/api/app/model/uic"
+	"github.com/open-falcon/open-falcon/modules/api/config"
 )
 
 type WebSession struct {

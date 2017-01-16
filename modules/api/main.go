@@ -3,9 +3,9 @@ package main
 import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/gin-gonic/gin"
-	"github.com/masato25/owl_backend/app/controller"
-	"github.com/masato25/owl_backend/config"
-	"github.com/masato25/owl_backend/graph"
+	"github.com/open-falcon/open-falcon/modules/api/app/controller"
+	"github.com/open-falcon/open-falcon/modules/api/config"
+	"github.com/open-falcon/open-falcon/modules/api/graph"
 	yaag_gin "github.com/masato25/yaag/gin"
 	"github.com/masato25/yaag/yaag"
 	"github.com/spf13/viper"

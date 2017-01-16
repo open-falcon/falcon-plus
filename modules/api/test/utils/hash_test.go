@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/masato25/owl_backend/app/utils"
+	"github.com/open-falcon/open-falcon/modules/api/app/utils"
 	. "github.com/smartystreets/goconvey/convey"
 	"github.com/spf13/viper"
 )

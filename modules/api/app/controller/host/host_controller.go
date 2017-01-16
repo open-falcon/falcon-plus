@@ -6,9 +6,9 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/gin-gonic/gin"
-	h "github.com/masato25/owl_backend/app/helper"
-	f "github.com/masato25/owl_backend/app/model/falcon_portal"
-	u "github.com/masato25/owl_backend/app/utils"
+	h "github.com/open-falcon/open-falcon/modules/api/app/helper"
+	f "github.com/open-falcon/open-falcon/modules/api/app/model/falcon_portal"
+	u "github.com/open-falcon/open-falcon/modules/api/app/utils"
 )
 
 func GetHostBindToWhichHostGroup(c *gin.Context) {

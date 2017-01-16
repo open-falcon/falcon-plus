@@ -7,8 +7,8 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
-	h "github.com/masato25/owl_backend/app/helper"
-	f "github.com/masato25/owl_backend/app/model/falcon_portal"
+	h "github.com/open-falcon/open-falcon/modules/api/app/helper"
+	f "github.com/open-falcon/open-falcon/modules/api/app/model/falcon_portal"
 )
 
 type APIGetTemplatesOutput struct {

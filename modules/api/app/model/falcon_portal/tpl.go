@@ -2,8 +2,8 @@ package falcon_portal
 
 import (
 	log "github.com/Sirupsen/logrus"
-	"github.com/masato25/owl_backend/app/model/uic"
-	con "github.com/masato25/owl_backend/config"
+	"github.com/open-falcon/open-falcon/modules/api/app/model/uic"
+	con "github.com/open-falcon/open-falcon/modules/api/config"
 )
 
 type Template struct {

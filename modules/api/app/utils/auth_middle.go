@@ -5,7 +5,7 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/gin-gonic/gin"
-	h "github.com/masato25/owl_backend/app/helper"
+	h "github.com/open-falcon/open-falcon/modules/api/app/helper"
 	"github.com/spf13/viper"
 )
 

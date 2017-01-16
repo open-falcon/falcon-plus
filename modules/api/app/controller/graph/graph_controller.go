@@ -9,10 +9,10 @@ import (
 	cmodel "github.com/Cepave/open-falcon-backend/common/model"
 	log "github.com/Sirupsen/logrus"
 	"github.com/gin-gonic/gin"
-	h "github.com/masato25/owl_backend/app/helper"
-	m "github.com/masato25/owl_backend/app/model/graph"
-	"github.com/masato25/owl_backend/app/utils"
-	g "github.com/masato25/owl_backend/graph"
+	h "github.com/open-falcon/open-falcon/modules/api/app/helper"
+	m "github.com/open-falcon/open-falcon/modules/api/app/model/graph"
+	"github.com/open-falcon/open-falcon/modules/api/app/utils"
+	g "github.com/open-falcon/open-falcon/modules/api/graph"
 )
 
 func EndpointRegexpQuery(c *gin.Context) {

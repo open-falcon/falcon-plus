@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/masato25/owl_backend/config"
+	"github.com/open-falcon/open-falcon/modules/api/config"
 )
 
 type Team struct {

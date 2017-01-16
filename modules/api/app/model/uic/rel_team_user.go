@@ -1,7 +1,7 @@
 package uic
 
 import (
-	"github.com/masato25/owl_backend/config"
+	"github.com/open-falcon/open-falcon/modules/api/config"
 )
 
 type RelTeamUser struct {

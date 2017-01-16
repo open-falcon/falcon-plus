@@ -1,7 +1,7 @@
 package uic
 
 import (
-	con "github.com/masato25/owl_backend/config"
+	con "github.com/open-falcon/open-falcon/modules/api/config"
 	"github.com/spf13/viper"
 )
 
