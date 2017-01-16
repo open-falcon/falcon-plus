@@ -1,0 +1,25 @@
+machine:
+  node:
+    version: v7
+
+test:
+  override:
+    - node scripts/parallel-test:
+        parallel: true
+
+deployment:
+  release:
+    branch: master
+    commands:
+      - git config --global user.email "auto_deploy@circleci.com"
+      - git config --global user.name "CircleCI"
+#      - echo -e "cepave\n${NPM_PASSWD}\nrwu@cepave.com" | npm login
+      - npm run build
+#      deploy
+      - node scripts/gh-tags
+
+general:
+  branches:
+    ignore:
+      - gh-pages
+      - /^\d+\.\d+\.\d\+/

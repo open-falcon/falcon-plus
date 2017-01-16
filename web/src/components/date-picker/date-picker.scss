@@ -1,0 +1,105 @@
+@import "~sass/colors";
+
+.picker {
+  display: table;
+  border: 1px solid $colorGrayLight;
+  position: relative;
+  cursor: pointer;
+  &:hover {
+    border-color: $colorPrimaryLight;
+  }
+  input {
+    border: none;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    padding-left: 8px;
+    z-index: 1;
+    cursor: pointer;
+    &:focus {
+      outline: none;
+    }
+  }
+}
+.icon {
+  fill: $colorPrimary;
+  position: absolute;
+  top: 50%;
+  right: 5px;
+  z-index: 2;
+  transform: translateY(-50%);
+}
+
+.container {
+  font-weight: 300;
+  display: none;
+  border: 1px solid $colorPrimary;
+  background: $colorGrayLightest;
+  padding: 4px;
+  padding-top: 12px;
+  text-align: center;
+  font-size: 12px;
+  min-width: 216px;
+  min-height: 216px;
+
+  th {
+    font-weight: 300;
+  }
+}
+
+.day {
+  padding: 4px;
+  cursor: pointer;
+  &:hover {
+    background: $colorPrimary;
+    color: #fff;
+  }
+}
+
+.daySelected {
+  border-radius: 50%;
+}
+.daySelected, .timeSelected {
+  background: $colorPrimary;
+  color: #fff;
+}
+
+.timeSelected, .timeOption {
+  cursor: pointer;
+  padding: 4px 0;
+}
+
+.timeOption {
+  &:hover {
+    background: $colorPrimary;
+    color: #fff;
+  }
+}
+
+.back, .next {
+  padding: 0 4px;
+  height: auto;
+  background: transparent;
+  margin-top: -4px;
+}
+.back {
+  float: left;
+  &:after {
+    content: '❮';
+  }
+}
+.next {
+  float: right;
+  &:after {
+    content: '❯';
+  }
+}
+
+.month {
+  padding-top: 4px;
+  margin: 0 auto;
+}
+
+.days {
+  margin: 0 auto;
+}

@@ -1,0 +1,118 @@
+.templatePage {
+  background: #fff;
+  font-size: 14px;
+}
+.searchInput {
+  width: 680px;
+}
+.searchTemplate {
+  width: 280px;
+}
+.submitButton {
+  display: flex;
+}
+.link {
+  color: #fff;
+  text-decoration: none;
+}
+.lightDivButtom {
+  position: relative;
+  top: 50px
+}
+
+.inputMetric {
+  width: 300px;
+}
+.newParentSelect {
+  width: 300px;
+}
+.newTeamSelect {
+  width: 300px;
+}
+.inputA {
+  width: 100px;
+}
+.inputMax {
+  width: 10px !important;
+}
+.inputP {
+  width: 10px;
+}
+.inputNote {
+  width: 100px;
+}
+
+.updateTplButDiv {
+  left: 10px;
+  position: relative;
+  bottom: 3px;
+}
+
+.newParentSelectDiv {
+  .select2-container--default {
+    bottom: 3px;
+    left: 5px;
+  }
+}
+.highlighInput {
+  border: 2px solid red;
+  border-radius: 4px;
+}
+
+.nameGroup {
+  display: flex;
+  width: 100%;
+  background: #fff;
+  padding: 12px 24px;
+  margin-bottom: 30px;
+}
+
+.templateGroup {
+  width: 100%;
+  background: #fff;
+  padding: 12px 24px;
+  margin-bottom: 30px;
+}
+
+.flexWrapper {
+  width: 100%;
+}
+
+.title {
+  margin-right: 10px;
+  font-size: 16px;
+}
+
+.templateTitle {
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+.questionBlock {
+  margin-bottom: 30px;
+}
+
+:global(.newTeamSelect) {
+  width: 680px;
+}
+
+.inputGrid4 {
+  width: 150px;
+  min-width: 150px !important;
+}
+
+.inputGrid5 {
+  width: 226px;
+}
+
+.inputGrid6 {
+  width: 288px;
+}
+
+.inputGrid12 {
+  width: 630px;
+}
+
+.formWrapper {
+  margin-bottom: 30px;
+}

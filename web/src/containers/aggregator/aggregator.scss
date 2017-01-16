@@ -1,0 +1,71 @@
+@import "~sass/colors";
+
+.aggregatorPage {
+  background: #fff;
+  font-size: 14px;
+}
+.headlb {
+  height: 100%;
+  width: 100%;
+}
+.linkToPortal {
+  text-decoration: none;
+}
+.buttonIcon {
+  padding: 8px 16px;
+  .plus {
+    margin-right: 4px;
+  }
+}
+.head {
+  background: $colorGrayLightest;
+  padding: 12px 24px;
+  width: 100%;
+  overflow: auto;
+}
+.inputGroup {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 22px;
+  font-size: 14px;
+}
+.formTitle {
+  flex-grow: 1;
+}
+.input {
+  width: 548px;
+}
+.lightboxFooter {
+  padding-top: 10px;
+  padding-right: 23px;
+  display: flex;
+  justify-content: flex-end;
+  .submitBtn {
+    margin-left: 20px;
+  }
+}
+.opeartionInline {
+  display: flex;
+  align-items: baseline;
+  .opeartions {
+    margin: 0 5px;
+    text-decoration: underline;
+    color: $colorPrimary;
+    cursor: pointer;
+  }
+}
+
+.buttonGroup {
+  display: flex;
+  justify-content: space-between;
+  .btnWrapper {
+    flex: 1;
+    & + .btnWrapper {
+      margin-left: 20px;
+    }
+  }
+}
+.buttonBig {
+  width: 100%;
+}
