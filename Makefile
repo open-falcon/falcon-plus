@@ -1,7 +1,7 @@
 SHELL := /bin/bash
 TARGET_SOURCE = $(shell find main.go g commands -name '*.go')
-CMD = agent aggregator graph hbs judge nodata query sender task transfer gateway
-BIN = bin/falcon-agent bin/falcon-aggregator bin/falcon-graph bin/falcon-hbs bin/falcon-judge bin/falcon-nodata bin/falcon-query bin/falcon-sender bin/falcon-task bin/falcon-transfer bin/falcon-gateway
+CMD = agent aggregator graph hbs judge nodata query sender task transfer gateway api
+BIN = bin/falcon-agent bin/falcon-aggregator bin/falcon-graph bin/falcon-hbs bin/falcon-judge bin/falcon-nodata bin/falcon-query bin/falcon-sender bin/falcon-task bin/falcon-transfer bin/falcon-gateway bin/falcon-api
 TARGET = open-falcon
 
 GOTOOLS = github.com/mitchellh/gox golang.org/x/tools/cmd/stringer \
@@ -55,7 +55,7 @@ clean:
 	rm -rf ./$(TARGET)
 	rm -rf open-falcon-v$(VERSION).tar.gz
 
-.PHONY: clean all agent aggregator graph hbs judge nodata query sender task transfer gateway
+.PHONY: clean all agent aggregator graph hbs judge nodata query sender task transfer gateway api
 
 bin/falcon-agent : $(shell find modules/agent/ -name '*.go')
 bin/falcon-aggregator : $(shell find modules/aggregator/ -name '*.go')
@@ -68,3 +68,4 @@ bin/falcon-sender : $(shell find modules/sender/ -name '*.go')
 bin/falcon-task : $(shell find modules/task/ -name '*.go')
 bin/falcon-transfer : $(shell find modules/transfer/ -name '*.go')
 bin/falcon-gateway : $(shell find modules/gateway/ -name '*.go')
+bin/falcon-api : $(shell find modules/api/ -name '*.go')

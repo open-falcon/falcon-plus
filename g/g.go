@@ -29,6 +29,7 @@ func init() {
 		"task":       true,
 		"transfer":   true,
 		"gateway":    true,
+		"api":        true,
 	}
 
 	ModuleBins = map[string]string{
@@ -44,6 +45,7 @@ func init() {
 		"task":       "./task/bin/falcon-task",
 		"transfer":   "./transfer/bin/falcon-transfer",
 		"gateway":    "./gateway/bin/falcon-gateway",
+		"api":        "./api/bin/falcon-api",
 	}
 
 	ModuleConfs = map[string]string{
@@ -59,6 +61,7 @@ func init() {
 		"task":       "./task/config/cfg.json",
 		"transfer":   "./transfer/config/cfg.json",
 		"gateway":    "./gateway/config/cfg.json",
+		"api":        "./api/config/cfg.json",
 	}
 
 	ModuleApps = map[string]string{
@@ -74,6 +77,7 @@ func init() {
 		"task":       "falcon-task",
 		"transfer":   "falcon-transfer",
 		"gateway":    "falcon-gateway",
+		"api":        "falcon-api",
 	}
 
 	// Modules are deployed in this order
