@@ -23,9 +23,12 @@ func UniqSet(list []interface{}) []interface{} {
 }
 
 func MapTake(list []interface{}, limit int) []interface{} {
-	res := make([]interface{}, limit)
+	res := []interface{}{}
+	if limit > len(list) {
+		limit = len(list)
+	}
 	for i := 0; i < limit; i++ {
-		res[i] = list[i]
+		res = append(res, list[i])
 	}
 	return res
 }
