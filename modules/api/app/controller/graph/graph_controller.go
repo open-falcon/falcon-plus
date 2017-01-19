@@ -6,13 +6,13 @@ import (
 
 	"net/http"
 
-	cmodel "github.com/Cepave/open-falcon-backend/common/model"
+	cmodel "github.com/open-falcon/falcon-plus/common/model"
 	log "github.com/Sirupsen/logrus"
 	"github.com/gin-gonic/gin"
-	h "github.com/open-falcon/open-falcon/modules/api/app/helper"
-	m "github.com/open-falcon/open-falcon/modules/api/app/model/graph"
-	"github.com/open-falcon/open-falcon/modules/api/app/utils"
-	g "github.com/open-falcon/open-falcon/modules/api/graph"
+	h "github.com/open-falcon/falcon-plus/modules/api/app/helper"
+	m "github.com/open-falcon/falcon-plus/modules/api/app/model/graph"
+	"github.com/open-falcon/falcon-plus/modules/api/app/utils"
+	g "github.com/open-falcon/falcon-plus/modules/api/graph"
 )
 
 func EndpointRegexpQuery(c *gin.Context) {
