@@ -2,8 +2,9 @@ package model
 
 import (
 	"fmt"
-	MUtils "github.com/open-falcon/common/utils"
 	"math"
+
+	MUtils "github.com/open-falcon/falcon-plus/common/utils"
 )
 
 // DsType 即RRD中的Datasource的类型：GAUGE|COUNTER|DERIVE
@@ -56,6 +57,7 @@ type GraphQueryParam struct {
 	ConsolFun string `json:"consolFuc"`
 	Endpoint  string `json:"endpoint"`
 	Counter   string `json:"counter"`
+	Step      int    `json:"step"`
 }
 
 type GraphQueryResponse struct {

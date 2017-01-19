@@ -2,7 +2,8 @@ package model
 
 import (
 	"fmt"
-	"github.com/open-falcon/common/utils"
+
+	"github.com/open-falcon/falcon-plus/common/utils"
 )
 
 type JudgeItem struct {

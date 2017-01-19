@@ -10,8 +10,8 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 
-	cmodel "github.com/Cepave/open-falcon-backend/common/model"
-	cutils "github.com/Cepave/open-falcon-backend/common/utils"
+	cmodel "github.com/open-falcon/falcon-plus/common/model"
+	cutils "github.com/open-falcon/falcon-plus/common/utils"
 	"github.com/spf13/viper"
 	rings "github.com/toolkits/consistent/rings"
 	nset "github.com/toolkits/container/set"
