@@ -1,5 +1,5 @@
 SHELL := /bin/bash
-TARGET_SOURCE = $(shell find main.go g cmd -name '*.go')
+TARGET_SOURCE = $(shell find main.go g cmd common -name '*.go')
 CMD = agent aggregator graph hbs judge nodata query sender task transfer gateway api
 TARGET = open-falcon
 
