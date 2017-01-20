@@ -6,9 +6,9 @@ import (
 
 	"net/http"
 
-	cmodel "github.com/open-falcon/falcon-plus/common/model"
 	log "github.com/Sirupsen/logrus"
 	"github.com/gin-gonic/gin"
+	cmodel "github.com/open-falcon/falcon-plus/common/model"
 	h "github.com/open-falcon/falcon-plus/modules/api/app/helper"
 	m "github.com/open-falcon/falcon-plus/modules/api/app/model/graph"
 	"github.com/open-falcon/falcon-plus/modules/api/app/utils"
