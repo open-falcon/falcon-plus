@@ -17,8 +17,6 @@ var Start = &cobra.Command{
 	Long: `
 Start the specified Open-Falcon modules and run until a stop command is received.
 A module represents a single node in a cluster.
-
-
 Modules:
 	` + "all " + strings.Join(g.AllModulesInOrder, " "),
 	RunE:          start,

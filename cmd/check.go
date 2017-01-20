@@ -13,7 +13,6 @@ var Check = &cobra.Command{
 	Short: "Check the status of Open-Falcon modules",
 	Long: `
 Check if the specified Open-Falcon modules are running.
-
 Modules:
   ` + "all " + strings.Join(g.AllModulesInOrder, " "),
 	RunE: check,
