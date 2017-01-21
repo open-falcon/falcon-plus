@@ -1,71 +1,42 @@
 SHELL := /bin/bash
-TARGET_SOURCE = $(shell find main.go g commands -name '*.go')
+TARGET_SOURCE = $(shell find main.go g cmd common -name '*.go')
 CMD = agent aggregator graph hbs judge nodata query sender task transfer gateway api
-BIN = bin/falcon-agent bin/falcon-aggregator bin/falcon-graph bin/falcon-hbs bin/falcon-judge bin/falcon-nodata bin/falcon-query bin/falcon-sender bin/falcon-task bin/falcon-transfer bin/falcon-gateway bin/falcon-api
 TARGET = open-falcon
 
-GOTOOLS = github.com/mitchellh/gox golang.org/x/tools/cmd/stringer \
-	github.com/jteeuwen/go-bindata/... github.com/elazarl/go-bindata-assetfs/...
-PACKAGES=$(shell go list ./... | grep -v '^github.com/open-falcon/open-falcon/vendor/')
-VERSION?=$(shell awk -F\" '/^const Version/ { print $$2; exit }' ./g/version.go)
+VERSION := $(shell cat VERSION)
 
-all: $(BIN) $(TARGET)
+all: trash $(CMD) $(TARGET)
 
 $(CMD):
-	make bin/falcon-$@
+	go build -o bin/$@/falcon-$@ ./modules/$@
 
 $(TARGET): $(TARGET_SOURCE)
-	go build -o open-falcon
+	go build -ldflags "-X main.GitCommit=`git rev-parse --short HEAD` -X main.Version=$(VERSION)" -o open-falcon
 
-$(BIN):
-	go build -o $@ ./modules/$(@:bin/falcon-%=%)
-
-# dev creates binaries for testing locally - these are put into ./bin and $GOPATH
-dev: format
-	@CONSUL_DEV=1 sh -c "'$(CURDIR)/scripts/build.sh'"
-
-test: format
-	@./scripts/test.sh
-
-format:
-	@echo "--> Running go fmt"
-	@go fmt $(PACKAGES)
-
-tools:
-	go get -u -v $(GOTOOLS)
-
-checkbin: bin/ config/ open-falcon cfg.json
+checkbin: bin/ config/ open-falcon
 pack: checkbin
-	mkdir out
-	$(foreach var,$(CMD),mkdir -p ./out/$(var)/bin;)
-	$(foreach var,$(CMD),mkdir -p ./out/$(var)/config;)
-	$(foreach var,$(CMD),mkdir -p ./out/$(var)/logs;)
-	$(foreach var,$(CMD),cp ./config/$(var).json ./out/$(var)/config/cfg.json;)
-	$(foreach var,$(CMD),cp ./bin/falcon-$(var) ./out/$(var)/bin;)
-	cp cfg.json ./out/cfg.json
-	cp $(TARGET) ./out/$(TARGET)
-	cd out && tar -zcvf open-falcon-v$(VERSION).tar.gz ./*
-	cd ..
-	mv ./out/open-falcon-v$(VERSION).tar.gz .
-	rm -rf out
+	@if [ -e out ] ; then rm -rf out; fi
+	@mkdir out
+	@$(foreach var,$(CMD),mkdir -p ./out/$(var)/bin;)
+	@$(foreach var,$(CMD),mkdir -p ./out/$(var)/config;)
+	@$(foreach var,$(CMD),mkdir -p ./out/$(var)/logs;)
+	@$(foreach var,$(CMD),cp ./config/$(var).json ./out/$(var)/config/cfg.json;)
+	@$(foreach var,$(CMD),cp ./bin/$(var)/falcon-$(var) ./out/$(var)/bin;)
+	@cp -r ./modules/agent/public ./out/agent/bin
+	@bash ./config/confgen.sh
+	@cp $(TARGET) ./out/$(TARGET)
+	tar -C out -zcf open-falcon-v$(VERSION).tar.gz .
+	@rm -rf out
 
 clean:
-	rm -rf ./bin
-	rm -rf ./out
-	rm -rf ./$(TARGET)
-	rm -rf open-falcon-v$(VERSION).tar.gz
+	@rm -rf ./bin
+	@rm -rf ./out
+	@rm -rf ./$(TARGET)
+	@rm -rf ./package_cache_tmp
+	@rm -rf ./vendor
+	@rm -rf open-falcon-v$(VERSION).tar.gz
 
-.PHONY: clean all agent aggregator graph hbs judge nodata query sender task transfer gateway api
+trash:
+	trash -k -cache package_cache_tmp
 
-bin/falcon-agent : $(shell find modules/agent/ -name '*.go')
-bin/falcon-aggregator : $(shell find modules/aggregator/ -name '*.go')
-bin/falcon-graph : $(shell find modules/graph/ -name '*.go')
-bin/falcon-hbs : $(shell find modules/hbs/ -name '*.go')
-bin/falcon-judge : $(shell find modules/judge/ -name '*.go')
-bin/falcon-nodata : $(shell find modules/nodata/ -name '*.go')
-bin/falcon-query : $(shell find modules/query/ -name '*.go')
-bin/falcon-sender : $(shell find modules/sender/ -name '*.go')
-bin/falcon-task : $(shell find modules/task/ -name '*.go')
-bin/falcon-transfer : $(shell find modules/transfer/ -name '*.go')
-bin/falcon-gateway : $(shell find modules/gateway/ -name '*.go')
-bin/falcon-api : $(shell find modules/api/ -name '*.go')
+.PHONY: trash clean all agent aggregator graph hbs judge nodata query sender task transfer gateway api

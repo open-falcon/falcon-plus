@@ -2,80 +2,41 @@ package main
 
 import (
 	"fmt"
-	"github.com/mitchellh/cli"
-	"github.com/open-falcon/open-falcon/commands/reload"
-	"github.com/open-falcon/open-falcon/commands/restart"
-	"github.com/open-falcon/open-falcon/commands/start"
-	"github.com/open-falcon/open-falcon/commands/status"
-	"github.com/open-falcon/open-falcon/commands/stop"
-	"github.com/open-falcon/open-falcon/commands/tail"
-	"io/ioutil"
-	"log"
 	"os"
+
+	"github.com/open-falcon/falcon-plus/cmd"
+	"github.com/spf13/cobra"
 )
 
-// Commands is the mapping of all the available Consul commands.
-var Commands map[string]cli.CommandFactory
-var startCommand cli.Command
+var versionFlag bool
+
+var RootCmd = &cobra.Command{
+	Use: "open-falcon",
+	RunE: func(c *cobra.Command, args []string) error {
+		if versionFlag {
+			fmt.Printf("Open-Falcon version %s, build %s\n", Version, GitCommit)
+			return nil
+		}
+		return c.Usage()
+	},
+}
 
 func init() {
-	//ui := &cli.BasicUi{Writer: os.Stdout}
+	RootCmd.AddCommand(cmd.Start)
+	RootCmd.AddCommand(cmd.Stop)
+	RootCmd.AddCommand(cmd.Restart)
+	RootCmd.AddCommand(cmd.Check)
+	RootCmd.AddCommand(cmd.Monitor)
+	RootCmd.AddCommand(cmd.Reload)
 
-	Commands = map[string]cli.CommandFactory{
-		"start": func() (cli.Command, error) {
-			return &start.Command{}, nil
-		},
-		"stop": func() (cli.Command, error) {
-			return &stop.Command{}, nil
-		},
-		"restart": func() (cli.Command, error) {
-			return &restart.Command{}, nil
-		},
-		"status": func() (cli.Command, error) {
-			return &status.Command{}, nil
-		},
-		"tail": func() (cli.Command, error) {
-			return &tail.Command{}, nil
-		},
-		"reload": func() (cli.Command, error) {
-			return &reload.Command{}, nil
-		},
-	}
+	RootCmd.Flags().BoolVarP(&versionFlag, "version", "v", false, "show version")
+	cmd.Start.Flags().BoolVar(&cmd.PreqOrderFlag, "preq-order", false, "start modules in the order of prerequisites")
+	cmd.Start.Flags().BoolVar(&cmd.ConsoleOutputFlag, "console-output", false, "print the module's output to the console")
 }
 
 func main() {
-	os.Exit(realMain())
-}
-
-func realMain() int {
-	log.SetOutput(ioutil.Discard)
-
-	// Get the command line args. We shortcut "--version" and "-v" to
-	// just show the version.
-	args := os.Args[1:]
-	for _, arg := range args {
-		if arg == "--" {
-			break
-		}
-		if arg == "-v" || arg == "--version" {
-			newArgs := make([]string, len(args)+1)
-			newArgs[0] = "version"
-			copy(newArgs[1:], args)
-			args = newArgs
-			break
-		}
+	if err := RootCmd.Execute(); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
 	}
-
-	cli := &cli.CLI{
-		Args:     args,
-		Commands: Commands,
-		//	HelpFunc: cli.BasicHelpFunc("consul"),
-	}
-	exitCode, err := cli.Run()
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error executing CLI: %s\n", err.Error())
-		return 1
-	}
-
-	return exitCode
 }
