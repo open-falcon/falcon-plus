@@ -2,7 +2,7 @@
     "debug": "false",
     "http": {
         "enabled":  true,
-        "listen":   "0.0.0.0:9966"
+        "listen":   "%%QUERY_HTTP%%"
     },
     "graph": {
         "connTimeout": 1000,
@@ -11,11 +11,11 @@
         "maxIdle": 32,
         "replicas": 500,
         "cluster": {
-            "graph-00": "127.0.0.1:6070"
+            "graph-00": "%%GRAPH_RPC%%"
         }
     },
     "api": {
-        "query": "http://127.0.0.1:9966",
+        "query": "%%QUERY_HTTP%%",
         "dashboard": "http://127.0.0.1:8081",
         "max": 500
     }

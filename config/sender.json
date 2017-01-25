@@ -2,10 +2,10 @@
     "debug": true,
     "http": {
         "enabled": true,
-        "listen": "0.0.0.0:6066"
+        "listen": "%%SENDER_HTTP%%"
     },
     "redis": {
-        "addr": "127.0.0.1:6379",
+        "addr": "%%REDIS%%",
         "maxIdle": 5
     },
     "queue": {
@@ -17,7 +17,7 @@
         "mail": 50
     },
     "api": {
-        "sms": "http://11.11.11.11:8000/sms",
-        "mail": "http://11.11.11.11:9000/mail"
+        "sms": "http://127.0.0.1:8000/sms",
+        "mail": "http://127.0.0.1:9000/mail"
     }
 }

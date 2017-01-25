@@ -3,11 +3,11 @@
     "minStep": 30,
     "http": {
         "enabled": true,
-        "listen": "0.0.0.0:6060"
+        "listen": "%%TRANSFER_HTTP%%"
     },
     "rpc": {
         "enabled": true,
-        "listen": "0.0.0.0:8433"
+        "listen": "%%TRANSFER_RPC%%"
     },
     "socket": {
         "enabled": true,
@@ -23,7 +23,7 @@
         "maxIdle": 32,
         "replicas": 500,
         "cluster": {
-            "judge-00" : "127.0.0.1:6080"
+            "judge-00" : "%%JUDGE_RPC%%"
         }
     },
     "graph": {
@@ -35,7 +35,7 @@
         "maxIdle": 32,
         "replicas": 500,
         "cluster": {
-            "graph-00" : "127.0.0.1:6070"
+            "graph-00" : "%%GRAPH_RPC%%"
         }
     },
     "tsdb": {

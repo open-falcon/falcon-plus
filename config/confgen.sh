@@ -2,14 +2,21 @@
 
 declare -A confs
 confs=(
-    [%%QUERY_HTTP%%]=0.0.0.0:9966
-    [%%HBS_HTTP%%]=0.0.0.0:6031
-    [%%TRANSFER_HTTP%%]=0.0.0.0:6060
+    [%%AGENT_HTTP%%]=0.0.0.0:1988
+    [%%AGGREGATOR_HTTP%%]=0.0.0.0:6055
     [%%GRAPH_HTTP%%]=0.0.0.0:6071
-    [%%HBS_RPC%%]=0.0.0.0:6030
-    [%%REDIS%%]=127.0.0.1:6379
     [%%GRAPH_RPC%%]=0.0.0.0:6070
+    [%%HBS_HTTP%%]=0.0.0.0:6031
+    [%%HBS_RPC%%]=0.0.0.0:6030
+    [%%JUDGE_HTTP%%]=0.0.0.0:6081
+    [%%JUDGE_RPC%%]=0.0.0.0:6080
+    [%%NODATA_HTTP%%]=0.0.0.0:6090
+    [%%QUERY_HTTP%%]=0.0.0.0:9966
+    [%%SENDER_HTTP%%]=0.0.0.0:6066
+    [%%TASK_HTTP%%]=0.0.0.0:8002
+    [%%TRANSFER_HTTP%%]=0.0.0.0:6060
     [%%TRANSFER_RPC%%]=0.0.0.0:8433
+    [%%REDIS%%]=127.0.0.1:6379
     [%%MYSQL%%]="root:password@tcp(127.0.0.1:3306)"
 )
 

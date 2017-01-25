@@ -1,12 +1,12 @@
 {
     "debug": true,
-    "database": "root:@tcp(127.0.0.1:3306)/falcon_portal?loc=Local&parseTime=true",
+    "database": "%%MYSQL%%/falcon_portal?loc=Local&parseTime=true",
     "hosts": "",
     "maxIdle": 100,
     "listen": ":6030",
     "trustable": [""],
     "http": {
         "enabled": true,
-        "listen": "0.0.0.0:6031"
+        "listen": "%%HBS_HTTP%%"
     }
 }

@@ -2,17 +2,17 @@
     "debug": true,
     "http": {
         "enabled": true,
-        "listen": "0.0.0.0:6055"
+        "listen": "%%AGGREGATOR_HTTP%%"
     },
     "database": {
-        "addr": "root:@tcp(127.0.0.1:3306)/falcon_portal?loc=Local&parseTime=true",
+        "addr": "%%MYSQL%%/falcon_portal?loc=Local&parseTime=true",
         "idle": 10,
         "ids": [1, -1],
         "interval": 55
     },
     "api": {
         "hostnames": "http://127.0.0.1:5050/api/group/%s/hosts.json",
-        "push": "http://127.0.0.1:6060/api/push",
-        "graphLast": "http://127.0.0.1:9966/graph/last"
+        "push": "http://%%TRANSFER_HTTP%%/api/push",
+        "graphLast": "http://%%QUERY_HTTP%%/graph/last"
     }
 }

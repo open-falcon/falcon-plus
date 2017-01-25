@@ -2,11 +2,11 @@
     "debug": false,
     "http": {
         "enable": true,
-        "listen": "0.0.0.0:8002"
+        "listen": "%%TASK_HTTP%%"
     },
     "index": {
         "enable": false,
-        "dsn": "root:root@tcp(127.0.0.1:3306)/graph?loc=Local&parseTime=true",
+        "dsn": "%%MYSQL%%/graph?loc=Local&parseTime=true",
         "maxIdle": 4,
         "autoDelete": false,
         "cluster":{
@@ -16,12 +16,12 @@
     },
     "collector" : {
         "enable": true,
-        "destUrl" : "http://127.0.0.1:1988/v1/push",
+        "destUrl" : "http://%%AGENT_HTTP%%/v1/push",
         "srcUrlFmt" : "http://%s/statistics/all",
         "cluster" : [
-            "transfer,test.hostname:6060",
-            "graph,test.hostname:6071",
-            "task,test.hostname:8001"
+            "transfer,%%TRANSFER_HTTP%%",
+            "graph,%%GRAPH_HTTP%%",
+            "task,%%TASK_HTTP%%"
         ]
     }
 }

@@ -1,17 +1,17 @@
 {
     "debug": true,
     "debugHost": "nil",
-    "remain": 11, 
+    "remain": 11,
     "http": {
         "enabled": true,
-        "listen": "0.0.0.0:6081"
+        "listen": "%%JUDGE_HTTP%%"
     },
     "rpc": {
         "enabled": true,
-        "listen": "0.0.0.0:6080"
+        "listen": "%%JUDGE_RPC%%"
     },
     "hbs": {
-        "servers": ["127.0.0.1:6030"],
+        "servers": ["%%HBS_RPC%%"],
         "timeout": 300,
         "interval": 60
     },
@@ -20,7 +20,7 @@
         "minInterval": 300,
         "queuePattern": "event:p%v",
         "redis": {
-            "dsn": "127.0.0.1:6379",
+            "dsn": "%%REDIS%%",
             "maxIdle": 5,
             "connTimeout": 5000,
             "readTimeout": 5000,
