@@ -10,7 +10,7 @@
         "listen": "0.0.0.0:8433"
     },
     "socket": {
-        "enabled": false,
+        "enabled": true,
         "listen": "0.0.0.0:4444",
         "timeout": 3600
     },
@@ -23,7 +23,7 @@
         "maxIdle": 32,
         "replicas": 500,
         "cluster": {
-            "judge-00" : "10.20.30.40:6080"
+            "judge-00" : "127.0.0.1:6080"
         }
     },
     "graph": {
@@ -34,11 +34,8 @@
         "maxConns": 32,
         "maxIdle": 32,
         "replicas": 500,
-        "migrating": false,
         "cluster": {
-            "graph-00" : "10.20.30.40:6070"
-        },
-        "clusterMigrating": {
+            "graph-00" : "127.0.0.1:6070"
         }
     },
     "tsdb": {
@@ -50,14 +47,5 @@
         "maxIdle": 32,
         "retry": 3,
         "address": "127.0.0.1:8088"
-    },
-    "influxdb": {
-        "enabled": false,
-        "batch": 100,
-        "connTimeout": 1000,
-        "callTimeout": 5000,
-        "maxConns": 32,
-        "maxIdle": 32,
-        "addr": "root:password@http(10.20.30.40:8086)/owl"
     }
 }

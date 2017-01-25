@@ -1,18 +1,27 @@
 {
-    "debug": true,
-    "http": {
-        "enabled": true,
-        "listen": "0.0.0.0:6071"
-    },
-    "rpc": {
-        "enabled": true,
-        "listen": "0.0.0.0:6070"
-    },
-    "rrd": {
-        "storage": "/home/graph/data/6070"
-    },
-    "db": {
-        "dsn": "root:password@tcp(172.17.0.3:3306)/graph?loc=Local&parseTime=true",
-        "maxIdle": 4
-    }
+	"debug": false,
+	"http": {
+		"enabled": true,
+		"listen": "0.0.0.0:6071"
+	},
+	"rpc": {
+		"enabled": true,
+		"listen": "0.0.0.0:6070"
+	},
+	"rrd": {
+		"storage": "/home/work/data/6070"
+	},
+	"db": {
+		"dsn": "root:@tcp(127.0.0.1:3306)/graph?loc=Local&parseTime=true",
+		"maxIdle": 4
+	},
+	"callTimeout": 5000,
+	"migrate": {
+		"enabled": false,
+		"concurrency": 2,
+		"replicas": 500,
+		"cluster": {
+			"graph-00" : "127.0.0.1:6070"
+		}
+	}
 }
