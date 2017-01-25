@@ -6,7 +6,7 @@ import (
 
 	"github.com/toolkits/file"
 
-	"github.com/open-falcon/graph/g"
+	"github.com/open-falcon/falcon-plus/modules/graph/g"
 )
 
 func configCommonRoutes() {

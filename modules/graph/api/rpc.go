@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/open-falcon/graph/g"
+	"github.com/open-falcon/falcon-plus/modules/graph/g"
 )
 
 type conn_list struct {

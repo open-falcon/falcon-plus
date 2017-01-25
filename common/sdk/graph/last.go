@@ -6,8 +6,8 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/open-falcon/common/model"
-	"github.com/open-falcon/sdk/requests"
+	"github.com/open-falcon/falcon-plus/common/model"
+	"github.com/open-falcon/falcon-plus/common/sdk/requests"
 )
 
 var GraphLastUrl = "http://127.0.0.1:9966/graph/last"

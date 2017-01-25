@@ -7,8 +7,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/open-falcon/graph/g"
-	"github.com/open-falcon/graph/store"
+	"github.com/open-falcon/falcon-plus/modules/graph/g"
+	"github.com/open-falcon/falcon-plus/modules/graph/store"
 	"github.com/toolkits/file"
 )
 

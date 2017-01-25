@@ -4,7 +4,7 @@ import (
 	"container/list"
 	"sync"
 
-	"github.com/open-falcon/common/model"
+	"github.com/open-falcon/falcon-plus/common/model"
 )
 
 type SafeLinkedList struct {

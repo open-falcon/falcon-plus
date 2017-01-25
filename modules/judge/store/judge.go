@@ -3,8 +3,8 @@ package store
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/open-falcon/common/model"
-	"github.com/open-falcon/judge/g"
+	"github.com/open-falcon/falcon-plus/common/model"
+	"github.com/open-falcon/falcon-plus/modules/judge/g"
 	"log"
 )
 

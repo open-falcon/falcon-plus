@@ -2,8 +2,8 @@ package http
 
 import (
 	"fmt"
-	"github.com/open-falcon/agent/g"
-	"github.com/open-falcon/agent/plugins"
+	"github.com/open-falcon/falcon-plus/modules/agent/g"
+	"github.com/open-falcon/falcon-plus/modules/agent/plugins"
 	"github.com/toolkits/file"
 	"net/http"
 	"os/exec"

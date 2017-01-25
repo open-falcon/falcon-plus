@@ -3,7 +3,7 @@ package sender
 import (
 	"sort"
 
-	"github.com/open-falcon/transfer/g"
+	"github.com/open-falcon/falcon-plus/modules/transfer/g"
 	"github.com/toolkits/consistent"
 )
 

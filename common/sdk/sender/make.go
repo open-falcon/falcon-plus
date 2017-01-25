@@ -3,7 +3,7 @@ package sender
 import (
 	"time"
 
-	"github.com/open-falcon/common/model"
+	"github.com/open-falcon/falcon-plus/common/model"
 )
 
 func MakeMetaData(endpoint, metric, tags string, val interface{}, counterType string, step_and_ts ...int64) *model.JsonMetaData {

@@ -7,7 +7,7 @@ import (
 
 	"github.com/toolkits/file"
 
-	"github.com/open-falcon/gateway/g"
+	"github.com/open-falcon/falcon-plus/modules/gateway/g"
 )
 
 func configCommonRoutes() {
