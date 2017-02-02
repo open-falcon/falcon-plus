@@ -1,0 +1,3 @@
+import:
+- package: github.com/open-falcon/rrdlite
+  version: b82d08f8da852b242ac87cd22f1cd01d33337d5d
