@@ -1,7 +1,7 @@
 package cache
 
 import (
-	"github.com/open-falcon/hbs/db"
+	"github.com/open-falcon/falcon-plus/modules/hbs/db"
 	"sync"
 )
 

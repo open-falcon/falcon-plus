@@ -6,9 +6,9 @@ import (
 	"log"
 	"net/http"
 
-	cmodel "github.com/open-falcon/common/model"
-	"github.com/open-falcon/query/graph"
-	"github.com/open-falcon/query/proc"
+	cmodel "github.com/open-falcon/falcon-plus/common/model"
+	"github.com/open-falcon/falcon-plus/modules/query/graph"
+	"github.com/open-falcon/falcon-plus/modules/query/proc"
 )
 
 type GraphHistoryParam struct {

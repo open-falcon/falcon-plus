@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/open-falcon/common/model"
+	"github.com/open-falcon/falcon-plus/common/model"
 )
 
 var (

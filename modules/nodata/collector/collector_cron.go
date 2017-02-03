@@ -9,15 +9,15 @@ import (
 	"net/http"
 	"time"
 
-	cmodel "github.com/open-falcon/common/model"
-	cutils "github.com/open-falcon/common/utils"
+	cmodel "github.com/open-falcon/falcon-plus/common/model"
+	cutils "github.com/open-falcon/falcon-plus/common/utils"
 	tsema "github.com/toolkits/concurrent/semaphore"
 	tcron "github.com/toolkits/cron"
 	thttpclient "github.com/toolkits/http/httpclient"
 	ttime "github.com/toolkits/time"
 
-	"github.com/open-falcon/nodata/config"
-	"github.com/open-falcon/nodata/g"
+	"github.com/open-falcon/falcon-plus/modules/nodata/config"
+	"github.com/open-falcon/falcon-plus/modules/nodata/g"
 )
 
 var (

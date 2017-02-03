@@ -1,22 +1,24 @@
 {
-    "debug": false,
-    "hostname": "docker-agent",
+    "debug": true,
+    "hostname": "",
     "ip": "",
     "plugin": {
         "enabled": false,
         "dir": "./plugin",
-        "git": "https://coding.net/ulricqin/plugin.git",
+        "git": "https://github.com/open-falcon/plugin.git",
         "logs": "./logs"
     },
     "heartbeat": {
         "enabled": true,
-        "addr": "10.20.30.40:6030",
+        "addr": "%%HBS_HTTP%%",
         "interval": 60,
         "timeout": 1000
     },
     "transfer": {
         "enabled": true,
-        "addr": "10.20.30.40:8433",
+        "addrs": [
+            "%%TRANSFER_RPC%%"
+        ],
         "interval": 60,
         "timeout": 1000
     },
@@ -47,4 +49,3 @@
         "mem.swapfree": true
     }
 }
-

@@ -2,7 +2,7 @@ package http
 
 import (
 	"bytes"
-	"github.com/open-falcon/query/g"
+	"github.com/open-falcon/falcon-plus/modules/query/g"
 	"io/ioutil"
 	"log"
 	"net/http"

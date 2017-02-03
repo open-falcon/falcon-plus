@@ -1,26 +1,27 @@
 {
     "debug": false,
     "http": {
-        "enabled": true,
-        "listen": "0.0.0.0:8002"
+        "enable": true,
+        "listen": "%%TASK_HTTP%%"
     },
     "index": {
-        "enabled": true,
-        "dsn": "root:password@tcp(172.17.0.3:3306)/graph?loc=Local&parseTime=true",
+        "enable": false,
+        "dsn": "%%MYSQL%%/graph?loc=Local&parseTime=true",
         "maxIdle": 4,
-        "autoDelete": true,
-        "cluster": {
-            "graph:6071" : "0 0 0 ? * 0-5"
+        "autoDelete": false,
+        "cluster":{
+            "test.hostname01:6071" : "0 0 0 ? * 0-5",
+            "test.hostname02:6071" : "0 30 0 ? * 0-5"
         }
     },
-    "collector":{
-        "enabled": true,
-        "destUrl" : "http://10.20.30.40:1988/v1/push",
+    "collector" : {
+        "enable": true,
+        "destUrl" : "http://%%AGENT_HTTP%%/v1/push",
         "srcUrlFmt" : "http://%s/statistics/all",
         "cluster" : [
-            "transfer,10.20.30.40:6060",
-            "graph,10.20.30.40:6071",
-            "task,10.20.30.40:8002"
+            "transfer,%%TRANSFER_HTTP%%",
+            "graph,%%GRAPH_HTTP%%",
+            "task,%%TASK_HTTP%%"
         ]
     }
 }

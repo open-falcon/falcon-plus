@@ -7,7 +7,7 @@ import (
 
 	"github.com/toolkits/file"
 
-	"github.com/open-falcon/task/g"
+	"github.com/open-falcon/falcon-plus/modules/task/g"
 )
 
 func configCommonRoutes() {

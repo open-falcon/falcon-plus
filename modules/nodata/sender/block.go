@@ -12,12 +12,12 @@ import (
 	"sync"
 	"time"
 
-	cmodel "github.com/open-falcon/common/model"
+	cmodel "github.com/open-falcon/falcon-plus/common/model"
 	tcron "github.com/toolkits/cron"
 	thttpclient "github.com/toolkits/http/httpclient"
 	ttime "github.com/toolkits/time"
 
-	"github.com/open-falcon/nodata/g"
+	"github.com/open-falcon/falcon-plus/modules/nodata/g"
 )
 
 var (

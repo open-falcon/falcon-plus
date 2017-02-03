@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/open-falcon/query/graph"
-	"github.com/open-falcon/query/proc"
+	"github.com/open-falcon/falcon-plus/modules/query/graph"
+	"github.com/open-falcon/falcon-plus/modules/query/proc"
 )
 
 func configProcHttpRoutes() {

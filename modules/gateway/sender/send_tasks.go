@@ -6,12 +6,12 @@ import (
 	"time"
 
 	pfc "github.com/niean/goperfcounter"
-	cmodel "github.com/open-falcon/common/model"
-	cutils "github.com/open-falcon/common/utils"
+	cmodel "github.com/open-falcon/falcon-plus/common/model"
+	cutils "github.com/open-falcon/falcon-plus/common/utils"
 	nsema "github.com/toolkits/concurrent/semaphore"
 	nlist "github.com/toolkits/container/list"
 
-	"github.com/open-falcon/gateway/g"
+	"github.com/open-falcon/falcon-plus/modules/gateway/g"
 )
 
 func startSendTasks() {

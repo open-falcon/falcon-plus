@@ -7,8 +7,8 @@ import (
 	"log"
 	"strings"
 
-	"github.com/open-falcon/agent/g"
-	"github.com/open-falcon/common/model"
+	"github.com/open-falcon/falcon-plus/modules/agent/g"
+	"github.com/open-falcon/falcon-plus/common/model"
 	"github.com/toolkits/file"
 	"github.com/toolkits/sys"
 )

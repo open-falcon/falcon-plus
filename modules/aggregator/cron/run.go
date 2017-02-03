@@ -2,9 +2,9 @@ package cron
 
 import (
 	"fmt"
-	"github.com/open-falcon/aggregator/g"
-	"github.com/open-falcon/sdk/portal"
-	"github.com/open-falcon/sdk/sender"
+	"github.com/open-falcon/falcon-plus/modules/aggregator/g"
+	"github.com/open-falcon/falcon-plus/common/sdk/portal"
+	"github.com/open-falcon/falcon-plus/common/sdk/sender"
 	"log"
 	"strconv"
 	"strings"

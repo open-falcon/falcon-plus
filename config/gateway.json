@@ -1,0 +1,28 @@
+{
+    "debug": true,
+    "http": {
+        "enabled": true,
+        "listen": "0.0.0.0:6060"
+    },
+    "rpc": {
+        "enabled": true,
+        "listen": "0.0.0.0:8433"
+    },
+    "socket": {
+        "enabled": true,
+        "listen": "0.0.0.0:4444",
+        "timeout": 3600
+    },
+    "transfer": {
+        "enabled": true,
+        "batch": 200,
+        "retry": 1,
+        "connTimeout": 1000,
+        "callTimeout": 5000,
+        "maxConns": 32,
+        "maxIdle": 32,
+        "cluster": {
+            "t1": "127.0.0.1:8433"
+        }
+    }
+}

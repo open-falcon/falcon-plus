@@ -3,7 +3,7 @@ package redis
 import (
 	"encoding/json"
 	"github.com/garyburd/redigo/redis"
-	"github.com/open-falcon/sender/model"
+	"github.com/open-falcon/falcon-plus/modules/sender/model"
 	"log"
 )
 

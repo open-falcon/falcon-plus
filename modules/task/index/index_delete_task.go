@@ -4,11 +4,11 @@ import (
 	"log"
 	"time"
 
-	Mdb "github.com/open-falcon/common/db"
+	Mdb "github.com/open-falcon/falcon-plus/common/db"
 	cron "github.com/toolkits/cron"
 	ntime "github.com/toolkits/time"
 
-	"github.com/open-falcon/task/proc"
+	"github.com/open-falcon/falcon-plus/modules/task/proc"
 )
 
 const (

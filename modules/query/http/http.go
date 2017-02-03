@@ -6,7 +6,7 @@ import (
 	"net/http"
 	_ "net/http/pprof"
 
-	"github.com/open-falcon/query/g"
+	"github.com/open-falcon/falcon-plus/modules/query/g"
 )
 
 type Dto struct {
