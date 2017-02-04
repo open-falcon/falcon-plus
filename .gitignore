@@ -1,3 +1,9 @@
 bin/
 out/
 open-falcon
+
+*.swp
+glide.yaml
+package_cache_tmp/
+vendor/
+*.tar.gz

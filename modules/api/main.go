@@ -17,9 +17,13 @@ func initGraph() {
 
 func main() {
 	viper.AddConfigPath(".")
+	viper.AddConfigPath("./config")
 	viper.SetConfigName("cfg")
-	viper.ReadInConfig()
-	err := config.InitLog(viper.GetString("log_level"))
+	err := viper.ReadInConfig()
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = config.InitLog(viper.GetString("log_level"))
 	if err != nil {
 		log.Fatal(err)
 	}

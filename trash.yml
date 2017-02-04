@@ -1,3 +1,21 @@
+package: github.com/open-falcon/falcon-plus
+
 import:
 - package: github.com/open-falcon/rrdlite
   version: b82d08f8da852b242ac87cd22f1cd01d33337d5d
+
+- package: github.com/toolkits/nux
+  version: 40e948efd15371c0381842833894bc71dea076e4
+
+- package: github.com/Sirupsen/logrus
+  version: 61e43dc76f7ee59a82bdf3d71033dc12bea4c77d
+
+- package: github.com/gin-gonic/gin
+  version: e2212d40c62a98b388a5eb48ecbdcf88534688ba
+
+- package: github.com/masato25/yaag
+  version: b04f9b8a11ae0427e738ef1affd11a3184bb144d
+
+- package: github.com/spf13/viper
+  version: 5ed0fc31f7f453625df314d8e66b9791e8d13003
+

@@ -5,7 +5,7 @@ TARGET = open-falcon
 
 VERSION := $(shell cat VERSION)
 
-all: trash $(CMD) $(TARGET)
+all: trash goget $(CMD) $(TARGET)
 
 $(CMD):
 	go build -o bin/$@/falcon-$@ ./modules/$@
@@ -26,7 +26,13 @@ pack: checkbin
 	@bash ./config/confgen.sh
 	@cp $(TARGET) ./out/$(TARGET)
 	tar -C out -zcf open-falcon-v$(VERSION).tar.gz .
-	@rm -rf out
+	#@rm -rf out
+
+trash:
+	trash -k -cache package_cache_tmp
+
+goget:
+	-go get ./...
 
 clean:
 	@rm -rf ./bin
@@ -36,7 +42,4 @@ clean:
 	@rm -rf ./vendor
 	@rm -rf open-falcon-v$(VERSION).tar.gz
 
-trash:
-	trash -k -cache package_cache_tmp
-
-.PHONY: trash clean all agent aggregator graph hbs judge nodata query sender task transfer gateway api
+.PHONY: trash goget clean all agent aggregator graph hbs judge nodata query sender task transfer gateway api
