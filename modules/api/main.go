@@ -18,6 +18,7 @@ func initGraph() {
 func main() {
 	viper.AddConfigPath(".")
 	viper.AddConfigPath("./config")
+	viper.AddConfigPath("./api/config")
 	viper.SetConfigName("cfg")
 	err := viper.ReadInConfig()
 	if err != nil {
