@@ -1,9 +1,0 @@
-@mixin ratio($ratio) {
-  position: relative;
-  padding-bottom: 100% / ($ratio);
-  > div {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-  }
-}

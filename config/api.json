@@ -9,7 +9,7 @@
 	"log_level": "debug",
 	"graphs": {
 		"cluster": {
-			"graph-00": "127.0.0.1:6070",
+			"graph-00": "127.0.0.1:6070"
 		},
 		"max_conns": 100,
 		"max_idle": 100,
