@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 TARGET_SOURCE = $(shell find main.go g cmd common -name '*.go')
-CMD = agent aggregator graph hbs judge nodata query sender task transfer gateway api
+CMD = agent aggregator graph hbs judge nodata sender task gateway api proxy
 TARGET = open-falcon
 
 VERSION := $(shell cat VERSION)
@@ -42,4 +42,4 @@ clean:
 	@rm -rf ./vendor
 	@rm -rf open-falcon-v$(VERSION).tar.gz
 
-.PHONY: trash goget clean all agent aggregator graph hbs judge nodata query sender task transfer gateway api
+.PHONY: trash goget clean all agent aggregator graph hbs judge nodata sender task gateway api proxy
