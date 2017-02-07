@@ -2,15 +2,15 @@
     "debug": true,
     "http": {
         "enabled": true,
-        "listen": "0.0.0.0:6060"
+        "listen": "0.0.0.0:16060"
     },
     "rpc": {
         "enabled": true,
-        "listen": "0.0.0.0:8433"
+        "listen": "0.0.0.0:18433"
     },
     "socket": {
         "enabled": true,
-        "listen": "0.0.0.0:4444",
+        "listen": "0.0.0.0:14444",
         "timeout": 3600
     },
     "transfer": {

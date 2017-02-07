@@ -17,7 +17,7 @@ import (
 func StartGin(port string, r *gin.Engine) {
 	r.Use(utils.CORS())
 	r.GET("/", func(c *gin.Context) {
-		c.String(http.StatusOK, "Hello, I'm OWL (｡A｡)")
+		c.String(http.StatusOK, "Hello, I'm Falcon+ (｡A｡)")
 	})
 	graph.Routes(r)
 	uic.Routes(r)
@@ -26,5 +26,5 @@ func StartGin(port string, r *gin.Engine) {
 	host.Routes(r)
 	expression.Routes(r)
 	mockcfg.Routes(r)
-	r.Run()
+	r.Run(port)
 }

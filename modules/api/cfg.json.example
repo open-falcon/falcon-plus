@@ -19,7 +19,7 @@
         "conn_timeout": 1000,
         "call_timeout": 5000
     },
-    "web_port": ":8888",
+    "web_port": ":8080",
     "access_control": true,
     "skip_auth": false,
     "salt": "pleaseinputwhichyouareusingnow",

@@ -79,7 +79,7 @@ func QueryOne(para cmodel.GraphQueryParam) (resp *cmodel.GraphQueryResponse, err
 		return resp, err
 	}
 
-	rpcConn := conn.(rpcpool.RpcClient)
+	rpcConn := conn.(*rpcpool.RpcClient)
 	if rpcConn.Closed() {
 		pool.ForceClose(conn)
 		return resp, errors.New("conn closed")
@@ -145,7 +145,7 @@ func Info(para cmodel.GraphInfoParam) (resp *cmodel.GraphFullyInfo, err error) {
 		return nil, err
 	}
 
-	rpcConn := conn.(rpcpool.RpcClient)
+	rpcConn := conn.(*rpcpool.RpcClient)
 	if rpcConn.Closed() {
 		pool.ForceClose(conn)
 		return nil, errors.New("conn closed")
@@ -198,7 +198,7 @@ func Last(para cmodel.GraphLastParam) (r *cmodel.GraphLastResp, err error) {
 		return nil, err
 	}
 
-	rpcConn := conn.(rpcpool.RpcClient)
+	rpcConn := conn.(*rpcpool.RpcClient)
 	if rpcConn.Closed() {
 		pool.ForceClose(conn)
 		return nil, errors.New("conn closed")
@@ -243,7 +243,7 @@ func LastRaw(para cmodel.GraphLastParam) (r *cmodel.GraphLastResp, err error) {
 		return nil, err
 	}
 
-	rpcConn := conn.(rpcpool.RpcClient)
+	rpcConn := conn.(*rpcpool.RpcClient)
 	if rpcConn.Closed() {
 		pool.ForceClose(conn)
 		return nil, errors.New("conn closed")

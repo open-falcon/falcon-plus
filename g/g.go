@@ -11,10 +11,6 @@ var PidOf map[string]string
 var AllModulesInOrder []string
 
 func init() {
-	//	dirs, _ := ioutil.ReadDir("./modules")
-	//	for _, dir := range dirs {
-	//		Modules[dir.Name()] = true
-	//	}
 	Modules = map[string]bool{
 		"agent":      true,
 		"aggregator": true,
@@ -22,7 +18,6 @@ func init() {
 		"hbs":        true,
 		"judge":      true,
 		"nodata":     true,
-		"query":      true,
 		"sender":     true,
 		"task":       true,
 		"transfer":   true,
@@ -37,7 +32,6 @@ func init() {
 		"hbs":        "./hbs/bin/falcon-hbs",
 		"judge":      "./judge/bin/falcon-judge",
 		"nodata":     "./nodata/bin/falcon-nodata",
-		"query":      "./query/bin/falcon-query",
 		"sender":     "./sender/bin/falcon-sender",
 		"task":       "./task/bin/falcon-task",
 		"transfer":   "./transfer/bin/falcon-transfer",
@@ -52,7 +46,6 @@ func init() {
 		"hbs":        "./hbs/config/cfg.json",
 		"judge":      "./judge/config/cfg.json",
 		"nodata":     "./nodata/config/cfg.json",
-		"query":      "./query/config/cfg.json",
 		"sender":     "./sender/config/cfg.json",
 		"task":       "./task/config/cfg.json",
 		"transfer":   "./transfer/config/cfg.json",
@@ -67,7 +60,6 @@ func init() {
 		"hbs":        "falcon-hbs",
 		"judge":      "falcon-judge",
 		"nodata":     "falcon-nodata",
-		"query":      "falcon-query",
 		"sender":     "falcon-sender",
 		"task":       "falcon-task",
 		"transfer":   "falcon-transfer",
@@ -82,7 +74,6 @@ func init() {
 		"hbs":        "./hbs/logs/hbs.log",
 		"judge":      "./judge/logs/judge.log",
 		"nodata":     "./nodata/logs/nodata.log",
-		"query":      "./query/logs/query.log",
 		"sender":     "./sender/logs/sender.log",
 		"task":       "./task/logs/task.log",
 		"transfer":   "./transfer/logs/transfer.log",
@@ -97,7 +88,6 @@ func init() {
 		"hbs":        "<NOT SET>",
 		"judge":      "<NOT SET>",
 		"nodata":     "<NOT SET>",
-		"query":      "<NOT SET>",
 		"sender":     "<NOT SET>",
 		"task":       "<NOT SET>",
 		"transfer":   "<NOT SET>",
@@ -110,7 +100,6 @@ func init() {
 		"graph",
 		"hbs",
 		"sender",
-		"query",
 		"judge",
 		"transfer",
 		"nodata",

@@ -48,7 +48,7 @@ func (this *SafeRpcConnPools) Call(addr, method string, args interface{}, resp i
 		return fmt.Errorf("%s get connection fail: conn %v, err %v. proc: %s", addr, conn, err, connPool.Proc())
 	}
 
-	rpcClient := conn.(rpcpool.RpcClient)
+	rpcClient := conn.(*rpcpool.RpcClient)
 	callTimeout := time.Duration(this.CallTimeout) * time.Millisecond
 
 	done := make(chan error, 1)
