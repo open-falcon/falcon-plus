@@ -8,8 +8,8 @@ import (
 	nlist "github.com/toolkits/container/list"
 	nproc "github.com/toolkits/proc"
 
+	backend "github.com/open-falcon/falcon-plus/common/backend_pool"
 	"github.com/open-falcon/falcon-plus/modules/gateway/g"
-	cpool "github.com/open-falcon/falcon-plus/modules/gateway/sender/conn_pool"
 )
 
 const (
@@ -18,7 +18,7 @@ const (
 
 var (
 	SenderQueue     = nlist.NewSafeListLimited(DefaultSendQueueMaxSize)
-	SenderConnPools *cpool.SafeRpcConnPools
+	SenderConnPools *backend.SafeRpcConnPools
 
 	TransferMap         = make(map[string]string, 0)
 	TransferHostnames   = make([]string, 0)
@@ -68,6 +68,6 @@ func initConnPools() {
 	}
 
 	// init conn pools
-	SenderConnPools = cpool.CreateSafeRpcConnPools(cfg.Transfer.MaxConns, cfg.Transfer.MaxIdle,
-		cfg.Transfer.ConnTimeout, cfg.Transfer.CallTimeout, addrs)
+	SenderConnPools = backend.CreateSafeRpcConnPools(int(cfg.Transfer.MaxConns), int(cfg.Transfer.MaxIdle),
+		int(cfg.Transfer.ConnTimeout), int(cfg.Transfer.CallTimeout), addrs)
 }
