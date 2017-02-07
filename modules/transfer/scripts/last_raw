@@ -1,0 +1,16 @@
+#!/bin/bash
+if [ $# != 2 ];then
+    printf "format:./last_raw \"endpoint\" \"counter\"\n"
+    exit 1
+fi
+
+# args
+endpoint=$1
+counter=$2
+
+# form request body
+req="[{\"endpoint\":\"$endpoint\", \"counter\":\"$counter\"}]"
+
+# request 
+url="http://127.0.0.1:9966/graph/last/raw"
+curl -s -X POST -d "$req" "$url" | python -m json.tool

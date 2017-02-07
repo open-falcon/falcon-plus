@@ -1,28 +1,28 @@
 {
-  "db": {
-    "faclon_portal": "root:passwd@tcp(127.0.0.1:3306)/falcon_portal?charset=utf8&parseTime=True&loc=Local",
-    "graph": "root:passwd@tcp(127.0.0.1:3306)/graph?charset=utf8&parseTime=True&loc=Local",
-    "uic": "root:passwd@tcp(127.0.0.1:3306)/uic?charset=utf8&parseTime=True&loc=Local",
-    "dashboard": "root:passwd@tcp(127.0.0.1:3306)/dashboard?charset=utf8&parseTime=True&loc=Local",
-    "db_bug": true
-  },
-  "log_level": "debug",
-  "graphs": {
-    "cluster": {
-      "graph-01": "garph1.com:6070",
-      "graph-02": "graph2.com:6070",
-      "graph-03": "graph3.com:6070"
+    "log_level": "debug",
+    "db": {
+        "faclon_portal": "root:@tcp(127.0.0.1:3306)/falcon_portal?charset=utf8&parseTime=True&loc=Local",
+        "graph": "root:@tcp(127.0.0.1:3306)/graph?charset=utf8&parseTime=True&loc=Local",
+        "uic": "root:@tcp(127.0.0.1:3306)/uic?charset=utf8&parseTime=True&loc=Local",
+        "dashboard": "root:@tcp(127.0.0.1:3306)/dashboard?charset=utf8&parseTime=True&loc=Local",
+        "db_bug": true
     },
-    "max_conns": 100,
-    "max_idle": 100,
-    "conn_timeout": 1000,
-    "call_timeout": 5000,
-    "numberOfReplicas": 500
-  },
-  access_control: true,
-  "gen_doc": false,
-  "gen_doc_path": "doc/module.html",
-  "salt": "pleaseinputwhichyouareusingnow",
-  "web_port": ":8888",
-  "skip_auth": false
+    "graphs": {
+        "numberOfReplicas": 500,
+        "cluster": {
+            "graph-00": "garph1.com:6070",
+            "graph-02": "graph2.com:6070",
+            "graph-03": "graph3.com:6070"
+        },
+        "max_conns": 100,
+        "max_idle": 100,
+        "conn_timeout": 1000,
+        "call_timeout": 5000
+    },
+    "web_port": ":8888",
+    "access_control: true,
+    "skip_auth": false,
+    "salt": "pleaseinputwhichyouareusingnow",
+    "gen_doc": false,
+    "gen_doc_path": "doc/module.html"
 }
