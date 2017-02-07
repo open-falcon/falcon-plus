@@ -1,14 +1,14 @@
 package g
 
 import (
+	"github.com/open-falcon/falcon-plus/common/model"
+	"github.com/toolkits/slice"
 	"log"
+	"net"
 	"os"
 	"strings"
 	"sync"
 	"time"
-        "net"
-	"github.com/open-falcon/falcon-plus/common/model"
-	"github.com/toolkits/slice"
 )
 
 var Root string
@@ -24,15 +24,15 @@ func InitRootDir() {
 var LocalIp string
 
 func InitLocalIp() {
-        if Config().Heartbeat.Enabled {
-		conn, err := net.DialTimeout("tcp",Config().Heartbeat.Addr,time.Second*10)
+	if Config().Heartbeat.Enabled {
+		conn, err := net.DialTimeout("tcp", Config().Heartbeat.Addr, time.Second*10)
 		if err != nil {
 			log.Println("get local addr failed !")
-		}else{
-			LocalIp = strings.Split(conn.LocalAddr().String(),":")[0]
+		} else {
+			LocalIp = strings.Split(conn.LocalAddr().String(), ":")[0]
 			conn.Close()
 		}
-	}else{
+	} else {
 		log.Println("hearbeat is not enabled, can't get localip")
 	}
 }

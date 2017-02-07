@@ -10,18 +10,20 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 
+	backend "github.com/open-falcon/falcon-plus/common/backend_pool"
 	cmodel "github.com/open-falcon/falcon-plus/common/model"
 	cutils "github.com/open-falcon/falcon-plus/common/utils"
 	"github.com/spf13/viper"
+	connp "github.com/toolkits/conn_pool"
+	rpcpool "github.com/toolkits/conn_pool/rpc_conn_pool"
 	rings "github.com/toolkits/consistent/rings"
 	nset "github.com/toolkits/container/set"
-	spool "github.com/toolkits/pool/simple_conn_pool"
 )
 
 // 连接池
 // node_address -> connection_pool
 var (
-	GraphConnPools *spool.SafeRpcConnPools
+	GraphConnPools *backend.SafeRpcConnPools
 	clusterMap     map[string]string
 	gcluster       []string
 	connTimeout    int32
@@ -77,7 +79,7 @@ func QueryOne(para cmodel.GraphQueryParam) (resp *cmodel.GraphQueryResponse, err
 		return resp, err
 	}
 
-	rpcConn := conn.(spool.RpcClient)
+	rpcConn := conn.(rpcpool.RpcClient)
 	if rpcConn.Closed() {
 		pool.ForceClose(conn)
 		return resp, errors.New("conn closed")
@@ -143,7 +145,7 @@ func Info(para cmodel.GraphInfoParam) (resp *cmodel.GraphFullyInfo, err error) {
 		return nil, err
 	}
 
-	rpcConn := conn.(spool.RpcClient)
+	rpcConn := conn.(rpcpool.RpcClient)
 	if rpcConn.Closed() {
 		pool.ForceClose(conn)
 		return nil, errors.New("conn closed")
@@ -196,7 +198,7 @@ func Last(para cmodel.GraphLastParam) (r *cmodel.GraphLastResp, err error) {
 		return nil, err
 	}
 
-	rpcConn := conn.(spool.RpcClient)
+	rpcConn := conn.(rpcpool.RpcClient)
 	if rpcConn.Closed() {
 		pool.ForceClose(conn)
 		return nil, errors.New("conn closed")
@@ -241,7 +243,7 @@ func LastRaw(para cmodel.GraphLastParam) (r *cmodel.GraphLastResp, err error) {
 		return nil, err
 	}
 
-	rpcConn := conn.(spool.RpcClient)
+	rpcConn := conn.(rpcpool.RpcClient)
 	if rpcConn.Closed() {
 		pool.ForceClose(conn)
 		return nil, errors.New("conn closed")
@@ -273,7 +275,7 @@ func LastRaw(para cmodel.GraphLastParam) (r *cmodel.GraphLastResp, err error) {
 	}
 }
 
-func selectPool(endpoint, counter string) (rpool *spool.ConnPool, raddr string, rerr error) {
+func selectPool(endpoint, counter string) (rpool *connp.ConnPool, raddr string, rerr error) {
 	pkey := cutils.PK2(endpoint, counter)
 	node, err := GraphNodeRing.GetNode(pkey)
 	if err != nil {
@@ -302,10 +304,10 @@ func initConnPools(clusterMap map[string]string) {
 	for _, address := range clusterMap {
 		graphInstances.Add(address)
 	}
-	GraphConnPools = spool.CreateSafeRpcConnPools(
-		int32(viper.GetInt("graphs.max_conns")),
-		int32(viper.GetInt("graphs.max_idle")),
-		connTimeout, callTimeout, graphInstances.ToSlice())
+	GraphConnPools = backend.CreateSafeRpcConnPools(
+		int(viper.GetInt("graphs.max_conns")),
+		int(viper.GetInt("graphs.max_idle")),
+		int(connTimeout), int(callTimeout), graphInstances.ToSlice())
 }
 
 func initNodeRings(clusterMap map[string]string) {

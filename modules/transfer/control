@@ -5,7 +5,7 @@ cd $WORKSPACE
 
 mkdir -p var
 
-module=proxy
+module=transfer
 app=falcon-$module
 conf=cfg.json
 pidfile=var/app.pid

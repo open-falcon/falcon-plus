@@ -2,10 +2,11 @@ package sender
 
 import (
 	"fmt"
-	cmodel "github.com/open-falcon/falcon-plus/common/model"
 	backend "github.com/open-falcon/falcon-plus/common/backend_pool"
+	cmodel "github.com/open-falcon/falcon-plus/common/model"
 	"github.com/open-falcon/falcon-plus/modules/transfer/g"
 	"github.com/open-falcon/falcon-plus/modules/transfer/proc"
+	rings "github.com/toolkits/consistent/rings"
 	nlist "github.com/toolkits/container/list"
 	"log"
 )
@@ -22,8 +23,8 @@ var (
 // 服务节点的一致性哈希环
 // pk -> node
 var (
-	JudgeNodeRing *ConsistentHashNodeRing
-	GraphNodeRing *ConsistentHashNodeRing
+	JudgeNodeRing *rings.ConsistentHashNodeRing
+	GraphNodeRing *rings.ConsistentHashNodeRing
 )
 
 // 发送缓存队列

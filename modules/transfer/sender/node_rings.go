@@ -1,55 +1,14 @@
 package sender
 
 import (
-	"sort"
-
+	cutils "github.com/open-falcon/falcon-plus/common/utils"
 	"github.com/open-falcon/falcon-plus/modules/transfer/g"
-	"github.com/toolkits/consistent"
+	rings "github.com/toolkits/consistent/rings"
 )
 
 func initNodeRings() {
 	cfg := g.Config()
 
-	JudgeNodeRing = newConsistentHashNodesRing(cfg.Judge.Replicas, KeysOfMap(cfg.Judge.Cluster))
-	GraphNodeRing = newConsistentHashNodesRing(cfg.Graph.Replicas, KeysOfMap(cfg.Graph.Cluster))
-}
-
-// TODO 考虑放到公共组件库,或utils库
-func KeysOfMap(m map[string]string) []string {
-	keys := make(sort.StringSlice, len(m))
-	i := 0
-	for key, _ := range m {
-		keys[i] = key
-		i++
-	}
-
-	keys.Sort()
-	return []string(keys)
-}
-
-// 一致性哈希环,用于管理服务器节点.
-type ConsistentHashNodeRing struct {
-	ring *consistent.Consistent
-}
-
-func newConsistentHashNodesRing(numberOfReplicas int, nodes []string) *ConsistentHashNodeRing {
-	ret := &ConsistentHashNodeRing{ring: consistent.New()}
-	ret.SetNumberOfReplicas(numberOfReplicas)
-	ret.SetNodes(nodes)
-	return ret
-}
-
-// 根据pk,获取node节点. chash(pk) -> node
-func (this *ConsistentHashNodeRing) GetNode(pk string) (string, error) {
-	return this.ring.Get(pk)
-}
-
-func (this *ConsistentHashNodeRing) SetNodes(nodes []string) {
-	for _, node := range nodes {
-		this.ring.Add(node)
-	}
-}
-
-func (this *ConsistentHashNodeRing) SetNumberOfReplicas(num int) {
-	this.ring.NumberOfReplicas = num
+	JudgeNodeRing = rings.NewConsistentHashNodesRing(int32(cfg.Judge.Replicas), cutils.KeysOfMap(cfg.Judge.Cluster))
+	GraphNodeRing = rings.NewConsistentHashNodesRing(int32(cfg.Graph.Replicas), cutils.KeysOfMap(cfg.Graph.Cluster))
 }
