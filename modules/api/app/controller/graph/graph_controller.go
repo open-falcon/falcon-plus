@@ -57,14 +57,20 @@ func EndpointCounterRegexpQuery(c *gin.Context) {
 			eids = fmt.Sprintf("(%s)", eids)
 		}
 		var counters []m.EndpointCounter
-		db.Graph.Table("endpoint_counter").Select("counter").Where(fmt.Sprintf("endpoint_id IN %s AND counter regexp '%s' ", eids, metricQuery)).Scan(&counters)
+		if metricQuery == "" {
+			db.Graph.Table("endpoint_counter").Select("counter, step, type").Where(fmt.Sprintf("endpoint_id IN %s", eids)).Limit(limit).Scan(&counters)
+		} else {
+			db.Graph.Table("endpoint_counter").Select("counter, step, type").Where(fmt.Sprintf("endpoint_id IN %s AND counter regexp '%s'", eids, metricQuery)).Limit(limit).Scan(&counters)
+		}
 		countersResp := []interface{}{}
 		for _, c := range counters {
-			countersResp = append(countersResp, c.Counter)
+			countersResp = append(countersResp, map[string]interface{}{
+				"counter": c.Counter,
+				"step":    c.Step,
+				"type":    c.Type,
+			})
 		}
-		result := utils.UniqSet(countersResp)
-		result = utils.MapTake(result, limit)
-		h.JSONR(c, result)
+		h.JSONR(c, countersResp)
 	}
 	return
 }
@@ -75,7 +81,7 @@ type APIQueryGraphDrawData struct {
 	ConsolFun string   `json:"consol_fun" binding:"required"`
 	StartTime int64    `json:"start_time" binding:"required"`
 	EndTime   int64    `json:"end_time" binding:"required"`
-	Step      int      `json:"step" binding:"required"`
+	Step      int      `json:"step"`
 }
 
 func QueryGraphDrawData(c *gin.Context) {
@@ -87,7 +93,13 @@ func QueryGraphDrawData(c *gin.Context) {
 	respData := []*cmodel.GraphQueryResponse{}
 	for _, host := range inputs.HostNames {
 		for _, counter := range inputs.Counters {
-			data, _ := fetchData(host, counter, inputs.ConsolFun, inputs.StartTime, inputs.EndTime, inputs.Step)
+			// TODO:cache step
+			var step []int
+			dt := db.Graph.Raw("select a.step from endpoint_counter as a, endpoint as b where b.endpoint = ? and a.endpoint_id = b.id and a.counter = ? limit 1", host, counter).Scan(&step)
+			if dt.Error != nil || len(step) == 0 {
+				continue
+			}
+			data, _ := fetchData(host, counter, inputs.ConsolFun, inputs.StartTime, inputs.EndTime, step[0])
 			respData = append(respData, data)
 		}
 	}

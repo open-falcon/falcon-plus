@@ -12,8 +12,8 @@ import (
 )
 
 func Login(c *gin.Context) {
-	name := c.DefaultQuery("name", "")
-	password := c.DefaultQuery("password", "")
+	name := c.DefaultPostForm("name", "")
+	password := c.DefaultPostForm("password", "")
 
 	if name == "" || password == "" {
 		h.JSONR(c, badstatus, "name or password is blank")

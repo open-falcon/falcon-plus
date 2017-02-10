@@ -10,8 +10,8 @@ import:
 - package: github.com/Sirupsen/logrus
   version: 61e43dc76f7ee59a82bdf3d71033dc12bea4c77d
 
-- package: github.com/gin-gonic/gin
-  version: e2212d40c62a98b388a5eb48ecbdcf88534688ba
+- package: gopkg.in/gin-gonic/gin.v1
+  version: HEAD
 
 - package: github.com/masato25/yaag
   version: b04f9b8a11ae0427e738ef1affd11a3184bb144d

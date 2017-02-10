@@ -57,7 +57,8 @@ CREATE TABLE `dashboard_screen` (
   `name` char(128) NOT NULL,
   `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  KEY `idx_pid` (`pid`)
+  KEY `idx_pid` (`pid`),
+  UNIQUE KEY `idx_pid_n` (`pid`,`name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=952 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
