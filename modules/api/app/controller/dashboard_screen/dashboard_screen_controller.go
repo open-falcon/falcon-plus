@@ -80,3 +80,68 @@ func ScreenGetsByPid(c *gin.Context) {
 
 	h.JSONR(c, screens)
 }
+
+func ScreenGetsAll(c *gin.Context) {
+	limit := c.DefaultQuery("limit", "500")
+	screens := []m.DashboardScreen{}
+	dt := db.Dashboard.Table("dashboard_screen").Limit(limit).Find(&screens)
+	if dt.Error != nil {
+		h.JSONR(c, badstatus, dt.Error)
+		return
+	}
+
+	h.JSONR(c, screens)
+}
+
+func ScreenDelete(c *gin.Context) {
+	id := c.Param("screen_id")
+
+	sid, err := strconv.Atoi(id)
+	if err != nil {
+		h.JSONR(c, badstatus, "invalid screen id")
+		return
+	}
+
+	screen := m.DashboardScreen{}
+	dt := db.Dashboard.Table("dashboard_screen").Where("id = ?", sid).Delete(&screen)
+	if dt.Error != nil {
+		h.JSONR(c, badstatus, dt.Error)
+		return
+	}
+
+	h.JSONR(c, "ok")
+}
+
+func ScreenUpdate(c *gin.Context) {
+	id := c.Param("screen_id")
+
+	sid, err := strconv.Atoi(id)
+	if err != nil {
+		h.JSONR(c, badstatus, "invalid screen id")
+		return
+	}
+
+	new_data := map[string]interface{}{}
+	pid := c.PostForm("pid")
+	name := c.PostForm("name")
+	if name != "" {
+		new_data["name"] = name
+	}
+
+	if pid != "" {
+		ipid, err := strconv.Atoi(pid)
+		if err != nil {
+			h.JSONR(c, badstatus, "invalid screen pid")
+			return
+		}
+		new_data["pid"] = ipid
+	}
+
+	dt := db.Dashboard.Table("dashboard_screen").Where("id = ?", sid).Update(new_data)
+	if dt.Error != nil {
+		h.JSONR(c, badstatus, dt.Error)
+		return
+	}
+
+	h.JSONR(c, "ok")
+}

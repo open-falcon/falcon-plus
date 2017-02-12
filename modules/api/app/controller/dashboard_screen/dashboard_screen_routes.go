@@ -3,9 +3,9 @@ package dashboard_screen
 import (
 	"net/http"
 
+	"github.com/gin-gonic/gin"
 	"github.com/open-falcon/falcon-plus/modules/api/app/utils"
 	"github.com/open-falcon/falcon-plus/modules/api/config"
-	"gopkg.in/gin-gonic/gin.v1"
 )
 
 var db config.DBPool
@@ -15,9 +15,12 @@ const expecstatus = http.StatusExpectationFailed
 
 func Routes(r *gin.Engine) {
 	db = config.Con()
-	authapi := r.Group("/api/v1/dashboard/screen")
+	authapi := r.Group("/api/v1/dashboard")
 	authapi.Use(utils.AuthSessionMidd)
-	authapi.POST("", ScreenCreate)
-	authapi.GET("/:screen_id", ScreenGet)
-	authapi.GET("/pid/:pid", ScreenGetsByPid)
+	authapi.POST("/screen", ScreenCreate)
+	authapi.GET("/screen/:screen_id", ScreenGet)
+	authapi.GET("/screens/pid/:pid", ScreenGetsByPid)
+	authapi.GET("/screens", ScreenGetsAll)
+	authapi.DELETE("/screen/:screen_id", ScreenDelete)
+	authapi.PUT("/screen/:screen_id", ScreenUpdate)
 }
