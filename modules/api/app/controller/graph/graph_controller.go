@@ -3,6 +3,7 @@ package graph
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	"net/http"
 
@@ -25,16 +26,27 @@ func EndpointRegexpQuery(c *gin.Context) {
 	}
 	if q == "" {
 		h.JSONR(c, http.StatusBadRequest, "q is missing")
-	} else {
-		var endpoint []m.Endpoint
-		db.Graph.Table("endpoint").Select("endpoint, id").Where("endpoint regexp ?", q).Limit(limit).Scan(&endpoint)
-		endpoints := []map[string]interface{}{}
-		for _, e := range endpoint {
-			endpoints = append(endpoints, map[string]interface{}{"id": e.ID, "endpoint": e.Endpoint})
-		}
-		h.JSONR(c, endpoints)
+		return
 	}
-	return
+
+	var endpoint []m.Endpoint
+	qs := strings.Split(q, " ")
+	dt := db.Graph.Table("endpoint").Select("endpoint, id").Where("endpoint regexp ?", strings.TrimSpace(qs[0]))
+	for _, term := range qs[1:] {
+		dt = dt.Where("endpoint regexp ?", strings.TrimSpace(term))
+	}
+	dt = dt.Limit(limit).Scan(&endpoint)
+	if dt.Error != nil {
+		h.JSONR(c, http.StatusBadRequest, dt.Error)
+		return
+	}
+
+	endpoints := []map[string]interface{}{}
+	for _, e := range endpoint {
+		endpoints = append(endpoints, map[string]interface{}{"id": e.ID, "endpoint": e.Endpoint})
+	}
+
+	h.JSONR(c, endpoints)
 }
 
 func EndpointCounterRegexpQuery(c *gin.Context) {
@@ -56,12 +68,21 @@ func EndpointCounterRegexpQuery(c *gin.Context) {
 		} else {
 			eids = fmt.Sprintf("(%s)", eids)
 		}
+
 		var counters []m.EndpointCounter
-		if metricQuery == "" {
-			db.Graph.Table("endpoint_counter").Select("counter, step, type").Where(fmt.Sprintf("endpoint_id IN %s", eids)).Limit(limit).Scan(&counters)
-		} else {
-			db.Graph.Table("endpoint_counter").Select("counter, step, type").Where(fmt.Sprintf("endpoint_id IN %s AND counter regexp '%s'", eids, metricQuery)).Limit(limit).Scan(&counters)
+		dt := db.Graph.Table("endpoint_counter").Select("counter, step, type").Where(fmt.Sprintf("endpoint_id IN %s", eids))
+		qs := strings.Split(metricQuery, " ")
+		if len(qs) > 0 {
+			for _, term := range qs {
+				dt = dt.Where("counter regexp ?", strings.TrimSpace(term))
+			}
 		}
+		dt = dt.Limit(limit).Scan(&counters)
+		if dt.Error != nil {
+			h.JSONR(c, http.StatusBadRequest, dt.Error)
+			return
+		}
+
 		countersResp := []interface{}{}
 		for _, c := range counters {
 			countersResp = append(countersResp, map[string]interface{}{

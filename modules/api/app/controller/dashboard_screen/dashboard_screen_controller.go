@@ -40,7 +40,7 @@ func ScreenCreate(c *gin.Context) {
 	}
 	sid := lid[0]
 
-	h.JSONR(c, map[string]interface{}{"pid": ipid, "screen_id": sid, "name": name})
+	h.JSONR(c, map[string]interface{}{"pid": ipid, "id": sid, "name": name})
 }
 
 func ScreenGet(c *gin.Context) {

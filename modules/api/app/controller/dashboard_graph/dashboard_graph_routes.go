@@ -21,4 +21,8 @@ func Routes(r *gin.Engine) {
 	authapi.POST("/tmpgraph", DashboardTmpGraphCreate)
 	authapi.GET("/tmpgraph/:id", DashboardTmpGraphQuery)
 	authapi.POST("/graph", DashboardGraphCreate)
+	authapi.PUT("/graph/:id", DashboardGraphUpdate)
+	authapi.GET("/graph/:id", DashboardGraphGet)
+	authapi.DELETE("/graph/:id", DashboardGraphDelete)
+	authapi.GET("/graphs/screen/:screen_id", DashboardGraphGetsByScreenID)
 }
