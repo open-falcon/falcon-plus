@@ -52,6 +52,11 @@ func CreateUser(c *gin.Context) {
 		QQ:     inputs.QQ,
 	}
 
+	//for create a root user during the first time
+	if inputs.Name == "root" {
+		user.Role = 2
+	}
+
 	dt := db.Uic.Table("user").Create(&user)
 	if dt.Error != nil {
 		h.JSONR(c, http.StatusBadRequest, dt.Error)
