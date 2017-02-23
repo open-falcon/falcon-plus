@@ -8,6 +8,7 @@ VERSION := $(shell cat VERSION)
 all: trash $(CMD) $(TARGET)
 
 $(CMD):
+	go get ./modules/$@
 	go build -o bin/$@/falcon-$@ ./modules/$@
 
 $(TARGET): $(TARGET_SOURCE)
@@ -37,6 +38,7 @@ clean:
 	@rm -rf open-falcon-v$(VERSION).tar.gz
 
 trash:
+	go get -u github.com/rancher/trash
 	trash -k -cache package_cache_tmp
 
 .PHONY: trash clean all agent aggregator graph hbs judge nodata query sender task transfer gateway api
