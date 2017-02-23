@@ -1,6 +1,13 @@
 package main
 
 import (
+	"flag"
+	"fmt"
+	"os"
+	"os/signal"
+	"strings"
+	"syscall"
+
 	log "github.com/Sirupsen/logrus"
 	"github.com/gin-gonic/gin"
 	yaag_gin "github.com/masato25/yaag/gin"
@@ -16,10 +23,31 @@ func initGraph() {
 }
 
 func main() {
+	cfgTmp := flag.String("c", "cfg.json", "configuration file")
+	version := flag.Bool("v", false, "show version")
+	help := flag.Bool("h", false, "help")
+	flag.Parse()
+	cfg := *cfgTmp
+	if *version {
+		fmt.Println(config.VERSION)
+		os.Exit(0)
+	}
+
+	if *help {
+		flag.Usage()
+		os.Exit(0)
+	}
+
 	viper.AddConfigPath(".")
-	viper.SetConfigName("cfg")
-	viper.ReadInConfig()
-	err := config.InitLog(viper.GetString("log_level"))
+	viper.AddConfigPath("/")
+	viper.AddConfigPath("./config")
+	cfg = strings.Replace(cfg, ".json", "", 1)
+	viper.SetConfigName(cfg)
+	err := viper.ReadInConfig()
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = config.InitLog(viper.GetString("log_level"))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -39,5 +67,15 @@ func main() {
 	}
 	initGraph()
 	//start gin server
-	controller.StartGin(viper.GetString("web_port"), routes)
+	log.Debugf("will start with port:%v", viper.GetString("web_port"))
+	go controller.StartGin(viper.GetString("web_port"), routes)
+
+	sigs := make(chan os.Signal, 1)
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+	go func() {
+		<-sigs
+		fmt.Println()
+		os.Exit(0)
+	}()
+	select {}
 }
