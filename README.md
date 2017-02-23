@@ -18,6 +18,9 @@
 
 # Get Started
 
+* before start , please make sure you prepared [this](https://book.open-falcon.org/zh/install_from_src/prepare.html) ready.
+
+
     git clone https://github.com/open-falcon/open-falcon.git
     cd open-falcon
 
@@ -29,13 +32,45 @@ make all
 
 # specified module
 make agent
+
+# pack all module
+make pack
+```
+
+* after `make pack` you will got `open-falcon-vx.x.x.tar.gz`
+* if you want edit configure file for each module, you can edit `config/xxx.json` before you do `make pack`
+
+# Decompose
+
+```
+mkdir $WorkingDir
+tar -xzvf open-falcon-vx.x.x.tar.gz -C $WorkingDir
+cd $WorkingDir
 ```
 
 # Run Open-Falcon Commands
 
 Agent for example:
+```bash
+# ./open-falcon [build|pack|start|stop|restart|status|tail] module
+./open-falcon start hbs
 
-    ./open-falcon agent [build|pack|start|stop|restart|status|tail]
+./open-falcon check
+#       falcon-graph         UP           15525
+#         falcon-hbs         UP           15428
+#      falcon-sender       DOWN               -
+#       falcon-query       DOWN               -
+#       falcon-judge       DOWN               -
+#    falcon-transfer         UP           15476
+#      falcon-nodata       DOWN               -
+#        falcon-task       DOWN               -
+#  falcon-aggregator       DOWN               -
+#       falcon-agent         UP           16601
+#     falcon-gateway       DOWN               -
+#         falcon-api         UP           16762
+```
+
+* For debugging , You can check `$WorkDir/$moduleName/log/logs/xxx.log`
 
 # Package Management
 ## How-to
@@ -58,3 +93,8 @@ import:
 # Package Release
 
 	make clean all pack
+
+
+# Q&A
+
+Any issue or question is welcome, Please feel free to open github issues.

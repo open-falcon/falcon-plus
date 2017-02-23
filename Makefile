@@ -5,9 +5,10 @@ TARGET = open-falcon
 
 VERSION := $(shell cat VERSION)
 
-all: trash goget $(CMD) $(TARGET)
+all: trash $(CMD) $(TARGET)
 
 $(CMD):
+	go get ./modules/$@
 	go build -o bin/$@/falcon-$@ ./modules/$@
 
 $(TARGET): $(TARGET_SOURCE)
@@ -28,12 +29,6 @@ pack: checkbin
 	tar -C out -zcf open-falcon-v$(VERSION).tar.gz .
 	#@rm -rf out
 
-trash:
-	trash -k -cache package_cache_tmp
-
-goget:
-	-go get ./...
-
 clean:
 	@rm -rf ./bin
 	@rm -rf ./out
@@ -42,4 +37,8 @@ clean:
 	@rm -rf ./vendor
 	@rm -rf open-falcon-v$(VERSION).tar.gz
 
-.PHONY: trash goget clean all agent aggregator graph hbs judge nodata sender task gateway api transfer
+trash:
+	go get -u github.com/rancher/trash
+	trash -k -cache package_cache_tmp
+
+.PHONY: trash clean all agent aggregator graph hbs judge nodata sender task gateway api transfer
