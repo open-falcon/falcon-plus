@@ -147,9 +147,6 @@ func ChangePassword(c *gin.Context) {
 	case user.Passwd != utils.HashIt(inputs.OldPassword):
 		h.JSONR(c, http.StatusBadRequest, "oldPassword is not match current one")
 		return
-	case user.Passwd != "":
-		h.JSONR(c, http.StatusBadRequest, "Password can not be blank")
-		return
 	}
 
 	user.Passwd = utils.HashIt(inputs.NewPassword)
