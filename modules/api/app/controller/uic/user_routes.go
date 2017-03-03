@@ -31,8 +31,9 @@ func Routes(r *gin.Engine) {
 	authapi.GET("/users", UserList)
 	adminapi := r.Group("/api/v1/admin")
 	adminapi.Use(utils.AuthSessionMidd)
-	adminapi.PUT("/change_user_role", ChangeRuleOfUser)
+	adminapi.PUT("/change_user_role", ChangeRoleOfUser)
 	adminapi.PUT("/change_user_passwd", AdminChangePassword)
+	adminapi.PUT("/change_user_profile", AdminChangeUserProfile)
 	adminapi.DELETE("/delete_user", AdminUserDelete)
 
 	//team

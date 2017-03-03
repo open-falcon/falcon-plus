@@ -24,6 +24,7 @@ type APIUserInput struct {
 	QQ     string `json:"qq"`
 }
 
+//TODO:noly admin can create user
 func CreateUser(c *gin.Context) {
 	var inputs APIUserInput
 	err := c.Bind(&inputs)
@@ -194,11 +195,56 @@ func GetUser(c *gin.Context) {
 	return
 }
 
+//admin usage
+
+type APIAdminChangeUserProfileInput struct {
+	UserID string `json:"user_id" binding:"required"`
+	Cnname string `json:"cnname" binding:"required"`
+	Email  string `json:"email" binding:"required"`
+	Phone  string `json:"phone"`
+	IM     string `json:"im"`
+	QQ     string `json:"qq"`
+}
+
+func AdminChangeUserProfile(c *gin.Context) {
+	var inputs APIAdminChangeUserProfileInput
+	err := c.BindJSON(&inputs)
+	if err != nil {
+		h.JSONR(c, http.StatusExpectationFailed, err)
+		return
+	}
+
+	cuser, err := h.GetUser(c)
+	if err != nil {
+		h.JSONR(c, http.StatusExpectationFailed, err)
+		return
+	} else if !cuser.IsAdmin() {
+		h.JSONR(c, http.StatusBadRequest, "you don't have permission!")
+		return
+	}
+
+	user := uic.User{}
+	uid := inputs.UserID
+	uuser := map[string]interface{}{
+		"Cnname": inputs.Cnname,
+		"Email":  inputs.Email,
+		"Phone":  inputs.Phone,
+		"IM":     inputs.IM,
+		"QQ":     inputs.QQ,
+	}
+	dt := db.Uic.Model(&user).Where("id = ?", uid).Update(uuser)
+	if dt.Error != nil {
+		h.JSONR(c, http.StatusExpectationFailed, dt.Error)
+		return
+	}
+	h.JSONR(c, "user profile updated")
+	return
+}
+
 type APIAdminUserDeleteInput struct {
 	UserID int `json:"user_id" binding:"required"`
 }
 
-//admin usage
 func AdminUserDelete(c *gin.Context) {
 	var inputs APIAdminUserDeleteInput
 	err := c.Bind(&inputs)
@@ -236,15 +282,20 @@ func AdminChangePassword(c *gin.Context) {
 		h.JSONR(c, http.StatusBadRequest, err)
 		return
 	}
-	websession, _ := h.GetSession(c)
-	user := uic.User{Name: websession.Name}
-	dt := db.Uic.Where(&user).Find(&user)
-	switch {
-	case dt.Error != nil:
-		h.JSONR(c, http.StatusExpectationFailed, dt.Error)
+
+	cuser, err := h.GetUser(c)
+	if err != nil {
+		h.JSONR(c, http.StatusExpectationFailed, err)
 		return
-	case !user.IsAdmin():
+	} else if !cuser.IsAdmin() {
 		h.JSONR(c, http.StatusBadRequest, "you don't have permission!")
+		return
+	}
+
+	user := uic.User{ID: int64(inputs.UserID)}
+	dt := db.Uic.Where(&user).Find(&user)
+	if dt.Error != nil {
+		h.JSONR(c, http.StatusExpectationFailed, dt.Error)
 		return
 	}
 
@@ -306,7 +357,7 @@ type APIRoleUpdate struct {
 	Admin  string `json:"admin" binding:"required"`
 }
 
-func ChangeRuleOfUser(c *gin.Context) {
+func ChangeRoleOfUser(c *gin.Context) {
 	var inputs APIRoleUpdate
 	err := c.Bind(&inputs)
 	if err != nil {

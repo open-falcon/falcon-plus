@@ -16,9 +16,9 @@ import (
 )
 
 type CTeam struct {
-	Team        uic.Team
-	TeamCreator string `json:"creator_name"`
-	Useres      []uic.User
+	Team        uic.Team   `json:"team"`
+	TeamCreator string     `json:"creator_name"`
+	Users       []uic.User `json:"users"`
 }
 
 //support root as admin
@@ -67,7 +67,7 @@ func Teams(c *gin.Context) {
 			h.JSONR(c, badstatus, err)
 			return
 		}
-		cteam.Useres = user
+		cteam.Users = user
 		creatorName, err := t.GetCreatorName()
 		if err != nil {
 			log.Debug(err.Error())

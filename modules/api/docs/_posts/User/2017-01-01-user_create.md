@@ -10,7 +10,7 @@ layout: default
 * [Session](#/authentication) Required
 
 ### Request
-```{"name": "test","password": "test"}```
+```{"name": "test","password": "test", "email":"xxx@xxx.com", "cnname": "翱鹗"}```
 
 ### Response
 
