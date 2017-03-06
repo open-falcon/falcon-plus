@@ -46,13 +46,18 @@ func Teams(c *gin.Context) {
 	if user.IsAdmin() {
 		if limit != -1 && page != -1 {
 			dt = db.Uic.Table("team").Raw(
-				fmt.Sprintf("select * from team where name regexp '%s' limit %d,%d", query, page, limit)).Scan(&teams)
+				"select * from team where name regexp ? limit ?, ?", query, page, limit).Scan(&teams)
 		} else {
 			dt = db.Uic.Table("team").Where("name regexp ?", query).Scan(&teams)
 		}
 		err = dt.Error
 	} else {
-		dt = db.Uic.Table("team").Where("name regexp ? AND creator = ?", query, user.ID).Scan(&teams)
+		//team creator and team member can manage the team
+		dt = db.Uic.Raw(
+			`select a.* from team as a, rel_team_user as b 
+			where a.name regexp ? and a.id = b.tid and b.uid = ? 
+			UNION select * from team where name regexp ? and creator = ?`,
+			query, user.ID, query, user.ID).Scan(&teams)
 		err = dt.Error
 	}
 	if err != nil {
@@ -85,11 +90,10 @@ type APICreateTeamInput struct {
 	UserIDs []int64 `json:"users"`
 }
 
+//every user can create a team
 func CreateTeam(c *gin.Context) {
 	var cteam APICreateTeamInput
 	err := c.Bind(&cteam)
-	//team_name is uniq column on db, so need check existing
-	// team_name := c.DefaultQuery("team_name", "")
 	if err != nil {
 		h.JSONR(c, badstatus, err)
 		return
@@ -98,16 +102,13 @@ func CreateTeam(c *gin.Context) {
 	if err != nil {
 		h.JSONR(c, badstatus, err)
 		return
-	} else if user.ID == 0 {
-		h.JSONR(c, badstatus, "not found this user")
-		return
 	}
 	team := uic.Team{
 		Name:    cteam.Name,
 		Resume:  cteam.Resume,
 		Creator: user.ID,
 	}
-	dt := db.Uic.Save(&team)
+	dt := db.Uic.Table("team").Save(&team)
 	if dt.Error != nil {
 		h.JSONR(c, badstatus, dt.Error)
 		return
@@ -136,6 +137,7 @@ type APIUpdateTeamInput struct {
 	UserIDs []int  `json:"users"`
 }
 
+// admin, team creator, team member can mangage the team
 func UpdateTeam(c *gin.Context) {
 	var cteam APIUpdateTeamInput
 	err := c.Bind(&cteam)
@@ -143,16 +145,22 @@ func UpdateTeam(c *gin.Context) {
 		h.JSONR(c, badstatus, err)
 		return
 	}
+
 	user, err := h.GetUser(c)
-	dt := db.Uic.Table("team")
 	if err != nil {
-		dt.Rollback()
 		h.JSONR(c, badstatus, err)
 		return
-	} else if user.IsAdmin() {
-		dt = dt.Where("id = ?", cteam.ID)
+	}
+
+	dt := db.Uic
+	if user.IsAdmin() {
+		dt = dt.Table("team").Where("id = ?", cteam.ID)
 	} else {
-		dt = dt.Where("creator = ? AND id = ?", user.ID, cteam.ID)
+		dt = dt.Raw(
+			`select a.* from team as a, rel_team_user as b 
+			where a.id = b.tid AND a.id = ? AND b.uid = ? 
+			UNION select * from team where creator = ? AND id = ?`,
+			cteam.ID, user.ID, user.ID, cteam.ID)
 	}
 	var team uic.Team
 	dt = dt.Find(&team)
@@ -160,14 +168,13 @@ func UpdateTeam(c *gin.Context) {
 		h.JSONR(c, badstatus, dt.Error)
 		return
 	}
-	if team.ID != 0 {
-		err := bindUsers(db, cteam.ID, cteam.UserIDs)
-		if err != nil {
-			h.JSONR(c, badstatus, err)
-		}
+
+	err = bindUsers(db, cteam.ID, cteam.UserIDs)
+	if err != nil {
+		h.JSONR(c, badstatus, err)
+	} else {
+		h.JSONR(c, "team updated!")
 	}
-	h.JSONR(c, "team updated!")
-	return
 }
 
 func bindUsers(db config.DBPool, tid int, users []int) (err error) {
@@ -176,10 +183,10 @@ func bindUsers(db config.DBPool, tid int, users []int) (err error) {
 	if err != nil {
 		return
 	}
+
 	//delete unbind users
 	var needDeleteMan []uic.RelTeamUser
 	qPared := fmt.Sprintf("tid = %d AND NOT (uid IN (%v))", tid, uids)
-	log.Debug(qPared)
 	dt = db.Uic.Table("rel_team_user").Where(qPared).Find(&needDeleteMan)
 	if dt.Error != nil {
 		err = dt.Error
@@ -194,14 +201,15 @@ func bindUsers(db config.DBPool, tid int, users []int) (err error) {
 			}
 		}
 	}
+
 	//insert bind users
 	for _, i := range users {
 		ur := uic.RelTeamUser{Tid: int64(tid), Uid: int64(i)}
-		db.Uic.Where(&ur).Find(&ur)
+		db.Uic.Table("rel_team_user").Where(&ur).Find(&ur)
 		if ur.ID == 0 {
-			dt = db.Uic.Save(&ur)
+			dt = db.Uic.Table("rel_team_user").Save(&ur)
 		} else {
-			//if record exsint, do next
+			//if record exist, do next
 			continue
 		}
 		if dt.Error != nil {
@@ -216,6 +224,7 @@ type APIDeleteTeamInput struct {
 	ID int64 `json:"team_id" binding:"required"`
 }
 
+//only admin or team creator can delete a team
 func DeleteTeam(c *gin.Context) {
 	var err error
 	teamIdStr := c.Params.ByName("team_id")

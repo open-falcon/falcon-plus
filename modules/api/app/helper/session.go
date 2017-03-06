@@ -80,7 +80,7 @@ func GetUser(c *gin.Context) (user uic.User, err error) {
 	user = uic.User{
 		Name: websession.Name,
 	}
-	dt := db.Where(&user).Find(&user)
+	dt := db.Table("user").Where(&user).Find(&user)
 	err = dt.Error
 	return
 }
