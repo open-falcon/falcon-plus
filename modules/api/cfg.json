@@ -19,6 +19,7 @@
         "conn_timeout": 1000,
         "call_timeout": 5000
     },
+    "metric_list_file": "./api/data/metric",
     "web_port": ":8080",
     "access_control": true,
     "skip_auth": false,
