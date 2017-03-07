@@ -9,7 +9,7 @@
 		"listen": "%%GRAPH_RPC%%"
 	},
 	"rrd": {
-		"storage": "/home/work/data/6070"
+		"storage": "./graph/data/6070"
 	},
 	"db": {
 		"dsn": "%%MYSQL%%/graph?loc=Local&parseTime=true",

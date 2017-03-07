@@ -6,6 +6,7 @@
     "dashboard": "root:password@tcp(localhost:3306)/dashboard?charset=utf8&parseTime=True&loc=Local",
     "db_bug": false
   },
+  "metric_list_file": "./api/data/metric",
   "log_level": "debug",
   "graphs": {
     "cluster": {
