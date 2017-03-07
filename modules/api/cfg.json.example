@@ -1,11 +1,18 @@
 {
-    "log_level": "debug",
-    "db": {
-        "faclon_portal": "root:@tcp(127.0.0.1:3306)/falcon_portal?charset=utf8&parseTime=True&loc=Local",
-        "graph": "root:@tcp(127.0.0.1:3306)/graph?charset=utf8&parseTime=True&loc=Local",
-        "uic": "root:@tcp(127.0.0.1:3306)/uic?charset=utf8&parseTime=True&loc=Local",
-        "dashboard": "root:@tcp(127.0.0.1:3306)/dashboard?charset=utf8&parseTime=True&loc=Local",
-        "db_bug": true
+  "db": {
+    "faclon_portal": "root:passwd@tcp(127.0.0.1:3306)/falcon_portal?charset=utf8&parseTime=True&loc=Local",
+    "graph": "root:passwd@tcp(127.0.0.1:3306)/graph?charset=utf8&parseTime=True&loc=Local",
+    "uic": "root:passwd@tcp(127.0.0.1:3306)/uic?charset=utf8&parseTime=True&loc=Local",
+    "dashboard": "root:passwd@tcp(127.0.0.1:3306)/dashboard?charset=utf8&parseTime=True&loc=Local",
+    "db_bug": true
+  },
+  "log_level": "debug",
+  "metric_list_file": "./api/data/metric",
+  "graphs": {
+    "cluster": {
+      "graph-01": "garph1.com:6070",
+      "graph-02": "graph2.com:6070",
+      "graph-03": "graph3.com:6070"
     },
     "graphs": {
         "numberOfReplicas": 500,

@@ -1,26 +1,27 @@
 {
-	"db": {
-		"faclon_portal": "root:@tcp(127.0.0.1:3306)/falcon_portal?charset=utf8&parseTime=True&loc=Local",
-		"graph": "root:@tcp(127.0.0.1:3306)/graph?charset=utf8&parseTime=True&loc=Local",
-		"uic": "root:@tcp(127.0.0.1:3306)/uic?charset=utf8&parseTime=True&loc=Local",
-		"dashboard": "root:@tcp(127.0.0.1:3306)/dashboard?charset=utf8&parseTime=True&loc=Local",
-		"db_bug": true
-	},
-	"log_level": "debug",
-	"graphs": {
-		"cluster": {
-			"graph-00": "127.0.0.1:6070"
-		},
-		"max_conns": 100,
-		"max_idle": 100,
-		"conn_timeout": 1000,
-		"call_timeout": 5000,
-		"numberOfReplicas": 500
-	},
-	"access_control": true,
-	"gen_doc": false,
-	"gen_doc_path": "doc/module.html",
-	"salt": "pleaseinputwhichyouareusingnow",
-	"web_port": ":8080",
-	"skip_auth": false
+  "db": {
+    "faclon_portal": "root:password@tcp(localhost:3306)/falcon_portal?charset=utf8&parseTime=True&loc=Local",
+    "graph": "root:password@tcp(localhost:3306)/graph?charset=utf8&parseTime=True&loc=Local",
+    "uic": "root:password@tcp(localhost:3306)/uic?charset=utf8&parseTime=True&loc=Local",
+    "dashboard": "root:password@tcp(localhost:3306)/dashboard?charset=utf8&parseTime=True&loc=Local",
+    "db_bug": false
+  },
+  "metric_list_file": "./api/data/metric",
+  "log_level": "debug",
+  "graphs": {
+    "cluster": {
+      "graph-00": "0.0.0.0:6070"
+    },
+    "max_conns": 100,
+    "max_idle": 100,
+    "conn_timeout": 1000,
+    "call_timeout": 5000,
+    "numberOfReplicas": 500
+  },
+  "access_control": true,
+  "gen_doc": false,
+  "gen_doc_path": "doc/dahsboard.html",
+  "salt": "f4vfAf326hR",
+  "web_port": ":3000",
+  "skip_auth": false
 }
