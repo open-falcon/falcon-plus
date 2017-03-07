@@ -24,7 +24,6 @@ type APIUserInput struct {
 	QQ     string `json:"qq"`
 }
 
-//TODO:noly admin can create user
 func CreateUser(c *gin.Context) {
 	var inputs APIUserInput
 	err := c.Bind(&inputs)
@@ -91,7 +90,8 @@ type APIUserUpdateInput struct {
 	QQ     string `json:"qq"`
 }
 
-func UpdateUser(c *gin.Context) {
+//update current user profile
+func UpdateCurrentUser(c *gin.Context) {
 	var inputs APIUserUpdateInput
 	err := c.BindJSON(&inputs)
 	switch {

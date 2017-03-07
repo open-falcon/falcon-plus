@@ -169,6 +169,13 @@ func UpdateTeam(c *gin.Context) {
 		return
 	}
 
+	tm := uic.Team{ID: int64(cteam.ID), Resume: cteam.Resume}
+	dt = db.Uic.Table("team").Save(&tm)
+	if dt.Error != nil {
+		h.JSONR(c, badstatus, dt.Error)
+		return
+	}
+
 	err = bindUsers(db, cteam.ID, cteam.UserIDs)
 	if err != nil {
 		h.JSONR(c, badstatus, err)

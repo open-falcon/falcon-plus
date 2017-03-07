@@ -26,7 +26,7 @@ func Routes(r *gin.Engine) {
 	authapi.Use(utils.AuthSessionMidd)
 	authapi.GET("/current", UserInfo)
 	authapi.GET("/u/:uid", GetUser)
-	authapi.PUT("/update", UpdateUser)
+	authapi.PUT("/update", UpdateCurrentUser)
 	authapi.PUT("/cgpasswd", ChangePassword)
 	authapi.GET("/users", UserList)
 	adminapi := r.Group("/api/v1/admin")
