@@ -170,6 +170,7 @@ func UserInfo(c *gin.Context) {
 	return
 }
 
+// anyone should get the user infomation
 func GetUser(c *gin.Context) {
 	uidtmp := c.Params.ByName("uid")
 	if uidtmp == "" {
@@ -181,13 +182,23 @@ func GetUser(c *gin.Context) {
 		h.JSONR(c, badstatus, err)
 		return
 	}
-	user, err := h.GetUser(c)
-	if !user.IsAdmin() {
-		h.JSONR(c, badstatus, "only admin user can do this.")
+	fuser := uic.User{ID: int64(uid)}
+	if dt := db.Uic.Table("user").Find(&fuser); dt.Error != nil {
+		h.JSONR(c, http.StatusExpectationFailed, dt.Error)
 		return
 	}
-	fuser := uic.User{ID: int64(uid)}
-	if dt := db.Uic.Find(&fuser); dt.Error != nil {
+	h.JSONR(c, fuser)
+	return
+}
+
+func GetUserByName(c *gin.Context) {
+	name := c.Params.ByName("user_name")
+	if name == "" {
+		h.JSONR(c, badstatus, "user name is missing")
+		return
+	}
+	fuser := uic.User{}
+	if dt := db.Uic.Table("user").Where("name = ?", name).First(&fuser); dt.Error != nil {
 		h.JSONR(c, http.StatusExpectationFailed, dt.Error)
 		return
 	}
