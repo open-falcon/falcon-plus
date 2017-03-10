@@ -182,6 +182,8 @@ type ConfCtrl struct {
 	Agent       Configer
 	Loadbalance Configer
 	Backend     Configer
+	Graph       Configer
+	Transfer    Configer
 	// 1: default, 2: db, 3: ConfCtrl.Container
 	// height will cover low
 }

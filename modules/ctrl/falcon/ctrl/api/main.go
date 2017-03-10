@@ -32,6 +32,9 @@ import (
 var opts falcon.CmdOpts
 
 func init() {
+	flag.Lookup("logtostderr").Value.Set("true")
+	flag.Lookup("v").Value.Set("3")
+
 	flag.StringVar(&opts.ConfigFile, "config",
 		"./etc/falcon.conf", "falcon config file")
 

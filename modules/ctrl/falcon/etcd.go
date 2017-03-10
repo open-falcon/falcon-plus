@@ -28,6 +28,11 @@ import (
 	"golang.org/x/net/context"
 )
 
+const (
+	ETCD_CLIENT_MAX_RETRY       = 2
+	ETCD_CLIENT_REQUEST_TIMEOUT = 3 * time.Second
+)
+
 // just for falcon-plus(graph/transfer)
 type EtcdCliConfig struct {
 	Endpoints  string `json:"endpoints"`
@@ -116,14 +121,108 @@ func (p *EtcdCli) Prestart() {
 		p.config.TLS = tlsConfig
 	}
 
+	if err := p.reconnection(); err == nil {
+		p.enable = true
+	}
+	return
+}
+
+func (p *EtcdCli) reconnection() error {
+	// cancel keepalive
+	if p.cancel != nil {
+		p.cancel()
+	}
+
 	cli, err := clientv3.New(p.config)
 	if err != nil {
 		glog.Infof(MODULE_NAME+"etcd New() error %s", err.Error())
-		return
+		return err
 	}
 
 	p.client = cli
-	p.enable = true
+
+	// start keepalive
+	p.Start()
+
+	return nil
+}
+
+func (p *EtcdCli) Get(key string) (resp *clientv3.GetResponse, err error) {
+	if !p.enable {
+		return nil, ErrUnsupported
+	}
+
+	for i := 0; i < ETCD_CLIENT_MAX_RETRY; i++ {
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
+		resp, err = p.client.Get(ctx, key)
+		cancel()
+		if err == nil {
+			return
+		}
+		p.reconnection()
+	}
+	return
+}
+
+func (p *EtcdCli) GetPrefix(key string) (resp *clientv3.GetResponse, err error) {
+	if !p.enable {
+		return nil, ErrUnsupported
+	}
+
+	for i := 0; i < ETCD_CLIENT_MAX_RETRY; i++ {
+		ctx, cancel := context.WithTimeout(context.Background(),
+			ETCD_CLIENT_REQUEST_TIMEOUT)
+		resp, err = p.client.Get(ctx, key, clientv3.WithPrefix(),
+			clientv3.WithSort(clientv3.SortByKey, clientv3.SortDescend))
+		cancel()
+		if err == nil {
+			return
+		}
+		p.reconnection()
+	}
+	return
+}
+
+func (p *EtcdCli) Put(key, value string) (err error) {
+	if !p.enable {
+		return ErrUnsupported
+	}
+
+	for i := 0; i < ETCD_CLIENT_MAX_RETRY; i++ {
+		ctx, cancel := context.WithTimeout(context.Background(),
+			ETCD_CLIENT_REQUEST_TIMEOUT)
+		_, err = p.client.Put(ctx, key, value)
+		cancel()
+		if err == nil {
+			return
+		}
+		p.reconnection()
+	}
+	return
+}
+
+func (p *EtcdCli) Puts(kvs map[string]string) (err error) {
+	if !p.enable {
+		return ErrUnsupported
+	}
+
+	i := 0
+	ops := make([]clientv3.Op, len(kvs))
+	for k, v := range kvs {
+		ops[i] = clientv3.OpPut(k, v)
+		i++
+	}
+
+	for i := 0; i < ETCD_CLIENT_MAX_RETRY; i++ {
+		ctx, cancel := context.WithTimeout(context.Background(),
+			ETCD_CLIENT_REQUEST_TIMEOUT)
+		_, err = clientv3.NewKV(p.client).Txn(ctx).If().Then(ops...).Commit()
+		cancel()
+		if err == nil {
+			return
+		}
+		p.reconnection()
+	}
 	return
 }
 

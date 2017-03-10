@@ -10,7 +10,7 @@ ctrl "falcon-ctrl" {
 	db_max_idle           30;
 	db_max_conn           30;
 	RunMode               dev;
-	HttpPort              8801;
+	HttpAddr              8801;
 	EnableDocs            true;
 //	SessionGcMaxLifeTime  86400;
 //	SessionCookieLifeTime 86400;

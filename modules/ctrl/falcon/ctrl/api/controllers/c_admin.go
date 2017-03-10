@@ -31,6 +31,26 @@ type AdminController struct {
 // @Param	module	path	string	true	"module name"
 // @Success 200 {object} [3]map[string]string {defualt{}, conf{}, configfile{}}
 // @Failure 403 string error
+// @router /online/:module [get]
+func (c *AdminController) GetOnline() {
+	var err error
+
+	module := c.GetString(":module")
+	op, _ := c.Ctx.Input.GetData("op").(*models.Operator)
+
+	conf, err := op.OnlineGet(module)
+	if err != nil {
+		c.SendMsg(403, err.Error())
+	} else {
+		c.SendMsg(200, conf)
+	}
+}
+
+// @Title Get config
+// @Description get module config
+// @Param	module	path	string	true	"module name"
+// @Success 200 {object} [3]map[string]string {defualt{}, conf{}, configfile{}}
+// @Failure 403 string error
 // @router /config/:module [get]
 func (c *AdminController) GetConfig() {
 	var err error

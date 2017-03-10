@@ -34,6 +34,7 @@ var (
 	prestartHooks = make([]hookfunc, 0)
 	reloadHooks   = make([]hookfunc, 0)
 	Configure     *falcon.ConfCtrl
+	EtcdCli       *falcon.EtcdCli
 )
 
 type hookfunc func(conf *falcon.ConfCtrl) error
@@ -46,7 +47,6 @@ type Ctrl struct {
 	rpcListener  *net.TCPListener
 	httpListener *net.TCPListener
 	httpMux      *http.ServeMux
-	etcdCli      *falcon.EtcdCli
 }
 
 func init() {
@@ -78,9 +78,9 @@ func (p *Ctrl) String() string {
 func (p *Ctrl) Prestart() error {
 	Configure = p.Conf
 
-	p.etcdCli = falcon.NewEtcdCli(Configure.Ctrl)
+	EtcdCli = falcon.NewEtcdCli(Configure.Ctrl)
 
-	p.etcdCli.Prestart()
+	EtcdCli.Prestart()
 	for _, fn := range prestartHooks {
 		if err := fn(Configure); err != nil {
 			panic(err)
@@ -95,7 +95,7 @@ func (p *Ctrl) Start() error {
 	p.status = falcon.APP_STATUS_PENDING
 	p.running = make(chan struct{}, 0)
 
-	p.etcdCli.Start()
+	EtcdCli.Start()
 	// p.rpcStart()
 	// p.httpStart()
 	p.statStart()
@@ -108,7 +108,7 @@ func (p *Ctrl) Stop() error {
 	p.status = falcon.APP_STATUS_EXIT
 	close(p.running)
 	p.statStop()
-	p.etcdCli.Stop()
+	EtcdCli.Stop()
 	// p.httpStop()
 	// p.rpcStop()
 	return nil
@@ -121,7 +121,7 @@ func (p Ctrl) Reload(config interface{}) error {
 
 	Configure = p.Conf
 
-	p.etcdCli.Reload(Configure.Ctrl)
+	EtcdCli.Reload(Configure.Ctrl)
 	for _, fn := range prestartHooks {
 		if err := fn(Configure); err != nil {
 			panic(err)
