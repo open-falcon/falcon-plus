@@ -284,7 +284,8 @@ func DeleteTeam(c *gin.Context) {
 
 type APIGetTeamOutput struct {
 	uic.Team
-	Users []uic.User `json:"users"`
+	Users       []uic.User `json:"users"`
+	TeamCreator string     `json:"creator_name"`
 }
 
 func GetTeam(c *gin.Context) {

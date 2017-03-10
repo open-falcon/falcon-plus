@@ -17,6 +17,7 @@
 		"call_timeout": 5000,
 		"numberOfReplicas": 500
 	},
+	"metric_list_file": "./api/data/metric",
 	"access_control": true,
 	"gen_doc": false,
 	"gen_doc_path": "doc/module.html",

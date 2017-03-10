@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	log "github.com/Sirupsen/logrus"
@@ -206,10 +207,59 @@ func GetUserByName(c *gin.Context) {
 	return
 }
 
+func IsUserInTeams(c *gin.Context) {
+	uidtmp := c.Params.ByName("uid")
+	if uidtmp == "" {
+		h.JSONR(c, badstatus, "user id is missing")
+		return
+	}
+	uid, err := strconv.Atoi(uidtmp)
+	if err != nil {
+		h.JSONR(c, badstatus, err)
+		return
+	}
+
+	teams_raw := c.DefaultQuery("team_names", "")
+	if teams_raw == "" {
+		h.JSONR(c, badstatus, err)
+		return
+	}
+	team_names := strings.Split(teams_raw, ",")
+
+	user := uic.User{}
+	dt := db.Uic.Table("user").Where("id = ?", uid).First(&user)
+	if dt.Error != nil {
+		h.JSONR(c, http.StatusExpectationFailed, dt.Error)
+		return
+	}
+
+	teams := []uic.Team{}
+	dt = db.Uic.Table("team").Where("name in (?)", team_names).Find(&teams)
+	if dt.Error != nil {
+		h.JSONR(c, http.StatusExpectationFailed, dt.Error)
+		return
+	}
+
+	tids := []int64{}
+	for _, t := range teams {
+		tids = append(tids, t.ID)
+	}
+
+	tus := []uic.RelTeamUser{}
+	dt = db.Uic.Table("rel_team_user").Where("uid = ? and tid in (?)", uid, tids).Find(&tus)
+	if dt.Error != nil {
+		h.JSONR(c, http.StatusExpectationFailed, dt.Error)
+		return
+	}
+
+	h.JSONR(c, "true")
+	return
+}
+
 //admin usage
 
 type APIAdminChangeUserProfileInput struct {
-	UserID string `json:"user_id" binding:"required"`
+	UserID int    `json:"user_id" binding:"required"`
 	Cnname string `json:"cnname" binding:"required"`
 	Email  string `json:"email" binding:"required"`
 	Phone  string `json:"phone"`
@@ -285,7 +335,6 @@ type APIAdminChangePassword struct {
 	Passwd string `json:"password" binding:"required"`
 }
 
-//admin usage
 func AdminChangePassword(c *gin.Context) {
 	var inputs APIAdminChangePassword
 	err := c.Bind(&inputs)
@@ -362,7 +411,6 @@ func UserList(c *gin.Context) {
 	return
 }
 
-//admin usage
 type APIRoleUpdate struct {
 	UserID int64  `json:"user_id" binding:"required"`
 	Admin  string `json:"admin" binding:"required"`
