@@ -8,6 +8,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/open-falcon/falcon-plus/modules/ctrl/falcon"
 	"github.com/open-falcon/falcon-plus/modules/graph/api"
 	"github.com/open-falcon/falcon-plus/modules/graph/g"
 	"github.com/open-falcon/falcon-plus/modules/graph/http"
@@ -49,6 +50,12 @@ func start_signal(pid int, cfg *g.GlobalConfig) {
 	}
 }
 
+func leaseStart() {
+	c := falcon.NewEtcdCli2(g.Config().Lease)
+	c.Prestart()
+	c.Start()
+}
+
 func main() {
 	cfg := flag.String("c", "cfg.json", "specify config file")
 	version := flag.Bool("v", false, "show version")
@@ -66,6 +73,8 @@ func main() {
 
 	// global config
 	g.ParseConfig(*cfg)
+	// lease key to etcd server (v3)
+	leaseStart()
 	// init db
 	g.InitDB()
 	// rrdtool before api for disable loopback connection

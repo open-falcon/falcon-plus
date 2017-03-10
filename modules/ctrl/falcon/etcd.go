@@ -28,6 +28,33 @@ import (
 	"golang.org/x/net/context"
 )
 
+// just for falcon-plus(graph/transfer)
+type EtcdCliConfig struct {
+	Endpoints  string `json:"endpoints"`
+	Username   string `json:"username"`
+	Password   string `json:"password"`
+	Certfile   string `json:"certfile"`
+	Keyfile    string `json:"keyfile"`
+	Cafile     string `json:"cafile"`
+	Leasekey   string `json:"key"`
+	Leasevalue string `json:"value"`
+	Leasettl   int64  `json:"ttl"`
+}
+
+func NewEtcdCli2(c *EtcdCliConfig) *EtcdCli {
+	return &EtcdCli{
+		endpoints:  strings.Split(c.Endpoints, ","),
+		username:   c.Username,
+		password:   c.Password,
+		certfile:   c.Certfile,
+		keyfile:    c.Keyfile,
+		cafile:     c.Cafile,
+		leasekey:   c.Leasekey,
+		leasevalue: c.Leasevalue,
+		leasettl:   c.Leasettl,
+	}
+}
+
 type EtcdCli struct {
 	enable     bool
 	endpoints  []string
@@ -64,6 +91,10 @@ func NewEtcdCli(c Configer) *EtcdCli {
 }
 
 func (p *EtcdCli) Prestart() {
+	if len(p.endpoints) == 0 || p.endpoints[0] == "" {
+		return
+	}
+
 	p.config = clientv3.Config{
 		Endpoints:   p.endpoints,
 		DialTimeout: 3 * time.Second,
