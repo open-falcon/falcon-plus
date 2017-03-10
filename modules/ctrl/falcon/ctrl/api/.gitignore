@@ -1,0 +1,12 @@
+tmp/
+.gdbinit
+ctrl
+*.swp
+note.*
+routers/commentsRouter*
+swagger/
+api
+static/
+app.conf
+*.tmp
+
