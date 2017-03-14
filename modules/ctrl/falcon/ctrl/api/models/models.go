@@ -111,6 +111,11 @@ type Total struct {
 	Total int64 `json:"total"`
 }
 
+type KeyValue struct {
+	Key   string `json:"key"`
+	Value string `json:"value"`
+}
+
 var (
 	moduleCache  [CTL_M_SIZE]cache
 	sysTagSchema *TagSchema

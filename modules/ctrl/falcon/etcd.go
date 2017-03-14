@@ -121,25 +121,28 @@ func (p *EtcdCli) Prestart() {
 		p.config.TLS = tlsConfig
 	}
 
-	if err := p.reconnection(); err == nil {
-		p.enable = true
+	if err := p.connection(); err != nil {
+		return
+	}
+
+	p.enable = true
+	return
+}
+
+func (p *EtcdCli) connection() (err error) {
+	p.client, err = clientv3.New(p.config)
+	if err != nil {
+		glog.Infof(MODULE_NAME+"etcd New() error %s", err.Error())
 	}
 	return
 }
 
 func (p *EtcdCli) reconnection() error {
-	// cancel keepalive
-	if p.cancel != nil {
-		p.cancel()
-	}
 
-	cli, err := clientv3.New(p.config)
-	if err != nil {
-		glog.Infof(MODULE_NAME+"etcd New() error %s", err.Error())
+	p.client.Close()
+	if err := p.connection(); err != nil {
 		return err
 	}
-
-	p.client = cli
 
 	// start keepalive
 	p.Start()
@@ -147,21 +150,26 @@ func (p *EtcdCli) reconnection() error {
 	return nil
 }
 
-func (p *EtcdCli) Get(key string) (resp *clientv3.GetResponse, err error) {
+func (p *EtcdCli) Get(key string) (string, error) {
 	if !p.enable {
-		return nil, ErrUnsupported
+		return "", ErrUnsupported
 	}
 
 	for i := 0; i < ETCD_CLIENT_MAX_RETRY; i++ {
 		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
-		resp, err = p.client.Get(ctx, key)
+		resp, err := p.client.Get(ctx, key)
 		cancel()
 		if err == nil {
-			return
+			if len(resp.Kvs) > 0 {
+				return string(resp.Kvs[0].Value), nil
+			}
+			return "", ErrEmpty
 		}
+		glog.Infof(MODULE_NAME+"etcd Get(%s) error %s", key, err.Error())
+
 		p.reconnection()
 	}
-	return
+	return "", clientv3.ErrNoAvailableEndpoints
 }
 
 func (p *EtcdCli) GetPrefix(key string) (resp *clientv3.GetResponse, err error) {

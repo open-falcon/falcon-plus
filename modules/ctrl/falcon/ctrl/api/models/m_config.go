@@ -15,6 +15,9 @@ package models
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
+	"strings"
 
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/orm"
@@ -31,24 +34,23 @@ type Kv struct {
 var (
 	etcdMap = map[string]map[string]string{
 		"graph": map[string]string{
-			falcon.C_DEBUG:               "/open-falcon/graph/config/debug",
-			falcon.C_HTTP_ENABLE:         "/open-falcon/graph/config/http/enabled",
-			falcon.C_HTTP_ADDR:           "/open-falcon/graph/config/http/listen",
-			falcon.C_RPC_ENABLE:          "/open-falcon/graph/config/rpc/enabled",
-			falcon.C_RPC_ADDR:            "/open-falcon/graph/config/rpc/listen",
-			falcon.C_RRD_STORAGE:         "/open-falcon/graph/config/rrd/storage",
-			falcon.C_DSN:                 "/open-falcon/graph/config/db/dsn",
-			falcon.C_DB_MAX_IDLE:         "/open-falcon/graph/config/db/maxIdle",
-			falcon.C_CALL_TIMEOUT:        "/open-falcon/graph/config/callTimeout",
-			falcon.C_MIGRATE_ENABLE:      "/open-falcon/graph/config/migrate/enabled",
-			falcon.C_MIGRATE_CONCURRENCY: "/open-falcon/graph/config/migrate/concurrency",
-			falcon.C_MIGRATE_REPLICAS:    "/open-falcon/graph/config/migrate/replicas",
-			falcon.C_MIGRATE_CLUSTER:     "/open-falcon/graph/config/migrate/cluster",
-			falcon.C_LEASE_TTL:           "/open-falcon/graph/config/leasettl",
-			falcon.C_LEASE_KEY:           "/open-falcon/graph/config/leasekey",
-			falcon.C_LEASE_VALUE:         "/open-falcon/graph/config/leasevalue",
-			falcon.C_GRPC_ENABLE:         "/open-falcon/graph/config/grpc/enabled",
-			falcon.C_GRPC_ADDR:           "/open-falcon/graph/config/grpc/listen",
+			falcon.C_DEBUG:                "/open-falcon/graph/config/debug",
+			falcon.C_HTTP_ENABLE:          "/open-falcon/graph/config/http/enabled",
+			falcon.C_HTTP_ADDR:            "/open-falcon/graph/config/http/listen",
+			falcon.C_RPC_ENABLE:           "/open-falcon/graph/config/rpc/enabled",
+			falcon.C_RPC_ADDR:             "/open-falcon/graph/config/rpc/listen",
+			falcon.C_RRD_STORAGE:          "/open-falcon/graph/config/rrd/storage",
+			falcon.C_DSN:                  "/open-falcon/graph/config/db/dsn",
+			falcon.C_DB_MAX_IDLE:          "/open-falcon/graph/config/db/maxIdle",
+			falcon.C_CALL_TIMEOUT:         "/open-falcon/graph/config/callTimeout",
+			falcon.C_MIGRATE_ENABLE:       "/open-falcon/graph/config/migrate/enabled",
+			falcon.C_MIGRATE_CONCURRENCY:  "/open-falcon/graph/config/migrate/concurrency",
+			falcon.C_MIGRATE_REPLICAS:     "/open-falcon/graph/config/migrate/replicas",
+			falcon.C_MIGRATE_CLUSTER:      "/open-falcon/graph/config/migrate/cluster",
+			falcon.C_MIGRATE_NEW_ENDPOINT: "/open-falcon/graph/config/migrate/newEndpoint",
+			falcon.C_LEASE_TTL:            "/open-falcon/graph/config/leasettl",
+			falcon.C_GRPC_ENABLE:          "/open-falcon/graph/config/grpc/enabled",
+			falcon.C_GRPC_ADDR:            "/open-falcon/graph/config/grpc/listen",
 		},
 		"transfer": map[string]string{
 			falcon.C_DEBUG:             "/open-falcon/transfer/config/debug",
@@ -85,8 +87,6 @@ var (
 			falcon.C_TSDB_RETRY:        "/open-falcon/transfer/config/tsdb/retry",
 			falcon.C_TSDB_ADDRESS:      "/open-falcon/transfer/config/tsdb/address",
 			falcon.C_LEASE_TTL:         "/open-falcon/transfer/config/leasettl",
-			falcon.C_LEASE_KEY:         "/open-falcon/transfer/config/leasekey",
-			falcon.C_LEASE_VALUE:       "/open-falcon/transfer/config/leasevalue",
 		},
 	}
 )
@@ -116,13 +116,15 @@ func (op *Operator) SetEtcdConfig(module string, conf map[string]string) error {
 	ekv := make(map[string]string)
 	for k, ek := range ks {
 		beego.Debug(k, "->", ek, "=", conf[k])
-		ekv[ek] = conf[k]
+		if conf[k] != "" {
+			ekv[ek] = conf[k]
+		}
 	}
 	return ctrl.EtcdCli.Puts(ekv)
 }
 
 func (op *Operator) SetDbConfig(module string, conf map[string]string) error {
-	kv := make(map[string]string)
+	kv, _ := GetDbConfig(op.O, module)
 	for k, v := range conf {
 		if v != "" {
 			kv[k] = v
@@ -170,6 +172,11 @@ func (op *Operator) ConfigGet(module string) (interface{}, error) {
 func (op *Operator) ConfigSet(module string, conf map[string]string) error {
 	switch module {
 	case "ctrl", "agent", "lb", "backend", "graph", "transfer":
+		if module == "graph" {
+			// disable set expansion from this interface
+			delete(conf, falcon.C_MIGRATE_ENABLE)
+			delete(conf, falcon.C_MIGRATE_NEW_ENDPOINT)
+		}
 		err := op.SetEtcdConfig(module, conf)
 		if err != nil {
 			return err
@@ -180,6 +187,147 @@ func (op *Operator) ConfigSet(module string, conf map[string]string) error {
 	}
 }
 
-func (op *Operator) OnlineGet(module string) (interface{}, error) {
-	return nil, nil
+func (op *Operator) OnlineGet(module string) ([]KeyValue, error) {
+
+	switch module {
+	case "ctrl", "agent", "lb", "backend", "graph", "transfer":
+		prefix := fmt.Sprintf("/open-falcon/%s/online/", module)
+		resp, err := ctrl.EtcdCli.GetPrefix(prefix)
+		if err != nil {
+			return nil, err
+		}
+
+		ret := make([]KeyValue, len(resp.Kvs))
+
+		for i, kv := range resp.Kvs {
+			ret[i] = KeyValue{
+				Key:   string(kv.Key[len(prefix):]),
+				Value: string(kv.Value),
+			}
+		}
+
+		return ret, nil
+	default:
+		return nil, ErrNoModule
+	}
+
+}
+
+type ExpansionStatus struct {
+	Migrating    bool   `json:"migrating"`
+	GraphCluster string `json:"graph_cluster"`
+	NewEndpoint  string `json:"new_endpoint"`
+}
+
+// expansion
+func (op *Operator) ExpansionGet(module string) (ret *ExpansionStatus, err error) {
+	var enable string
+	ret = &ExpansionStatus{}
+
+	if module != "graph" {
+		return nil, ErrUnsupported
+	}
+
+	if enable, err = ctrl.EtcdCli.Get(etcdMap["graph"][falcon.C_MIGRATE_ENABLE]); err == nil && enable == "true" {
+		ret.Migrating = true
+	}
+
+	ret.GraphCluster, _ = ctrl.EtcdCli.Get(etcdMap["transfer"][falcon.C_GRAPH_CLUSTER])
+	ret.NewEndpoint, _ = ctrl.EtcdCli.Get(etcdMap["graph"][falcon.C_MIGRATE_NEW_ENDPOINT])
+
+	return ret, nil
+}
+
+func (op *Operator) ExpansionBegin(module string, newEndpoint string) error {
+	if module != "graph" {
+		return ErrUnsupported
+	}
+
+	// get
+	transfer, err := GetDbConfig(op.O, "transfer")
+	if err != nil {
+		return err
+	}
+
+	replicas, ok := transfer[falcon.C_GRAPH_REPLICAS]
+	if !ok {
+		return errors.New("can not get transfer->graph->replicas config")
+	}
+
+	online := make(map[string]string)
+	_online, _ := op.OnlineGet("graph")
+	for _, kv := range _online {
+		online[kv.Key] = kv.Value
+	}
+
+	old_cluster := make(map[string]string)
+	new_cluster := make(map[string]string)
+	_old_cluster, ok := transfer[falcon.C_GRAPH_CLUSTER]
+	if !ok {
+		return errors.New("can not get transfer->graph->cluster config")
+	}
+	for _, v := range strings.Split(_old_cluster, ";") {
+		// alias=hostname
+		// s[0]: alias
+		// s[1]: hostname
+		s := strings.Split(v, "=")
+		old_cluster[s[1]] = s[0]
+		new_cluster[s[0]] = s[1]
+	}
+
+	for _, v := range strings.Split(newEndpoint, ";") {
+		s := strings.Split(v, "=")
+		if len(s) != 2 {
+			return errors.New("endpoint format error " + v)
+		}
+		if _, ok := online[s[1]]; !ok {
+			return errors.New(fmt.Sprintf("endpoint(%s) is not online", s[1]))
+		}
+		new_cluster[s[0]] = s[1]
+	}
+
+	_new_cluster := ""
+	for k, v := range new_cluster {
+		_new_cluster += fmt.Sprintf("%s=%s;", k, v)
+	}
+	if len(_new_cluster) > 0 {
+		_new_cluster = _new_cluster[0 : len(_new_cluster)-1]
+	}
+
+	// set
+	op.SetDbConfig("graph", map[string]string{
+		falcon.C_MIGRATE_NEW_ENDPOINT: newEndpoint,
+		falcon.C_MIGRATE_ENABLE:       "true",
+		falcon.C_MIGRATE_REPLICAS:     replicas,
+		falcon.C_MIGRATE_CLUSTER:      _old_cluster,
+	})
+	op.SetDbConfig("transfer", map[string]string{
+		falcon.C_GRAPH_CLUSTER: _new_cluster,
+	})
+
+	ekv := make(map[string]string)
+	ekv[etcdMap["graph"][falcon.C_MIGRATE_NEW_ENDPOINT]] = newEndpoint
+	ekv[etcdMap["graph"][falcon.C_MIGRATE_ENABLE]] = "true"
+	ekv[etcdMap["graph"][falcon.C_MIGRATE_REPLICAS]] = replicas
+	ekv[etcdMap["graph"][falcon.C_MIGRATE_CLUSTER]] = _old_cluster
+	ekv[etcdMap["transfer"][falcon.C_GRAPH_CLUSTER]] = _new_cluster
+
+	return ctrl.EtcdCli.Puts(ekv)
+
+}
+
+func (op *Operator) ExpansionFinish(module string) error {
+	if module != "graph" {
+		return ErrUnsupported
+	}
+
+	op.SetDbConfig("graph", map[string]string{
+		falcon.C_MIGRATE_ENABLE:       "false",
+		falcon.C_MIGRATE_NEW_ENDPOINT: " ",
+	})
+
+	ekv := make(map[string]string)
+	ekv[etcdMap["graph"][falcon.C_MIGRATE_ENABLE]] = "false"
+	ekv[etcdMap["graph"][falcon.C_MIGRATE_NEW_ENDPOINT]] = " "
+	return ctrl.EtcdCli.Puts(ekv)
 }
