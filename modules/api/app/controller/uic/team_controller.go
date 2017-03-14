@@ -284,7 +284,8 @@ func DeleteTeam(c *gin.Context) {
 
 type APIGetTeamOutput struct {
 	uic.Team
-	Users []uic.User `json:"users"`
+	Users       []uic.User `json:"users"`
+	TeamCreator string     `json:"creator_name"`
 }
 
 func GetTeam(c *gin.Context) {
@@ -304,9 +305,49 @@ func GetTeam(c *gin.Context) {
 		return
 	}
 	var uidarr []uic.RelTeamUser
-	db.Uic.Table("rel_team_user").Select("uid").Where(&uic.RelTeamUser{Tid: int64(team_id)}).Find(&uidarr)
-	if err != nil {
-		log.Debug(err.Error())
+	dt = db.Uic.Table("rel_team_user").Select("uid").Where(&uic.RelTeamUser{Tid: int64(team_id)}).Find(&uidarr)
+	if dt.Error != nil {
+		log.Debug(dt.Error)
+	}
+	var resp APIGetTeamOutput
+	resp.Team = team
+	resp.Users = []uic.User{}
+	if len(uidarr) != 0 {
+		uids := ""
+		for indx, v := range uidarr {
+			if indx == 0 {
+				uids = fmt.Sprintf("%v", v.Uid)
+			} else {
+				uids = fmt.Sprintf("%v,%v", uids, v.Uid)
+			}
+		}
+		log.Debugf("uids:%s", uids)
+		var users []uic.User
+		db.Uic.Table("user").Where(fmt.Sprintf("id IN (%s)", uids)).Find(&users)
+		resp.Users = users
+	}
+	h.JSONR(c, resp)
+	return
+}
+
+func GetTeamByName(c *gin.Context) {
+	name := c.Params.ByName("team_name")
+	if name == "" {
+		h.JSONR(c, badstatus, "team name is missing")
+		return
+	}
+	team := uic.Team{Name: name}
+
+	dt := db.Uic.Table("team").Find(&team)
+	if dt.Error != nil {
+		h.JSONR(c, badstatus, dt.Error)
+		return
+	}
+
+	var uidarr []uic.RelTeamUser
+	dt = db.Uic.Table("rel_team_user").Select("uid").Where(&uic.RelTeamUser{Tid: team.ID}).Find(&uidarr)
+	if dt.Error != nil {
+		log.Debug(dt.Error)
 	}
 	var resp APIGetTeamOutput
 	resp.Team = team
