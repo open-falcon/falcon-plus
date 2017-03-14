@@ -1,12 +1,15 @@
-pid_file "./ctrl.pid";
-log "stdout" 4;
-//root "${GOPATH}/src/github.com/open-falcon/falcon-plus/modules/ctrl/falcon/ctrl/api";
+pidFile ./ctrl.pid;
+log stdout 4;
+//root ${GOPATH}/src/github.com/open-falcon/falcon-plus/modules/ctrl;
 
-ctrl "falcon-ctrl" {
+ctrl falcon-ctrl {
 	disabled              no;
 	debug                 1;
 	dsn                   ${FALCON_DSN};
-	etcdendpoints         "10.112.6.19:2379";
+	etcdendpoints         ${FALCON_ETCD};
+	leasekey              "/open-falcon/ctrl/online/test.yubo";
+	leasevalue            1;
+	leasettl              20;
 	db_max_idle           30;
 	db_max_conn           30;
 	RunMode               dev;
@@ -15,20 +18,20 @@ ctrl "falcon-ctrl" {
 //	SessionGcMaxLifeTime  86400;
 //	SessionCookieLifeTime 86400;
 	AuthModule            ldap,misso,github,google;
-	CacheModule           "host,role,system,tag,user";
+	CacheModule           host,role,system,tag,user;
 	LdapAddr              localhost:389;
 	LdapBaseDn            dc=xiaomi,dc=com;
 	LdapBindDn            cn=admin,dc=xiaomi,dc=com;
 	LdapBindPwd           123456;
 	LdapFilter            "(&(objectClass=posixAccount)(cn=%s))";
-	MissoRedirectURL      "http://auth.dev.pt.xiaomi.com/v1.0/auth/callback/misso";
-	GithubClientID        "0c6eb7247bb4bc7ca16a";
-	GithubClientSecret    "7c75c029907af4f398a0e6338fcf9680c1138f64";
-	GithubRedirectURL     "http://auth.dev.pt.xiaomi.com/v1.0/auth/callback/github";
-	GoogleClientID        "781171109477-10tu51e8bs1s677na46oct6hdefpntpu.apps.googleusercontent.com";
-	GoogleClientSecret    "xpEoBFqkmI3KVN9pHt2VW-eN";
-	GoogleRedirectURL     "http://auth.dev.pt.xiaomi.com/v1.0/auth/callback/google";
-	metrics {
+	MissoRedirectURL      http://auth.dev.pt.xiaomi.com/v1.0/auth/callback/misso;
+	GithubClientID        0c6eb7247bb4bc7ca16a;
+	GithubClientSecret    7c75c029907af4f398a0e6338fcf9680c1138f64;
+	GithubRedirectURL     http://auth.dev.pt.xiaomi.com/v1.0/auth/callback/github;
+	GoogleClientID        781171109477-10tu51e8bs1s677na46oct6hdefpntpu.apps.googleusercontent.com;
+	GoogleClientSecret    xpEoBFqkmI3KVN9pHt2VW-eN;
+	GoogleRedirectURL     http://auth.dev.pt.xiaomi.com/v1.0/auth/callback/google;
+	metric {
 		include ./etc/metric_names;
 	};
 }
