@@ -45,6 +45,7 @@ func init() {
 		beego.NSNamespace("/settings", beego.NSInclude(&controllers.SetController{})),
 		beego.NSNamespace("/metric", beego.NSInclude(&controllers.MetricController{})),
 		beego.NSNamespace("/admin", beego.NSInclude(&controllers.AdminController{})),
+		beego.NSNamespace("/matter", beego.NSInclude(&controllers.MatterController{})),
 	)
 	beego.AddNamespace(ns)
 }
