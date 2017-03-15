@@ -143,6 +143,7 @@ func initModels(conf *falcon.ConfCtrl) (err error) {
 	if err = initMetric(conf); err != nil {
 		panic(err)
 	}
+	prepareEtcdConfig()
 	return nil
 }
 
@@ -244,6 +245,7 @@ func initCache(c *falcon.ConfCtrl) error {
 	}
 	return nil
 }
+
 func init() {
 	orm.RegisterDriver("mysql", orm.DRMySQL)
 	orm.RegisterModelWithPrefix("",

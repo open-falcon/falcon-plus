@@ -59,9 +59,9 @@ var (
 			falcon.C_HTTP_ADDR:         "/open-falcon/transfer/config/http/listen",
 			falcon.C_RPC_ENABLE:        "/open-falcon/transfer/config/rpc/enabled",
 			falcon.C_RPC_ADDR:          "/open-falcon/transfer/config/rpc/listen",
-			falcon.C_SOCKET_ENABLE:     "/open-falcon/transfer/config/sockect/enable",
-			falcon.C_SOCKET_ADDR:       "/open-falcon/transfer/config/sockect/listen",
-			falcon.C_SOCKET_TIMEOUT:    "/open-falcon/transfer/config/sockect/timeout",
+			falcon.C_SOCKET_ENABLE:     "/open-falcon/transfer/config/socket/enabled",
+			falcon.C_SOCKET_ADDR:       "/open-falcon/transfer/config/socket/listen",
+			falcon.C_SOCKET_TIMEOUT:    "/open-falcon/transfer/config/socket/timeout",
 			falcon.C_JUDGE_ENABLE:      "/open-falcon/transfer/config/judge/enabled",
 			falcon.C_JUDGE_BATCH:       "/open-falcon/transfer/config/judge/batch",
 			falcon.C_JUDGE_CONNTIMEOUT: "/open-falcon/transfer/config/judge/connTimeout",
@@ -90,6 +90,33 @@ var (
 		},
 	}
 )
+
+func prepareEtcdConfig() error {
+	put := make(map[string]string)
+	for module, kv := range etcdMap {
+		ks := make(map[string]bool)
+		for _, k := range kv {
+			ks[k] = false
+		}
+
+		prefix := fmt.Sprintf("/open-falcon/%s/config/", module)
+		resp, err := ctrl.EtcdCli.GetPrefix(prefix)
+		if err != nil {
+			return err
+		}
+		for _, v := range resp.Kvs {
+			if _, ok := ks[string(v.Key)]; ok {
+				ks[string(v.Key)] = true
+			}
+		}
+		for k, exist := range ks {
+			if !exist {
+				put[k] = ""
+			}
+		}
+	}
+	return ctrl.EtcdCli.Puts(put)
+}
 
 func GetDbConfig(o orm.Ormer, module string) (ret map[string]string, err error) {
 	var row Kv
@@ -280,8 +307,9 @@ func (op *Operator) ExpansionBegin(module string, newEndpoint string) error {
 		if len(s) != 2 {
 			return errors.New("endpoint format error " + v)
 		}
-		if _, ok := online[s[1]]; !ok {
-			return errors.New(fmt.Sprintf("endpoint(%s) is not online", s[1]))
+		h := strings.Split(s[1], ":")
+		if _, ok := online[h[0]]; !ok {
+			return errors.New(fmt.Sprintf("endpoint(%s) is not online", h[0]))
 		}
 		new_cluster[s[0]] = s[1]
 	}
