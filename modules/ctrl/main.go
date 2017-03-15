@@ -23,6 +23,7 @@ import (
 	"github.com/golang/glog"
 	"github.com/open-falcon/falcon-plus/modules/ctrl/falcon"
 	_ "github.com/open-falcon/falcon-plus/modules/ctrl/falcon/ctrl"
+	_ "github.com/open-falcon/falcon-plus/modules/ctrl/falcon/ctrl/api/models"
 	_ "github.com/open-falcon/falcon-plus/modules/ctrl/falcon/ctrl/api/models/auth"
 	_ "github.com/open-falcon/falcon-plus/modules/ctrl/falcon/ctrl/api/routers"
 	"github.com/yubo/gotool/flags"
