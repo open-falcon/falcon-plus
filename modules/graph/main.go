@@ -58,7 +58,7 @@ func leaseStart() {
 
 func main() {
 	cfg := flag.String("c", "cfg.json", "specify config file")
-	version := flag.Bool("v", false, "show version")
+	version := flag.Bool("version", false, "show version")
 	versionGit := flag.Bool("vg", false, "show version and git commit log")
 	flag.Parse()
 

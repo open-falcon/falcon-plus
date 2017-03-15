@@ -27,14 +27,14 @@ EOF
         exit $sc
     else
         echo -n "build ok, vsn=" 
-        ./$app -v 
+        ./$app -version 
     fi
 }
 
 function pack() {
     build
     git log -1 --pretty=%h > gitversion
-    version=`./$app -v`
+    version=`./$app -version`
     tar zcvf $app-$version.tar.gz control $app cfg.example.json gitversion ./test/debug
     rm -f gitversion &>/dev/null
 }
@@ -42,7 +42,7 @@ function pack() {
 function packbin() {
     build
     git log -1 --pretty=%h > gitversion
-    version=`./$app -v`
+    version=`./$app -version`
     tar zcvf $app-bin-$version.tar.gz $app gitversion
     rm -f gitversion &>/dev/null
 }
