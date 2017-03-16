@@ -2,7 +2,7 @@ FROM node:7
 
 MAINTAINER masato@cepave.com
 
-RUN npm install yarn -g
+RUN which yarn
 
 RUN useradd -m owl
 
