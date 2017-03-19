@@ -18,27 +18,78 @@ import (
 
 func EndpointRegexpQuery(c *gin.Context) {
 	q := c.DefaultQuery("q", "")
+	label := c.DefaultQuery("tags", "")
 	limitTmp := c.DefaultQuery("limit", "500")
 	limit, err := strconv.Atoi(limitTmp)
 	if err != nil {
 		h.JSONR(c, http.StatusBadRequest, err)
 		return
 	}
-	if q == "" {
-		h.JSONR(c, http.StatusBadRequest, "q is missing")
+
+	if q == "" && label == "" {
+		h.JSONR(c, http.StatusBadRequest, "q and labels are all missing")
 		return
 	}
 
-	var endpoint []m.Endpoint
-	qs := strings.Split(q, " ")
-	dt := db.Graph.Table("endpoint").Select("endpoint, id").Where("endpoint regexp ?", strings.TrimSpace(qs[0]))
-	for _, term := range qs[1:] {
-		dt = dt.Where("endpoint regexp ?", strings.TrimSpace(term))
+	labels := []string{}
+	if label != "" {
+		labels = strings.Split(label, ",")
 	}
-	dt = dt.Limit(limit).Scan(&endpoint)
-	if dt.Error != nil {
-		h.JSONR(c, http.StatusBadRequest, dt.Error)
-		return
+	qs := []string{}
+	if q != "" {
+		qs = strings.Split(q, " ")
+	}
+
+	var endpoint []m.Endpoint
+	if len(qs) > 0 && len(labels) > 0 {
+		var endpoint_id []int
+		dt := db.Graph.Table("endpoint_counter").Select("distinct endpoint_id").Where("counter like ?", "%"+strings.TrimSpace(labels[0])+"%")
+		for _, term := range labels[1:] {
+			dt = dt.Where("counter like ?", "%"+strings.TrimSpace(term)+"%")
+		}
+		dt = dt.Limit(500).Pluck("distinct endpoint_id", &endpoint_id)
+		if dt.Error != nil {
+			h.JSONR(c, http.StatusBadRequest, dt.Error)
+			return
+		}
+
+		dt = db.Graph.Table("endpoint").Select("endpoint, id").Where("id in (?)", endpoint_id).Where("endpoint regexp ?", strings.TrimSpace(qs[0]))
+		for _, term := range qs[1:] {
+			dt = dt.Where("endpoint regexp ?", strings.TrimSpace(term))
+		}
+		dt = dt.Limit(limit).Scan(&endpoint)
+		if dt.Error != nil {
+			h.JSONR(c, http.StatusBadRequest, dt.Error)
+			return
+		}
+	} else if len(qs) > 0 {
+		dt := db.Graph.Table("endpoint").Select("endpoint, id").Where("endpoint regexp ?", strings.TrimSpace(qs[0]))
+		for _, term := range qs[1:] {
+			dt = dt.Where("endpoint regexp ?", strings.TrimSpace(term))
+		}
+		dt = dt.Limit(limit).Scan(&endpoint)
+		if dt.Error != nil {
+			h.JSONR(c, http.StatusBadRequest, dt.Error)
+			return
+		}
+	} else if len(labels) > 0 {
+		var endpoint_id []int
+		dt := db.Graph.Table("endpoint_counter").Select("distinct endpoint_id").Where("counter like ?", "%"+strings.TrimSpace(labels[0])+"%")
+		for _, term := range labels[1:] {
+			dt = dt.Where("counter like ?", "%"+strings.TrimSpace(term)+"%")
+		}
+		dt = dt.Limit(500).Pluck("distinct endpoint_id", &endpoint_id)
+		if dt.Error != nil {
+			h.JSONR(c, http.StatusBadRequest, dt.Error)
+			return
+		}
+
+		dt = db.Graph.Table("endpoint").Select("endpoint, id").Where("id in (?)", endpoint_id)
+		dt = dt.Limit(limit).Scan(&endpoint)
+		if dt.Error != nil {
+			h.JSONR(c, http.StatusBadRequest, dt.Error)
+			return
+		}
 	}
 
 	endpoints := []map[string]interface{}{}
@@ -71,10 +122,12 @@ func EndpointCounterRegexpQuery(c *gin.Context) {
 
 		var counters []m.EndpointCounter
 		dt := db.Graph.Table("endpoint_counter").Select("counter, step, type").Where(fmt.Sprintf("endpoint_id IN %s", eids))
-		qs := strings.Split(metricQuery, " ")
-		if len(qs) > 0 {
-			for _, term := range qs {
-				dt = dt.Where("counter regexp ?", strings.TrimSpace(term))
+		if metricQuery != "" {
+			qs := strings.Split(metricQuery, " ")
+			if len(qs) > 0 {
+				for _, term := range qs {
+					dt = dt.Where("counter regexp ?", strings.TrimSpace(term))
+				}
 			}
 		}
 		dt = dt.Limit(limit).Scan(&counters)
