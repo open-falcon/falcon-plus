@@ -8,6 +8,7 @@ before_install:
 
 install:
   - trash
+  - go get ./
 
 script:
     make all

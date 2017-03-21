@@ -19,3 +19,6 @@ import:
 - package: github.com/spf13/viper
   version: 5ed0fc31f7f453625df314d8e66b9791e8d13003
 
+- package: github.com/spf13/cobra
+  version: 7be4beda01ec05d0b93d80b3facd2b6f44080d94
+
