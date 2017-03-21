@@ -14,5 +14,5 @@ script:
     make all
 
 after_success:
-  - go test -race -coverprofile=coverage.txt -covermode=atomic github.com/open-falcon/falcon-plus/modules/api/test
+  - go test -race -coverprofile=coverage.txt -covermode=atomic github.com/open-falcon/falcon-plus/modules/api
   - bash <(curl -s https://codecov.io/bash)
