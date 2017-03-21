@@ -8,22 +8,9 @@ before_install:
 
 install:
   - trash
-  - go get -t -v ./...
 
 script:
-  - go build -o open-falcon
-  - go build ./modules/agent
-  - go build ./modules/aggregator
-  - go build ./modules/alarm
-  - go build ./modules/api
-  - go build ./modules/gateway
-  - go build ./modules/graph
-  - go build ./modules/hbs
-  - go build ./modules/judge
-  - go build ./modules/nodata
-  - go build ./modules/sender
-  - go build ./modules/task
-  - go build ./modules/transfer
+    make all
 
 after_success:
   - go test -race -coverprofile=coverage.txt -covermode=atomic github.com/open-falcon/falcon-plus/modules/api/test
