@@ -13,6 +13,7 @@ type DBPool struct {
 	Graph     *gorm.DB
 	Uic       *gorm.DB
 	Dashboard *gorm.DB
+	Alarm     *gorm.DB
 }
 
 var (
@@ -26,8 +27,11 @@ func Con() DBPool {
 func SetLogLevel(loggerlevel bool) {
 	dbp.Uic.LogMode(loggerlevel)
 	dbp.Graph.LogMode(loggerlevel)
-	dbp.Graph.LogMode(loggerlevel)
+	dbp.Falcon.LogMode(loggerlevel)
+	dbp.Dashboard.LogMode(loggerlevel)
+	dbp.Alarm.LogMode(loggerlevel)
 }
+
 func InitDB(loggerlevel bool) (err error) {
 	var p *sql.DB
 	portal, err := gorm.Open("mysql", viper.GetString("db.faclon_portal"))
@@ -69,6 +73,16 @@ func InitDB(loggerlevel bool) (err error) {
 	dashd.SingularTable(true)
 	dbp.Dashboard = dashd
 
+	var alm *sql.DB
+	almd, err := gorm.Open("mysql", viper.GetString("db.alarms"))
+	almd.Dialect().SetDB(alm)
+	almd.LogMode(loggerlevel)
+	if err != nil {
+		return
+	}
+	almd.SingularTable(true)
+	dbp.Alarm = almd
+
 	SetLogLevel(loggerlevel)
 	return
 }
@@ -87,6 +101,10 @@ func CloseDB() (err error) {
 		return
 	}
 	err = dbp.Dashboard.Close()
+	if err != nil {
+		return
+	}
+	err = dbp.Alarm.Close()
 	if err != nil {
 		return
 	}

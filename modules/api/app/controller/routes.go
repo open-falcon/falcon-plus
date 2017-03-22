@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/open-falcon/falcon-plus/modules/api/app/controller/alarm"
 	"github.com/open-falcon/falcon-plus/modules/api/app/controller/dashboard_graph"
 	"github.com/open-falcon/falcon-plus/modules/api/app/controller/dashboard_screen"
 	"github.com/open-falcon/falcon-plus/modules/api/app/controller/expression"
@@ -30,5 +31,6 @@ func StartGin(port string, r *gin.Engine) {
 	mockcfg.Routes(r)
 	dashboard_graph.Routes(r)
 	dashboard_screen.Routes(r)
+	alarm.Routes(r)
 	r.Run(port)
 }
