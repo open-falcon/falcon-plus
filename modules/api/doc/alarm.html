@@ -1,0 +1,1893 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <title> API Documentation </title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+    
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+    <style type="text/css">
+        body {
+            font-family: 'Roboto', sans-serif;
+        }
+        .hidden {
+            display:none;
+        }
+        pre {
+            outline: 1px solid #ccc;
+            padding: 5px; margin: 5px;
+        }
+
+        .string { color: green; }
+        .number { color: darkorange; }
+        .boolean { color: blue; }
+        .null { color: magenta; }
+        .key { color: red; }
+
+    </style>
+    <style type="text/css">
+        pre.prettyprint {
+            border: 1px solid #ccc;
+            margin-bottom: 0;
+            padding: 9.5px;
+        }
+    </style>
+    <script>
+         
+        function syntaxHighlight(json) {
+            json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+                var cls = 'number';
+                if (/^"/.test(match)) {
+                    if (/:$/.test(match)) {
+                        cls = 'key';
+                    } else {
+                        cls = 'string';
+                    }
+                } else if (/true|false/.test(match)) {
+                    cls = 'boolean';
+                } else if (/null/.test(match)) {
+                    cls = 'null';
+                }
+                return '<span class="' + cls + '">' + match + '</span>';
+            });
+        }
+
+        function spaceJson(json){
+            var validJson = JSON.parse(json);
+            return JSON.stringify(validJson, undefined, 4);
+        }
+    </script>
+
+</head>
+<body>
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container-fluid">
+        
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                    data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">Gin</a>
+            <p class="navbar-text">Developed by Gophers at <a href="http://betacraft.co">Betacraft</a></p>
+        </div>
+            
+        
+    </div>
+    
+</nav>
+<div class="container-fluid" style="margin-top: 70px;margin-bottom: 20px;">
+    <div class="container-fluid">
+    <div class="col-md-4">
+        <div class="panel panel-default">
+              <div class="panel-heading">Base Urls</div>
+              <div class="panel-body">
+                
+                    <p>Production : <strong>/api/v1</strong></p>
+                
+                    <p>Staging : <strong>/api/v1</strong></p>
+                
+              </div>
+            </div>    
+        <ul class="nav nav-pills nav-stacked" role="tablist">
+            
+                <li role="presentation"><a href="#0top" role="tab" data-toggle="tab">POST : /api/v1/alarm/eventcases</a></li>
+            
+                <li role="presentation"><a href="#1top" role="tab" data-toggle="tab">GET : /api/v1/alarm/event_note</a></li>
+            
+                <li role="presentation"><a href="#2top" role="tab" data-toggle="tab">POST : /api/v1/alarm/event_note</a></li>
+            
+                <li role="presentation"><a href="#3top" role="tab" data-toggle="tab">GET : /api/v1/alarm/eventcases</a></li>
+            
+                <li role="presentation"><a href="#4top" role="tab" data-toggle="tab">POST : /api/v1/alarm/events</a></li>
+            
+        <ul>
+    </div>
+    <div class="col-md-8 tab-content">
+        
+        <div id="0top"  role="tabpanel" class="tab-pane col-md-10">
+            
+                
+                <p> <H4> Request Headers </H4> </p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Apitoken</td>
+                        <td> {&#34;name&#34;: &#34;root&#34;, &#34;sig&#34;: &#34;233fdb00f99811e68a5c001500c6ca5a&#34;}</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Content-Type</td>
+                        <td>  application/json</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                
+                
+                <p> <H4> Request Body </H4> </p>
+                <pre id="request-body-0-0" class="prettyprint">
+			{
+	      &#34;startTime&#34;: 1466956800,
+	    	&#34;endTime&#34;: 1480521600,
+	    	&#34;status&#34;: &#34;PROBLEM&#34;,
+	    	&#34;process_status&#34;: &#34;ignored,unresolved&#34;,
+	    	&#34;limit&#34;: 10
+	    }</pre>
+                <script>
+                     
+                    var requestHeader ={"Apitoken":"{\"name\": \"root\", \"sig\": \"233fdb00f99811e68a5c001500c6ca5a\"}","Content-Type":" application/json\r"};
+
+                    if (requestHeader["Content-Type"] === "application/json"){
+                        try {
+                            var jsonStr = spaceJson("\n\t\t\t{\n\t      \"startTime\": 1466956800,\n\t    \t\"endTime\": 1480521600,\n\t    \t\"status\": \"PROBLEM\",\n\t    \t\"process_status\": \"ignored,unresolved\",\n\t    \t\"limit\": 10\n\t    }");
+                            document.getElementById('request-body0-0').innerHTML = syntaxHighlight(jsonStr);
+                        } catch (e) {
+                             
+                        }
+                    }
+                </script>
+                
+                <p><h4> Response Code</h4></p>
+                <pre class="prettyprint lang-json">200</pre>
+                
+                <p><h4> Response Headers</h4></p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Credentials</td>
+                        <td> true</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Headers</td>
+                        <td> Content-Type, Content-Length, Apitoken</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Methods</td>
+                        <td> POST, GET, OPTIONS, PUT, DELETE, UPDATE</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Origin</td>
+                        <td> *</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Expose-Headers</td>
+                        <td> Content-Length</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Max-Age</td>
+                        <td> 86400</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Content-Type</td>
+                        <td> application/json; charset=utf-8</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                <p> <H4> Response Body </H4> </p>
+                <pre class="prettyprint" id="response-body-0-0">[{&#34;id&#34;:&#34;s_46_1ac45122afb893adc02fbd30154ac303&#34;,&#34;endpoint&#34;:&#34;agent4&#34;,&#34;metric&#34;:&#34;cpu.iowait&#34;,&#34;func&#34;:&#34;all(#3)&#34;,&#34;cond&#34;:&#34;48.33759590792839 \u003e 40&#34;,&#34;note&#34;:&#34;CPU I/O wait超过40&#34;,&#34;step&#34;:1,&#34;current_step&#34;:1,&#34;priority&#34;:1,&#34;status&#34;:&#34;PROBLEM&#34;,&#34;timestamp&#34;:&#34;2016-08-01T06:25:00&#43;08:00&#34;,&#34;update_at&#34;:&#34;2016-08-01T06:25:00&#43;08:00&#34;,&#34;closed_at&#34;:null,&#34;closed_note&#34;:&#34;&#34;,&#34;user_modified&#34;:0,&#34;tpl_creator&#34;:&#34;root&#34;,&#34;expression_id&#34;:0,&#34;strategy_id&#34;:46,&#34;template_id&#34;:126,&#34;process_note&#34;:16907,&#34;process_status&#34;:&#34;ignored&#34;},{&#34;id&#34;:&#34;s_50_6438ac68b30e2712fb8f00d894c46e21&#34;,&#34;endpoint&#34;:&#34;agent5&#34;,&#34;metric&#34;:&#34;cpu.idle&#34;,&#34;func&#34;:&#34;avg(#3)&#34;,&#34;cond&#34;:&#34;95.16331658291456 \u003c= 98&#34;,&#34;note&#34;:&#34;cpu空闲值报警&#34;,&#34;step&#34;:1,&#34;current_step&#34;:1,&#34;priority&#34;:3,&#34;status&#34;:&#34;PROBLEM&#34;,&#34;timestamp&#34;:&#34;2016-07-03T16:13:00&#43;08:00&#34;,&#34;update_at&#34;:&#34;2016-07-03T16:13:00&#43;08:00&#34;,&#34;closed_at&#34;:null,&#34;closed_note&#34;:&#34;&#34;,&#34;user_modified&#34;:0,&#34;tpl_creator&#34;:&#34;root&#34;,&#34;expression_id&#34;:0,&#34;strategy_id&#34;:50,&#34;template_id&#34;:53,&#34;process_note&#34;:1181,&#34;process_status&#34;:&#34;ignored&#34;}]</pre>
+                <script>
+                     
+                    var responseHeader ={"Access-Control-Allow-Credentials":"true","Access-Control-Allow-Headers":"Content-Type, Content-Length, Apitoken","Access-Control-Allow-Methods":"POST, GET, OPTIONS, PUT, DELETE, UPDATE","Access-Control-Allow-Origin":"*","Access-Control-Expose-Headers":"Content-Length","Access-Control-Max-Age":"86400","Content-Type":"application/json; charset=utf-8"};
+
+                    if (responseHeader["Content-Type"] === "application/json"){
+                        try {
+                            var jsonStr = spaceJson("[{\"id\":\"s_46_1ac45122afb893adc02fbd30154ac303\",\"endpoint\":\"agent4\",\"metric\":\"cpu.iowait\",\"func\":\"all(#3)\",\"cond\":\"48.33759590792839 \\u003e 40\",\"note\":\"CPU I/O wait超过40\",\"step\":1,\"current_step\":1,\"priority\":1,\"status\":\"PROBLEM\",\"timestamp\":\"2016-08-01T06:25:00+08:00\",\"update_at\":\"2016-08-01T06:25:00+08:00\",\"closed_at\":null,\"closed_note\":\"\",\"user_modified\":0,\"tpl_creator\":\"root\",\"expression_id\":0,\"strategy_id\":46,\"template_id\":126,\"process_note\":16907,\"process_status\":\"ignored\"},{\"id\":\"s_50_6438ac68b30e2712fb8f00d894c46e21\",\"endpoint\":\"agent5\",\"metric\":\"cpu.idle\",\"func\":\"avg(#3)\",\"cond\":\"95.16331658291456 \\u003c= 98\",\"note\":\"cpu空闲值报警\",\"step\":1,\"current_step\":1,\"priority\":3,\"status\":\"PROBLEM\",\"timestamp\":\"2016-07-03T16:13:00+08:00\",\"update_at\":\"2016-07-03T16:13:00+08:00\",\"closed_at\":null,\"closed_note\":\"\",\"user_modified\":0,\"tpl_creator\":\"root\",\"expression_id\":0,\"strategy_id\":50,\"template_id\":53,\"process_note\":1181,\"process_status\":\"ignored\"}]");
+                            document.getElementById('response-body-0-0').innerHTML = syntaxHighlight(jsonStr);
+                        } catch (e) {
+                             
+                        }
+                    }
+                </script>
+                
+                <hr>
+            
+                
+                <p> <H4> Request Headers </H4> </p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Apitoken</td>
+                        <td> {&#34;name&#34;: &#34;root&#34;, &#34;sig&#34;: &#34;233fdb00f99811e68a5c001500c6ca5a&#34;}</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Content-Type</td>
+                        <td>  application/json</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                
+                
+                <p> <H4> Request Body </H4> </p>
+                <pre id="request-body-0-1" class="prettyprint">
+			{
+	      &#34;startTime&#34;: 1466956800,
+	    	&#34;endTime&#34;: 1480521600,
+	    	&#34;status&#34;: &#34;PROBLEM,OK&#34;,
+	    	&#34;process_status&#34;: &#34;ignored,unresolved&#34;,
+	    	&#34;limit&#34;: 10
+	    }</pre>
+                <script>
+                     
+                    var requestHeader ={"Apitoken":"{\"name\": \"root\", \"sig\": \"233fdb00f99811e68a5c001500c6ca5a\"}","Content-Type":" application/json\r"};
+
+                    if (requestHeader["Content-Type"] === "application/json"){
+                        try {
+                            var jsonStr = spaceJson("\n\t\t\t{\n\t      \"startTime\": 1466956800,\n\t    \t\"endTime\": 1480521600,\n\t    \t\"status\": \"PROBLEM,OK\",\n\t    \t\"process_status\": \"ignored,unresolved\",\n\t    \t\"limit\": 10\n\t    }");
+                            document.getElementById('request-body0-1').innerHTML = syntaxHighlight(jsonStr);
+                        } catch (e) {
+                             
+                        }
+                    }
+                </script>
+                
+                <p><h4> Response Code</h4></p>
+                <pre class="prettyprint lang-json">200</pre>
+                
+                <p><h4> Response Headers</h4></p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Credentials</td>
+                        <td> true</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Headers</td>
+                        <td> Content-Type, Content-Length, Apitoken</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Methods</td>
+                        <td> POST, GET, OPTIONS, PUT, DELETE, UPDATE</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Origin</td>
+                        <td> *</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Expose-Headers</td>
+                        <td> Content-Length</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Max-Age</td>
+                        <td> 86400</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Content-Type</td>
+                        <td> application/json; charset=utf-8</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                <p> <H4> Response Body </H4> </p>
+                <pre class="prettyprint" id="response-body-0-1">[{&#34;id&#34;:&#34;s_322_00c5f5c87a71bd4c686c0a4a0544b719&#34;,&#34;endpoint&#34;:&#34;agent8&#34;,&#34;metric&#34;:&#34;cpu.iowait&#34;,&#34;func&#34;:&#34;avg(#3)&#34;,&#34;cond&#34;:&#34;0 \u003e 40&#34;,&#34;note&#34;:&#34;CPU I/O wait超过40&#34;,&#34;step&#34;:1,&#34;current_step&#34;:1,&#34;priority&#34;:1,&#34;status&#34;:&#34;OK&#34;,&#34;timestamp&#34;:&#34;2016-11-30T20:10:00&#43;08:00&#34;,&#34;update_at&#34;:&#34;2016-11-30T20:10:00&#43;08:00&#34;,&#34;closed_at&#34;:null,&#34;closed_note&#34;:&#34;&#34;,&#34;user_modified&#34;:0,&#34;tpl_creator&#34;:&#34;root&#34;,&#34;expression_id&#34;:0,&#34;strategy_id&#34;:322,&#34;template_id&#34;:125,&#34;process_note&#34;:0,&#34;process_status&#34;:&#34;unresolved&#34;},{&#34;id&#34;:&#34;s_322_00a9b9f9f859d8436f9b643ea5a1fb5e&#34;,&#34;endpoint&#34;:&#34;agent6&#34;,&#34;metric&#34;:&#34;cpu.iowait&#34;,&#34;func&#34;:&#34;avg(#3)&#34;,&#34;cond&#34;:&#34;0 \u003e 40&#34;,&#34;note&#34;:&#34;CPU I/O wait超过40&#34;,&#34;step&#34;:1,&#34;current_step&#34;:1,&#34;priority&#34;:1,&#34;status&#34;:&#34;OK&#34;,&#34;timestamp&#34;:&#34;2016-11-14T22:16:00&#43;08:00&#34;,&#34;update_at&#34;:&#34;2016-11-14T22:16:00&#43;08:00&#34;,&#34;closed_at&#34;:null,&#34;closed_note&#34;:&#34;&#34;,&#34;user_modified&#34;:0,&#34;tpl_creator&#34;:&#34;root&#34;,&#34;expression_id&#34;:0,&#34;strategy_id&#34;:322,&#34;template_id&#34;:140,&#34;process_note&#34;:0,&#34;process_status&#34;:&#34;unresolved&#34;},{&#34;id&#34;:&#34;s_322_00ba3072006a8ba863108d4b3f9c1c51&#34;,&#34;endpoint&#34;:&#34;agent7&#34;,&#34;metric&#34;:&#34;cpu.iowait&#34;,&#34;func&#34;:&#34;avg(#3)&#34;,&#34;cond&#34;:&#34;0.0695615485072203 \u003e 40&#34;,&#34;note&#34;:&#34;CPU I/O wait超过40&#34;,&#34;step&#34;:1,&#34;current_step&#34;:1,&#34;priority&#34;:1,&#34;status&#34;:&#34;OK&#34;,&#34;timestamp&#34;:&#34;2016-11-14T20:43:00&#43;08:00&#34;,&#34;update_at&#34;:&#34;2016-11-14T20:43:00&#43;08:00&#34;,&#34;closed_at&#34;:null,&#34;closed_note&#34;:&#34;&#34;,&#34;user_modified&#34;:0,&#34;tpl_creator&#34;:&#34;root&#34;,&#34;expression_id&#34;:0,&#34;strategy_id&#34;:322,&#34;template_id&#34;:125,&#34;process_note&#34;:0,&#34;process_status&#34;:&#34;unresolved&#34;},{&#34;id&#34;:&#34;s_322_002e499f3b56420fdea506c887e51799&#34;,&#34;endpoint&#34;:&#34;agent3&#34;,&#34;metric&#34;:&#34;cpu.iowait&#34;,&#34;func&#34;:&#34;avg(#3)&#34;,&#34;cond&#34;:&#34;30.76679150609009 \u003e 40&#34;,&#34;note&#34;:&#34;CPU I/O wait超过40&#34;,&#34;step&#34;:1,&#34;current_step&#34;:1,&#34;priority&#34;:1,&#34;status&#34;:&#34;OK&#34;,&#34;timestamp&#34;:&#34;2016-11-07T04:28:00&#43;08:00&#34;,&#34;update_at&#34;:&#34;2016-11-07T04:28:00&#43;08:00&#34;,&#34;closed_at&#34;:null,&#34;closed_note&#34;:&#34;&#34;,&#34;user_modified&#34;:0,&#34;tpl_creator&#34;:&#34;root&#34;,&#34;expression_id&#34;:0,&#34;strategy_id&#34;:322,&#34;template_id&#34;:125,&#34;process_note&#34;:0,&#34;process_status&#34;:&#34;unresolved&#34;},{&#34;id&#34;:&#34;s_322_00cc81434a0e277b57254a89a839a47b&#34;,&#34;endpoint&#34;:&#34;agent9&#34;,&#34;metric&#34;:&#34;cpu.iowait&#34;,&#34;func&#34;:&#34;avg(#3)&#34;,&#34;cond&#34;:&#34;0.041876046901172526 \u003e 40&#34;,&#34;note&#34;:&#34;CPU I/O wait超过40&#34;,&#34;step&#34;:1,&#34;current_step&#34;:1,&#34;priority&#34;:1,&#34;status&#34;:&#34;OK&#34;,&#34;timestamp&#34;:&#34;2016-10-28T10:37:00&#43;08:00&#34;,&#34;update_at&#34;:&#34;2016-10-28T10:37:00&#43;08:00&#34;,&#34;closed_at&#34;:null,&#34;closed_note&#34;:&#34;&#34;,&#34;user_modified&#34;:0,&#34;tpl_creator&#34;:&#34;root&#34;,&#34;expression_id&#34;:0,&#34;strategy_id&#34;:322,&#34;template_id&#34;:125,&#34;process_note&#34;:0,&#34;process_status&#34;:&#34;unresolved&#34;},{&#34;id&#34;:&#34;s_322_001da6a5f95d83387cdfecc37ac70c24&#34;,&#34;endpoint&#34;:&#34;agent2&#34;,&#34;metric&#34;:&#34;cpu.iowait&#34;,&#34;func&#34;:&#34;avg(#3)&#34;,&#34;cond&#34;:&#34;34.40479690409319 \u003e 40&#34;,&#34;note&#34;:&#34;CPU I/O wait超过40&#34;,&#34;step&#34;:1,&#34;current_step&#34;:1,&#34;priority&#34;:1,&#34;status&#34;:&#34;OK&#34;,&#34;timestamp&#34;:&#34;2016-10-27T15:37:00&#43;08:00&#34;,&#34;update_at&#34;:&#34;2016-10-27T15:37:00&#43;08:00&#34;,&#34;closed_at&#34;:null,&#34;closed_note&#34;:&#34;&#34;,&#34;user_modified&#34;:0,&#34;tpl_creator&#34;:&#34;root&#34;,&#34;expression_id&#34;:0,&#34;strategy_id&#34;:322,&#34;template_id&#34;:125,&#34;process_note&#34;:0,&#34;process_status&#34;:&#34;unresolved&#34;},{&#34;id&#34;:&#34;s_46_1ac45122afb893adc02fbd30154ac303&#34;,&#34;endpoint&#34;:&#34;agent4&#34;,&#34;metric&#34;:&#34;cpu.iowait&#34;,&#34;func&#34;:&#34;all(#3)&#34;,&#34;cond&#34;:&#34;48.33759590792839 \u003e 40&#34;,&#34;note&#34;:&#34;CPU I/O wait超过40&#34;,&#34;step&#34;:1,&#34;current_step&#34;:1,&#34;priority&#34;:1,&#34;status&#34;:&#34;PROBLEM&#34;,&#34;timestamp&#34;:&#34;2016-08-01T06:25:00&#43;08:00&#34;,&#34;update_at&#34;:&#34;2016-08-01T06:25:00&#43;08:00&#34;,&#34;closed_at&#34;:null,&#34;closed_note&#34;:&#34;&#34;,&#34;user_modified&#34;:0,&#34;tpl_creator&#34;:&#34;root&#34;,&#34;expression_id&#34;:0,&#34;strategy_id&#34;:46,&#34;template_id&#34;:126,&#34;process_note&#34;:16907,&#34;process_status&#34;:&#34;ignored&#34;},{&#34;id&#34;:&#34;s_191_ddd09333257b2e92e1941860ee86ab15&#34;,&#34;endpoint&#34;:&#34;agent1&#34;,&#34;metric&#34;:&#34;cpu.idle&#34;,&#34;func&#34;:&#34;all(#3)&#34;,&#34;cond&#34;:&#34;11.813186813186814 \u003c 10&#34;,&#34;note&#34;:&#34;cpu.idle小于10%&#34;,&#34;step&#34;:1,&#34;current_step&#34;:1,&#34;priority&#34;:3,&#34;status&#34;:&#34;OK&#34;,&#34;timestamp&#34;:&#34;2016-07-06T09:13:00&#43;08:00&#34;,&#34;update_at&#34;:&#34;2016-07-06T09:13:00&#43;08:00&#34;,&#34;closed_at&#34;:null,&#34;closed_note&#34;:&#34;&#34;,&#34;user_modified&#34;:0,&#34;tpl_creator&#34;:&#34;root&#34;,&#34;expression_id&#34;:0,&#34;strategy_id&#34;:191,&#34;template_id&#34;:42,&#34;process_note&#34;:0,&#34;process_status&#34;:&#34;unresolved&#34;},{&#34;id&#34;:&#34;s_50_6438ac68b30e2712fb8f00d894c46e21&#34;,&#34;endpoint&#34;:&#34;agent5&#34;,&#34;metric&#34;:&#34;cpu.idle&#34;,&#34;func&#34;:&#34;avg(#3)&#34;,&#34;cond&#34;:&#34;95.16331658291456 \u003c= 98&#34;,&#34;note&#34;:&#34;cpu空闲值报警&#34;,&#34;step&#34;:1,&#34;current_step&#34;:1,&#34;priority&#34;:3,&#34;status&#34;:&#34;PROBLEM&#34;,&#34;timestamp&#34;:&#34;2016-07-03T16:13:00&#43;08:00&#34;,&#34;update_at&#34;:&#34;2016-07-03T16:13:00&#43;08:00&#34;,&#34;closed_at&#34;:null,&#34;closed_note&#34;:&#34;&#34;,&#34;user_modified&#34;:0,&#34;tpl_creator&#34;:&#34;root&#34;,&#34;expression_id&#34;:0,&#34;strategy_id&#34;:50,&#34;template_id&#34;:53,&#34;process_note&#34;:1181,&#34;process_status&#34;:&#34;ignored&#34;}]</pre>
+                <script>
+                     
+                    var responseHeader ={"Access-Control-Allow-Credentials":"true","Access-Control-Allow-Headers":"Content-Type, Content-Length, Apitoken","Access-Control-Allow-Methods":"POST, GET, OPTIONS, PUT, DELETE, UPDATE","Access-Control-Allow-Origin":"*","Access-Control-Expose-Headers":"Content-Length","Access-Control-Max-Age":"86400","Content-Type":"application/json; charset=utf-8"};
+
+                    if (responseHeader["Content-Type"] === "application/json"){
+                        try {
+                            var jsonStr = spaceJson("[{\"id\":\"s_322_00c5f5c87a71bd4c686c0a4a0544b719\",\"endpoint\":\"agent8\",\"metric\":\"cpu.iowait\",\"func\":\"avg(#3)\",\"cond\":\"0 \\u003e 40\",\"note\":\"CPU I/O wait超过40\",\"step\":1,\"current_step\":1,\"priority\":1,\"status\":\"OK\",\"timestamp\":\"2016-11-30T20:10:00+08:00\",\"update_at\":\"2016-11-30T20:10:00+08:00\",\"closed_at\":null,\"closed_note\":\"\",\"user_modified\":0,\"tpl_creator\":\"root\",\"expression_id\":0,\"strategy_id\":322,\"template_id\":125,\"process_note\":0,\"process_status\":\"unresolved\"},{\"id\":\"s_322_00a9b9f9f859d8436f9b643ea5a1fb5e\",\"endpoint\":\"agent6\",\"metric\":\"cpu.iowait\",\"func\":\"avg(#3)\",\"cond\":\"0 \\u003e 40\",\"note\":\"CPU I/O wait超过40\",\"step\":1,\"current_step\":1,\"priority\":1,\"status\":\"OK\",\"timestamp\":\"2016-11-14T22:16:00+08:00\",\"update_at\":\"2016-11-14T22:16:00+08:00\",\"closed_at\":null,\"closed_note\":\"\",\"user_modified\":0,\"tpl_creator\":\"root\",\"expression_id\":0,\"strategy_id\":322,\"template_id\":140,\"process_note\":0,\"process_status\":\"unresolved\"},{\"id\":\"s_322_00ba3072006a8ba863108d4b3f9c1c51\",\"endpoint\":\"agent7\",\"metric\":\"cpu.iowait\",\"func\":\"avg(#3)\",\"cond\":\"0.0695615485072203 \\u003e 40\",\"note\":\"CPU I/O wait超过40\",\"step\":1,\"current_step\":1,\"priority\":1,\"status\":\"OK\",\"timestamp\":\"2016-11-14T20:43:00+08:00\",\"update_at\":\"2016-11-14T20:43:00+08:00\",\"closed_at\":null,\"closed_note\":\"\",\"user_modified\":0,\"tpl_creator\":\"root\",\"expression_id\":0,\"strategy_id\":322,\"template_id\":125,\"process_note\":0,\"process_status\":\"unresolved\"},{\"id\":\"s_322_002e499f3b56420fdea506c887e51799\",\"endpoint\":\"agent3\",\"metric\":\"cpu.iowait\",\"func\":\"avg(#3)\",\"cond\":\"30.76679150609009 \\u003e 40\",\"note\":\"CPU I/O wait超过40\",\"step\":1,\"current_step\":1,\"priority\":1,\"status\":\"OK\",\"timestamp\":\"2016-11-07T04:28:00+08:00\",\"update_at\":\"2016-11-07T04:28:00+08:00\",\"closed_at\":null,\"closed_note\":\"\",\"user_modified\":0,\"tpl_creator\":\"root\",\"expression_id\":0,\"strategy_id\":322,\"template_id\":125,\"process_note\":0,\"process_status\":\"unresolved\"},{\"id\":\"s_322_00cc81434a0e277b57254a89a839a47b\",\"endpoint\":\"agent9\",\"metric\":\"cpu.iowait\",\"func\":\"avg(#3)\",\"cond\":\"0.041876046901172526 \\u003e 40\",\"note\":\"CPU I/O wait超过40\",\"step\":1,\"current_step\":1,\"priority\":1,\"status\":\"OK\",\"timestamp\":\"2016-10-28T10:37:00+08:00\",\"update_at\":\"2016-10-28T10:37:00+08:00\",\"closed_at\":null,\"closed_note\":\"\",\"user_modified\":0,\"tpl_creator\":\"root\",\"expression_id\":0,\"strategy_id\":322,\"template_id\":125,\"process_note\":0,\"process_status\":\"unresolved\"},{\"id\":\"s_322_001da6a5f95d83387cdfecc37ac70c24\",\"endpoint\":\"agent2\",\"metric\":\"cpu.iowait\",\"func\":\"avg(#3)\",\"cond\":\"34.40479690409319 \\u003e 40\",\"note\":\"CPU I/O wait超过40\",\"step\":1,\"current_step\":1,\"priority\":1,\"status\":\"OK\",\"timestamp\":\"2016-10-27T15:37:00+08:00\",\"update_at\":\"2016-10-27T15:37:00+08:00\",\"closed_at\":null,\"closed_note\":\"\",\"user_modified\":0,\"tpl_creator\":\"root\",\"expression_id\":0,\"strategy_id\":322,\"template_id\":125,\"process_note\":0,\"process_status\":\"unresolved\"},{\"id\":\"s_46_1ac45122afb893adc02fbd30154ac303\",\"endpoint\":\"agent4\",\"metric\":\"cpu.iowait\",\"func\":\"all(#3)\",\"cond\":\"48.33759590792839 \\u003e 40\",\"note\":\"CPU I/O wait超过40\",\"step\":1,\"current_step\":1,\"priority\":1,\"status\":\"PROBLEM\",\"timestamp\":\"2016-08-01T06:25:00+08:00\",\"update_at\":\"2016-08-01T06:25:00+08:00\",\"closed_at\":null,\"closed_note\":\"\",\"user_modified\":0,\"tpl_creator\":\"root\",\"expression_id\":0,\"strategy_id\":46,\"template_id\":126,\"process_note\":16907,\"process_status\":\"ignored\"},{\"id\":\"s_191_ddd09333257b2e92e1941860ee86ab15\",\"endpoint\":\"agent1\",\"metric\":\"cpu.idle\",\"func\":\"all(#3)\",\"cond\":\"11.813186813186814 \\u003c 10\",\"note\":\"cpu.idle小于10%\",\"step\":1,\"current_step\":1,\"priority\":3,\"status\":\"OK\",\"timestamp\":\"2016-07-06T09:13:00+08:00\",\"update_at\":\"2016-07-06T09:13:00+08:00\",\"closed_at\":null,\"closed_note\":\"\",\"user_modified\":0,\"tpl_creator\":\"root\",\"expression_id\":0,\"strategy_id\":191,\"template_id\":42,\"process_note\":0,\"process_status\":\"unresolved\"},{\"id\":\"s_50_6438ac68b30e2712fb8f00d894c46e21\",\"endpoint\":\"agent5\",\"metric\":\"cpu.idle\",\"func\":\"avg(#3)\",\"cond\":\"95.16331658291456 \\u003c= 98\",\"note\":\"cpu空闲值报警\",\"step\":1,\"current_step\":1,\"priority\":3,\"status\":\"PROBLEM\",\"timestamp\":\"2016-07-03T16:13:00+08:00\",\"update_at\":\"2016-07-03T16:13:00+08:00\",\"closed_at\":null,\"closed_note\":\"\",\"user_modified\":0,\"tpl_creator\":\"root\",\"expression_id\":0,\"strategy_id\":50,\"template_id\":53,\"process_note\":1181,\"process_status\":\"ignored\"}]");
+                            document.getElementById('response-body-0-1').innerHTML = syntaxHighlight(jsonStr);
+                        } catch (e) {
+                             
+                        }
+                    }
+                </script>
+                
+                <hr>
+            
+                
+                <p> <H4> Request Headers </H4> </p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Apitoken</td>
+                        <td> {&#34;name&#34;: &#34;root&#34;, &#34;sig&#34;: &#34;233fdb00f99811e68a5c001500c6ca5a&#34;}</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Content-Type</td>
+                        <td>  application/json</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                
+                
+                <p> <H4> Request Body </H4> </p>
+                <pre id="request-body-0-2" class="prettyprint">
+			{
+	      &#34;startTime&#34;: 1466956800,
+	      &#34;endTime&#34;: 1480521600,
+	      &#34;status&#34;: &#34;PROBLEM&#34;,
+	      &#34;process_status&#34;: &#34;unresolved&#34;,
+	      &#34;limit&#34;: 10
+	    }</pre>
+                <script>
+                     
+                    var requestHeader ={"Apitoken":"{\"name\": \"root\", \"sig\": \"233fdb00f99811e68a5c001500c6ca5a\"}","Content-Type":" application/json\r"};
+
+                    if (requestHeader["Content-Type"] === "application/json"){
+                        try {
+                            var jsonStr = spaceJson("\n\t\t\t{\n\t      \"startTime\": 1466956800,\n\t      \"endTime\": 1480521600,\n\t      \"status\": \"PROBLEM\",\n\t      \"process_status\": \"unresolved\",\n\t      \"limit\": 10\n\t    }");
+                            document.getElementById('request-body0-2').innerHTML = syntaxHighlight(jsonStr);
+                        } catch (e) {
+                             
+                        }
+                    }
+                </script>
+                
+                <p><h4> Response Code</h4></p>
+                <pre class="prettyprint lang-json">200</pre>
+                
+                <p><h4> Response Headers</h4></p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Credentials</td>
+                        <td> true</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Headers</td>
+                        <td> Content-Type, Content-Length, Apitoken</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Methods</td>
+                        <td> POST, GET, OPTIONS, PUT, DELETE, UPDATE</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Origin</td>
+                        <td> *</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Expose-Headers</td>
+                        <td> Content-Length</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Max-Age</td>
+                        <td> 86400</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Content-Type</td>
+                        <td> application/json; charset=utf-8</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                <p> <H4> Response Body </H4> </p>
+                <pre class="prettyprint" id="response-body-0-2">[]</pre>
+                <script>
+                     
+                    var responseHeader ={"Access-Control-Allow-Credentials":"true","Access-Control-Allow-Headers":"Content-Type, Content-Length, Apitoken","Access-Control-Allow-Methods":"POST, GET, OPTIONS, PUT, DELETE, UPDATE","Access-Control-Allow-Origin":"*","Access-Control-Expose-Headers":"Content-Length","Access-Control-Max-Age":"86400","Content-Type":"application/json; charset=utf-8"};
+
+                    if (responseHeader["Content-Type"] === "application/json"){
+                        try {
+                            var jsonStr = spaceJson("[]");
+                            document.getElementById('response-body-0-2').innerHTML = syntaxHighlight(jsonStr);
+                        } catch (e) {
+                             
+                        }
+                    }
+                </script>
+                
+                <hr>
+            
+                
+                <p> <H4> Request Headers </H4> </p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Apitoken</td>
+                        <td> {&#34;name&#34;: &#34;root&#34;, &#34;sig&#34;: &#34;233fdb00f99811e68a5c001500c6ca5a&#34;}</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Content-Type</td>
+                        <td>  application/json</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                
+                
+                <p> <H4> Request Body </H4> </p>
+                <pre id="request-body-0-3" class="prettyprint">
+			{
+	      &#34;startTime&#34;: 1466956800,
+	      &#34;endTime&#34;: 1480521600,
+	      &#34;process_status&#34;: &#34;unresolved&#34;,
+	      &#34;limit&#34;: 1
+	    }</pre>
+                <script>
+                     
+                    var requestHeader ={"Apitoken":"{\"name\": \"root\", \"sig\": \"233fdb00f99811e68a5c001500c6ca5a\"}","Content-Type":" application/json\r"};
+
+                    if (requestHeader["Content-Type"] === "application/json"){
+                        try {
+                            var jsonStr = spaceJson("\n\t\t\t{\n\t      \"startTime\": 1466956800,\n\t      \"endTime\": 1480521600,\n\t      \"process_status\": \"unresolved\",\n\t      \"limit\": 1\n\t    }");
+                            document.getElementById('request-body0-3').innerHTML = syntaxHighlight(jsonStr);
+                        } catch (e) {
+                             
+                        }
+                    }
+                </script>
+                
+                <p><h4> Response Code</h4></p>
+                <pre class="prettyprint lang-json">200</pre>
+                
+                <p><h4> Response Headers</h4></p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Credentials</td>
+                        <td> true</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Headers</td>
+                        <td> Content-Type, Content-Length, Apitoken</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Methods</td>
+                        <td> POST, GET, OPTIONS, PUT, DELETE, UPDATE</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Origin</td>
+                        <td> *</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Expose-Headers</td>
+                        <td> Content-Length</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Max-Age</td>
+                        <td> 86400</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Content-Type</td>
+                        <td> application/json; charset=utf-8</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                <p> <H4> Response Body </H4> </p>
+                <pre class="prettyprint" id="response-body-0-3">[{&#34;id&#34;:&#34;s_322_00c5f5c87a71bd4c686c0a4a0544b719&#34;,&#34;endpoint&#34;:&#34;agent8&#34;,&#34;metric&#34;:&#34;cpu.iowait&#34;,&#34;func&#34;:&#34;avg(#3)&#34;,&#34;cond&#34;:&#34;0 \u003e 40&#34;,&#34;note&#34;:&#34;CPU I/O wait超过40&#34;,&#34;step&#34;:1,&#34;current_step&#34;:1,&#34;priority&#34;:1,&#34;status&#34;:&#34;OK&#34;,&#34;timestamp&#34;:&#34;2016-11-30T20:10:00&#43;08:00&#34;,&#34;update_at&#34;:&#34;2016-11-30T20:10:00&#43;08:00&#34;,&#34;closed_at&#34;:null,&#34;closed_note&#34;:&#34;&#34;,&#34;user_modified&#34;:0,&#34;tpl_creator&#34;:&#34;root&#34;,&#34;expression_id&#34;:0,&#34;strategy_id&#34;:322,&#34;template_id&#34;:125,&#34;process_note&#34;:0,&#34;process_status&#34;:&#34;unresolved&#34;}]</pre>
+                <script>
+                     
+                    var responseHeader ={"Access-Control-Allow-Credentials":"true","Access-Control-Allow-Headers":"Content-Type, Content-Length, Apitoken","Access-Control-Allow-Methods":"POST, GET, OPTIONS, PUT, DELETE, UPDATE","Access-Control-Allow-Origin":"*","Access-Control-Expose-Headers":"Content-Length","Access-Control-Max-Age":"86400","Content-Type":"application/json; charset=utf-8"};
+
+                    if (responseHeader["Content-Type"] === "application/json"){
+                        try {
+                            var jsonStr = spaceJson("[{\"id\":\"s_322_00c5f5c87a71bd4c686c0a4a0544b719\",\"endpoint\":\"agent8\",\"metric\":\"cpu.iowait\",\"func\":\"avg(#3)\",\"cond\":\"0 \\u003e 40\",\"note\":\"CPU I/O wait超过40\",\"step\":1,\"current_step\":1,\"priority\":1,\"status\":\"OK\",\"timestamp\":\"2016-11-30T20:10:00+08:00\",\"update_at\":\"2016-11-30T20:10:00+08:00\",\"closed_at\":null,\"closed_note\":\"\",\"user_modified\":0,\"tpl_creator\":\"root\",\"expression_id\":0,\"strategy_id\":322,\"template_id\":125,\"process_note\":0,\"process_status\":\"unresolved\"}]");
+                            document.getElementById('response-body-0-3').innerHTML = syntaxHighlight(jsonStr);
+                        } catch (e) {
+                             
+                        }
+                    }
+                </script>
+                
+                <hr>
+            
+                
+                <p> <H4> Request Headers </H4> </p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Apitoken</td>
+                        <td> {&#34;name&#34;: &#34;root&#34;, &#34;sig&#34;: &#34;233fdb00f99811e68a5c001500c6ca5a&#34;}</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Content-Type</td>
+                        <td>  application/json</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                
+                
+                <p> <H4> Request Body </H4> </p>
+                <pre id="request-body-0-4" class="prettyprint">
+			{
+	      &#34;startTime&#34;: 1477584000,
+	      &#34;endTime&#34;: 1477670400,
+	      &#34;process_status&#34;: &#34;unresolved&#34;,
+	      &#34;limit&#34;: 10
+	    }</pre>
+                <script>
+                     
+                    var requestHeader ={"Apitoken":"{\"name\": \"root\", \"sig\": \"233fdb00f99811e68a5c001500c6ca5a\"}","Content-Type":" application/json\r"};
+
+                    if (requestHeader["Content-Type"] === "application/json"){
+                        try {
+                            var jsonStr = spaceJson("\n\t\t\t{\n\t      \"startTime\": 1477584000,\n\t      \"endTime\": 1477670400,\n\t      \"process_status\": \"unresolved\",\n\t      \"limit\": 10\n\t    }");
+                            document.getElementById('request-body0-4').innerHTML = syntaxHighlight(jsonStr);
+                        } catch (e) {
+                             
+                        }
+                    }
+                </script>
+                
+                <p><h4> Response Code</h4></p>
+                <pre class="prettyprint lang-json">200</pre>
+                
+                <p><h4> Response Headers</h4></p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Credentials</td>
+                        <td> true</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Headers</td>
+                        <td> Content-Type, Content-Length, Apitoken</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Methods</td>
+                        <td> POST, GET, OPTIONS, PUT, DELETE, UPDATE</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Origin</td>
+                        <td> *</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Expose-Headers</td>
+                        <td> Content-Length</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Max-Age</td>
+                        <td> 86400</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Content-Type</td>
+                        <td> application/json; charset=utf-8</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                <p> <H4> Response Body </H4> </p>
+                <pre class="prettyprint" id="response-body-0-4">[{&#34;id&#34;:&#34;s_322_00cc81434a0e277b57254a89a839a47b&#34;,&#34;endpoint&#34;:&#34;agent9&#34;,&#34;metric&#34;:&#34;cpu.iowait&#34;,&#34;func&#34;:&#34;avg(#3)&#34;,&#34;cond&#34;:&#34;0.041876046901172526 \u003e 40&#34;,&#34;note&#34;:&#34;CPU I/O wait超过40&#34;,&#34;step&#34;:1,&#34;current_step&#34;:1,&#34;priority&#34;:1,&#34;status&#34;:&#34;OK&#34;,&#34;timestamp&#34;:&#34;2016-10-28T10:37:00&#43;08:00&#34;,&#34;update_at&#34;:&#34;2016-10-28T10:37:00&#43;08:00&#34;,&#34;closed_at&#34;:null,&#34;closed_note&#34;:&#34;&#34;,&#34;user_modified&#34;:0,&#34;tpl_creator&#34;:&#34;root&#34;,&#34;expression_id&#34;:0,&#34;strategy_id&#34;:322,&#34;template_id&#34;:125,&#34;process_note&#34;:0,&#34;process_status&#34;:&#34;unresolved&#34;}]</pre>
+                <script>
+                     
+                    var responseHeader ={"Access-Control-Allow-Credentials":"true","Access-Control-Allow-Headers":"Content-Type, Content-Length, Apitoken","Access-Control-Allow-Methods":"POST, GET, OPTIONS, PUT, DELETE, UPDATE","Access-Control-Allow-Origin":"*","Access-Control-Expose-Headers":"Content-Length","Access-Control-Max-Age":"86400","Content-Type":"application/json; charset=utf-8"};
+
+                    if (responseHeader["Content-Type"] === "application/json"){
+                        try {
+                            var jsonStr = spaceJson("[{\"id\":\"s_322_00cc81434a0e277b57254a89a839a47b\",\"endpoint\":\"agent9\",\"metric\":\"cpu.iowait\",\"func\":\"avg(#3)\",\"cond\":\"0.041876046901172526 \\u003e 40\",\"note\":\"CPU I/O wait超过40\",\"step\":1,\"current_step\":1,\"priority\":1,\"status\":\"OK\",\"timestamp\":\"2016-10-28T10:37:00+08:00\",\"update_at\":\"2016-10-28T10:37:00+08:00\",\"closed_at\":null,\"closed_note\":\"\",\"user_modified\":0,\"tpl_creator\":\"root\",\"expression_id\":0,\"strategy_id\":322,\"template_id\":125,\"process_note\":0,\"process_status\":\"unresolved\"}]");
+                            document.getElementById('response-body-0-4').innerHTML = syntaxHighlight(jsonStr);
+                        } catch (e) {
+                             
+                        }
+                    }
+                </script>
+                
+                <hr>
+            
+                
+                <p> <H4> Request Headers </H4> </p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Apitoken</td>
+                        <td> {&#34;name&#34;: &#34;root&#34;, &#34;sig&#34;: &#34;233fdb00f99811e68a5c001500c6ca5a&#34;}</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Content-Type</td>
+                        <td>  application/json</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                
+                
+                <p> <H4> Request Body </H4> </p>
+                <pre id="request-body-0-5" class="prettyprint">
+			{
+	      &#34;startTime&#34;: 1466956800,
+	      &#34;endTime&#34;: 1480521600,
+	      &#34;process_status&#34;: &#34;unresolved&#34;,
+				&#34;page&#34;: 0,
+	      &#34;limit&#34;: 1
+	    }</pre>
+                <script>
+                     
+                    var requestHeader ={"Apitoken":"{\"name\": \"root\", \"sig\": \"233fdb00f99811e68a5c001500c6ca5a\"}","Content-Type":" application/json\r"};
+
+                    if (requestHeader["Content-Type"] === "application/json"){
+                        try {
+                            var jsonStr = spaceJson("\n\t\t\t{\n\t      \"startTime\": 1466956800,\n\t      \"endTime\": 1480521600,\n\t      \"process_status\": \"unresolved\",\n\t\t\t\t\"page\": 0,\n\t      \"limit\": 1\n\t    }");
+                            document.getElementById('request-body0-5').innerHTML = syntaxHighlight(jsonStr);
+                        } catch (e) {
+                             
+                        }
+                    }
+                </script>
+                
+                <p><h4> Response Code</h4></p>
+                <pre class="prettyprint lang-json">200</pre>
+                
+                <p><h4> Response Headers</h4></p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Credentials</td>
+                        <td> true</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Headers</td>
+                        <td> Content-Type, Content-Length, Apitoken</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Methods</td>
+                        <td> POST, GET, OPTIONS, PUT, DELETE, UPDATE</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Origin</td>
+                        <td> *</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Expose-Headers</td>
+                        <td> Content-Length</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Max-Age</td>
+                        <td> 86400</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Content-Type</td>
+                        <td> application/json; charset=utf-8</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                <p> <H4> Response Body </H4> </p>
+                <pre class="prettyprint" id="response-body-0-5">[{&#34;id&#34;:&#34;s_322_00c5f5c87a71bd4c686c0a4a0544b719&#34;,&#34;endpoint&#34;:&#34;agent8&#34;,&#34;metric&#34;:&#34;cpu.iowait&#34;,&#34;func&#34;:&#34;avg(#3)&#34;,&#34;cond&#34;:&#34;0 \u003e 40&#34;,&#34;note&#34;:&#34;CPU I/O wait超过40&#34;,&#34;step&#34;:1,&#34;current_step&#34;:1,&#34;priority&#34;:1,&#34;status&#34;:&#34;OK&#34;,&#34;timestamp&#34;:&#34;2016-11-30T20:10:00&#43;08:00&#34;,&#34;update_at&#34;:&#34;2016-11-30T20:10:00&#43;08:00&#34;,&#34;closed_at&#34;:null,&#34;closed_note&#34;:&#34;&#34;,&#34;user_modified&#34;:0,&#34;tpl_creator&#34;:&#34;root&#34;,&#34;expression_id&#34;:0,&#34;strategy_id&#34;:322,&#34;template_id&#34;:125,&#34;process_note&#34;:0,&#34;process_status&#34;:&#34;unresolved&#34;}]</pre>
+                <script>
+                     
+                    var responseHeader ={"Access-Control-Allow-Credentials":"true","Access-Control-Allow-Headers":"Content-Type, Content-Length, Apitoken","Access-Control-Allow-Methods":"POST, GET, OPTIONS, PUT, DELETE, UPDATE","Access-Control-Allow-Origin":"*","Access-Control-Expose-Headers":"Content-Length","Access-Control-Max-Age":"86400","Content-Type":"application/json; charset=utf-8"};
+
+                    if (responseHeader["Content-Type"] === "application/json"){
+                        try {
+                            var jsonStr = spaceJson("[{\"id\":\"s_322_00c5f5c87a71bd4c686c0a4a0544b719\",\"endpoint\":\"agent8\",\"metric\":\"cpu.iowait\",\"func\":\"avg(#3)\",\"cond\":\"0 \\u003e 40\",\"note\":\"CPU I/O wait超过40\",\"step\":1,\"current_step\":1,\"priority\":1,\"status\":\"OK\",\"timestamp\":\"2016-11-30T20:10:00+08:00\",\"update_at\":\"2016-11-30T20:10:00+08:00\",\"closed_at\":null,\"closed_note\":\"\",\"user_modified\":0,\"tpl_creator\":\"root\",\"expression_id\":0,\"strategy_id\":322,\"template_id\":125,\"process_note\":0,\"process_status\":\"unresolved\"}]");
+                            document.getElementById('response-body-0-5').innerHTML = syntaxHighlight(jsonStr);
+                        } catch (e) {
+                             
+                        }
+                    }
+                </script>
+                
+                <hr>
+            
+                
+                <p> <H4> Request Headers </H4> </p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Apitoken</td>
+                        <td> {&#34;name&#34;: &#34;root&#34;, &#34;sig&#34;: &#34;233fdb00f99811e68a5c001500c6ca5a&#34;}</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Content-Type</td>
+                        <td>  application/json</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                
+                
+                <p> <H4> Request Body </H4> </p>
+                <pre id="request-body-0-6" class="prettyprint">
+			{
+	      &#34;startTime&#34;: 1466956800,
+	      &#34;endTime&#34;: 1480521600,
+	      &#34;process_status&#34;: &#34;unresolved&#34;,
+				&#34;page&#34;: 1,
+	      &#34;limit&#34;: 1
+	    }</pre>
+                <script>
+                     
+                    var requestHeader ={"Apitoken":"{\"name\": \"root\", \"sig\": \"233fdb00f99811e68a5c001500c6ca5a\"}","Content-Type":" application/json\r"};
+
+                    if (requestHeader["Content-Type"] === "application/json"){
+                        try {
+                            var jsonStr = spaceJson("\n\t\t\t{\n\t      \"startTime\": 1466956800,\n\t      \"endTime\": 1480521600,\n\t      \"process_status\": \"unresolved\",\n\t\t\t\t\"page\": 1,\n\t      \"limit\": 1\n\t    }");
+                            document.getElementById('request-body0-6').innerHTML = syntaxHighlight(jsonStr);
+                        } catch (e) {
+                             
+                        }
+                    }
+                </script>
+                
+                <p><h4> Response Code</h4></p>
+                <pre class="prettyprint lang-json">200</pre>
+                
+                <p><h4> Response Headers</h4></p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Credentials</td>
+                        <td> true</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Headers</td>
+                        <td> Content-Type, Content-Length, Apitoken</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Methods</td>
+                        <td> POST, GET, OPTIONS, PUT, DELETE, UPDATE</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Origin</td>
+                        <td> *</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Expose-Headers</td>
+                        <td> Content-Length</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Max-Age</td>
+                        <td> 86400</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Content-Type</td>
+                        <td> application/json; charset=utf-8</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                <p> <H4> Response Body </H4> </p>
+                <pre class="prettyprint" id="response-body-0-6">[{&#34;id&#34;:&#34;s_322_00a9b9f9f859d8436f9b643ea5a1fb5e&#34;,&#34;endpoint&#34;:&#34;agent6&#34;,&#34;metric&#34;:&#34;cpu.iowait&#34;,&#34;func&#34;:&#34;avg(#3)&#34;,&#34;cond&#34;:&#34;0 \u003e 40&#34;,&#34;note&#34;:&#34;CPU I/O wait超过40&#34;,&#34;step&#34;:1,&#34;current_step&#34;:1,&#34;priority&#34;:1,&#34;status&#34;:&#34;OK&#34;,&#34;timestamp&#34;:&#34;2016-11-14T22:16:00&#43;08:00&#34;,&#34;update_at&#34;:&#34;2016-11-14T22:16:00&#43;08:00&#34;,&#34;closed_at&#34;:null,&#34;closed_note&#34;:&#34;&#34;,&#34;user_modified&#34;:0,&#34;tpl_creator&#34;:&#34;root&#34;,&#34;expression_id&#34;:0,&#34;strategy_id&#34;:322,&#34;template_id&#34;:140,&#34;process_note&#34;:0,&#34;process_status&#34;:&#34;unresolved&#34;}]</pre>
+                <script>
+                     
+                    var responseHeader ={"Access-Control-Allow-Credentials":"true","Access-Control-Allow-Headers":"Content-Type, Content-Length, Apitoken","Access-Control-Allow-Methods":"POST, GET, OPTIONS, PUT, DELETE, UPDATE","Access-Control-Allow-Origin":"*","Access-Control-Expose-Headers":"Content-Length","Access-Control-Max-Age":"86400","Content-Type":"application/json; charset=utf-8"};
+
+                    if (responseHeader["Content-Type"] === "application/json"){
+                        try {
+                            var jsonStr = spaceJson("[{\"id\":\"s_322_00a9b9f9f859d8436f9b643ea5a1fb5e\",\"endpoint\":\"agent6\",\"metric\":\"cpu.iowait\",\"func\":\"avg(#3)\",\"cond\":\"0 \\u003e 40\",\"note\":\"CPU I/O wait超过40\",\"step\":1,\"current_step\":1,\"priority\":1,\"status\":\"OK\",\"timestamp\":\"2016-11-14T22:16:00+08:00\",\"update_at\":\"2016-11-14T22:16:00+08:00\",\"closed_at\":null,\"closed_note\":\"\",\"user_modified\":0,\"tpl_creator\":\"root\",\"expression_id\":0,\"strategy_id\":322,\"template_id\":140,\"process_note\":0,\"process_status\":\"unresolved\"}]");
+                            document.getElementById('response-body-0-6').innerHTML = syntaxHighlight(jsonStr);
+                        } catch (e) {
+                             
+                        }
+                    }
+                </script>
+                
+                <hr>
+            
+        </div>
+        
+        <div id="1top"  role="tabpanel" class="tab-pane col-md-10">
+            
+                
+                <p> <H4> Request Headers </H4> </p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Apitoken</td>
+                        <td> {&#34;name&#34;: &#34;root&#34;, &#34;sig&#34;: &#34;233fdb00f99811e68a5c001500c6ca5a&#34;}</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                
+                <p> <H4> URL Params </H4> </p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>endTime</td>
+                        <td> 1466697600</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>startTime</td>
+                        <td> 1466611200</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                <p><h4> Response Code</h4></p>
+                <pre class="prettyprint lang-json">200</pre>
+                
+                <p><h4> Response Headers</h4></p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Credentials</td>
+                        <td> true</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Headers</td>
+                        <td> Content-Type, Content-Length, Apitoken</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Methods</td>
+                        <td> POST, GET, OPTIONS, PUT, DELETE, UPDATE</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Origin</td>
+                        <td> *</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Expose-Headers</td>
+                        <td> Content-Length</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Max-Age</td>
+                        <td> 86400</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Content-Type</td>
+                        <td> application/json; charset=utf-8</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                <p> <H4> Response Body </H4> </p>
+                <pre class="prettyprint" id="response-body-1-0">[{&#34;id&#34;:22,&#34;event_caseId&#34;:&#34;s_165_cef145900bf4e2a4a0db8b85762b9cdb&#34;,&#34;note&#34;:&#34;test&#34;,&#34;case_id&#34;:&#34;&#34;,&#34;status&#34;:&#34;ignored&#34;,&#34;timestamp&#34;:&#34;2016-06-23T05:39:09&#43;08:00&#34;,&#34;user_id&#34;:1},{&#34;id&#34;:21,&#34;event_caseId&#34;:&#34;s_165_9d223f126e7ecb3477cd6806f1ee9656&#34;,&#34;note&#34;:&#34;Ignored by user&#34;,&#34;case_id&#34;:&#34;&#34;,&#34;status&#34;:&#34;ignored&#34;,&#34;timestamp&#34;:&#34;2016-06-23T05:38:56&#43;08:00&#34;,&#34;user_id&#34;:1}]</pre>
+                <script>
+                     
+                    var responseHeader ={"Access-Control-Allow-Credentials":"true","Access-Control-Allow-Headers":"Content-Type, Content-Length, Apitoken","Access-Control-Allow-Methods":"POST, GET, OPTIONS, PUT, DELETE, UPDATE","Access-Control-Allow-Origin":"*","Access-Control-Expose-Headers":"Content-Length","Access-Control-Max-Age":"86400","Content-Type":"application/json; charset=utf-8"};
+
+                    if (responseHeader["Content-Type"] === "application/json"){
+                        try {
+                            var jsonStr = spaceJson("[{\"id\":22,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test\",\"case_id\":\"\",\"status\":\"ignored\",\"timestamp\":\"2016-06-23T05:39:09+08:00\",\"user_id\":1},{\"id\":21,\"event_caseId\":\"s_165_9d223f126e7ecb3477cd6806f1ee9656\",\"note\":\"Ignored by user\",\"case_id\":\"\",\"status\":\"ignored\",\"timestamp\":\"2016-06-23T05:38:56+08:00\",\"user_id\":1}]");
+                            document.getElementById('response-body-1-0').innerHTML = syntaxHighlight(jsonStr);
+                        } catch (e) {
+                             
+                        }
+                    }
+                </script>
+                
+                <hr>
+            
+                
+                <p> <H4> Request Headers </H4> </p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Apitoken</td>
+                        <td> {&#34;name&#34;: &#34;root&#34;, &#34;sig&#34;: &#34;233fdb00f99811e68a5c001500c6ca5a&#34;}</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                
+                <p> <H4> URL Params </H4> </p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>event_id</td>
+                        <td> s_165_cef145900bf4e2a4a0db8b85762b9cdb</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                <p><h4> Response Code</h4></p>
+                <pre class="prettyprint lang-json">200</pre>
+                
+                <p><h4> Response Headers</h4></p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Credentials</td>
+                        <td> true</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Headers</td>
+                        <td> Content-Type, Content-Length, Apitoken</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Methods</td>
+                        <td> POST, GET, OPTIONS, PUT, DELETE, UPDATE</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Origin</td>
+                        <td> *</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Expose-Headers</td>
+                        <td> Content-Length</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Max-Age</td>
+                        <td> 86400</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Content-Type</td>
+                        <td> application/json; charset=utf-8</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                <p> <H4> Response Body </H4> </p>
+                <pre class="prettyprint" id="response-body-1-1">[{&#34;id&#34;:56568,&#34;event_caseId&#34;:&#34;s_165_cef145900bf4e2a4a0db8b85762b9cdb&#34;,&#34;note&#34;:&#34;test note&#34;,&#34;case_id&#34;:&#34;&#34;,&#34;status&#34;:&#34;comment&#34;,&#34;timestamp&#34;:&#34;2017-03-22T20:30:51&#43;08:00&#34;,&#34;user_id&#34;:1},{&#34;id&#34;:56569,&#34;event_caseId&#34;:&#34;s_165_cef145900bf4e2a4a0db8b85762b9cdb&#34;,&#34;note&#34;:&#34;test note&#34;,&#34;case_id&#34;:&#34;&#34;,&#34;status&#34;:&#34;ignored&#34;,&#34;timestamp&#34;:&#34;2017-03-22T20:30:51&#43;08:00&#34;,&#34;user_id&#34;:1},{&#34;id&#34;:56564,&#34;event_caseId&#34;:&#34;s_165_cef145900bf4e2a4a0db8b85762b9cdb&#34;,&#34;note&#34;:&#34;test note&#34;,&#34;case_id&#34;:&#34;&#34;,&#34;status&#34;:&#34;comment&#34;,&#34;timestamp&#34;:&#34;2017-03-22T20:30:03&#43;08:00&#34;,&#34;user_id&#34;:1},{&#34;id&#34;:56565,&#34;event_caseId&#34;:&#34;s_165_cef145900bf4e2a4a0db8b85762b9cdb&#34;,&#34;note&#34;:&#34;test note&#34;,&#34;case_id&#34;:&#34;&#34;,&#34;status&#34;:&#34;ignored&#34;,&#34;timestamp&#34;:&#34;2017-03-22T20:30:03&#43;08:00&#34;,&#34;user_id&#34;:1},{&#34;id&#34;:56566,&#34;event_caseId&#34;:&#34;s_165_cef145900bf4e2a4a0db8b85762b9cdb&#34;,&#34;note&#34;:&#34;test note&#34;,&#34;case_id&#34;:&#34;&#34;,&#34;status&#34;:&#34;comment&#34;,&#34;timestamp&#34;:&#34;2017-03-22T20:30:03&#43;08:00&#34;,&#34;user_id&#34;:1},{&#34;id&#34;:56567,&#34;event_caseId&#34;:&#34;s_165_cef145900bf4e2a4a0db8b85762b9cdb&#34;,&#34;note&#34;:&#34;test note&#34;,&#34;case_id&#34;:&#34;&#34;,&#34;status&#34;:&#34;ignored&#34;,&#34;timestamp&#34;:&#34;2017-03-22T20:30:03&#43;08:00&#34;,&#34;user_id&#34;:1},{&#34;id&#34;:56562,&#34;event_caseId&#34;:&#34;s_165_cef145900bf4e2a4a0db8b85762b9cdb&#34;,&#34;note&#34;:&#34;test note&#34;,&#34;case_id&#34;:&#34;&#34;,&#34;status&#34;:&#34;comment&#34;,&#34;timestamp&#34;:&#34;2017-03-22T20:29:44&#43;08:00&#34;,&#34;user_id&#34;:1},{&#34;id&#34;:56563,&#34;event_caseId&#34;:&#34;s_165_cef145900bf4e2a4a0db8b85762b9cdb&#34;,&#34;note&#34;:&#34;test note&#34;,&#34;case_id&#34;:&#34;&#34;,&#34;status&#34;:&#34;ignored&#34;,&#34;timestamp&#34;:&#34;2017-03-22T20:29:44&#43;08:00&#34;,&#34;user_id&#34;:1},{&#34;id&#34;:56560,&#34;event_caseId&#34;:&#34;s_165_cef145900bf4e2a4a0db8b85762b9cdb&#34;,&#34;note&#34;:&#34;test note&#34;,&#34;case_id&#34;:&#34;&#34;,&#34;status&#34;:&#34;comment&#34;,&#34;timestamp&#34;:&#34;2017-03-22T20:20:42&#43;08:00&#34;,&#34;user_id&#34;:1},{&#34;id&#34;:56561,&#34;event_caseId&#34;:&#34;s_165_cef145900bf4e2a4a0db8b85762b9cdb&#34;,&#34;note&#34;:&#34;test note&#34;,&#34;case_id&#34;:&#34;&#34;,&#34;status&#34;:&#34;ignored&#34;,&#34;timestamp&#34;:&#34;2017-03-22T20:20:42&#43;08:00&#34;,&#34;user_id&#34;:1},{&#34;id&#34;:56558,&#34;event_caseId&#34;:&#34;s_165_cef145900bf4e2a4a0db8b85762b9cdb&#34;,&#34;note&#34;:&#34;test note&#34;,&#34;case_id&#34;:&#34;&#34;,&#34;status&#34;:&#34;comment&#34;,&#34;timestamp&#34;:&#34;2017-03-22T18:58:41&#43;08:00&#34;,&#34;user_id&#34;:2},{&#34;id&#34;:56559,&#34;event_caseId&#34;:&#34;s_165_cef145900bf4e2a4a0db8b85762b9cdb&#34;,&#34;note&#34;:&#34;test note&#34;,&#34;case_id&#34;:&#34;&#34;,&#34;status&#34;:&#34;ignored&#34;,&#34;timestamp&#34;:&#34;2017-03-22T18:58:41&#43;08:00&#34;,&#34;user_id&#34;:2},{&#34;id&#34;:56556,&#34;event_caseId&#34;:&#34;s_165_cef145900bf4e2a4a0db8b85762b9cdb&#34;,&#34;note&#34;:&#34;test note&#34;,&#34;case_id&#34;:&#34;&#34;,&#34;status&#34;:&#34;comment&#34;,&#34;timestamp&#34;:&#34;2017-03-22T18:58:04&#43;08:00&#34;,&#34;user_id&#34;:2},{&#34;id&#34;:56557,&#34;event_caseId&#34;:&#34;s_165_cef145900bf4e2a4a0db8b85762b9cdb&#34;,&#34;note&#34;:&#34;test note&#34;,&#34;case_id&#34;:&#34;&#34;,&#34;status&#34;:&#34;ignored&#34;,&#34;timestamp&#34;:&#34;2017-03-22T18:58:04&#43;08:00&#34;,&#34;user_id&#34;:2},{&#34;id&#34;:56554,&#34;event_caseId&#34;:&#34;s_165_cef145900bf4e2a4a0db8b85762b9cdb&#34;,&#34;note&#34;:&#34;test note&#34;,&#34;case_id&#34;:&#34;&#34;,&#34;status&#34;:&#34;comment&#34;,&#34;timestamp&#34;:&#34;2017-03-22T18:56:35&#43;08:00&#34;,&#34;user_id&#34;:2},{&#34;id&#34;:56555,&#34;event_caseId&#34;:&#34;s_165_cef145900bf4e2a4a0db8b85762b9cdb&#34;,&#34;note&#34;:&#34;test note&#34;,&#34;case_id&#34;:&#34;&#34;,&#34;status&#34;:&#34;ignored&#34;,&#34;timestamp&#34;:&#34;2017-03-22T18:56:35&#43;08:00&#34;,&#34;user_id&#34;:2},{&#34;id&#34;:56552,&#34;event_caseId&#34;:&#34;s_165_cef145900bf4e2a4a0db8b85762b9cdb&#34;,&#34;note&#34;:&#34;test note&#34;,&#34;case_id&#34;:&#34;&#34;,&#34;status&#34;:&#34;comment&#34;,&#34;timestamp&#34;:&#34;2017-03-22T18:56:25&#43;08:00&#34;,&#34;user_id&#34;:2},{&#34;id&#34;:56553,&#34;event_caseId&#34;:&#34;s_165_cef145900bf4e2a4a0db8b85762b9cdb&#34;,&#34;note&#34;:&#34;test note&#34;,&#34;case_id&#34;:&#34;&#34;,&#34;status&#34;:&#34;ignored&#34;,&#34;timestamp&#34;:&#34;2017-03-22T18:56:25&#43;08:00&#34;,&#34;user_id&#34;:2},{&#34;id&#34;:56550,&#34;event_caseId&#34;:&#34;s_165_cef145900bf4e2a4a0db8b85762b9cdb&#34;,&#34;note&#34;:&#34;test note&#34;,&#34;case_id&#34;:&#34;&#34;,&#34;status&#34;:&#34;comment&#34;,&#34;timestamp&#34;:&#34;2017-03-22T16:56:25&#43;08:00&#34;,&#34;user_id&#34;:2},{&#34;id&#34;:56551,&#34;event_caseId&#34;:&#34;s_165_cef145900bf4e2a4a0db8b85762b9cdb&#34;,&#34;note&#34;:&#34;test note&#34;,&#34;case_id&#34;:&#34;&#34;,&#34;status&#34;:&#34;ignored&#34;,&#34;timestamp&#34;:&#34;2017-03-22T16:56:25&#43;08:00&#34;,&#34;user_id&#34;:2},{&#34;id&#34;:56549,&#34;event_caseId&#34;:&#34;s_165_cef145900bf4e2a4a0db8b85762b9cdb&#34;,&#34;note&#34;:&#34;test note&#34;,&#34;case_id&#34;:&#34;&#34;,&#34;status&#34;:&#34;comment&#34;,&#34;timestamp&#34;:&#34;2017-03-22T16:54:50&#43;08:00&#34;,&#34;user_id&#34;:2},{&#34;id&#34;:56548,&#34;event_caseId&#34;:&#34;s_165_cef145900bf4e2a4a0db8b85762b9cdb&#34;,&#34;note&#34;:&#34;test note&#34;,&#34;case_id&#34;:&#34;&#34;,&#34;status&#34;:&#34;ignored&#34;,&#34;timestamp&#34;:&#34;2017-03-22T16:54:41&#43;08:00&#34;,&#34;user_id&#34;:2},{&#34;id&#34;:56547,&#34;event_caseId&#34;:&#34;s_165_cef145900bf4e2a4a0db8b85762b9cdb&#34;,&#34;note&#34;:&#34;test note&#34;,&#34;case_id&#34;:&#34;&#34;,&#34;status&#34;:&#34;resolved&#34;,&#34;timestamp&#34;:&#34;2017-03-22T16:54:30&#43;08:00&#34;,&#34;user_id&#34;:2},{&#34;id&#34;:56540,&#34;event_caseId&#34;:&#34;s_165_cef145900bf4e2a4a0db8b85762b9cdb&#34;,&#34;note&#34;:&#34;test note&#34;,&#34;case_id&#34;:&#34;&#34;,&#34;status&#34;:&#34;comment&#34;,&#34;timestamp&#34;:&#34;2017-03-22T16:43:24&#43;08:00&#34;,&#34;user_id&#34;:2},{&#34;id&#34;:56539,&#34;event_caseId&#34;:&#34;s_165_cef145900bf4e2a4a0db8b85762b9cdb&#34;,&#34;note&#34;:&#34;test note&#34;,&#34;case_id&#34;:&#34;&#34;,&#34;status&#34;:&#34;comment&#34;,&#34;timestamp&#34;:&#34;2017-03-22T16:42:04&#43;08:00&#34;,&#34;user_id&#34;:2},{&#34;id&#34;:56538,&#34;event_caseId&#34;:&#34;s_165_cef145900bf4e2a4a0db8b85762b9cdb&#34;,&#34;note&#34;:&#34;test note&#34;,&#34;case_id&#34;:&#34;&#34;,&#34;status&#34;:&#34;comment&#34;,&#34;timestamp&#34;:&#34;2017-03-22T16:41:18&#43;08:00&#34;,&#34;user_id&#34;:2},{&#34;id&#34;:56537,&#34;event_caseId&#34;:&#34;s_165_cef145900bf4e2a4a0db8b85762b9cdb&#34;,&#34;note&#34;:&#34;test note&#34;,&#34;case_id&#34;:&#34;&#34;,&#34;status&#34;:&#34;comment&#34;,&#34;timestamp&#34;:&#34;2017-03-22T16:40:45&#43;08:00&#34;,&#34;user_id&#34;:2},{&#34;id&#34;:56536,&#34;event_caseId&#34;:&#34;s_165_cef145900bf4e2a4a0db8b85762b9cdb&#34;,&#34;note&#34;:&#34;test note&#34;,&#34;case_id&#34;:&#34;&#34;,&#34;status&#34;:&#34;comment&#34;,&#34;timestamp&#34;:&#34;2017-03-22T16:38:55&#43;08:00&#34;,&#34;user_id&#34;:2},{&#34;id&#34;:56535,&#34;event_caseId&#34;:&#34;s_165_cef145900bf4e2a4a0db8b85762b9cdb&#34;,&#34;note&#34;:&#34;test note&#34;,&#34;case_id&#34;:&#34;&#34;,&#34;status&#34;:&#34;comment&#34;,&#34;timestamp&#34;:&#34;2017-03-22T16:38:42&#43;08:00&#34;,&#34;user_id&#34;:2},{&#34;id&#34;:56534,&#34;event_caseId&#34;:&#34;s_165_cef145900bf4e2a4a0db8b85762b9cdb&#34;,&#34;note&#34;:&#34;test note&#34;,&#34;case_id&#34;:&#34;&#34;,&#34;status&#34;:&#34;comment&#34;,&#34;timestamp&#34;:&#34;2017-03-22T16:38:11&#43;08:00&#34;,&#34;user_id&#34;:2},{&#34;id&#34;:56533,&#34;event_caseId&#34;:&#34;s_165_cef145900bf4e2a4a0db8b85762b9cdb&#34;,&#34;note&#34;:&#34;test note&#34;,&#34;case_id&#34;:&#34;&#34;,&#34;status&#34;:&#34;comment&#34;,&#34;timestamp&#34;:&#34;2017-03-22T16:37:09&#43;08:00&#34;,&#34;user_id&#34;:2},{&#34;id&#34;:56532,&#34;event_caseId&#34;:&#34;s_165_cef145900bf4e2a4a0db8b85762b9cdb&#34;,&#34;note&#34;:&#34;test note&#34;,&#34;case_id&#34;:&#34;&#34;,&#34;status&#34;:&#34;comment&#34;,&#34;timestamp&#34;:&#34;2017-03-22T16:35:18&#43;08:00&#34;,&#34;user_id&#34;:2},{&#34;id&#34;:56531,&#34;event_caseId&#34;:&#34;s_165_cef145900bf4e2a4a0db8b85762b9cdb&#34;,&#34;note&#34;:&#34;test note&#34;,&#34;case_id&#34;:&#34;&#34;,&#34;status&#34;:&#34;comment&#34;,&#34;timestamp&#34;:&#34;2017-03-22T16:35:04&#43;08:00&#34;,&#34;user_id&#34;:2},{&#34;id&#34;:56530,&#34;event_caseId&#34;:&#34;s_165_cef145900bf4e2a4a0db8b85762b9cdb&#34;,&#34;note&#34;:&#34;test note&#34;,&#34;case_id&#34;:&#34;&#34;,&#34;status&#34;:&#34;comment&#34;,&#34;timestamp&#34;:&#34;2017-03-22T16:34:55&#43;08:00&#34;,&#34;user_id&#34;:2},{&#34;id&#34;:56529,&#34;event_caseId&#34;:&#34;s_165_cef145900bf4e2a4a0db8b85762b9cdb&#34;,&#34;note&#34;:&#34;test note&#34;,&#34;case_id&#34;:&#34;&#34;,&#34;status&#34;:&#34;comment&#34;,&#34;timestamp&#34;:&#34;2017-03-22T16:33:54&#43;08:00&#34;,&#34;user_id&#34;:2},{&#34;id&#34;:56528,&#34;event_caseId&#34;:&#34;s_165_cef145900bf4e2a4a0db8b85762b9cdb&#34;,&#34;note&#34;:&#34;test note&#34;,&#34;case_id&#34;:&#34;&#34;,&#34;status&#34;:&#34;comment&#34;,&#34;timestamp&#34;:&#34;2017-03-22T16:32:37&#43;08:00&#34;,&#34;user_id&#34;:2},{&#34;id&#34;:56527,&#34;event_caseId&#34;:&#34;s_165_cef145900bf4e2a4a0db8b85762b9cdb&#34;,&#34;note&#34;:&#34;test note&#34;,&#34;case_id&#34;:&#34;&#34;,&#34;status&#34;:&#34;comment&#34;,&#34;timestamp&#34;:&#34;2017-03-22T16:32:09&#43;08:00&#34;,&#34;user_id&#34;:2},{&#34;id&#34;:56526,&#34;event_caseId&#34;:&#34;s_165_cef145900bf4e2a4a0db8b85762b9cdb&#34;,&#34;note&#34;:&#34;test note&#34;,&#34;case_id&#34;:&#34;&#34;,&#34;status&#34;:&#34;comment&#34;,&#34;timestamp&#34;:&#34;2017-03-22T16:31:02&#43;08:00&#34;,&#34;user_id&#34;:2},{&#34;id&#34;:56516,&#34;event_caseId&#34;:&#34;s_165_cef145900bf4e2a4a0db8b85762b9cdb&#34;,&#34;note&#34;:&#34;test note&#34;,&#34;case_id&#34;:&#34;&#34;,&#34;status&#34;:&#34;comment&#34;,&#34;timestamp&#34;:&#34;2017-03-22T14:08:34&#43;08:00&#34;,&#34;user_id&#34;:0},{&#34;id&#34;:22,&#34;event_caseId&#34;:&#34;s_165_cef145900bf4e2a4a0db8b85762b9cdb&#34;,&#34;note&#34;:&#34;test&#34;,&#34;case_id&#34;:&#34;&#34;,&#34;status&#34;:&#34;ignored&#34;,&#34;timestamp&#34;:&#34;2016-06-23T05:39:09&#43;08:00&#34;,&#34;user_id&#34;:1},{&#34;id&#34;:56525,&#34;event_caseId&#34;:&#34;s_165_cef145900bf4e2a4a0db8b85762b9cdb&#34;,&#34;note&#34;:&#34;test note&#34;,&#34;case_id&#34;:&#34;&#34;,&#34;status&#34;:&#34;comment&#34;,&#34;timestamp&#34;:&#34;0001-01-01T00:00:00Z&#34;,&#34;user_id&#34;:2}]</pre>
+                <script>
+                     
+                    var responseHeader ={"Access-Control-Allow-Credentials":"true","Access-Control-Allow-Headers":"Content-Type, Content-Length, Apitoken","Access-Control-Allow-Methods":"POST, GET, OPTIONS, PUT, DELETE, UPDATE","Access-Control-Allow-Origin":"*","Access-Control-Expose-Headers":"Content-Length","Access-Control-Max-Age":"86400","Content-Type":"application/json; charset=utf-8"};
+
+                    if (responseHeader["Content-Type"] === "application/json"){
+                        try {
+                            var jsonStr = spaceJson("[{\"id\":56568,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"comment\",\"timestamp\":\"2017-03-22T20:30:51+08:00\",\"user_id\":1},{\"id\":56569,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"ignored\",\"timestamp\":\"2017-03-22T20:30:51+08:00\",\"user_id\":1},{\"id\":56564,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"comment\",\"timestamp\":\"2017-03-22T20:30:03+08:00\",\"user_id\":1},{\"id\":56565,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"ignored\",\"timestamp\":\"2017-03-22T20:30:03+08:00\",\"user_id\":1},{\"id\":56566,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"comment\",\"timestamp\":\"2017-03-22T20:30:03+08:00\",\"user_id\":1},{\"id\":56567,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"ignored\",\"timestamp\":\"2017-03-22T20:30:03+08:00\",\"user_id\":1},{\"id\":56562,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"comment\",\"timestamp\":\"2017-03-22T20:29:44+08:00\",\"user_id\":1},{\"id\":56563,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"ignored\",\"timestamp\":\"2017-03-22T20:29:44+08:00\",\"user_id\":1},{\"id\":56560,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"comment\",\"timestamp\":\"2017-03-22T20:20:42+08:00\",\"user_id\":1},{\"id\":56561,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"ignored\",\"timestamp\":\"2017-03-22T20:20:42+08:00\",\"user_id\":1},{\"id\":56558,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"comment\",\"timestamp\":\"2017-03-22T18:58:41+08:00\",\"user_id\":2},{\"id\":56559,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"ignored\",\"timestamp\":\"2017-03-22T18:58:41+08:00\",\"user_id\":2},{\"id\":56556,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"comment\",\"timestamp\":\"2017-03-22T18:58:04+08:00\",\"user_id\":2},{\"id\":56557,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"ignored\",\"timestamp\":\"2017-03-22T18:58:04+08:00\",\"user_id\":2},{\"id\":56554,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"comment\",\"timestamp\":\"2017-03-22T18:56:35+08:00\",\"user_id\":2},{\"id\":56555,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"ignored\",\"timestamp\":\"2017-03-22T18:56:35+08:00\",\"user_id\":2},{\"id\":56552,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"comment\",\"timestamp\":\"2017-03-22T18:56:25+08:00\",\"user_id\":2},{\"id\":56553,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"ignored\",\"timestamp\":\"2017-03-22T18:56:25+08:00\",\"user_id\":2},{\"id\":56550,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"comment\",\"timestamp\":\"2017-03-22T16:56:25+08:00\",\"user_id\":2},{\"id\":56551,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"ignored\",\"timestamp\":\"2017-03-22T16:56:25+08:00\",\"user_id\":2},{\"id\":56549,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"comment\",\"timestamp\":\"2017-03-22T16:54:50+08:00\",\"user_id\":2},{\"id\":56548,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"ignored\",\"timestamp\":\"2017-03-22T16:54:41+08:00\",\"user_id\":2},{\"id\":56547,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"resolved\",\"timestamp\":\"2017-03-22T16:54:30+08:00\",\"user_id\":2},{\"id\":56540,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"comment\",\"timestamp\":\"2017-03-22T16:43:24+08:00\",\"user_id\":2},{\"id\":56539,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"comment\",\"timestamp\":\"2017-03-22T16:42:04+08:00\",\"user_id\":2},{\"id\":56538,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"comment\",\"timestamp\":\"2017-03-22T16:41:18+08:00\",\"user_id\":2},{\"id\":56537,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"comment\",\"timestamp\":\"2017-03-22T16:40:45+08:00\",\"user_id\":2},{\"id\":56536,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"comment\",\"timestamp\":\"2017-03-22T16:38:55+08:00\",\"user_id\":2},{\"id\":56535,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"comment\",\"timestamp\":\"2017-03-22T16:38:42+08:00\",\"user_id\":2},{\"id\":56534,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"comment\",\"timestamp\":\"2017-03-22T16:38:11+08:00\",\"user_id\":2},{\"id\":56533,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"comment\",\"timestamp\":\"2017-03-22T16:37:09+08:00\",\"user_id\":2},{\"id\":56532,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"comment\",\"timestamp\":\"2017-03-22T16:35:18+08:00\",\"user_id\":2},{\"id\":56531,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"comment\",\"timestamp\":\"2017-03-22T16:35:04+08:00\",\"user_id\":2},{\"id\":56530,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"comment\",\"timestamp\":\"2017-03-22T16:34:55+08:00\",\"user_id\":2},{\"id\":56529,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"comment\",\"timestamp\":\"2017-03-22T16:33:54+08:00\",\"user_id\":2},{\"id\":56528,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"comment\",\"timestamp\":\"2017-03-22T16:32:37+08:00\",\"user_id\":2},{\"id\":56527,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"comment\",\"timestamp\":\"2017-03-22T16:32:09+08:00\",\"user_id\":2},{\"id\":56526,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"comment\",\"timestamp\":\"2017-03-22T16:31:02+08:00\",\"user_id\":2},{\"id\":56516,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"comment\",\"timestamp\":\"2017-03-22T14:08:34+08:00\",\"user_id\":0},{\"id\":22,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test\",\"case_id\":\"\",\"status\":\"ignored\",\"timestamp\":\"2016-06-23T05:39:09+08:00\",\"user_id\":1},{\"id\":56525,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"comment\",\"timestamp\":\"0001-01-01T00:00:00Z\",\"user_id\":2}]");
+                            document.getElementById('response-body-1-1').innerHTML = syntaxHighlight(jsonStr);
+                        } catch (e) {
+                             
+                        }
+                    }
+                </script>
+                
+                <hr>
+            
+        </div>
+        
+        <div id="2top"  role="tabpanel" class="tab-pane col-md-10">
+            
+                
+                <p> <H4> Request Headers </H4> </p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Apitoken</td>
+                        <td> {&#34;name&#34;: &#34;root&#34;, &#34;sig&#34;: &#34;233fdb00f99811e68a5c001500c6ca5a&#34;}</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Content-Type</td>
+                        <td>  application/json</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                
+                
+                <p> <H4> Request Body </H4> </p>
+                <pre id="request-body-2-0" class="prettyprint">
+			{
+				&#34;event_id&#34;: &#34;s_165_cef145900bf4e2a4a0db8b85762b9cdb&#34;,
+				&#34;note&#34;: &#34;test note&#34;,
+				&#34;status&#34;: &#34;comment&#34;
+			}</pre>
+                <script>
+                     
+                    var requestHeader ={"Apitoken":"{\"name\": \"root\", \"sig\": \"233fdb00f99811e68a5c001500c6ca5a\"}","Content-Type":" application/json\r"};
+
+                    if (requestHeader["Content-Type"] === "application/json"){
+                        try {
+                            var jsonStr = spaceJson("\n\t\t\t{\n\t\t\t\t\"event_id\": \"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\n\t\t\t\t\"note\": \"test note\",\n\t\t\t\t\"status\": \"comment\"\n\t\t\t}");
+                            document.getElementById('request-body2-0').innerHTML = syntaxHighlight(jsonStr);
+                        } catch (e) {
+                             
+                        }
+                    }
+                </script>
+                
+                <p><h4> Response Code</h4></p>
+                <pre class="prettyprint lang-json">200</pre>
+                
+                <p><h4> Response Headers</h4></p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Credentials</td>
+                        <td> true</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Headers</td>
+                        <td> Content-Type, Content-Length, Apitoken</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Methods</td>
+                        <td> POST, GET, OPTIONS, PUT, DELETE, UPDATE</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Origin</td>
+                        <td> *</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Expose-Headers</td>
+                        <td> Content-Length</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Max-Age</td>
+                        <td> 86400</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Content-Type</td>
+                        <td> application/json; charset=utf-8</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                <p> <H4> Response Body </H4> </p>
+                <pre class="prettyprint" id="response-body-2-0">{&#34;id&#34;:&#34;s_165_cef145900bf4e2a4a0db8b85762b9cdb&#34;,&#34;message&#34;:&#34;add note to s_165_cef145900bf4e2a4a0db8b85762b9cdb successfuled&#34;}</pre>
+                <script>
+                     
+                    var responseHeader ={"Access-Control-Allow-Credentials":"true","Access-Control-Allow-Headers":"Content-Type, Content-Length, Apitoken","Access-Control-Allow-Methods":"POST, GET, OPTIONS, PUT, DELETE, UPDATE","Access-Control-Allow-Origin":"*","Access-Control-Expose-Headers":"Content-Length","Access-Control-Max-Age":"86400","Content-Type":"application/json; charset=utf-8"};
+
+                    if (responseHeader["Content-Type"] === "application/json"){
+                        try {
+                            var jsonStr = spaceJson("{\"id\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"message\":\"add note to s_165_cef145900bf4e2a4a0db8b85762b9cdb successfuled\"}");
+                            document.getElementById('response-body-2-0').innerHTML = syntaxHighlight(jsonStr);
+                        } catch (e) {
+                             
+                        }
+                    }
+                </script>
+                
+                <hr>
+            
+                
+                <p> <H4> Request Headers </H4> </p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Apitoken</td>
+                        <td> {&#34;name&#34;: &#34;root&#34;, &#34;sig&#34;: &#34;233fdb00f99811e68a5c001500c6ca5a&#34;}</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Content-Type</td>
+                        <td>  application/json</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                
+                
+                <p> <H4> Request Body </H4> </p>
+                <pre id="request-body-2-1" class="prettyprint">
+			{
+				&#34;event_id&#34;: &#34;s_165_cef145900bf4e2a4a0db8b85762b9cdb&#34;,
+				&#34;note&#34;: &#34;test note&#34;,
+				&#34;status&#34;: &#34;ignored&#34;
+			}</pre>
+                <script>
+                     
+                    var requestHeader ={"Apitoken":"{\"name\": \"root\", \"sig\": \"233fdb00f99811e68a5c001500c6ca5a\"}","Content-Type":" application/json\r"};
+
+                    if (requestHeader["Content-Type"] === "application/json"){
+                        try {
+                            var jsonStr = spaceJson("\n\t\t\t{\n\t\t\t\t\"event_id\": \"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\n\t\t\t\t\"note\": \"test note\",\n\t\t\t\t\"status\": \"ignored\"\n\t\t\t}");
+                            document.getElementById('request-body2-1').innerHTML = syntaxHighlight(jsonStr);
+                        } catch (e) {
+                             
+                        }
+                    }
+                </script>
+                
+                <p><h4> Response Code</h4></p>
+                <pre class="prettyprint lang-json">200</pre>
+                
+                <p><h4> Response Headers</h4></p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Credentials</td>
+                        <td> true</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Headers</td>
+                        <td> Content-Type, Content-Length, Apitoken</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Methods</td>
+                        <td> POST, GET, OPTIONS, PUT, DELETE, UPDATE</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Origin</td>
+                        <td> *</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Expose-Headers</td>
+                        <td> Content-Length</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Max-Age</td>
+                        <td> 86400</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Content-Type</td>
+                        <td> application/json; charset=utf-8</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                <p> <H4> Response Body </H4> </p>
+                <pre class="prettyprint" id="response-body-2-1">{&#34;id&#34;:&#34;s_165_cef145900bf4e2a4a0db8b85762b9cdb&#34;,&#34;message&#34;:&#34;add note to s_165_cef145900bf4e2a4a0db8b85762b9cdb successfuled&#34;}</pre>
+                <script>
+                     
+                    var responseHeader ={"Access-Control-Allow-Credentials":"true","Access-Control-Allow-Headers":"Content-Type, Content-Length, Apitoken","Access-Control-Allow-Methods":"POST, GET, OPTIONS, PUT, DELETE, UPDATE","Access-Control-Allow-Origin":"*","Access-Control-Expose-Headers":"Content-Length","Access-Control-Max-Age":"86400","Content-Type":"application/json; charset=utf-8"};
+
+                    if (responseHeader["Content-Type"] === "application/json"){
+                        try {
+                            var jsonStr = spaceJson("{\"id\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"message\":\"add note to s_165_cef145900bf4e2a4a0db8b85762b9cdb successfuled\"}");
+                            document.getElementById('response-body-2-1').innerHTML = syntaxHighlight(jsonStr);
+                        } catch (e) {
+                             
+                        }
+                    }
+                </script>
+                
+                <hr>
+            
+        </div>
+        
+        <div id="3top"  role="tabpanel" class="tab-pane col-md-10">
+            
+                
+                <p> <H4> Request Headers </H4> </p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Apitoken</td>
+                        <td> {&#34;name&#34;: &#34;root&#34;, &#34;sig&#34;: &#34;233fdb00f99811e68a5c001500c6ca5a&#34;}</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                
+                <p> <H4> URL Params </H4> </p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>event_id</td>
+                        <td> s_165_cef145900bf4e2a4a0db8b85762b9cdb</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                <p><h4> Response Code</h4></p>
+                <pre class="prettyprint lang-json">200</pre>
+                
+                <p><h4> Response Headers</h4></p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Credentials</td>
+                        <td> true</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Headers</td>
+                        <td> Content-Type, Content-Length, Apitoken</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Methods</td>
+                        <td> POST, GET, OPTIONS, PUT, DELETE, UPDATE</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Origin</td>
+                        <td> *</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Expose-Headers</td>
+                        <td> Content-Length</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Max-Age</td>
+                        <td> 86400</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Content-Type</td>
+                        <td> application/json; charset=utf-8</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                <p> <H4> Response Body </H4> </p>
+                <pre class="prettyprint" id="response-body-3-0">[{&#34;id&#34;:&#34;s_165_cef145900bf4e2a4a0db8b85762b9cdb&#34;,&#34;endpoint&#34;:&#34;agent2&#34;,&#34;metric&#34;:&#34;cpu.idle&#34;,&#34;func&#34;:&#34;all(#1)&#34;,&#34;cond&#34;:&#34;0 != 66&#34;,&#34;note&#34;:&#34;測試告警自動更新&#34;,&#34;step&#34;:300,&#34;current_step&#34;:3,&#34;priority&#34;:0,&#34;status&#34;:&#34;PROBLEM&#34;,&#34;timestamp&#34;:&#34;2017-03-22T20:34:15&#43;08:00&#34;,&#34;update_at&#34;:&#34;2016-06-23T05:00:00&#43;08:00&#34;,&#34;closed_at&#34;:null,&#34;closed_note&#34;:&#34;&#34;,&#34;user_modified&#34;:0,&#34;tpl_creator&#34;:&#34;root&#34;,&#34;expression_id&#34;:0,&#34;strategy_id&#34;:165,&#34;template_id&#34;:45,&#34;process_note&#34;:56571,&#34;process_status&#34;:&#34;ignored&#34;}]</pre>
+                <script>
+                     
+                    var responseHeader ={"Access-Control-Allow-Credentials":"true","Access-Control-Allow-Headers":"Content-Type, Content-Length, Apitoken","Access-Control-Allow-Methods":"POST, GET, OPTIONS, PUT, DELETE, UPDATE","Access-Control-Allow-Origin":"*","Access-Control-Expose-Headers":"Content-Length","Access-Control-Max-Age":"86400","Content-Type":"application/json; charset=utf-8"};
+
+                    if (responseHeader["Content-Type"] === "application/json"){
+                        try {
+                            var jsonStr = spaceJson("[{\"id\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"endpoint\":\"agent2\",\"metric\":\"cpu.idle\",\"func\":\"all(#1)\",\"cond\":\"0 != 66\",\"note\":\"測試告警自動更新\",\"step\":300,\"current_step\":3,\"priority\":0,\"status\":\"PROBLEM\",\"timestamp\":\"2017-03-22T20:34:15+08:00\",\"update_at\":\"2016-06-23T05:00:00+08:00\",\"closed_at\":null,\"closed_note\":\"\",\"user_modified\":0,\"tpl_creator\":\"root\",\"expression_id\":0,\"strategy_id\":165,\"template_id\":45,\"process_note\":56571,\"process_status\":\"ignored\"}]");
+                            document.getElementById('response-body-3-0').innerHTML = syntaxHighlight(jsonStr);
+                        } catch (e) {
+                             
+                        }
+                    }
+                </script>
+                
+                <hr>
+            
+        </div>
+        
+        <div id="4top"  role="tabpanel" class="tab-pane col-md-10">
+            
+                
+                <p> <H4> Request Headers </H4> </p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Apitoken</td>
+                        <td> {&#34;name&#34;: &#34;root&#34;, &#34;sig&#34;: &#34;233fdb00f99811e68a5c001500c6ca5a&#34;}</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Content-Type</td>
+                        <td>  application/x-www-form-urlencoded</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                <p> <H4> Post Form </H4> </p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>endTime</td>
+                        <td> 1466628960</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>event_id</td>
+                        <td> s_165_cef145900bf4e2a4a0db8b85762b9cdb</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>startTime</td>
+                        <td> 1466611200</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                
+                <p><h4> Response Code</h4></p>
+                <pre class="prettyprint lang-json">200</pre>
+                
+                <p><h4> Response Headers</h4></p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Credentials</td>
+                        <td> true</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Headers</td>
+                        <td> Content-Type, Content-Length, Apitoken</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Methods</td>
+                        <td> POST, GET, OPTIONS, PUT, DELETE, UPDATE</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Origin</td>
+                        <td> *</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Expose-Headers</td>
+                        <td> Content-Length</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Max-Age</td>
+                        <td> 86400</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Content-Type</td>
+                        <td> application/json; charset=utf-8</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                <p> <H4> Response Body </H4> </p>
+                <pre class="prettyprint" id="response-body-4-0">[{&#34;id&#34;:635166,&#34;event_caseId&#34;:&#34;s_165_cef145900bf4e2a4a0db8b85762b9cdb&#34;,&#34;step&#34;:0,&#34;cond&#34;:&#34;10.649350649350648 != 66&#34;,&#34;status&#34;:0,&#34;timestamp&#34;:&#34;2016-06-23T04:55:00&#43;08:00&#34;},{&#34;id&#34;:635149,&#34;event_caseId&#34;:&#34;s_165_cef145900bf4e2a4a0db8b85762b9cdb&#34;,&#34;step&#34;:0,&#34;cond&#34;:&#34;13.486005089058525 != 66&#34;,&#34;status&#34;:0,&#34;timestamp&#34;:&#34;2016-06-23T04:50:00&#43;08:00&#34;}]</pre>
+                <script>
+                     
+                    var responseHeader ={"Access-Control-Allow-Credentials":"true","Access-Control-Allow-Headers":"Content-Type, Content-Length, Apitoken","Access-Control-Allow-Methods":"POST, GET, OPTIONS, PUT, DELETE, UPDATE","Access-Control-Allow-Origin":"*","Access-Control-Expose-Headers":"Content-Length","Access-Control-Max-Age":"86400","Content-Type":"application/json; charset=utf-8"};
+
+                    if (responseHeader["Content-Type"] === "application/json"){
+                        try {
+                            var jsonStr = spaceJson("[{\"id\":635166,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"step\":0,\"cond\":\"10.649350649350648 != 66\",\"status\":0,\"timestamp\":\"2016-06-23T04:55:00+08:00\"},{\"id\":635149,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"step\":0,\"cond\":\"13.486005089058525 != 66\",\"status\":0,\"timestamp\":\"2016-06-23T04:50:00+08:00\"}]");
+                            document.getElementById('response-body-4-0').innerHTML = syntaxHighlight(jsonStr);
+                        } catch (e) {
+                             
+                        }
+                    }
+                </script>
+                
+                <hr>
+            
+                
+                <p> <H4> Request Headers </H4> </p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Apitoken</td>
+                        <td> {&#34;name&#34;: &#34;root&#34;, &#34;sig&#34;: &#34;233fdb00f99811e68a5c001500c6ca5a&#34;}</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Content-Type</td>
+                        <td>  application/x-www-form-urlencoded</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                <p> <H4> Post Form </H4> </p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>event_id</td>
+                        <td> s_322_00f5a68989281d30fbbb647194a09230</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>limit</td>
+                        <td> 2</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>status</td>
+                        <td> 1</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                
+                <p><h4> Response Code</h4></p>
+                <pre class="prettyprint lang-json">200</pre>
+                
+                <p><h4> Response Headers</h4></p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Credentials</td>
+                        <td> true</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Headers</td>
+                        <td> Content-Type, Content-Length, Apitoken</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Methods</td>
+                        <td> POST, GET, OPTIONS, PUT, DELETE, UPDATE</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Origin</td>
+                        <td> *</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Expose-Headers</td>
+                        <td> Content-Length</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Max-Age</td>
+                        <td> 86400</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Content-Type</td>
+                        <td> application/json; charset=utf-8</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                <p> <H4> Response Body </H4> </p>
+                <pre class="prettyprint" id="response-body-4-1">[{&#34;id&#34;:2283581,&#34;event_caseId&#34;:&#34;s_322_00f5a68989281d30fbbb647194a09230&#34;,&#34;step&#34;:0,&#34;cond&#34;:&#34;0 \u003e 40&#34;,&#34;status&#34;:1,&#34;timestamp&#34;:&#34;2016-12-08T02:10:00&#43;08:00&#34;},{&#34;id&#34;:2229288,&#34;event_caseId&#34;:&#34;s_322_00f5a68989281d30fbbb647194a09230&#34;,&#34;step&#34;:0,&#34;cond&#34;:&#34;0.8756834205893638 \u003e 40&#34;,&#34;status&#34;:1,&#34;timestamp&#34;:&#34;2016-12-02T15:43:00&#43;08:00&#34;}]</pre>
+                <script>
+                     
+                    var responseHeader ={"Access-Control-Allow-Credentials":"true","Access-Control-Allow-Headers":"Content-Type, Content-Length, Apitoken","Access-Control-Allow-Methods":"POST, GET, OPTIONS, PUT, DELETE, UPDATE","Access-Control-Allow-Origin":"*","Access-Control-Expose-Headers":"Content-Length","Access-Control-Max-Age":"86400","Content-Type":"application/json; charset=utf-8"};
+
+                    if (responseHeader["Content-Type"] === "application/json"){
+                        try {
+                            var jsonStr = spaceJson("[{\"id\":2283581,\"event_caseId\":\"s_322_00f5a68989281d30fbbb647194a09230\",\"step\":0,\"cond\":\"0 \\u003e 40\",\"status\":1,\"timestamp\":\"2016-12-08T02:10:00+08:00\"},{\"id\":2229288,\"event_caseId\":\"s_322_00f5a68989281d30fbbb647194a09230\",\"step\":0,\"cond\":\"0.8756834205893638 \\u003e 40\",\"status\":1,\"timestamp\":\"2016-12-02T15:43:00+08:00\"}]");
+                            document.getElementById('response-body-4-1').innerHTML = syntaxHighlight(jsonStr);
+                        } catch (e) {
+                             
+                        }
+                    }
+                </script>
+                
+                <hr>
+            
+                
+                <p> <H4> Request Headers </H4> </p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Apitoken</td>
+                        <td> {&#34;name&#34;: &#34;root&#34;, &#34;sig&#34;: &#34;233fdb00f99811e68a5c001500c6ca5a&#34;}</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Content-Type</td>
+                        <td>  application/x-www-form-urlencoded</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                <p> <H4> Post Form </H4> </p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>event_id</td>
+                        <td> s_322_00f5a68989281d30fbbb647194a09230</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>limit</td>
+                        <td> 1</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>page</td>
+                        <td> 0</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                
+                <p><h4> Response Code</h4></p>
+                <pre class="prettyprint lang-json">200</pre>
+                
+                <p><h4> Response Headers</h4></p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Credentials</td>
+                        <td> true</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Headers</td>
+                        <td> Content-Type, Content-Length, Apitoken</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Methods</td>
+                        <td> POST, GET, OPTIONS, PUT, DELETE, UPDATE</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Origin</td>
+                        <td> *</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Expose-Headers</td>
+                        <td> Content-Length</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Max-Age</td>
+                        <td> 86400</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Content-Type</td>
+                        <td> application/json; charset=utf-8</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                <p> <H4> Response Body </H4> </p>
+                <pre class="prettyprint" id="response-body-4-2">[{&#34;id&#34;:2283581,&#34;event_caseId&#34;:&#34;s_322_00f5a68989281d30fbbb647194a09230&#34;,&#34;step&#34;:0,&#34;cond&#34;:&#34;0 \u003e 40&#34;,&#34;status&#34;:1,&#34;timestamp&#34;:&#34;2016-12-08T02:10:00&#43;08:00&#34;}]</pre>
+                <script>
+                     
+                    var responseHeader ={"Access-Control-Allow-Credentials":"true","Access-Control-Allow-Headers":"Content-Type, Content-Length, Apitoken","Access-Control-Allow-Methods":"POST, GET, OPTIONS, PUT, DELETE, UPDATE","Access-Control-Allow-Origin":"*","Access-Control-Expose-Headers":"Content-Length","Access-Control-Max-Age":"86400","Content-Type":"application/json; charset=utf-8"};
+
+                    if (responseHeader["Content-Type"] === "application/json"){
+                        try {
+                            var jsonStr = spaceJson("[{\"id\":2283581,\"event_caseId\":\"s_322_00f5a68989281d30fbbb647194a09230\",\"step\":0,\"cond\":\"0 \\u003e 40\",\"status\":1,\"timestamp\":\"2016-12-08T02:10:00+08:00\"}]");
+                            document.getElementById('response-body-4-2').innerHTML = syntaxHighlight(jsonStr);
+                        } catch (e) {
+                             
+                        }
+                    }
+                </script>
+                
+                <hr>
+            
+                
+                <p> <H4> Request Headers </H4> </p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Apitoken</td>
+                        <td> {&#34;name&#34;: &#34;root&#34;, &#34;sig&#34;: &#34;233fdb00f99811e68a5c001500c6ca5a&#34;}</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Content-Type</td>
+                        <td>  application/x-www-form-urlencoded</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                <p> <H4> Post Form </H4> </p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>event_id</td>
+                        <td> s_322_00f5a68989281d30fbbb647194a09230</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>limit</td>
+                        <td> 1</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>page</td>
+                        <td> 1</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                
+                <p><h4> Response Code</h4></p>
+                <pre class="prettyprint lang-json">200</pre>
+                
+                <p><h4> Response Headers</h4></p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Credentials</td>
+                        <td> true</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Headers</td>
+                        <td> Content-Type, Content-Length, Apitoken</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Methods</td>
+                        <td> POST, GET, OPTIONS, PUT, DELETE, UPDATE</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Allow-Origin</td>
+                        <td> *</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Expose-Headers</td>
+                        <td> Content-Length</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Access-Control-Max-Age</td>
+                        <td> 86400</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>Content-Type</td>
+                        <td> application/json; charset=utf-8</td>
+                    </tr>
+                    
+                </table>
+                
+                
+                <p> <H4> Response Body </H4> </p>
+                <pre class="prettyprint" id="response-body-4-3">[{&#34;id&#34;:2283566,&#34;event_caseId&#34;:&#34;s_322_00f5a68989281d30fbbb647194a09230&#34;,&#34;step&#34;:0,&#34;cond&#34;:&#34;2.5609807127182493e&#43;17 \u003e 40&#34;,&#34;status&#34;:0,&#34;timestamp&#34;:&#34;2016-12-08T02:07:00&#43;08:00&#34;}]</pre>
+                <script>
+                     
+                    var responseHeader ={"Access-Control-Allow-Credentials":"true","Access-Control-Allow-Headers":"Content-Type, Content-Length, Apitoken","Access-Control-Allow-Methods":"POST, GET, OPTIONS, PUT, DELETE, UPDATE","Access-Control-Allow-Origin":"*","Access-Control-Expose-Headers":"Content-Length","Access-Control-Max-Age":"86400","Content-Type":"application/json; charset=utf-8"};
+
+                    if (responseHeader["Content-Type"] === "application/json"){
+                        try {
+                            var jsonStr = spaceJson("[{\"id\":2283566,\"event_caseId\":\"s_322_00f5a68989281d30fbbb647194a09230\",\"step\":0,\"cond\":\"2.5609807127182493e+17 \\u003e 40\",\"status\":0,\"timestamp\":\"2016-12-08T02:07:00+08:00\"}]");
+                            document.getElementById('response-body-4-3').innerHTML = syntaxHighlight(jsonStr);
+                        } catch (e) {
+                             
+                        }
+                    }
+                </script>
+                
+                <hr>
+            
+        </div>
+        
+    </div>
+</div>
+</div>
+<hr>
+</body>
+</html>

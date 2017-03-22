@@ -1,0 +1,438 @@
+{
+  "ApiSpecs": [
+    {
+      "HttpVerb": "POST",
+      "Path": "/api/v1/alarm/eventcases",
+      "Calls": [
+        {
+          "Id": 0,
+          "CurrentPath": "/api/v1/alarm/eventcases",
+          "MethodType": "POST",
+          "PostForm": null,
+          "RequestHeader": {
+            "Apitoken": "{\"name\": \"root\", \"sig\": \"233fdb00f99811e68a5c001500c6ca5a\"}",
+            "Content-Type": " application/json\r"
+          },
+          "CommonRequestHeaders": null,
+          "ResponseHeader": {
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Allow-Headers": "Content-Type, Content-Length, Apitoken",
+            "Access-Control-Allow-Methods": "POST, GET, OPTIONS, PUT, DELETE, UPDATE",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Expose-Headers": "Content-Length",
+            "Access-Control-Max-Age": "86400",
+            "Content-Type": "application/json; charset=utf-8"
+          },
+          "RequestUrlParams": {},
+          "RequestBody": "\n\t\t\t{\n\t      \"startTime\": 1466956800,\n\t    \t\"endTime\": 1480521600,\n\t    \t\"status\": \"PROBLEM\",\n\t    \t\"process_status\": \"ignored,unresolved\",\n\t    \t\"limit\": 10\n\t    }",
+          "ResponseBody": "[{\"id\":\"s_46_1ac45122afb893adc02fbd30154ac303\",\"endpoint\":\"agent4\",\"metric\":\"cpu.iowait\",\"func\":\"all(#3)\",\"cond\":\"48.33759590792839 \\u003e 40\",\"note\":\"CPU I/O wait超过40\",\"step\":1,\"current_step\":1,\"priority\":1,\"status\":\"PROBLEM\",\"timestamp\":\"2016-08-01T06:25:00+08:00\",\"update_at\":\"2016-08-01T06:25:00+08:00\",\"closed_at\":null,\"closed_note\":\"\",\"user_modified\":0,\"tpl_creator\":\"root\",\"expression_id\":0,\"strategy_id\":46,\"template_id\":126,\"process_note\":16907,\"process_status\":\"ignored\"},{\"id\":\"s_50_6438ac68b30e2712fb8f00d894c46e21\",\"endpoint\":\"agent5\",\"metric\":\"cpu.idle\",\"func\":\"avg(#3)\",\"cond\":\"95.16331658291456 \\u003c= 98\",\"note\":\"cpu空闲值报警\",\"step\":1,\"current_step\":1,\"priority\":3,\"status\":\"PROBLEM\",\"timestamp\":\"2016-07-03T16:13:00+08:00\",\"update_at\":\"2016-07-03T16:13:00+08:00\",\"closed_at\":null,\"closed_note\":\"\",\"user_modified\":0,\"tpl_creator\":\"root\",\"expression_id\":0,\"strategy_id\":50,\"template_id\":53,\"process_note\":1181,\"process_status\":\"ignored\"}]",
+          "ResponseCode": 200
+        },
+        {
+          "Id": 1,
+          "CurrentPath": "/api/v1/alarm/eventcases",
+          "MethodType": "POST",
+          "PostForm": null,
+          "RequestHeader": {
+            "Apitoken": "{\"name\": \"root\", \"sig\": \"233fdb00f99811e68a5c001500c6ca5a\"}",
+            "Content-Type": " application/json\r"
+          },
+          "CommonRequestHeaders": null,
+          "ResponseHeader": {
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Allow-Headers": "Content-Type, Content-Length, Apitoken",
+            "Access-Control-Allow-Methods": "POST, GET, OPTIONS, PUT, DELETE, UPDATE",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Expose-Headers": "Content-Length",
+            "Access-Control-Max-Age": "86400",
+            "Content-Type": "application/json; charset=utf-8"
+          },
+          "RequestUrlParams": {},
+          "RequestBody": "\n\t\t\t{\n\t      \"startTime\": 1466956800,\n\t    \t\"endTime\": 1480521600,\n\t    \t\"status\": \"PROBLEM,OK\",\n\t    \t\"process_status\": \"ignored,unresolved\",\n\t    \t\"limit\": 10\n\t    }",
+          "ResponseBody": "[{\"id\":\"s_322_00c5f5c87a71bd4c686c0a4a0544b719\",\"endpoint\":\"agent8\",\"metric\":\"cpu.iowait\",\"func\":\"avg(#3)\",\"cond\":\"0 \\u003e 40\",\"note\":\"CPU I/O wait超过40\",\"step\":1,\"current_step\":1,\"priority\":1,\"status\":\"OK\",\"timestamp\":\"2016-11-30T20:10:00+08:00\",\"update_at\":\"2016-11-30T20:10:00+08:00\",\"closed_at\":null,\"closed_note\":\"\",\"user_modified\":0,\"tpl_creator\":\"root\",\"expression_id\":0,\"strategy_id\":322,\"template_id\":125,\"process_note\":0,\"process_status\":\"unresolved\"},{\"id\":\"s_322_00a9b9f9f859d8436f9b643ea5a1fb5e\",\"endpoint\":\"agent6\",\"metric\":\"cpu.iowait\",\"func\":\"avg(#3)\",\"cond\":\"0 \\u003e 40\",\"note\":\"CPU I/O wait超过40\",\"step\":1,\"current_step\":1,\"priority\":1,\"status\":\"OK\",\"timestamp\":\"2016-11-14T22:16:00+08:00\",\"update_at\":\"2016-11-14T22:16:00+08:00\",\"closed_at\":null,\"closed_note\":\"\",\"user_modified\":0,\"tpl_creator\":\"root\",\"expression_id\":0,\"strategy_id\":322,\"template_id\":140,\"process_note\":0,\"process_status\":\"unresolved\"},{\"id\":\"s_322_00ba3072006a8ba863108d4b3f9c1c51\",\"endpoint\":\"agent7\",\"metric\":\"cpu.iowait\",\"func\":\"avg(#3)\",\"cond\":\"0.0695615485072203 \\u003e 40\",\"note\":\"CPU I/O wait超过40\",\"step\":1,\"current_step\":1,\"priority\":1,\"status\":\"OK\",\"timestamp\":\"2016-11-14T20:43:00+08:00\",\"update_at\":\"2016-11-14T20:43:00+08:00\",\"closed_at\":null,\"closed_note\":\"\",\"user_modified\":0,\"tpl_creator\":\"root\",\"expression_id\":0,\"strategy_id\":322,\"template_id\":125,\"process_note\":0,\"process_status\":\"unresolved\"},{\"id\":\"s_322_002e499f3b56420fdea506c887e51799\",\"endpoint\":\"agent3\",\"metric\":\"cpu.iowait\",\"func\":\"avg(#3)\",\"cond\":\"30.76679150609009 \\u003e 40\",\"note\":\"CPU I/O wait超过40\",\"step\":1,\"current_step\":1,\"priority\":1,\"status\":\"OK\",\"timestamp\":\"2016-11-07T04:28:00+08:00\",\"update_at\":\"2016-11-07T04:28:00+08:00\",\"closed_at\":null,\"closed_note\":\"\",\"user_modified\":0,\"tpl_creator\":\"root\",\"expression_id\":0,\"strategy_id\":322,\"template_id\":125,\"process_note\":0,\"process_status\":\"unresolved\"},{\"id\":\"s_322_00cc81434a0e277b57254a89a839a47b\",\"endpoint\":\"agent9\",\"metric\":\"cpu.iowait\",\"func\":\"avg(#3)\",\"cond\":\"0.041876046901172526 \\u003e 40\",\"note\":\"CPU I/O wait超过40\",\"step\":1,\"current_step\":1,\"priority\":1,\"status\":\"OK\",\"timestamp\":\"2016-10-28T10:37:00+08:00\",\"update_at\":\"2016-10-28T10:37:00+08:00\",\"closed_at\":null,\"closed_note\":\"\",\"user_modified\":0,\"tpl_creator\":\"root\",\"expression_id\":0,\"strategy_id\":322,\"template_id\":125,\"process_note\":0,\"process_status\":\"unresolved\"},{\"id\":\"s_322_001da6a5f95d83387cdfecc37ac70c24\",\"endpoint\":\"agent2\",\"metric\":\"cpu.iowait\",\"func\":\"avg(#3)\",\"cond\":\"34.40479690409319 \\u003e 40\",\"note\":\"CPU I/O wait超过40\",\"step\":1,\"current_step\":1,\"priority\":1,\"status\":\"OK\",\"timestamp\":\"2016-10-27T15:37:00+08:00\",\"update_at\":\"2016-10-27T15:37:00+08:00\",\"closed_at\":null,\"closed_note\":\"\",\"user_modified\":0,\"tpl_creator\":\"root\",\"expression_id\":0,\"strategy_id\":322,\"template_id\":125,\"process_note\":0,\"process_status\":\"unresolved\"},{\"id\":\"s_46_1ac45122afb893adc02fbd30154ac303\",\"endpoint\":\"agent4\",\"metric\":\"cpu.iowait\",\"func\":\"all(#3)\",\"cond\":\"48.33759590792839 \\u003e 40\",\"note\":\"CPU I/O wait超过40\",\"step\":1,\"current_step\":1,\"priority\":1,\"status\":\"PROBLEM\",\"timestamp\":\"2016-08-01T06:25:00+08:00\",\"update_at\":\"2016-08-01T06:25:00+08:00\",\"closed_at\":null,\"closed_note\":\"\",\"user_modified\":0,\"tpl_creator\":\"root\",\"expression_id\":0,\"strategy_id\":46,\"template_id\":126,\"process_note\":16907,\"process_status\":\"ignored\"},{\"id\":\"s_191_ddd09333257b2e92e1941860ee86ab15\",\"endpoint\":\"agent1\",\"metric\":\"cpu.idle\",\"func\":\"all(#3)\",\"cond\":\"11.813186813186814 \\u003c 10\",\"note\":\"cpu.idle小于10%\",\"step\":1,\"current_step\":1,\"priority\":3,\"status\":\"OK\",\"timestamp\":\"2016-07-06T09:13:00+08:00\",\"update_at\":\"2016-07-06T09:13:00+08:00\",\"closed_at\":null,\"closed_note\":\"\",\"user_modified\":0,\"tpl_creator\":\"root\",\"expression_id\":0,\"strategy_id\":191,\"template_id\":42,\"process_note\":0,\"process_status\":\"unresolved\"},{\"id\":\"s_50_6438ac68b30e2712fb8f00d894c46e21\",\"endpoint\":\"agent5\",\"metric\":\"cpu.idle\",\"func\":\"avg(#3)\",\"cond\":\"95.16331658291456 \\u003c= 98\",\"note\":\"cpu空闲值报警\",\"step\":1,\"current_step\":1,\"priority\":3,\"status\":\"PROBLEM\",\"timestamp\":\"2016-07-03T16:13:00+08:00\",\"update_at\":\"2016-07-03T16:13:00+08:00\",\"closed_at\":null,\"closed_note\":\"\",\"user_modified\":0,\"tpl_creator\":\"root\",\"expression_id\":0,\"strategy_id\":50,\"template_id\":53,\"process_note\":1181,\"process_status\":\"ignored\"}]",
+          "ResponseCode": 200
+        },
+        {
+          "Id": 2,
+          "CurrentPath": "/api/v1/alarm/eventcases",
+          "MethodType": "POST",
+          "PostForm": null,
+          "RequestHeader": {
+            "Apitoken": "{\"name\": \"root\", \"sig\": \"233fdb00f99811e68a5c001500c6ca5a\"}",
+            "Content-Type": " application/json\r"
+          },
+          "CommonRequestHeaders": null,
+          "ResponseHeader": {
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Allow-Headers": "Content-Type, Content-Length, Apitoken",
+            "Access-Control-Allow-Methods": "POST, GET, OPTIONS, PUT, DELETE, UPDATE",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Expose-Headers": "Content-Length",
+            "Access-Control-Max-Age": "86400",
+            "Content-Type": "application/json; charset=utf-8"
+          },
+          "RequestUrlParams": {},
+          "RequestBody": "\n\t\t\t{\n\t      \"startTime\": 1466956800,\n\t      \"endTime\": 1480521600,\n\t      \"status\": \"PROBLEM\",\n\t      \"process_status\": \"unresolved\",\n\t      \"limit\": 10\n\t    }",
+          "ResponseBody": "[]",
+          "ResponseCode": 200
+        },
+        {
+          "Id": 3,
+          "CurrentPath": "/api/v1/alarm/eventcases",
+          "MethodType": "POST",
+          "PostForm": null,
+          "RequestHeader": {
+            "Apitoken": "{\"name\": \"root\", \"sig\": \"233fdb00f99811e68a5c001500c6ca5a\"}",
+            "Content-Type": " application/json\r"
+          },
+          "CommonRequestHeaders": null,
+          "ResponseHeader": {
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Allow-Headers": "Content-Type, Content-Length, Apitoken",
+            "Access-Control-Allow-Methods": "POST, GET, OPTIONS, PUT, DELETE, UPDATE",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Expose-Headers": "Content-Length",
+            "Access-Control-Max-Age": "86400",
+            "Content-Type": "application/json; charset=utf-8"
+          },
+          "RequestUrlParams": {},
+          "RequestBody": "\n\t\t\t{\n\t      \"startTime\": 1466956800,\n\t      \"endTime\": 1480521600,\n\t      \"process_status\": \"unresolved\",\n\t      \"limit\": 1\n\t    }",
+          "ResponseBody": "[{\"id\":\"s_322_00c5f5c87a71bd4c686c0a4a0544b719\",\"endpoint\":\"agent8\",\"metric\":\"cpu.iowait\",\"func\":\"avg(#3)\",\"cond\":\"0 \\u003e 40\",\"note\":\"CPU I/O wait超过40\",\"step\":1,\"current_step\":1,\"priority\":1,\"status\":\"OK\",\"timestamp\":\"2016-11-30T20:10:00+08:00\",\"update_at\":\"2016-11-30T20:10:00+08:00\",\"closed_at\":null,\"closed_note\":\"\",\"user_modified\":0,\"tpl_creator\":\"root\",\"expression_id\":0,\"strategy_id\":322,\"template_id\":125,\"process_note\":0,\"process_status\":\"unresolved\"}]",
+          "ResponseCode": 200
+        },
+        {
+          "Id": 4,
+          "CurrentPath": "/api/v1/alarm/eventcases",
+          "MethodType": "POST",
+          "PostForm": null,
+          "RequestHeader": {
+            "Apitoken": "{\"name\": \"root\", \"sig\": \"233fdb00f99811e68a5c001500c6ca5a\"}",
+            "Content-Type": " application/json\r"
+          },
+          "CommonRequestHeaders": null,
+          "ResponseHeader": {
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Allow-Headers": "Content-Type, Content-Length, Apitoken",
+            "Access-Control-Allow-Methods": "POST, GET, OPTIONS, PUT, DELETE, UPDATE",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Expose-Headers": "Content-Length",
+            "Access-Control-Max-Age": "86400",
+            "Content-Type": "application/json; charset=utf-8"
+          },
+          "RequestUrlParams": {},
+          "RequestBody": "\n\t\t\t{\n\t      \"startTime\": 1477584000,\n\t      \"endTime\": 1477670400,\n\t      \"process_status\": \"unresolved\",\n\t      \"limit\": 10\n\t    }",
+          "ResponseBody": "[{\"id\":\"s_322_00cc81434a0e277b57254a89a839a47b\",\"endpoint\":\"agent9\",\"metric\":\"cpu.iowait\",\"func\":\"avg(#3)\",\"cond\":\"0.041876046901172526 \\u003e 40\",\"note\":\"CPU I/O wait超过40\",\"step\":1,\"current_step\":1,\"priority\":1,\"status\":\"OK\",\"timestamp\":\"2016-10-28T10:37:00+08:00\",\"update_at\":\"2016-10-28T10:37:00+08:00\",\"closed_at\":null,\"closed_note\":\"\",\"user_modified\":0,\"tpl_creator\":\"root\",\"expression_id\":0,\"strategy_id\":322,\"template_id\":125,\"process_note\":0,\"process_status\":\"unresolved\"}]",
+          "ResponseCode": 200
+        },
+        {
+          "Id": 5,
+          "CurrentPath": "/api/v1/alarm/eventcases",
+          "MethodType": "POST",
+          "PostForm": null,
+          "RequestHeader": {
+            "Apitoken": "{\"name\": \"root\", \"sig\": \"233fdb00f99811e68a5c001500c6ca5a\"}",
+            "Content-Type": " application/json\r"
+          },
+          "CommonRequestHeaders": null,
+          "ResponseHeader": {
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Allow-Headers": "Content-Type, Content-Length, Apitoken",
+            "Access-Control-Allow-Methods": "POST, GET, OPTIONS, PUT, DELETE, UPDATE",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Expose-Headers": "Content-Length",
+            "Access-Control-Max-Age": "86400",
+            "Content-Type": "application/json; charset=utf-8"
+          },
+          "RequestUrlParams": {},
+          "RequestBody": "\n\t\t\t{\n\t      \"startTime\": 1466956800,\n\t      \"endTime\": 1480521600,\n\t      \"process_status\": \"unresolved\",\n\t\t\t\t\"page\": 0,\n\t      \"limit\": 1\n\t    }",
+          "ResponseBody": "[{\"id\":\"s_322_00c5f5c87a71bd4c686c0a4a0544b719\",\"endpoint\":\"agent8\",\"metric\":\"cpu.iowait\",\"func\":\"avg(#3)\",\"cond\":\"0 \\u003e 40\",\"note\":\"CPU I/O wait超过40\",\"step\":1,\"current_step\":1,\"priority\":1,\"status\":\"OK\",\"timestamp\":\"2016-11-30T20:10:00+08:00\",\"update_at\":\"2016-11-30T20:10:00+08:00\",\"closed_at\":null,\"closed_note\":\"\",\"user_modified\":0,\"tpl_creator\":\"root\",\"expression_id\":0,\"strategy_id\":322,\"template_id\":125,\"process_note\":0,\"process_status\":\"unresolved\"}]",
+          "ResponseCode": 200
+        },
+        {
+          "Id": 6,
+          "CurrentPath": "/api/v1/alarm/eventcases",
+          "MethodType": "POST",
+          "PostForm": null,
+          "RequestHeader": {
+            "Apitoken": "{\"name\": \"root\", \"sig\": \"233fdb00f99811e68a5c001500c6ca5a\"}",
+            "Content-Type": " application/json\r"
+          },
+          "CommonRequestHeaders": null,
+          "ResponseHeader": {
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Allow-Headers": "Content-Type, Content-Length, Apitoken",
+            "Access-Control-Allow-Methods": "POST, GET, OPTIONS, PUT, DELETE, UPDATE",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Expose-Headers": "Content-Length",
+            "Access-Control-Max-Age": "86400",
+            "Content-Type": "application/json; charset=utf-8"
+          },
+          "RequestUrlParams": {},
+          "RequestBody": "\n\t\t\t{\n\t      \"startTime\": 1466956800,\n\t      \"endTime\": 1480521600,\n\t      \"process_status\": \"unresolved\",\n\t\t\t\t\"page\": 1,\n\t      \"limit\": 1\n\t    }",
+          "ResponseBody": "[{\"id\":\"s_322_00a9b9f9f859d8436f9b643ea5a1fb5e\",\"endpoint\":\"agent6\",\"metric\":\"cpu.iowait\",\"func\":\"avg(#3)\",\"cond\":\"0 \\u003e 40\",\"note\":\"CPU I/O wait超过40\",\"step\":1,\"current_step\":1,\"priority\":1,\"status\":\"OK\",\"timestamp\":\"2016-11-14T22:16:00+08:00\",\"update_at\":\"2016-11-14T22:16:00+08:00\",\"closed_at\":null,\"closed_note\":\"\",\"user_modified\":0,\"tpl_creator\":\"root\",\"expression_id\":0,\"strategy_id\":322,\"template_id\":140,\"process_note\":0,\"process_status\":\"unresolved\"}]",
+          "ResponseCode": 200
+        }
+      ]
+    },
+    {
+      "HttpVerb": "GET",
+      "Path": "/api/v1/alarm/event_note",
+      "Calls": [
+        {
+          "Id": 7,
+          "CurrentPath": "/api/v1/alarm/event_note",
+          "MethodType": "GET",
+          "PostForm": null,
+          "RequestHeader": {
+            "Apitoken": "{\"name\": \"root\", \"sig\": \"233fdb00f99811e68a5c001500c6ca5a\"}"
+          },
+          "CommonRequestHeaders": null,
+          "ResponseHeader": {
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Allow-Headers": "Content-Type, Content-Length, Apitoken",
+            "Access-Control-Allow-Methods": "POST, GET, OPTIONS, PUT, DELETE, UPDATE",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Expose-Headers": "Content-Length",
+            "Access-Control-Max-Age": "86400",
+            "Content-Type": "application/json; charset=utf-8"
+          },
+          "RequestUrlParams": {
+            "endTime": "1466697600",
+            "startTime": "1466611200"
+          },
+          "RequestBody": "",
+          "ResponseBody": "[{\"id\":22,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test\",\"case_id\":\"\",\"status\":\"ignored\",\"timestamp\":\"2016-06-23T05:39:09+08:00\",\"user_id\":1},{\"id\":21,\"event_caseId\":\"s_165_9d223f126e7ecb3477cd6806f1ee9656\",\"note\":\"Ignored by user\",\"case_id\":\"\",\"status\":\"ignored\",\"timestamp\":\"2016-06-23T05:38:56+08:00\",\"user_id\":1}]",
+          "ResponseCode": 200
+        },
+        {
+          "Id": 8,
+          "CurrentPath": "/api/v1/alarm/event_note",
+          "MethodType": "GET",
+          "PostForm": null,
+          "RequestHeader": {
+            "Apitoken": "{\"name\": \"root\", \"sig\": \"233fdb00f99811e68a5c001500c6ca5a\"}"
+          },
+          "CommonRequestHeaders": null,
+          "ResponseHeader": {
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Allow-Headers": "Content-Type, Content-Length, Apitoken",
+            "Access-Control-Allow-Methods": "POST, GET, OPTIONS, PUT, DELETE, UPDATE",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Expose-Headers": "Content-Length",
+            "Access-Control-Max-Age": "86400",
+            "Content-Type": "application/json; charset=utf-8"
+          },
+          "RequestUrlParams": {
+            "event_id": "s_165_cef145900bf4e2a4a0db8b85762b9cdb"
+          },
+          "RequestBody": "",
+          "ResponseBody": "[{\"id\":56568,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"comment\",\"timestamp\":\"2017-03-22T20:30:51+08:00\",\"user_id\":1},{\"id\":56569,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"ignored\",\"timestamp\":\"2017-03-22T20:30:51+08:00\",\"user_id\":1},{\"id\":56564,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"comment\",\"timestamp\":\"2017-03-22T20:30:03+08:00\",\"user_id\":1},{\"id\":56565,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"ignored\",\"timestamp\":\"2017-03-22T20:30:03+08:00\",\"user_id\":1},{\"id\":56566,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"comment\",\"timestamp\":\"2017-03-22T20:30:03+08:00\",\"user_id\":1},{\"id\":56567,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"ignored\",\"timestamp\":\"2017-03-22T20:30:03+08:00\",\"user_id\":1},{\"id\":56562,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"comment\",\"timestamp\":\"2017-03-22T20:29:44+08:00\",\"user_id\":1},{\"id\":56563,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"ignored\",\"timestamp\":\"2017-03-22T20:29:44+08:00\",\"user_id\":1},{\"id\":56560,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"comment\",\"timestamp\":\"2017-03-22T20:20:42+08:00\",\"user_id\":1},{\"id\":56561,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"ignored\",\"timestamp\":\"2017-03-22T20:20:42+08:00\",\"user_id\":1},{\"id\":56558,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"comment\",\"timestamp\":\"2017-03-22T18:58:41+08:00\",\"user_id\":2},{\"id\":56559,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"ignored\",\"timestamp\":\"2017-03-22T18:58:41+08:00\",\"user_id\":2},{\"id\":56556,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"comment\",\"timestamp\":\"2017-03-22T18:58:04+08:00\",\"user_id\":2},{\"id\":56557,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"ignored\",\"timestamp\":\"2017-03-22T18:58:04+08:00\",\"user_id\":2},{\"id\":56554,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"comment\",\"timestamp\":\"2017-03-22T18:56:35+08:00\",\"user_id\":2},{\"id\":56555,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"ignored\",\"timestamp\":\"2017-03-22T18:56:35+08:00\",\"user_id\":2},{\"id\":56552,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"comment\",\"timestamp\":\"2017-03-22T18:56:25+08:00\",\"user_id\":2},{\"id\":56553,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"ignored\",\"timestamp\":\"2017-03-22T18:56:25+08:00\",\"user_id\":2},{\"id\":56550,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"comment\",\"timestamp\":\"2017-03-22T16:56:25+08:00\",\"user_id\":2},{\"id\":56551,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"ignored\",\"timestamp\":\"2017-03-22T16:56:25+08:00\",\"user_id\":2},{\"id\":56549,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"comment\",\"timestamp\":\"2017-03-22T16:54:50+08:00\",\"user_id\":2},{\"id\":56548,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"ignored\",\"timestamp\":\"2017-03-22T16:54:41+08:00\",\"user_id\":2},{\"id\":56547,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"resolved\",\"timestamp\":\"2017-03-22T16:54:30+08:00\",\"user_id\":2},{\"id\":56540,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"comment\",\"timestamp\":\"2017-03-22T16:43:24+08:00\",\"user_id\":2},{\"id\":56539,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"comment\",\"timestamp\":\"2017-03-22T16:42:04+08:00\",\"user_id\":2},{\"id\":56538,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"comment\",\"timestamp\":\"2017-03-22T16:41:18+08:00\",\"user_id\":2},{\"id\":56537,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"comment\",\"timestamp\":\"2017-03-22T16:40:45+08:00\",\"user_id\":2},{\"id\":56536,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"comment\",\"timestamp\":\"2017-03-22T16:38:55+08:00\",\"user_id\":2},{\"id\":56535,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"comment\",\"timestamp\":\"2017-03-22T16:38:42+08:00\",\"user_id\":2},{\"id\":56534,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"comment\",\"timestamp\":\"2017-03-22T16:38:11+08:00\",\"user_id\":2},{\"id\":56533,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"comment\",\"timestamp\":\"2017-03-22T16:37:09+08:00\",\"user_id\":2},{\"id\":56532,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"comment\",\"timestamp\":\"2017-03-22T16:35:18+08:00\",\"user_id\":2},{\"id\":56531,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"comment\",\"timestamp\":\"2017-03-22T16:35:04+08:00\",\"user_id\":2},{\"id\":56530,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"comment\",\"timestamp\":\"2017-03-22T16:34:55+08:00\",\"user_id\":2},{\"id\":56529,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"comment\",\"timestamp\":\"2017-03-22T16:33:54+08:00\",\"user_id\":2},{\"id\":56528,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"comment\",\"timestamp\":\"2017-03-22T16:32:37+08:00\",\"user_id\":2},{\"id\":56527,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"comment\",\"timestamp\":\"2017-03-22T16:32:09+08:00\",\"user_id\":2},{\"id\":56526,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"comment\",\"timestamp\":\"2017-03-22T16:31:02+08:00\",\"user_id\":2},{\"id\":56516,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"comment\",\"timestamp\":\"2017-03-22T14:08:34+08:00\",\"user_id\":0},{\"id\":22,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test\",\"case_id\":\"\",\"status\":\"ignored\",\"timestamp\":\"2016-06-23T05:39:09+08:00\",\"user_id\":1},{\"id\":56525,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"note\":\"test note\",\"case_id\":\"\",\"status\":\"comment\",\"timestamp\":\"0001-01-01T00:00:00Z\",\"user_id\":2}]",
+          "ResponseCode": 200
+        }
+      ]
+    },
+    {
+      "HttpVerb": "POST",
+      "Path": "/api/v1/alarm/event_note",
+      "Calls": [
+        {
+          "Id": 9,
+          "CurrentPath": "/api/v1/alarm/event_note",
+          "MethodType": "POST",
+          "PostForm": null,
+          "RequestHeader": {
+            "Apitoken": "{\"name\": \"root\", \"sig\": \"233fdb00f99811e68a5c001500c6ca5a\"}",
+            "Content-Type": " application/json\r"
+          },
+          "CommonRequestHeaders": null,
+          "ResponseHeader": {
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Allow-Headers": "Content-Type, Content-Length, Apitoken",
+            "Access-Control-Allow-Methods": "POST, GET, OPTIONS, PUT, DELETE, UPDATE",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Expose-Headers": "Content-Length",
+            "Access-Control-Max-Age": "86400",
+            "Content-Type": "application/json; charset=utf-8"
+          },
+          "RequestUrlParams": {},
+          "RequestBody": "\n\t\t\t{\n\t\t\t\t\"event_id\": \"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\n\t\t\t\t\"note\": \"test note\",\n\t\t\t\t\"status\": \"comment\"\n\t\t\t}",
+          "ResponseBody": "{\"id\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"message\":\"add note to s_165_cef145900bf4e2a4a0db8b85762b9cdb successfuled\"}",
+          "ResponseCode": 200
+        },
+        {
+          "Id": 10,
+          "CurrentPath": "/api/v1/alarm/event_note",
+          "MethodType": "POST",
+          "PostForm": null,
+          "RequestHeader": {
+            "Apitoken": "{\"name\": \"root\", \"sig\": \"233fdb00f99811e68a5c001500c6ca5a\"}",
+            "Content-Type": " application/json\r"
+          },
+          "CommonRequestHeaders": null,
+          "ResponseHeader": {
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Allow-Headers": "Content-Type, Content-Length, Apitoken",
+            "Access-Control-Allow-Methods": "POST, GET, OPTIONS, PUT, DELETE, UPDATE",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Expose-Headers": "Content-Length",
+            "Access-Control-Max-Age": "86400",
+            "Content-Type": "application/json; charset=utf-8"
+          },
+          "RequestUrlParams": {},
+          "RequestBody": "\n\t\t\t{\n\t\t\t\t\"event_id\": \"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\n\t\t\t\t\"note\": \"test note\",\n\t\t\t\t\"status\": \"ignored\"\n\t\t\t}",
+          "ResponseBody": "{\"id\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"message\":\"add note to s_165_cef145900bf4e2a4a0db8b85762b9cdb successfuled\"}",
+          "ResponseCode": 200
+        }
+      ]
+    },
+    {
+      "HttpVerb": "GET",
+      "Path": "/api/v1/alarm/eventcases",
+      "Calls": [
+        {
+          "Id": 11,
+          "CurrentPath": "/api/v1/alarm/eventcases",
+          "MethodType": "GET",
+          "PostForm": null,
+          "RequestHeader": {
+            "Apitoken": "{\"name\": \"root\", \"sig\": \"233fdb00f99811e68a5c001500c6ca5a\"}"
+          },
+          "CommonRequestHeaders": null,
+          "ResponseHeader": {
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Allow-Headers": "Content-Type, Content-Length, Apitoken",
+            "Access-Control-Allow-Methods": "POST, GET, OPTIONS, PUT, DELETE, UPDATE",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Expose-Headers": "Content-Length",
+            "Access-Control-Max-Age": "86400",
+            "Content-Type": "application/json; charset=utf-8"
+          },
+          "RequestUrlParams": {
+            "event_id": "s_165_cef145900bf4e2a4a0db8b85762b9cdb"
+          },
+          "RequestBody": "",
+          "ResponseBody": "[{\"id\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"endpoint\":\"agent2\",\"metric\":\"cpu.idle\",\"func\":\"all(#1)\",\"cond\":\"0 != 66\",\"note\":\"測試告警自動更新\",\"step\":300,\"current_step\":3,\"priority\":0,\"status\":\"PROBLEM\",\"timestamp\":\"2017-03-22T20:34:15+08:00\",\"update_at\":\"2016-06-23T05:00:00+08:00\",\"closed_at\":null,\"closed_note\":\"\",\"user_modified\":0,\"tpl_creator\":\"root\",\"expression_id\":0,\"strategy_id\":165,\"template_id\":45,\"process_note\":56571,\"process_status\":\"ignored\"}]",
+          "ResponseCode": 200
+        }
+      ]
+    },
+    {
+      "HttpVerb": "POST",
+      "Path": "/api/v1/alarm/events",
+      "Calls": [
+        {
+          "Id": 12,
+          "CurrentPath": "/api/v1/alarm/events",
+          "MethodType": "POST",
+          "PostForm": {
+            "endTime": "1466628960",
+            "event_id": "s_165_cef145900bf4e2a4a0db8b85762b9cdb",
+            "startTime": "1466611200"
+          },
+          "RequestHeader": {
+            "Apitoken": "{\"name\": \"root\", \"sig\": \"233fdb00f99811e68a5c001500c6ca5a\"}",
+            "Content-Type": " application/x-www-form-urlencoded\r"
+          },
+          "CommonRequestHeaders": null,
+          "ResponseHeader": {
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Allow-Headers": "Content-Type, Content-Length, Apitoken",
+            "Access-Control-Allow-Methods": "POST, GET, OPTIONS, PUT, DELETE, UPDATE",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Expose-Headers": "Content-Length",
+            "Access-Control-Max-Age": "86400",
+            "Content-Type": "application/json; charset=utf-8"
+          },
+          "RequestUrlParams": {},
+          "RequestBody": "",
+          "ResponseBody": "[{\"id\":635166,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"step\":0,\"cond\":\"10.649350649350648 != 66\",\"status\":0,\"timestamp\":\"2016-06-23T04:55:00+08:00\"},{\"id\":635149,\"event_caseId\":\"s_165_cef145900bf4e2a4a0db8b85762b9cdb\",\"step\":0,\"cond\":\"13.486005089058525 != 66\",\"status\":0,\"timestamp\":\"2016-06-23T04:50:00+08:00\"}]",
+          "ResponseCode": 200
+        },
+        {
+          "Id": 13,
+          "CurrentPath": "/api/v1/alarm/events",
+          "MethodType": "POST",
+          "PostForm": {
+            "event_id": "s_322_00f5a68989281d30fbbb647194a09230",
+            "limit": "2",
+            "status": "1"
+          },
+          "RequestHeader": {
+            "Apitoken": "{\"name\": \"root\", \"sig\": \"233fdb00f99811e68a5c001500c6ca5a\"}",
+            "Content-Type": " application/x-www-form-urlencoded\r"
+          },
+          "CommonRequestHeaders": null,
+          "ResponseHeader": {
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Allow-Headers": "Content-Type, Content-Length, Apitoken",
+            "Access-Control-Allow-Methods": "POST, GET, OPTIONS, PUT, DELETE, UPDATE",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Expose-Headers": "Content-Length",
+            "Access-Control-Max-Age": "86400",
+            "Content-Type": "application/json; charset=utf-8"
+          },
+          "RequestUrlParams": {},
+          "RequestBody": "",
+          "ResponseBody": "[{\"id\":2283581,\"event_caseId\":\"s_322_00f5a68989281d30fbbb647194a09230\",\"step\":0,\"cond\":\"0 \\u003e 40\",\"status\":1,\"timestamp\":\"2016-12-08T02:10:00+08:00\"},{\"id\":2229288,\"event_caseId\":\"s_322_00f5a68989281d30fbbb647194a09230\",\"step\":0,\"cond\":\"0.8756834205893638 \\u003e 40\",\"status\":1,\"timestamp\":\"2016-12-02T15:43:00+08:00\"}]",
+          "ResponseCode": 200
+        },
+        {
+          "Id": 14,
+          "CurrentPath": "/api/v1/alarm/events",
+          "MethodType": "POST",
+          "PostForm": {
+            "event_id": "s_322_00f5a68989281d30fbbb647194a09230",
+            "limit": "1",
+            "page": "0"
+          },
+          "RequestHeader": {
+            "Apitoken": "{\"name\": \"root\", \"sig\": \"233fdb00f99811e68a5c001500c6ca5a\"}",
+            "Content-Type": " application/x-www-form-urlencoded\r"
+          },
+          "CommonRequestHeaders": null,
+          "ResponseHeader": {
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Allow-Headers": "Content-Type, Content-Length, Apitoken",
+            "Access-Control-Allow-Methods": "POST, GET, OPTIONS, PUT, DELETE, UPDATE",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Expose-Headers": "Content-Length",
+            "Access-Control-Max-Age": "86400",
+            "Content-Type": "application/json; charset=utf-8"
+          },
+          "RequestUrlParams": {},
+          "RequestBody": "",
+          "ResponseBody": "[{\"id\":2283581,\"event_caseId\":\"s_322_00f5a68989281d30fbbb647194a09230\",\"step\":0,\"cond\":\"0 \\u003e 40\",\"status\":1,\"timestamp\":\"2016-12-08T02:10:00+08:00\"}]",
+          "ResponseCode": 200
+        },
+        {
+          "Id": 15,
+          "CurrentPath": "/api/v1/alarm/events",
+          "MethodType": "POST",
+          "PostForm": {
+            "event_id": "s_322_00f5a68989281d30fbbb647194a09230",
+            "limit": "1",
+            "page": "1"
+          },
+          "RequestHeader": {
+            "Apitoken": "{\"name\": \"root\", \"sig\": \"233fdb00f99811e68a5c001500c6ca5a\"}",
+            "Content-Type": " application/x-www-form-urlencoded\r"
+          },
+          "CommonRequestHeaders": null,
+          "ResponseHeader": {
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Allow-Headers": "Content-Type, Content-Length, Apitoken",
+            "Access-Control-Allow-Methods": "POST, GET, OPTIONS, PUT, DELETE, UPDATE",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Expose-Headers": "Content-Length",
+            "Access-Control-Max-Age": "86400",
+            "Content-Type": "application/json; charset=utf-8"
+          },
+          "RequestUrlParams": {},
+          "RequestBody": "",
+          "ResponseBody": "[{\"id\":2283566,\"event_caseId\":\"s_322_00f5a68989281d30fbbb647194a09230\",\"step\":0,\"cond\":\"2.5609807127182493e+17 \\u003e 40\",\"status\":0,\"timestamp\":\"2016-12-08T02:07:00+08:00\"}]",
+          "ResponseCode": 200
+        }
+      ]
+    }
+  ]
+}
