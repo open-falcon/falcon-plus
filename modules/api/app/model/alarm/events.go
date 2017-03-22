@@ -14,12 +14,12 @@ import "time"
 // +--------------+------------------+------+-----+-------------------+-----------------------------+
 
 type Events struct {
-	ID          int64     `json:"id" gorm:"column:id"`
-	EventCaseId string    `json:"event_caseId" grom:"column:event_caseId"`
-	Step        int       `json:"step" grom:"step"`
-	Cond        string    `json:"cond" grom:"cond"`
-	Status      int       `json:"status" grom:"status"`
-	Timestamp   time.Time `json:"timestamp" grom:"timestamp"`
+	ID          int64      `json:"id" gorm:"column:id"`
+	EventCaseId string     `json:"event_caseId" gorm:"column:event_caseId"`
+	Step        int        `json:"step" grom:"step"`
+	Cond        string     `json:"cond" grom:"cond"`
+	Status      int        `json:"status" grom:"status"`
+	Timestamp   *time.Time `json:"timestamp" grom:"timestamp"`
 }
 
 func (this Events) TableName() string {

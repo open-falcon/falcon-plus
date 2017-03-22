@@ -10,15 +10,24 @@ import (
 )
 
 type APIGetNotesOfAlarmInputs struct {
-	StartTime int64 `json:"startTime" form:"startTime" binding:"required"`
-	EndTime   int64 `json:"endTime" form:"endTime" binding:"required"`
+	StartTime int64 `json:"startTime" form:"startTime"`
+	EndTime   int64 `json:"endTime" form:"endTime"`
 	//id
-	Id     string `json:"id" form:"id"`
+	EventId     string `json:"event_id" form:"event_id"`
 	Status string `json:"status" form:"status"`
 	//number of reacord's limit on each page
 	Limit int `json:"limit" form:"limit"`
 	//pagging
 	Page int `json:"page" form:"page"`
+}
+
+func (input APIGetNotesOfAlarmInputs) checkInputsContain() error {
+	if input.StartTime == 0 && input.EndTime == 0 {
+		if input.EventId == "" {
+			return errors.New("startTime, endTime OR event_id, You have to at least pick one on the request.")
+		}
+	}
+	return nil
 }
 
 func (s APIGetNotesOfAlarmInputs) collectFilters() string {
@@ -32,8 +41,8 @@ func (s APIGetNotesOfAlarmInputs) collectFilters() string {
 	if s.Status != "" {
 		tmp = append(tmp, fmt.Sprintf("status = '%s'", s.Status))
 	}
-	if s.Id != "" {
-		tmp = append(tmp, fmt.Sprintf("id = '%s'", s.Id))
+	if s.EventId != "" {
+		tmp = append(tmp, fmt.Sprintf("event_caseId = '%s'", s.EventId))
 	}
 	filterStrTmp := strings.Join(tmp, " AND ")
 	if filterStrTmp != "" {
@@ -45,23 +54,34 @@ func (s APIGetNotesOfAlarmInputs) collectFilters() string {
 func GetNotesOfAlarm(c *gin.Context) {
 	var inputs APIGetNotesOfAlarmInputs
 	if err := c.Bind(&inputs); err != nil {
+		h.JSONR(c, badstatus, "binding input got error: " + err.Error())
+		return
+	}
+	if err := inputs.checkInputsContain(); err != nil {
 		h.JSONR(c, badstatus, err)
 		return
 	}
+	fmt.Printf("%v", inputs)
 	filterCollector := inputs.collectFilters()
 	//for get correct table name
 	f := alm.EventNote{}
-	notes := []alm.EventCases{}
+	notes := []alm.EventNote{}
 	if inputs.Limit == 0 || inputs.Limit >= 50 {
 		inputs.Limit = 50
 	}
-	perparedSql := fmt.Sprintf("select * from %s %s limit %d,%d", f.TableName(), filterCollector, inputs.Page, inputs.Limit)
-	db.Alarm.Raw(perparedSql).Find(&notes)
+	perparedSql := fmt.Sprintf(
+		"select id, event_caseId, note, case_id, status, timestamp, user_id from %s %s order by timestamp DESC limit %d,%d",
+		f.TableName(),
+		filterCollector,
+		inputs.Page,
+		inputs.Limit,
+	)
+	db.Alarm.Raw(perparedSql).Scan(&notes)
 	h.JSONR(c, notes)
 }
 
 type APIAddNotesToAlarmInputs struct {
-	EvnetCaseId     string `json:"evnet_caseId" form:"id" binding:"required"`
+	EventId     string `json:"event_id" form:"event_id" binding:"required"`
 	Note string `json:"note" form:"note" binding:"required"`
 	Status string `json:"status" form:"status" binding:"required"`
 }
@@ -76,10 +96,13 @@ func (s APIAddNotesToAlarmInputs) CheckingFormating() error {
 		return nil
 	case "ignored":
 		return nil
+	case "comment":
+		return nil
 	default:
-		return errors.New(`params status: only accepect ["in progress", "unresolved", "resolved", "ignored"]`)
+		return errors.New(`params status: only accepect ["in progress", "unresolved", "resolved", "ignored", "comment"]`)
 	}
 }
+
 func AddNotesToAlarm(c *gin.Context) {
 	var inputs APIAddNotesToAlarmInputs
 	if err := c.Bind(&inputs); err != nil {
@@ -95,24 +118,31 @@ func AddNotesToAlarm(c *gin.Context) {
 		UserId: user.ID,
 		Note: inputs.Note,
 		Status: inputs.Status,
+		EventCaseId: inputs.EventId,
+		//time will update on database self
 	}
+	fmt.Printf("%v", user)
 	dt := db.Alarm.Begin()
 	if err := dt.Save(&Anote); err.Error != nil {
 		dt.Rollback()
 		h.JSONR(c, badstatus, err.Error)
 		return
 	}
-	if inputs.Status == "in progress" || inputs.Status == "resolved" {
+	if inputs.Status != "comment" {
 		ecase := alm.EventCases{
 			ProcessNote: Anote.ID,
 			ProcessStatus: Anote.Status,
 		}
-		if err := dt.Update(&ecase); err != nil {
+		if db := dt.Table(ecase.TableName()).Where("id = ?", Anote.EventCaseId).Update(&ecase); db.Error != nil {
 			dt.Rollback()
-			h.JSONR(c, badstatus, err.Error)
+			h.JSONR(c, badstatus, "update got error during update event_cases:" + db.Error.Error())
 			return
 		}
 	}
-	 h.JSONR(c, fmt.Sprintf("add note to %s successfuled", inputs.EvnetCaseId))
-	 return
+	dt.Commit()
+	h.JSONR(c, map[string]string{
+		"id": inputs.EventId,
+		"message": fmt.Sprintf("add note to %s successfuled", inputs.EventId),
+	})
+	return
 }
