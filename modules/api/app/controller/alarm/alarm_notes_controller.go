@@ -71,7 +71,6 @@ func GetNotesOfAlarm(c *gin.Context) {
 		h.JSONR(c, badstatus, err)
 		return
 	}
-	fmt.Printf("%v", inputs)
 	filterCollector := inputs.collectFilters()
 	//for get correct table name
 	f := alm.EventNote{}
@@ -144,7 +143,6 @@ func AddNotesToAlarm(c *gin.Context) {
 		CaseId: inputs.CaseId,
 		//time will update on database self
 	}
-	fmt.Printf("%v", user)
 	dt := db.Alarm.Begin()
 	if err := dt.Save(&Anote); err.Error != nil {
 		dt.Rollback()

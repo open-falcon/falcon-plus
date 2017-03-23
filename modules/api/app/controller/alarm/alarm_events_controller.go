@@ -9,17 +9,6 @@ import (
 	"errors"
 )
 
-// {
-// 	startTime:,
-// 	endTime:,
-// 	priority: 0,
-// 	status: "OK,PROBLEM",
-// 	process_status: "unresolved",
-// 	metrics: "cpu.idle",
-// 	id: "",
-// 	limit: 1000,
-// 	page: 1,
-// }
 type APIGetAlarmListsInputs struct {
 	StartTime int64 `json:"startTime" form:"startTime"`
 	EndTime int64 `json:"endTime" form:"endTime"`
@@ -172,7 +161,6 @@ func EventsGet(c *gin.Context){
 		h.JSONR(c, badstatus, err)
 		return
 	}
-	fmt.Printf("inputs: %v", inputs)
 	filterCollector := inputs.collectFilters()
 	//for get correct table name
 	f := alm.Events{}
