@@ -1,6 +1,11 @@
 package alarm
 
-import "time"
+import (
+	"time"
+
+	"github.com/open-falcon/falcon-plus/modules/api/app/model/uic"
+	"github.com/open-falcon/falcon-plus/modules/api/config"
+)
 
 // +--------------+------------------+------+-----+-------------------+-----------------------------+
 // | Field        | Type             | Null | Key | Default           | Extra                       |
@@ -26,4 +31,11 @@ type EventNote struct {
 
 func (this EventNote) TableName() string {
 	return "event_note"
+}
+
+func (this EventNote) GetUserName() string {
+	db := config.Con()
+	user := uic.User{ID: this.UserId}
+	db.Uic.Table(user.TableName()).Where(&user).Scan(&user)
+	return user.Name
 }

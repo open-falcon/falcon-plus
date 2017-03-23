@@ -61,9 +61,8 @@ func (this EventCases) TableName() string {
 	return "event_cases"
 }
 
-var db = config.Con()
-
 func (this EventCases) GetEvents() []Events {
+	db := config.Con()
 	t := Events{
 		EventCaseId: this.ID,
 	}
@@ -73,6 +72,7 @@ func (this EventCases) GetEvents() []Events {
 }
 
 func (this EventCases) GetNotes() []EventNote {
+	db := config.Con()
 	perpareSql := fmt.Sprintf("event_caseId = '%s' AND timestamp >= FROM_UNIXTIME(%d)", this.ID, this.Timestamp.Unix())
 	t := EventCases{}
 	notes := []EventNote{}
