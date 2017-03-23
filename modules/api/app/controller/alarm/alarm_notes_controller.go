@@ -84,6 +84,7 @@ type APIAddNotesToAlarmInputs struct {
 	EventId     string `json:"event_id" form:"event_id" binding:"required"`
 	Note string `json:"note" form:"note" binding:"required"`
 	Status string `json:"status" form:"status" binding:"required"`
+	CaseId string `json:"case_id" form:"case_id"`
 }
 
 func (s APIAddNotesToAlarmInputs) CheckingFormating() error {
@@ -119,6 +120,7 @@ func AddNotesToAlarm(c *gin.Context) {
 		Note: inputs.Note,
 		Status: inputs.Status,
 		EventCaseId: inputs.EventId,
+		CaseId: inputs.CaseId,
 		//time will update on database self
 	}
 	fmt.Printf("%v", user)
