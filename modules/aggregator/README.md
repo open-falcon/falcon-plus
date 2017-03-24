@@ -2,47 +2,14 @@
 
 集群聚合模块。聚合某集群下的所有机器的某个指标的值，提供一种集群视角的监控体验。
 
-## 准备工作
-
-> 如果你已经安装过open-falcon了，那么请检查：
-
-> 检查你的portal中是否有这个代码：https://github.com/open-falcon/portal/blob/master/web/model/cluster.py，如果有了，说明版本OK，否则，需要升级原来的portal为最新版代码。
-
-falcon_portal数据库中加入了一张新表：
-
-```sql
-USE falcon_portal;
-SET NAMES 'utf8';
- 
-DROP TABLE IF EXISTS cluster;
-CREATE TABLE cluster
-(
-  id          INT UNSIGNED   NOT NULL AUTO_INCREMENT,
-  grp_id      INT            NOT NULL,
-  numerator   VARCHAR(10240) NOT NULL,
-  denominator VARCHAR(10240) NOT NULL,
-  endpoint    VARCHAR(255)   NOT NULL,
-  metric      VARCHAR(255)   NOT NULL,
-  tags        VARCHAR(255)   NOT NULL,
-  ds_type     VARCHAR(255)   NOT NULL,
-  step        INT            NOT NULL,
-  last_update TIMESTAMP      NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  creator     VARCHAR(255)   NOT NULL,
-  PRIMARY KEY (id)
-)
-  ENGINE =InnoDB
-  DEFAULT CHARSET =latin1;
-
-```
-
 ## 源码编译
 
 ```bash
 cd $GOPATH/src/github.com/open-falcon
 git clone https://github.com/open-falcon/sdk.git
-git clone https://github.com/open-falcon/aggregator.git
-cd aggregator
-go get ./...
+git clone https://github.com/open-falcon/falcon-plus.git
+cd falcon-plus/modules/aggregator
+go get 
 ./control build
 ./control pack
 ```
