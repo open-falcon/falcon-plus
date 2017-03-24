@@ -11,14 +11,19 @@ import (
 	"github.com/open-falcon/falcon-plus/modules/api/app/utils"
 )
 
+type APILoginInput struct {
+	Name   string `json:"name"  form:"name" binding:"required"`
+	Password string `json:"password"  form:"password" binding:"required"`
+}
 func Login(c *gin.Context) {
-	name := c.DefaultPostForm("name", "")
-	password := c.DefaultPostForm("password", "")
-
-	if name == "" || password == "" {
+	inputs := APILoginInput{}
+	if err := c.Bind(&inputs) ; err != nil {
 		h.JSONR(c, badstatus, "name or password is blank")
 		return
 	}
+	name := inputs.Name
+	password := inputs.Password
+
 	user := uic.User{
 		Name: name,
 	}
