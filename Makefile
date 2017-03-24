@@ -30,7 +30,7 @@ pack: checkbin
 	@bash ./config/confgen.sh
 	@cp $(TARGET) ./out/$(TARGET)
 	tar -C out -zcf open-falcon-v$(VERSION).tar.gz .
-	#@rm -rf out
+	@rm -rf out
 
 clean:
 	@rm -rf ./bin

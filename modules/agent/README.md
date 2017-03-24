@@ -12,9 +12,9 @@ It is a golang classic project
 # set $GOPATH and $GOROOT
 mkdir -p $GOPATH/src/github.com/open-falcon
 cd $GOPATH/src/github.com/open-falcon
-git clone https://github.com/open-falcon/agent.git
-cd agent
-go get ./...
+git clone https://github.com/open-falcon/falcon-plus.git
+cd falcon-plus/modules/agent
+go get
 ./control build
 ./control start
 
@@ -29,7 +29,6 @@ I use [linux-dash](https://github.com/afaqurk/linux-dash) as the page theme.
 - transfer: transfer rpc address
 - ignore: the metrics should ignore
 
-# Deployment
+# Auto deployment
 
-http://ulricqin.com/project/ops-updater/
-
+Just look at https://github.com/open-falcon/ops-updater

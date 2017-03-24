@@ -15,12 +15,12 @@
         "highQueues": [
             "event:p0",
             "event:p1",
-            "event:p2",
-            "event:p3",
-            "event:p4",
-            "event:p5"
+            "event:p2"
         ],
         "lowQueues": [
+            "event:p3",
+            "event:p4",
+            "event:p5",
             "event:p6"
         ],
         "userSmsQueue": "/queue/user/sms",

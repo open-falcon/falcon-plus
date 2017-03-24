@@ -1,0 +1,18 @@
+language: go
+
+go:
+  - 1.6
+
+before_install:
+  - go get github.com/rancher/trash
+
+install:
+  - trash
+  - go get ./
+
+script:
+    make all
+
+after_success:
+  - go test -race -coverprofile=coverage.txt -covermode=atomic github.com/open-falcon/falcon-plus/modules/api/test
+  - bash <(curl -s https://codecov.io/bash)
