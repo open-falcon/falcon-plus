@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<head>
+  <title>open-falcon</title>
+  <meta charset='utf-8'/>
+  <meta name='description' content='Documentation website'/>
+  <meta name='viewport' content='width=device-width, initial-scale=1, maximum-scale=1'/>
+  <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'/>
+  <link href='assets.css' rel='stylesheet' type='text/css'>
+</head>
+<body>  
+  <p>Update Action
+* <a href="#/authentication">Session</a> Required
+* params:
+  * url: callback url
+  * uic: 需要通知的使用者群组(name)
+  * callback: enable/disable</p>
+
+<h3 id="request">Request</h3>
+<p><code class="highlighter-rouge"><span class="p">{</span><span class="w">
+  </span><span class="nt">"url"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"uic"</span><span class="p">:</span><span class="w"> </span><span class="s2">"test,tt2,tt3"</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">175</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"callback"</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"before_callback_sms"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"before_callback_mail"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"after_callback_sms"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+  </span><span class="nt">"after_callback_mail"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="w">
+</span><span class="p">}</span></code></p>
+
+<h3 id="response">Response</h3>
+
+<p><code class="highlighter-rouge">Status: 200</code>
+<code class="highlighter-rouge"><span class="p">{</span><span class="nt">"message"</span><span class="p">:</span><span class="s2">"action is updated, row affected: 1"</span><span class="p">}</span></code></p>
+
+  
+  <!--[if lt IE 9]><script src='http://html5shim.googlecode.com/svn/trunk/html5.js'></script><![endif]-->
+  <script src='assets.js' type='text/javascript'></script>
+  <script>require('boot');</script>
+</body>
+</html>

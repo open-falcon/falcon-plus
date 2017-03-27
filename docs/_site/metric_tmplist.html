@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<head>
+  <title>open-falcon</title>
+  <meta charset='utf-8'/>
+  <meta name='description' content='Documentation website'/>
+  <meta name='viewport' content='width=device-width, initial-scale=1, maximum-scale=1'/>
+  <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'/>
+  <link href='assets.css' rel='stylesheet' type='text/css'>
+</head>
+<body>  
+  <ul>
+  <li><a href="#/authentication">Session</a> Required</li>
+  <li>Metric Suggestion for create strategy</li>
+  <li>base on <code class="highlighter-rouge">./data/metric</code> file</li>
+</ul>
+
+<h3 id="response">Response</h3>
+
+<p><code class="highlighter-rouge">Status: 200</code>
+<code class="highlighter-rouge">[
+  "cpu.busy",
+  "cpu.cnt",
+  "cpu.guest",
+  "cpu.idle",
+  "cpu.iowait",
+  "cpu.irq",
+  "cpu.nice",
+  "cpu.softirq",
+  "cpu.steal",
+  "cpu.system",
+  "cpu.user",
+  "df.bytes.free",
+  "df.bytes.free.percent"
+  ....
+]</code></p>
+
+  
+  <!--[if lt IE 9]><script src='http://html5shim.googlecode.com/svn/trunk/html5.js'></script><![endif]-->
+  <script src='assets.js' type='text/javascript'></script>
+  <script>require('boot');</script>
+</body>
+</html>

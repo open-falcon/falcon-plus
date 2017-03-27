@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<head>
+  <title>open-falcon</title>
+  <meta charset='utf-8'/>
+  <meta name='description' content='Documentation website'/>
+  <meta name='viewport' content='width=device-width, initial-scale=1, maximum-scale=1'/>
+  <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'/>
+  <link href='assets.css' rel='stylesheet' type='text/css'>
+</head>
+<body>  
+  <ul>
+  <li><a href="#/authentication">Session</a> Required</li>
+  <li>ex. /api/v1/hostgroup/3/template</li>
+</ul>
+
+<h3 id="response">Response</h3>
+
+<p><code class="highlighter-rouge">Status: 200</code>
+<code class="highlighter-rouge"><span class="p">{</span><span class="w">
+  </span><span class="nt">"hostgroup"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+    </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"grp_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"hostgroupA"</span><span class="p">,</span><span class="w">
+    </span><span class="nt">"create_user"</span><span class="p">:</span><span class="w"> </span><span class="s2">"root"</span><span class="w">
+  </span><span class="p">},</span><span class="w">
+  </span><span class="nt">"templates"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"tpl_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"TplA"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"parent_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"action_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">12</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"create_user"</span><span class="p">:</span><span class="w"> </span><span class="s2">"root"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">91</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"tpl_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"TplB"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"parent_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"action_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">59</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"create_user"</span><span class="p">:</span><span class="w"> </span><span class="s2">"userA"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">94</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"tpl_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"TplB"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"parent_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"action_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">62</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"create_user"</span><span class="p">:</span><span class="w"> </span><span class="s2">"userA"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">103</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"tpl_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"TplC"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"parent_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"action_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">74</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"create_user"</span><span class="p">:</span><span class="w"> </span><span class="s2">"root"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">104</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"tpl_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"TplD"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"parent_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"action_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">75</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"create_user"</span><span class="p">:</span><span class="w"> </span><span class="s2">"root"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">105</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"tpl_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"TplE"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"parent_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"action_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">76</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"create_user"</span><span class="p">:</span><span class="w"> </span><span class="s2">"root"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">116</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"tpl_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"TplG"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"parent_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"action_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">87</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"create_user"</span><span class="p">:</span><span class="w"> </span><span class="s2">"root"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">125</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"tpl_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"TplH"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"parent_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"action_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">99</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"create_user"</span><span class="p">:</span><span class="w"> </span><span class="s2">"root"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">126</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"tpl_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"parent_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"action_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"create_user"</span><span class="p">:</span><span class="w"> </span><span class="s2">"root"</span><span class="w">
+    </span><span class="p">},</span><span class="w">
+    </span><span class="p">{</span><span class="w">
+      </span><span class="nt">"id"</span><span class="p">:</span><span class="w"> </span><span class="mi">127</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"tpl_name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"TplJ"</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"parent_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"action_id"</span><span class="p">:</span><span class="w"> </span><span class="mi">101</span><span class="p">,</span><span class="w">
+      </span><span class="nt">"create_user"</span><span class="p">:</span><span class="w"> </span><span class="s2">"root"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+  </span><span class="p">]</span><span class="w">
+</span><span class="p">}</span></code></p>
+
+  
+  <!--[if lt IE 9]><script src='http://html5shim.googlecode.com/svn/trunk/html5.js'></script><![endif]-->
+  <script src='assets.js' type='text/javascript'></script>
+  <script>require('boot');</script>
+</body>
+</html>
