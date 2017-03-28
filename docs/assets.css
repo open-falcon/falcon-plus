@@ -442,11 +442,10 @@ code {
   background: #191919;
   color: #fff;
   float: left;  
-  height: 100%;
   overflow: auto;
-  position: fixed;
-  top: 0;
-  width: 340px;
+  max-width: 400px;
+  /*margin-top: 54px;*/
+  height: 100%;
 }
 
 #sidebar h1 {
@@ -511,8 +510,8 @@ code {
 
 /* References */
 #content {
+  float:left;
   padding: 20px;
-  padding-left: 360px;
   max-width: 700px;
 }
 

@@ -2,5 +2,5 @@
 exclude: ['README.markdown']
 permalink: ':title'
 safe: false
-title: 'open-falcon'
-project_name: 'open-falcon'
+title: 'Falcon+ API'
+project_name: 'Falcon+'
