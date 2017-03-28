@@ -1,8 +1,0 @@
-{
-    "name": "filter",
-    "description": "Makes lists of links filterable.",
-    "dependencies": {
-        "component/jquery": "*"
-    },
-    "scripts": ["index.js"]
-}
