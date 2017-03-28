@@ -182,7 +182,7 @@ func QueryGraphDrawData(c *gin.Context) {
 
 func fetchData(hostname string, counter string, consolFun string, startTime int64, endTime int64, step int) (resp *cmodel.GraphQueryResponse, err error) {
 	qparm := g.GenQParam(hostname, counter, consolFun, startTime, endTime, step)
-	log.Debugf("qparm: %v", qparm)
+	// log.Debugf("qparm: %v", qparm)
 	resp, err = g.QueryOne(qparm)
 	if err != nil {
 		log.Debugf("query graph got error: %s", err.Error())
