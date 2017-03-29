@@ -11,7 +11,7 @@ type Host struct {
 
 func (this *Host) String() string {
 	return fmt.Sprintf(
-		"<id:%s,name:%s>",
+		"<id:%d,name:%s>",
 		this.Id,
 		this.Name,
 	)

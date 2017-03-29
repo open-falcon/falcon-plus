@@ -12,3 +12,7 @@ type EndpointCounter struct {
 	TCreate    time.Time
 	TModify    time.Time
 }
+
+func (EndpointCounter) TableName() string {
+	return "endpoint_counter"
+}

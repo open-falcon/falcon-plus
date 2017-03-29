@@ -3,8 +3,8 @@ package graph
 import "time"
 
 type Endpoint struct {
-	ID               uint `gorm:"primary_key"`
-	Endpoint         string
+	ID               uint              `gorm:"primary_key"`
+	Endpoint         string            `json:"endpoint"`
 	Ts               int               `json:"-"`
 	TCreate          time.Time         `json:"-"`
 	TModify          time.Time         `json:"-"`
