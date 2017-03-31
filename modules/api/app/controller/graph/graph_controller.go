@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"net/http"
-
+	"github.com/jinzhu/gorm"
 	log "github.com/Sirupsen/logrus"
 	"github.com/gin-gonic/gin"
 	cmodel "github.com/open-falcon/falcon-plus/common/model"
@@ -16,80 +16,84 @@ import (
 	g "github.com/open-falcon/falcon-plus/modules/api/graph"
 )
 
+type APIEndpointRegexpQueryInputs struct {
+	Q string `json:"q" form:"q"`
+	Label string `json:"tags" form:"tags"`
+	Limit int `json:"limit" form:"limit"`
+}
 func EndpointRegexpQuery(c *gin.Context) {
-	q := c.DefaultQuery("q", "")
-	label := c.DefaultQuery("tags", "")
-	limitTmp := c.DefaultQuery("limit", "500")
-	limit, err := strconv.Atoi(limitTmp)
-	if err != nil {
-		h.JSONR(c, http.StatusBadRequest, err)
+	inputs := APIEndpointRegexpQueryInputs{
+		//set default is 500
+		Limit: 500,
+	}
+	if err := c.Bind(&inputs); err != nil {
+		h.JSONR(c, badstatus, err)
 		return
 	}
-
-	if q == "" && label == "" {
+	if inputs.Q == "" && inputs.Label == "" {
 		h.JSONR(c, http.StatusBadRequest, "q and labels are all missing")
 		return
 	}
 
 	labels := []string{}
-	if label != "" {
-		labels = strings.Split(label, ",")
+	if inputs.Label != "" {
+		labels = strings.Split(inputs.Label, ",")
 	}
 	qs := []string{}
-	if q != "" {
-		qs = strings.Split(q, " ")
+	if inputs.Q != "" {
+		qs = strings.Split(inputs.Q, " ")
 	}
 
 	var endpoint []m.Endpoint
-	if len(qs) > 0 && len(labels) > 0 {
-		var endpoint_id []int
-		dt := db.Graph.Table("endpoint_counter").Select("distinct endpoint_id").Where("counter like ?", "%"+strings.TrimSpace(labels[0])+"%")
-		for _, term := range labels[1:] {
-			dt = dt.Where("counter like ?", "%"+strings.TrimSpace(term)+"%")
+	var endpoint_id []int
+	var dt *gorm.DB
+	if len(labels) != 0 {
+		dt = db.Graph.Table("endpoint_counter").Select("distinct endpoint_id")
+		whereBuilder := ""
+		for indx, trem := range labels {
+			if indx == 0 {
+				whereBuilder = fmt.Sprintf(" counter like '%s' ", "%"+strings.TrimSpace(trem)+"%")
+			} else {
+				whereBuilder = fmt.Sprintf(" %s OR counter like '%s' ", whereBuilder, "%"+strings.TrimSpace(trem)+"%")
+			}
+		}
+		if whereBuilder != "" {
+			dt = dt.Where(fmt.Sprintf("( %s )", whereBuilder))
 		}
 		dt = dt.Limit(500).Pluck("distinct endpoint_id", &endpoint_id)
 		if dt.Error != nil {
 			h.JSONR(c, http.StatusBadRequest, dt.Error)
 			return
 		}
-
-		dt = db.Graph.Table("endpoint").Select("endpoint, id").Where("id in (?)", endpoint_id).Where("endpoint regexp ?", strings.TrimSpace(qs[0]))
-		for _, term := range qs[1:] {
-			dt = dt.Where("endpoint regexp ?", strings.TrimSpace(term))
+	}
+	if len(qs) != 0 {
+		dt = db.Graph.Table("endpoint").
+			Select("endpoint, id")
+		if len(endpoint_id) != 0 {
+			dt = dt.Where("id in (?)", endpoint_id)
 		}
-		dt = dt.Limit(limit).Scan(&endpoint)
-		if dt.Error != nil {
-			h.JSONR(c, http.StatusBadRequest, dt.Error)
-			return
+		whereBuilder := ""
+		for indx, trem := range qs {
+			if indx == 0 {
+				whereBuilder = fmt.Sprintf(" endpoint regexp '%s' ", strings.TrimSpace(trem))
+			} else {
+				whereBuilder = fmt.Sprintf(" %s OR endpoint regexp '%s' ", whereBuilder, strings.TrimSpace(trem))
+			}
 		}
-	} else if len(qs) > 0 {
-		dt := db.Graph.Table("endpoint").Select("endpoint, id").Where("endpoint regexp ?", strings.TrimSpace(qs[0]))
-		for _, term := range qs[1:] {
-			dt = dt.Where("endpoint regexp ?", strings.TrimSpace(term))
+		if whereBuilder != "" {
+			dt = dt.Where(fmt.Sprintf("( %s )", whereBuilder))
 		}
-		dt = dt.Limit(limit).Scan(&endpoint)
-		if dt.Error != nil {
-			h.JSONR(c, http.StatusBadRequest, dt.Error)
-			return
-		}
-	} else if len(labels) > 0 {
-		var endpoint_id []int
-		dt := db.Graph.Table("endpoint_counter").Select("distinct endpoint_id").Where("counter like ?", "%"+strings.TrimSpace(labels[0])+"%")
-		for _, term := range labels[1:] {
-			dt = dt.Where("counter like ?", "%"+strings.TrimSpace(term)+"%")
-		}
-		dt = dt.Limit(500).Pluck("distinct endpoint_id", &endpoint_id)
-		if dt.Error != nil {
-			h.JSONR(c, http.StatusBadRequest, dt.Error)
-			return
-		}
-
-		dt = db.Graph.Table("endpoint").Select("endpoint, id").Where("id in (?)", endpoint_id)
-		dt = dt.Limit(limit).Scan(&endpoint)
-		if dt.Error != nil {
-			h.JSONR(c, http.StatusBadRequest, dt.Error)
-			return
-		}
+		dt.Limit(inputs.Limit).Scan(&endpoint)
+	}else if len(endpoint_id) != 0 {
+		dt = db.Graph.Table("endpoint").
+			Select("endpoint, id").
+			Where("id in (?)", endpoint_id).
+			Limit(inputs.Limit).
+			Scan(&endpoint)
+	}
+	if dt.Error != nil {
+		h.JSONR(c, http.StatusBadRequest, dt.Error)
+		return
 	}
 
 	endpoints := []map[string]interface{}{}
