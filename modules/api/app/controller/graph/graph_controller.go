@@ -49,16 +49,8 @@ func EndpointRegexpQuery(c *gin.Context) {
 	var dt *gorm.DB
 	if len(labels) != 0 {
 		dt = db.Graph.Table("endpoint_counter").Select("distinct endpoint_id")
-		whereBuilder := ""
-		for indx, trem := range labels {
-			if indx == 0 {
-				whereBuilder = fmt.Sprintf(" counter like '%s' ", "%"+strings.TrimSpace(trem)+"%")
-			} else {
-				whereBuilder = fmt.Sprintf(" %s OR counter like '%s' ", whereBuilder, "%"+strings.TrimSpace(trem)+"%")
-			}
-		}
-		if whereBuilder != "" {
-			dt = dt.Where(fmt.Sprintf("( %s )", whereBuilder))
+		for _, trem := range labels {
+			dt = dt.Where(" counter like ? ", "%"+strings.TrimSpace(trem)+"%")
 		}
 		dt = dt.Limit(500).Pluck("distinct endpoint_id", &endpoint_id)
 		if dt.Error != nil {
@@ -72,19 +64,12 @@ func EndpointRegexpQuery(c *gin.Context) {
 		if len(endpoint_id) != 0 {
 			dt = dt.Where("id in (?)", endpoint_id)
 		}
-		whereBuilder := ""
-		for indx, trem := range qs {
-			if indx == 0 {
-				whereBuilder = fmt.Sprintf(" endpoint regexp '%s' ", strings.TrimSpace(trem))
-			} else {
-				whereBuilder = fmt.Sprintf(" %s OR endpoint regexp '%s' ", whereBuilder, strings.TrimSpace(trem))
-			}
-		}
-		if whereBuilder != "" {
-			dt = dt.Where(fmt.Sprintf("( %s )", whereBuilder))
+
+		for _, trem := range qs {
+			dt = dt.Where(" endpoint regexp ? ", strings.TrimSpace(trem))
 		}
 		dt.Limit(inputs.Limit).Scan(&endpoint)
-	}else if len(endpoint_id) != 0 {
+	} else if len(endpoint_id) != 0 {
 		dt = db.Graph.Table("endpoint").
 			Select("endpoint, id").
 			Where("id in (?)", endpoint_id).
