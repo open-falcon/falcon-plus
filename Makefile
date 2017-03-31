@@ -8,7 +8,7 @@ VERSION := $(shell cat VERSION)
 all: trash $(CMD) $(TARGET)
 
 $(CMD):
-	go get ./modules/$@
+	go get -d ./modules/$@
 	go build -o bin/$@/falcon-$@ ./modules/$@
 
 $(TARGET): $(TARGET_SOURCE)
