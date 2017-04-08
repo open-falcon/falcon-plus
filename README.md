@@ -40,6 +40,7 @@ make pack
 
 * *after `make pack` you will got `open-falcon-vx.x.x.tar.gz`*
 * *if you want to edit configure file for each module, you can edit `config/xxx.json` before you do `make pack`*
+* if you got dependencies fetch error on `golang.org/x/*`, please run `sh fix_gosrouce_fetch_error.sh` before you compile it. 
 
 #  Unpack and Decompose
 
@@ -59,17 +60,17 @@ for example:
 ./open-falcon start hbs
 
 ./open-falcon check
-        falcon-graph         UP           79292 
-          falcon-hbs         UP           79295 
-       falcon-sender         UP           79298 
-        falcon-judge         UP           79301 
-     falcon-transfer         UP           79304 
-       falcon-nodata         UP           79307 
-         falcon-task         UP           79310 
-   falcon-aggregator         UP           79313 
-        falcon-agent         UP           79316 
-      falcon-gateway         UP           79319 
-          falcon-api         UP           98421 
+        falcon-graph         UP           79292
+          falcon-hbs         UP           79295
+       falcon-sender         UP           79298
+        falcon-judge         UP           79301
+     falcon-transfer         UP           79304
+       falcon-nodata         UP           79307
+         falcon-task         UP           79310
+   falcon-aggregator         UP           79313
+        falcon-agent         UP           79316
+      falcon-gateway         UP           79319
+          falcon-api         UP           98421
         falcon-alarm         UP           86388
 
 ```
