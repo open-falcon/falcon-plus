@@ -24,6 +24,7 @@
     "web_port": ":8080",
     "access_control": true,
     "skip_auth": false,
+    "default_token": "used-by-alarm-in-server-side-and-disabled-by-set-to-blank",
     "salt": "pleaseinputwhichyouareusingnow",
     "gen_doc": false,
     "gen_doc_path": "doc/module.html"

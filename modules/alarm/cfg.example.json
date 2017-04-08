@@ -29,11 +29,18 @@
     "api": {
         "portal": "http://falcon.example.com",
         "uic": "http://uic.example.com",
-        "links": "http://link.example.com"
+        "links": "http://link.example.com",
+        "sms": "http://11.11.11.11:8000/sms",
+        "mail": "http://11.11.11.11:9000/mail",
+        "falcon": "http://127.0.0.1:8080"
     },
     "falcon_portal": {
         "addr": "root:password@tcp(127.0.0.1:3306)/alarms?charset=utf8&loc=Asia%2FChongqing",
         "idle": 10,
         "max": 100
+    },
+    "worker": {
+        "sms": 10,
+        "mail": 50
     }
 }

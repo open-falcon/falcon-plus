@@ -1,4 +1,4 @@
-package redis
+package redi
 
 import (
 	"encoding/json"
@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/open-falcon/falcon-plus/modules/alarm/g"
-	"github.com/open-falcon/falcon-plus/modules/sender/model"
+	"github.com/open-falcon/falcon-plus/modules/alarm/model"
 )
 
 func LPUSH(queue, message string) {

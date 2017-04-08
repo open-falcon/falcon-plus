@@ -10,9 +10,9 @@ type EventCases struct {
 	Endpoint string `json:"endpoint"`
 	Metric   string `json:"metric"`
 	Func     string `json:"func"`
-	Cond     string `json:"cond"`
-	Note     string `json:"note"`
 	//leftValue + operator + rightValue
+	Cond          string    `json:"cond"`
+	Note          string    `json:"note"`
 	MaxStep       int       `json:"max_step"`
 	CurrentStep   int       `json:"current_step"`
 	Priority      int       `json:"priority"`

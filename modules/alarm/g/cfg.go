@@ -31,12 +31,21 @@ type ApiConfig struct {
 	Portal string `json:"portal"`
 	Uic    string `json:"uic"`
 	Links  string `json:"links"`
+	//delete above
+	Sms    string `json:"sms"`
+	Mail   string `json:"mail"`
+	Falcon string `json:"falcon"`
 }
 
 type FalconPortalConfig struct {
 	Addr string `json:"addr"`
 	Idle int    `json:"idle"`
 	Max  int    `json:"max"`
+}
+
+type WorkerConfig struct {
+	Sms  int `json:"sms"`
+	Mail int `json:"mail"`
 }
 
 type GlobalConfig struct {
@@ -47,6 +56,7 @@ type GlobalConfig struct {
 	Queue        *QueueConfig        `json:"queue"`
 	Redis        *RedisConfig        `json:"redis"`
 	Api          *ApiConfig          `json:"api"`
+	Worker       *WorkerConfig       `json:"worker"`
 }
 
 var (

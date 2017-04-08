@@ -1,4 +1,5 @@
 {
+	"log_level": "debug",
 	"db": {
 		"faclon_portal": "root:@tcp(127.0.0.1:3306)/falcon_portal?charset=utf8&parseTime=True&loc=Local",
 		"graph": "root:@tcp(127.0.0.1:3306)/graph?charset=utf8&parseTime=True&loc=Local",
@@ -7,7 +8,6 @@
 		"alarms": "root:@tcp(127.0.0.1:3306)/falcon_portal?charset=utf8&parseTime=True&loc=Local",
 		"db_bug": true
 	},
-	"log_level": "debug",
 	"graphs": {
 		"cluster": {
 			"graph-00": "127.0.0.1:6070"
@@ -19,10 +19,11 @@
 		"numberOfReplicas": 500
 	},
 	"metric_list_file": "./api/data/metric",
-	"access_control": true,
-	"gen_doc": false,
-	"gen_doc_path": "doc/module.html",
-	"salt": "pleaseinputwhichyouareusingnow",
 	"web_port": ":8080",
-	"skip_auth": false
+	"access_control": true,
+	"salt": "pleaseinputwhichyouareusingnow",
+	"skip_auth": false,
+    "default_token": "used-by-alarm-in-server-side-and-disabled-by-set-to-blank",
+	"gen_doc": false,
+	"gen_doc_path": "doc/module.html"
 }

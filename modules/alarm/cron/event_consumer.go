@@ -7,7 +7,7 @@ import (
 	"github.com/open-falcon/falcon-plus/common/model"
 	"github.com/open-falcon/falcon-plus/modules/alarm/api"
 	"github.com/open-falcon/falcon-plus/modules/alarm/g"
-	"github.com/open-falcon/falcon-plus/modules/alarm/redis"
+	"github.com/open-falcon/falcon-plus/modules/alarm/redi"
 )
 
 func consume(event *model.Event, isHigh bool) {
@@ -45,10 +45,10 @@ func consumeHighEvents(event *model.Event, action *api.Action) {
 	mailContent := GenerateMailContent(event)
 
 	if event.Priority() < 3 {
-		redis.WriteSms(phones, smsContent)
+		redi.WriteSms(phones, smsContent)
 	}
 
-	redis.WriteMail(mails, smsContent, mailContent)
+	redi.WriteMail(mails, smsContent, mailContent)
 }
 
 // 低优先级的做报警合并

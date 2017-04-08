@@ -6,7 +6,7 @@ import (
 	"github.com/garyburd/redigo/redis"
 	"github.com/open-falcon/falcon-plus/modules/alarm/api"
 	"github.com/open-falcon/falcon-plus/modules/alarm/g"
-	redi "github.com/open-falcon/falcon-plus/modules/alarm/redis"
+	"github.com/open-falcon/falcon-plus/modules/alarm/redi"
 	"log"
 	"strings"
 	"time"

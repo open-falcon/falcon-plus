@@ -1,12 +1,12 @@
 package alarm
 
 import (
+	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	h "github.com/open-falcon/falcon-plus/modules/api/app/helper"
 	alm "github.com/open-falcon/falcon-plus/modules/api/app/model/alarm"
 	"strings"
-	"fmt"
-	"errors"
 	"time"
 )
 
@@ -14,8 +14,8 @@ type APIGetNotesOfAlarmInputs struct {
 	StartTime int64 `json:"startTime" form:"startTime"`
 	EndTime   int64 `json:"endTime" form:"endTime"`
 	//id
-	EventId     string `json:"event_id" form:"event_id"`
-	Status string `json:"status" form:"status"`
+	EventId string `json:"event_id" form:"event_id"`
+	Status  string `json:"status" form:"status"`
 	//number of reacord's limit on each page
 	Limit int `json:"limit" form:"limit"`
 	//pagging
@@ -58,13 +58,13 @@ type APIGetNotesOfAlarmOuput struct {
 	CaseId      string     `json:"case_id"`
 	Status      string     `json:"status"`
 	Timestamp   *time.Time `json:"timestamp"`
-	UserName      string      `json:"user"`
+	UserName    string     `json:"user"`
 }
 
 func GetNotesOfAlarm(c *gin.Context) {
 	var inputs APIGetNotesOfAlarmInputs
 	if err := c.Bind(&inputs); err != nil {
-		h.JSONR(c, badstatus, "binding input got error: " + err.Error())
+		h.JSONR(c, badstatus, "binding input got error: "+err.Error())
 		return
 	}
 	if err := inputs.checkInputsContain(); err != nil {
@@ -90,25 +90,25 @@ func GetNotesOfAlarm(c *gin.Context) {
 	for _, n := range notes {
 		output = append(output, APIGetNotesOfAlarmOuput{
 			EventCaseId: n.EventCaseId,
-			Note: n.Note,
-			CaseId: n.CaseId,
-			Status: n.Status,
-			Timestamp: n.Timestamp,
-			UserName: n.GetUserName(),
+			Note:        n.Note,
+			CaseId:      n.CaseId,
+			Status:      n.Status,
+			Timestamp:   n.Timestamp,
+			UserName:    n.GetUserName(),
 		})
 	}
 	h.JSONR(c, output)
 }
 
 type APIAddNotesToAlarmInputs struct {
-	EventId     string `json:"event_id" form:"event_id" binding:"required"`
-	Note string `json:"note" form:"note" binding:"required"`
-	Status string `json:"status" form:"status" binding:"required"`
-	CaseId string `json:"case_id" form:"case_id"`
+	EventId string `json:"event_id" form:"event_id" binding:"required"`
+	Note    string `json:"note" form:"note" binding:"required"`
+	Status  string `json:"status" form:"status" binding:"required"`
+	CaseId  string `json:"case_id" form:"case_id"`
 }
 
 func (s APIAddNotesToAlarmInputs) CheckingFormating() error {
-	switch s.Status{
+	switch s.Status {
 	case "in progress":
 		return nil
 	case "unresolved":
@@ -136,11 +136,11 @@ func AddNotesToAlarm(c *gin.Context) {
 	}
 	user, _ := h.GetUser(c)
 	Anote := alm.EventNote{
-		UserId: user.ID,
-		Note: inputs.Note,
-		Status: inputs.Status,
+		UserId:      user.ID,
+		Note:        inputs.Note,
+		Status:      inputs.Status,
 		EventCaseId: inputs.EventId,
-		CaseId: inputs.CaseId,
+		CaseId:      inputs.CaseId,
 		//time will update on database self
 	}
 	dt := db.Alarm.Begin()
@@ -151,18 +151,18 @@ func AddNotesToAlarm(c *gin.Context) {
 	}
 	if inputs.Status != "comment" {
 		ecase := alm.EventCases{
-			ProcessNote: Anote.ID,
+			ProcessNote:   Anote.ID,
 			ProcessStatus: Anote.Status,
 		}
 		if db := dt.Table(ecase.TableName()).Where("id = ?", Anote.EventCaseId).Update(&ecase); db.Error != nil {
 			dt.Rollback()
-			h.JSONR(c, badstatus, "update got error during update event_cases:" + db.Error.Error())
+			h.JSONR(c, badstatus, "update got error during update event_cases:"+db.Error.Error())
 			return
 		}
 	}
 	dt.Commit()
 	h.JSONR(c, map[string]string{
-		"id": inputs.EventId,
+		"id":      inputs.EventId,
 		"message": fmt.Sprintf("add note to %s successfuled", inputs.EventId),
 	})
 	return

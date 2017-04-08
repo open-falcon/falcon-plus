@@ -33,12 +33,15 @@ func main() {
 
 	g.InitRedisConnPool()
 	model.InitDatabase()
+	cron.InitSenderWorker()
 
 	go http.Start()
 	go cron.ReadHighEvent()
 	go cron.ReadLowEvent()
 	go cron.CombineSms()
 	go cron.CombineMail()
+	go cron.ConsumeSms()
+	go cron.ConsumeMail()
 
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
