@@ -210,3 +210,21 @@ CREATE TABLE `cluster` (
   ENGINE =InnoDB
   DEFAULT CHARSET=utf8
   COLLATE=utf8_unicode_ci;
+
+/**
+ * alert links
+ */
+DROP TABLE IF EXISTS alert_link;
+CREATE TABLE alert_link
+(
+  id        INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  path      VARCHAR(16)  NOT NULL DEFAULT '',
+  content   TEXT         NOT NULL,
+  create_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  UNIQUE KEY alert_path(path)
+)
+  ENGINE =InnoDB
+  DEFAULT CHARSET =utf8
+  COLLATE =utf8_unicode_ci;
+
