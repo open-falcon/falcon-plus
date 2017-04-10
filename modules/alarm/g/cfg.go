@@ -28,13 +28,10 @@ type RedisConfig struct {
 }
 
 type ApiConfig struct {
-	Portal string `json:"portal"`
-	Uic    string `json:"uic"`
-	Links  string `json:"links"`
+	Links string `json:"links"`
 	//delete above
-	Sms    string `json:"sms"`
-	Mail   string `json:"mail"`
-	Falcon string `json:"falcon"`
+	Sms  string `json:"sms"`
+	Mail string `json:"mail"`
 }
 
 type FalconPortalConfig struct {
@@ -49,14 +46,16 @@ type WorkerConfig struct {
 }
 
 type GlobalConfig struct {
-	Debug        bool                `json:"debug"`
-	UicToken     string              `json:"uicToken"`
-	FalconPortal *FalconPortalConfig `json:"falcon_portal"`
-	Http         *HttpConfig         `json:"http"`
-	Queue        *QueueConfig        `json:"queue"`
-	Redis        *RedisConfig        `json:"redis"`
-	Api          *ApiConfig          `json:"api"`
-	Worker       *WorkerConfig       `json:"worker"`
+	Debug              bool                `json:"debug"`
+	FalconPortal       *FalconPortalConfig `json:"falcon_portal"`
+	Http               *HttpConfig         `json:"http"`
+	Queue              *QueueConfig        `json:"queue"`
+	Redis              *RedisConfig        `json:"redis"`
+	Api                *ApiConfig          `json:"api"`
+	Worker             *WorkerConfig       `json:"worker"`
+	Dashboard          string              `json:"dashboard"`
+	FalconPlusApi      string              `json:"falcon-plus-api"`
+	FalconPlusApiToken string              `json:"falcon-plus-api-token"`
 }
 
 var (

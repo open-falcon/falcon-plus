@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/open-falcon/falcon-plus/modules/alarm/g"
 	"github.com/toolkits/net/httplib"
@@ -18,11 +19,6 @@ type Action struct {
 	BeforeCallbackMail int    `json:"before_callback_mail"`
 	AfterCallbackSms   int    `json:"after_callback_sms"`
 	AfterCallbackMail  int    `json:"after_callback_mail"`
-}
-
-type ActionWrap struct {
-	Msg  string  `json:"msg"`
-	Data *Action `json:"data"`
 }
 
 type ActionCache struct {
@@ -66,20 +62,20 @@ func CurlAction(id int) *Action {
 		return nil
 	}
 
-	uri := fmt.Sprintf("%s/api/action/%d", g.Config().Api.Portal, id)
+	uri := fmt.Sprintf("%s/api/v1/action/%d", g.Config().FalconPlusApi, id)
 	req := httplib.Get(uri).SetTimeout(5*time.Second, 30*time.Second)
+	token, _ := json.Marshal(map[string]string{
+		"name": "falcon-alarm",
+		"sig":  g.Config().FalconPlusApiToken,
+	})
+	req.Header("Apitoken", string(token))
 
-	var actionWrap ActionWrap
-	err := req.ToJson(&actionWrap)
+	var act Action
+	err := req.ToJson(&act)
 	if err != nil {
 		log.Printf("curl %s fail: %v", uri, err)
 		return nil
 	}
 
-	if actionWrap.Msg != "" {
-		log.Printf("curl %s return msg: %v", uri, actionWrap.Msg)
-		return nil
-	}
-
-	return actionWrap.Data
+	return &act
 }

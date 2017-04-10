@@ -1,8 +1,10 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/open-falcon/falcon-plus/modules/alarm/g"
+	"github.com/open-falcon/falcon-plus/modules/api/app/model/uic"
 	"github.com/toolkits/container/set"
 	"github.com/toolkits/net/httplib"
 	"log"
@@ -11,25 +13,20 @@ import (
 	"time"
 )
 
-type User struct {
-	Name  string `json:"name"`
-	Email string `json:"email"`
-	Phone string `json:"phone"`
-}
-
-type UsersWrap struct {
-	Msg   string  `json:"msg"`
-	Users []*User `json:"users"`
+type APIGetTeamOutput struct {
+	uic.Team
+	Users       []*uic.User `json:"users"`
+	TeamCreator string      `json:"creator_name"`
 }
 
 type UsersCache struct {
 	sync.RWMutex
-	M map[string][]*User
+	M map[string][]*uic.User
 }
 
-var Users = &UsersCache{M: make(map[string][]*User)}
+var Users = &UsersCache{M: make(map[string][]*uic.User)}
 
-func (this *UsersCache) Get(team string) []*User {
+func (this *UsersCache) Get(team string) []*uic.User {
 	this.RLock()
 	defer this.RUnlock()
 	val, exists := this.M[team]
@@ -40,13 +37,13 @@ func (this *UsersCache) Get(team string) []*User {
 	return val
 }
 
-func (this *UsersCache) Set(team string, users []*User) {
+func (this *UsersCache) Set(team string, users []*uic.User) {
 	this.Lock()
 	defer this.Unlock()
 	this.M[team] = users
 }
 
-func UsersOf(team string) []*User {
+func UsersOf(team string) []*uic.User {
 	users := CurlUic(team)
 
 	if users != nil {
@@ -58,8 +55,8 @@ func UsersOf(team string) []*User {
 	return users
 }
 
-func GetUsers(teams string) map[string]*User {
-	userMap := make(map[string]*User)
+func GetUsers(teams string) map[string]*uic.User {
+	userMap := make(map[string]*uic.User)
 	arr := strings.Split(teams, ",")
 	for _, team := range arr {
 		if team == "" {
@@ -94,27 +91,25 @@ func ParseTeams(teams string) ([]string, []string) {
 	return phoneSet.ToSlice(), mailSet.ToSlice()
 }
 
-func CurlUic(team string) []*User {
+func CurlUic(team string) []*uic.User {
 	if team == "" {
-		return []*User{}
+		return []*uic.User{}
 	}
 
-	uri := fmt.Sprintf("%s/team/users", g.Config().Api.Uic)
+	uri := fmt.Sprintf("%s/api/v1/team/name/%s", g.Config().FalconPlusApi, team)
 	req := httplib.Get(uri).SetTimeout(2*time.Second, 10*time.Second)
-	req.Param("name", team)
-	req.Param("token", g.Config().UicToken)
+	token, _ := json.Marshal(map[string]string{
+		"name": "falcon-alarm",
+		"sig":  g.Config().FalconPlusApiToken,
+	})
+	req.Header("Apitoken", string(token))
 
-	var usersWrap UsersWrap
-	err := req.ToJson(&usersWrap)
+	var team_users APIGetTeamOutput
+	err := req.ToJson(&team_users)
 	if err != nil {
 		log.Printf("curl %s fail: %v", uri, err)
 		return nil
 	}
 
-	if usersWrap.Msg != "" {
-		log.Printf("curl %s return msg: %v", uri, usersWrap.Msg)
-		return nil
-	}
-
-	return usersWrap.Users
+	return team_users.Users
 }
