@@ -10,6 +10,7 @@ import (
 	"time"
 )
 
+//TODO:use api/app/model/falcon_portal/action.go
 type Action struct {
 	Id                 int    `json:"id"`
 	Uic                string `json:"uic"`

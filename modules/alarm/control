@@ -76,7 +76,7 @@ function pack() {
     build
     git log -1 --pretty=%h > gitversion
     version=`./$app -v|grep -v config`
-    file_list="control cfg.example.json $app static views conf"
+    file_list="control cfg.example.json $app"
     tar zcf $app-$version.tar.gz gitversion $file_list
 }
 

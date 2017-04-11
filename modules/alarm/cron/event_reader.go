@@ -6,7 +6,7 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/garyburd/redigo/redis"
-	"github.com/open-falcon/falcon-plus/common/model"
+	cmodel "github.com/open-falcon/falcon-plus/common/model"
 	"github.com/open-falcon/falcon-plus/modules/alarm/g"
 	eventmodel "github.com/open-falcon/falcon-plus/modules/alarm/model/event"
 )
@@ -43,7 +43,7 @@ func ReadLowEvent() {
 	}
 }
 
-func popEvent(queues []string) (*model.Event, error) {
+func popEvent(queues []string) (*cmodel.Event, error) {
 
 	count := len(queues)
 
@@ -63,7 +63,7 @@ func popEvent(queues []string) (*model.Event, error) {
 		return nil, err
 	}
 
-	var event model.Event
+	var event cmodel.Event
 	err = json.Unmarshal([]byte(reply[1]), &event)
 	if err != nil {
 		log.Printf("parse alarm event fail: %v", err)
@@ -71,12 +71,12 @@ func popEvent(queues []string) (*model.Event, error) {
 	}
 
 	if g.Config().Debug {
-		log.Println("======>>>>")
-		log.Println(event.String())
+		log.Printf("event: %s", event.String())
 	}
 
 	//insert event into database
 	eventmodel.InsertEvent(&event)
+
 	// save in memory. display in dashboard
 	g.Events.Put(&event)
 

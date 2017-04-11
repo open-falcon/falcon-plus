@@ -32,6 +32,7 @@ type EventDto struct {
 	StrategyId   int `json:"strategyId"`
 	TemplateId   int `json:"templateId"`
 
+	//alert combined link
 	Link string `json:"link"`
 }
 

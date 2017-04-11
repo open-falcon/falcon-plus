@@ -26,9 +26,8 @@
         "userMailQueue": "/queue/user/mail"
     },
     "api": {
-        "links": "http://link.example.com",
-        "sms": "http://11.11.11.11:8000/sms",
-        "mail": "http://11.11.11.11:9000/mail"
+        "sms": "http://127.0.0.1:10086/sms",
+        "mail": "http://127.0.0.1:10086/mail"
     },
     "dashboard": "http://127.0.0.1:8081",
     "falcon-plus-api":"http://127.0.0.1:8080",

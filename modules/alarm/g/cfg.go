@@ -28,8 +28,6 @@ type RedisConfig struct {
 }
 
 type ApiConfig struct {
-	Links string `json:"links"`
-	//delete above
 	Sms  string `json:"sms"`
 	Mail string `json:"mail"`
 }
