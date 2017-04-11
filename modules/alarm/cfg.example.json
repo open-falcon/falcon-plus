@@ -27,11 +27,11 @@
     },
     "api": {
         "sms": "http://127.0.0.1:10086/sms",
-        "mail": "http://127.0.0.1:10086/mail"
+        "mail": "http://127.0.0.1:10086/mail",
+        "dashboard": "http://127.0.0.1:8081",
+        "plus_api":"http://127.0.0.1:8080",
+        "plus_api_token": "used-by-alarm-in-server-side-and-disabled-by-set-to-blank"
     },
-    "dashboard": "http://127.0.0.1:8081",
-    "falcon-plus-api":"http://127.0.0.1:8080",
-    "falcon-plus-api-token": "used-by-alarm-in-server-side-and-disabled-by-set-to-blank",
     "falcon_portal": {
         "addr": "root:password@tcp(127.0.0.1:3306)/alarms?charset=utf8&loc=Asia%2FChongqing",
         "idle": 10,

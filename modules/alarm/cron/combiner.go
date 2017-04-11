@@ -109,7 +109,7 @@ func combineSms() {
 			log.Println("get link fail", err)
 		} else {
 			sms = fmt.Sprintf("[P%d][%s] %d %s e.g. %s %s/portal/links/%s ",
-				arr[0].Priority, arr[0].Status, size, arr[0].Metric, eg, g.Config().Dashboard, path)
+				arr[0].Priority, arr[0].Status, size, arr[0].Metric, eg, g.Config().Api.Dashboard, path)
 		}
 
 		redi.WriteSms([]string{arr[0].Phone}, sms)

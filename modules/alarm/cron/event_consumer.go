@@ -4,13 +4,13 @@ import (
 	"encoding/json"
 	"log"
 
-	"github.com/open-falcon/falcon-plus/common/model"
+	cmodel "github.com/open-falcon/falcon-plus/common/model"
 	"github.com/open-falcon/falcon-plus/modules/alarm/api"
 	"github.com/open-falcon/falcon-plus/modules/alarm/g"
 	"github.com/open-falcon/falcon-plus/modules/alarm/redi"
 )
 
-func consume(event *model.Event, isHigh bool) {
+func consume(event *cmodel.Event, isHigh bool) {
 	actionId := event.ActionId()
 	if actionId <= 0 {
 		return
@@ -34,7 +34,7 @@ func consume(event *model.Event, isHigh bool) {
 }
 
 // 高优先级的不做报警合并
-func consumeHighEvents(event *model.Event, action *api.Action) {
+func consumeHighEvents(event *cmodel.Event, action *api.Action) {
 	if action.Uic == "" {
 		return
 	}
@@ -52,7 +52,7 @@ func consumeHighEvents(event *model.Event, action *api.Action) {
 }
 
 // 低优先级的做报警合并
-func consumeLowEvents(event *model.Event, action *api.Action) {
+func consumeLowEvents(event *cmodel.Event, action *api.Action) {
 	if action.Uic == "" {
 		return
 	}
@@ -64,7 +64,7 @@ func consumeLowEvents(event *model.Event, action *api.Action) {
 	ParseUserMail(event, action)
 }
 
-func ParseUserSms(event *model.Event, action *api.Action) {
+func ParseUserSms(event *cmodel.Event, action *api.Action) {
 	userMap := api.GetUsers(action.Uic)
 
 	content := GenerateSmsContent(event)
@@ -98,7 +98,7 @@ func ParseUserSms(event *model.Event, action *api.Action) {
 	}
 }
 
-func ParseUserMail(event *model.Event, action *api.Action) {
+func ParseUserMail(event *cmodel.Event, action *api.Action) {
 	userMap := api.GetUsers(action.Uic)
 
 	metric := event.Metric()

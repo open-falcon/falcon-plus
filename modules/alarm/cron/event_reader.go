@@ -76,9 +76,7 @@ func popEvent(queues []string) (*cmodel.Event, error) {
 
 	//insert event into database
 	eventmodel.InsertEvent(&event)
-
-	// save in memory. display in dashboard
-	g.Events.Put(&event)
+	// events no longer saved in memory
 
 	return &event, nil
 }
