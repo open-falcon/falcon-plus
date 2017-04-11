@@ -4,10 +4,6 @@
         "enabled": true,
         "listen": "0.0.0.0:9912"
     },
-    "queue": {
-        "sms": "/sms",
-        "mail": "/mail"
-    },
     "redis": {
         "addr": "127.0.0.1:6379",
         "maxIdle": 5,

@@ -29,7 +29,7 @@ func WriteSmsModel(sms *model.Sms) {
 		return
 	}
 
-	LPUSH(g.Config().Queue.Sms, string(bs))
+	LPUSH(SMS_QUEUE_NAME, string(bs))
 }
 
 func WriteMailModel(mail *model.Mail) {
@@ -43,7 +43,7 @@ func WriteMailModel(mail *model.Mail) {
 		return
 	}
 
-	LPUSH(g.Config().Queue.Mail, string(bs))
+	LPUSH(MAIL_QUEUE_NAME, string(bs))
 }
 
 func WriteSms(tos []string, content string) {

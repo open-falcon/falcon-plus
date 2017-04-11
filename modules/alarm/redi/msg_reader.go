@@ -8,9 +8,14 @@ import (
 	"log"
 )
 
+const (
+	SMS_QUEUE_NAME  = "/sms"
+	MAIL_QUEUE_NAME = "/mail"
+)
+
 func PopAllSms() []*model.Sms {
 	ret := []*model.Sms{}
-	queue := g.Config().Queue.Sms
+	queue := SMS_QUEUE_NAME
 
 	rc := g.RedisConnPool.Get()
 	defer rc.Close()
@@ -43,7 +48,7 @@ func PopAllSms() []*model.Sms {
 
 func PopAllMail() []*model.Mail {
 	ret := []*model.Mail{}
-	queue := g.Config().Queue.Mail
+	queue := MAIL_QUEUE_NAME
 
 	rc := g.RedisConnPool.Get()
 	defer rc.Close()

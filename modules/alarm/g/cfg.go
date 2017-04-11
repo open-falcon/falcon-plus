@@ -13,11 +13,6 @@ type HttpConfig struct {
 	Listen  string `json:"listen"`
 }
 
-type QueueConfig struct {
-	Sms  string `json:"sms"`
-	Mail string `json:"mail"`
-}
-
 type RedisConfig struct {
 	Addr          string   `json:"addr"`
 	MaxIdle       int      `json:"maxIdle"`
@@ -50,7 +45,6 @@ type GlobalConfig struct {
 	Debug        bool                `json:"debug"`
 	FalconPortal *FalconPortalConfig `json:"falcon_portal"`
 	Http         *HttpConfig         `json:"http"`
-	Queue        *QueueConfig        `json:"queue"`
 	Redis        *RedisConfig        `json:"redis"`
 	Api          *ApiConfig          `json:"api"`
 	Worker       *WorkerConfig       `json:"worker"`
