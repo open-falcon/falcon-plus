@@ -38,11 +38,8 @@ func SendSms(sms *model.Sms) {
 	r.Param("content", sms.Content)
 	resp, err := r.String()
 	if err != nil {
-		log.Println(err)
+		log.Errorf("send sms fail, tos:%s, cotent:%s, error:%v", sms.Tos, sms.Content, err)
 	}
 
-	if g.Config().Debug {
-		log.Println("==sms==>>>>", sms)
-		log.Println("<<<<==sms==", resp)
-	}
+	log.Debugf("send sms:%v, resp:%v, url:%s", sms, resp, url)
 }

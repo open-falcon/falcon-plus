@@ -1,5 +1,5 @@
 {
-    "debug": true,
+    "log_level": "debug",
     "http": {
         "enabled": true,
         "listen": "0.0.0.0:9912"
@@ -29,7 +29,7 @@
         "plus_api_token": "used-by-alarm-in-server-side-and-disabled-by-set-to-blank"
     },
     "falcon_portal": {
-        "addr": "root:password@tcp(127.0.0.1:3306)/alarms?charset=utf8&loc=Asia%2FChongqing",
+        "addr": "root:@tcp(127.0.0.1:3306)/alarms?charset=utf8&loc=Asia%2FChongqing",
         "idle": 10,
         "max": 100
     },

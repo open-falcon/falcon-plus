@@ -3,11 +3,11 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	log "github.com/Sirupsen/logrus"
 	"github.com/open-falcon/falcon-plus/modules/alarm/g"
 	"github.com/open-falcon/falcon-plus/modules/api/app/model/uic"
 	"github.com/toolkits/container/set"
 	"github.com/toolkits/net/httplib"
-	"log"
 	"strings"
 	"sync"
 	"time"
@@ -107,7 +107,7 @@ func CurlUic(team string) []*uic.User {
 	var team_users APIGetTeamOutput
 	err := req.ToJson(&team_users)
 	if err != nil {
-		log.Printf("curl %s fail: %v", uri, err)
+		log.Errorf("curl %s fail: %v", uri, err)
 		return nil
 	}
 

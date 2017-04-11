@@ -3,9 +3,9 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	log "github.com/Sirupsen/logrus"
 	"github.com/open-falcon/falcon-plus/modules/alarm/g"
 	"github.com/toolkits/net/httplib"
-	"log"
 	"sync"
 	"time"
 )
@@ -74,7 +74,7 @@ func CurlAction(id int) *Action {
 	var act Action
 	err := req.ToJson(&act)
 	if err != nil {
-		log.Printf("curl %s fail: %v", uri, err)
+		log.Errorf("curl %s fail: %v", uri, err)
 		return nil
 	}
 

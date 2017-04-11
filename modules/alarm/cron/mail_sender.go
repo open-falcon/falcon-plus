@@ -39,11 +39,8 @@ func SendMail(mail *model.Mail) {
 	r.Param("content", mail.Content)
 	resp, err := r.String()
 	if err != nil {
-		log.Println(err)
+		log.Errorf("send mail fail, receiver:%s, subject:%s, cotent:%s, error:%v", mail.Tos, mail.Subject, mail.Content, err)
 	}
 
-	if g.Config().Debug {
-		log.Println("==mail==>>>>", mail)
-		log.Println("<<<<==mail==", resp)
-	}
+	log.Debugf("send mail:%v, resp:%v, url:%s", mail, resp, url)
 }

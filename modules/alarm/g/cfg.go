@@ -42,7 +42,7 @@ type WorkerConfig struct {
 }
 
 type GlobalConfig struct {
-	Debug        bool                `json:"debug"`
+	LogLevel     string              `json:"log_level"`
 	FalconPortal *FalconPortalConfig `json:"falcon_portal"`
 	Http         *HttpConfig         `json:"http"`
 	Redis        *RedisConfig        `json:"redis"`

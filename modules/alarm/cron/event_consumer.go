@@ -2,7 +2,7 @@ package cron
 
 import (
 	"encoding/json"
-	"log"
+	log "github.com/Sirupsen/logrus"
 
 	cmodel "github.com/open-falcon/falcon-plus/common/model"
 	"github.com/open-falcon/falcon-plus/modules/alarm/api"
@@ -87,13 +87,13 @@ func ParseUserSms(event *cmodel.Event, action *api.Action) {
 		}
 		bs, err := json.Marshal(dto)
 		if err != nil {
-			log.Println("json marshal SmsDto fail:", err)
+			log.Error("json marshal SmsDto fail:", err)
 			continue
 		}
 
 		_, err = rc.Do("LPUSH", queue, string(bs))
 		if err != nil {
-			log.Println("LPUSH redis", queue, "fail:", err, "dto:", string(bs))
+			log.Error("LPUSH redis", queue, "fail:", err, "dto:", string(bs))
 		}
 	}
 }
@@ -123,13 +123,13 @@ func ParseUserMail(event *cmodel.Event, action *api.Action) {
 		}
 		bs, err := json.Marshal(dto)
 		if err != nil {
-			log.Println("json marshal MailDto fail:", err)
+			log.Error("json marshal MailDto fail:", err)
 			continue
 		}
 
 		_, err = rc.Do("LPUSH", queue, string(bs))
 		if err != nil {
-			log.Println("LPUSH redis", queue, "fail:", err, "dto:", string(bs))
+			log.Error("LPUSH redis", queue, "fail:", err, "dto:", string(bs))
 		}
 	}
 }

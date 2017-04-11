@@ -44,7 +44,7 @@ func InsertEvent(eve *coommonModel.Event) {
 	var sqlLog sql.Result
 	var errRes error
 	log.Debugf("events: %v", eve)
-	log.Debugf("express is null: %v", eve.Expression == nil)
+	log.Debugf("expression is null: %v", eve.Expression == nil)
 	if len(event) == 0 {
 		//create cases
 		sqltemplete := `INSERT INTO event_cases (
@@ -150,7 +150,7 @@ func InsertEvent(eve *coommonModel.Event) {
 	log.Debug(fmt.Sprintf("%v, %v", sqlLog, errRes))
 	//insert case
 	res2, err := insertEvent(q, eve)
-	log.Debug(fmt.Sprintf("%v, %v", res2, err))
+	log.Debugf("insert event to db response:%v, error:%v", res2, err)
 }
 
 func counterGen(metric string, tags string) (mycounter string) {

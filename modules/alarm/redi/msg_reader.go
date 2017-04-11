@@ -2,10 +2,10 @@ package redi
 
 import (
 	"encoding/json"
+	log "github.com/Sirupsen/logrus"
 	"github.com/garyburd/redigo/redis"
 	"github.com/open-falcon/falcon-plus/modules/alarm/g"
 	"github.com/open-falcon/falcon-plus/modules/alarm/model"
-	"log"
 )
 
 const (
@@ -24,7 +24,7 @@ func PopAllSms() []*model.Sms {
 		reply, err := redis.String(rc.Do("RPOP", queue))
 		if err != nil {
 			if err != redis.ErrNil {
-				log.Println(err)
+				log.Error(err)
 			}
 			break
 		}
@@ -36,7 +36,7 @@ func PopAllSms() []*model.Sms {
 		var sms model.Sms
 		err = json.Unmarshal([]byte(reply), &sms)
 		if err != nil {
-			log.Println(err, reply)
+			log.Error(err, reply)
 			continue
 		}
 
@@ -57,7 +57,7 @@ func PopAllMail() []*model.Mail {
 		reply, err := redis.String(rc.Do("RPOP", queue))
 		if err != nil {
 			if err != redis.ErrNil {
-				log.Println(err)
+				log.Error(err)
 			}
 			break
 		}
@@ -69,7 +69,7 @@ func PopAllMail() []*model.Mail {
 		var mail model.Mail
 		err = json.Unmarshal([]byte(reply), &mail)
 		if err != nil {
-			log.Println(err, reply)
+			log.Error(err, reply)
 			continue
 		}
 

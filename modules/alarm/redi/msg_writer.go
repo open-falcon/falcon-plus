@@ -2,19 +2,19 @@ package redi
 
 import (
 	"encoding/json"
-	"log"
+	log "github.com/Sirupsen/logrus"
 	"strings"
 
 	"github.com/open-falcon/falcon-plus/modules/alarm/g"
 	"github.com/open-falcon/falcon-plus/modules/alarm/model"
 )
 
-func LPUSH(queue, message string) {
+func lpush(queue, message string) {
 	rc := g.RedisConnPool.Get()
 	defer rc.Close()
 	_, err := rc.Do("LPUSH", queue, message)
 	if err != nil {
-		log.Println("LPUSH redis", queue, "fail:", err, "message:", message)
+		log.Error("LPUSH redis", queue, "fail:", err, "message:", message)
 	}
 }
 
@@ -25,11 +25,12 @@ func WriteSmsModel(sms *model.Sms) {
 
 	bs, err := json.Marshal(sms)
 	if err != nil {
-		log.Println(err)
+		log.Error(err)
 		return
 	}
 
-	LPUSH(SMS_QUEUE_NAME, string(bs))
+	log.Debugf("write sms to queue, sms:%v, queue:%s", sms, SMS_QUEUE_NAME)
+	lpush(SMS_QUEUE_NAME, string(bs))
 }
 
 func WriteMailModel(mail *model.Mail) {
@@ -39,11 +40,12 @@ func WriteMailModel(mail *model.Mail) {
 
 	bs, err := json.Marshal(mail)
 	if err != nil {
-		log.Println(err)
+		log.Error(err)
 		return
 	}
 
-	LPUSH(MAIL_QUEUE_NAME, string(bs))
+	log.Debugf("write mail to queue, mail:%v, queue:%s", mail, MAIL_QUEUE_NAME)
+	lpush(MAIL_QUEUE_NAME, string(bs))
 }
 
 func WriteSms(tos []string, content string) {

@@ -3,11 +3,11 @@ package cron
 import (
 	"encoding/json"
 	"fmt"
+	log "github.com/Sirupsen/logrus"
 	"github.com/garyburd/redigo/redis"
 	"github.com/open-falcon/falcon-plus/modules/alarm/api"
 	"github.com/open-falcon/falcon-plus/modules/alarm/g"
 	"github.com/open-falcon/falcon-plus/modules/alarm/redi"
-	"log"
 	"strings"
 	"time"
 )
@@ -60,6 +60,7 @@ func combineMail() {
 		}
 		content := strings.Join(contentArr, "\r\n")
 
+		log.Debugf("combined mail subject:%s, content:%s", subject, content)
 		redi.WriteMail([]string{arr[0].Email}, subject, content)
 	}
 }
@@ -106,10 +107,11 @@ func combineSms() {
 		sms := ""
 		if err != nil || path == "" {
 			sms = fmt.Sprintf("[P%d][%s] %d %s.  e.g. %s detail in email", arr[0].Priority, arr[0].Status, size, arr[0].Metric, eg)
-			log.Println("get link fail", err)
+			log.Error("get short link fail", err)
 		} else {
 			sms = fmt.Sprintf("[P%d][%s] %d %s e.g. %s %s/portal/links/%s ",
 				arr[0].Priority, arr[0].Status, size, arr[0].Metric, eg, g.Config().Api.Dashboard, path)
+			log.Debugf("combined sms is:%s", sms)
 		}
 
 		redi.WriteSms([]string{arr[0].Phone}, sms)
@@ -128,7 +130,7 @@ func popAllSmsDto() []*SmsDto {
 		reply, err := redis.String(rc.Do("RPOP", queue))
 		if err != nil {
 			if err != redis.ErrNil {
-				log.Println("get SmsDto fail", err)
+				log.Error("get SmsDto fail", err)
 			}
 			break
 		}
@@ -140,7 +142,7 @@ func popAllSmsDto() []*SmsDto {
 		var smsDto SmsDto
 		err = json.Unmarshal([]byte(reply), &smsDto)
 		if err != nil {
-			log.Printf("json unmarshal SmsDto: %s fail: %v", reply, err)
+			log.Error("json unmarshal SmsDto: %s fail: %v", reply, err)
 			continue
 		}
 
@@ -161,7 +163,7 @@ func popAllMailDto() []*MailDto {
 		reply, err := redis.String(rc.Do("RPOP", queue))
 		if err != nil {
 			if err != redis.ErrNil {
-				log.Println("get MailDto fail", err)
+				log.Error("get MailDto fail", err)
 			}
 			break
 		}
@@ -173,7 +175,7 @@ func popAllMailDto() []*MailDto {
 		var mailDto MailDto
 		err = json.Unmarshal([]byte(reply), &mailDto)
 		if err != nil {
-			log.Printf("json unmarshal MailDto: %s fail: %v", reply, err)
+			log.Errorf("json unmarshal MailDto: %s fail: %v", reply, err)
 			continue
 		}
 

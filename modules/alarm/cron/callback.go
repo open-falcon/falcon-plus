@@ -2,6 +2,7 @@ package cron
 
 import (
 	"fmt"
+	log "github.com/Sirupsen/logrus"
 	"strings"
 	"time"
 
@@ -13,7 +14,6 @@ import (
 
 func HandleCallback(event *model.Event, action *api.Action) {
 
-	// falcon,dinp
 	teams := action.Uic
 	phones := []string{}
 	mails := []string{}
@@ -79,9 +79,11 @@ func Callback(event *model.Event, action *api.Action) string {
 
 	success := "success"
 	if e != nil {
+		log.Errorf("callback fail, action:%v, event:%s, error:%s", action, event.String(), e.Error())
 		success = fmt.Sprintf("fail:%s", e.Error())
 	}
 	message := fmt.Sprintf("curl %s %s. resp: %s", action.Url, success, resp)
+	log.Debugf("callback to url:%s, event:%s, resp:%s", action.Url, event.String(), resp)
 
 	return message
 }

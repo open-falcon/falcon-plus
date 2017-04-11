@@ -31,6 +31,7 @@ func main() {
 
 	g.ParseConfig(*cfg)
 
+	g.InitLog(g.Config().LogLevel)
 	g.InitRedisConnPool()
 	model.InitDatabase()
 	cron.InitSenderWorker()
