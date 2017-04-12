@@ -74,27 +74,27 @@ func create(filename string, item *cmodel.GraphItem) error {
 
 	// 设置各种归档策略
 	// 1分钟一个点存 12小时
-	c.RRA("AVERAGE", 0.5, 1, RRA1PointCnt)
+	c.RRA("AVERAGE", 0, 1, RRA1PointCnt)
 
 	// 5m一个点存2d
-	c.RRA("AVERAGE", 0.5, 5, RRA5PointCnt)
-	c.RRA("MAX", 0.5, 5, RRA5PointCnt)
-	c.RRA("MIN", 0.5, 5, RRA5PointCnt)
+	c.RRA("AVERAGE", 0, 5, RRA5PointCnt)
+	c.RRA("MAX", 0, 5, RRA5PointCnt)
+	c.RRA("MIN", 0, 5, RRA5PointCnt)
 
 	// 20m一个点存7d
-	c.RRA("AVERAGE", 0.5, 20, RRA20PointCnt)
-	c.RRA("MAX", 0.5, 20, RRA20PointCnt)
-	c.RRA("MIN", 0.5, 20, RRA20PointCnt)
+	c.RRA("AVERAGE", 0, 20, RRA20PointCnt)
+	c.RRA("MAX", 0, 20, RRA20PointCnt)
+	c.RRA("MIN", 0, 20, RRA20PointCnt)
 
 	// 3小时一个点存3个月
-	c.RRA("AVERAGE", 0.5, 180, RRA180PointCnt)
-	c.RRA("MAX", 0.5, 180, RRA180PointCnt)
-	c.RRA("MIN", 0.5, 180, RRA180PointCnt)
+	c.RRA("AVERAGE", 0, 180, RRA180PointCnt)
+	c.RRA("MAX", 0, 180, RRA180PointCnt)
+	c.RRA("MIN", 0, 180, RRA180PointCnt)
 
 	// 12小时一个点存1year
-	c.RRA("AVERAGE", 0.5, 720, RRA720PointCnt)
-	c.RRA("MAX", 0.5, 720, RRA720PointCnt)
-	c.RRA("MIN", 0.5, 720, RRA720PointCnt)
+	c.RRA("AVERAGE", 0, 720, RRA720PointCnt)
+	c.RRA("MAX", 0, 720, RRA720PointCnt)
+	c.RRA("MIN", 0, 720, RRA720PointCnt)
 
 	return c.Create(true)
 }
