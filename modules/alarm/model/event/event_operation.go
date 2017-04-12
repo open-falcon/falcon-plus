@@ -14,7 +14,7 @@ import (
 
 const timeLayout = "2006-01-02 15:04:05"
 
-func insertEvent(q orm.Ormer, eve *coommonModel.Event) (res interface{}, err error) {
+func insertEvent(q orm.Ormer, eve *coommonModel.Event) (res sql.Result, err error) {
 	var status int
 	if status = 0; eve.Status == "OK" {
 		status = 1
@@ -34,6 +34,13 @@ func insertEvent(q orm.Ormer, eve *coommonModel.Event) (res interface{}, err err
 		status,
 		time.Unix(eve.EventTime, 0).Format(timeLayout),
 	).Exec()
+
+	if err != nil {
+		log.Errorf("insert event to db fail, error:%v", err)
+	} else {
+		lastid, _ := res.LastInsertId()
+		log.Debug("insert event to db succ, last_insert_id:", lastid)
+	}
 	return
 }
 
@@ -149,8 +156,7 @@ func InsertEvent(eve *coommonModel.Event) {
 	}
 	log.Debug(fmt.Sprintf("%v, %v", sqlLog, errRes))
 	//insert case
-	res2, err := insertEvent(q, eve)
-	log.Debugf("insert event to db response:%v, error:%v", res2, err)
+	insertEvent(q, eve)
 }
 
 func counterGen(metric string, tags string) (mycounter string) {
@@ -159,4 +165,17 @@ func counterGen(metric string, tags string) (mycounter string) {
 		mycounter = fmt.Sprintf("%s/%s", metric, tags)
 	}
 	return
+}
+
+func DeleteEventOlder(before time.Time, limit int) {
+	t := before.Format(timeLayout)
+	sqlTpl := `delete from events where timestamp<? limit ?`
+	q := orm.NewOrm()
+	resp, err := q.Raw(sqlTpl, t, limit).Exec()
+	if err != nil {
+		log.Errorf("delete event older than %v fail, error:%v", t, err)
+	} else {
+		affected, _ := resp.RowsAffected()
+		log.Debugf("delete event order than %v, rows affected:%v", t, affected)
+	}
 }

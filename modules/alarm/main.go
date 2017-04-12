@@ -43,6 +43,7 @@ func main() {
 	go cron.CombineMail()
 	go cron.ConsumeSms()
 	go cron.ConsumeMail()
+	go cron.CleanExpiredEvent()
 
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)

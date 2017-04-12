@@ -33,7 +33,7 @@ func SendMail(mail *model.Mail) {
 	}()
 
 	url := g.Config().Api.Mail
-	r := httplib.Post(url).SetTimeout(5*time.Second, 2*time.Minute)
+	r := httplib.Post(url).SetTimeout(5*time.Second, 30*time.Second)
 	r.Param("tos", mail.Tos)
 	r.Param("subject", mail.Subject)
 	r.Param("content", mail.Content)

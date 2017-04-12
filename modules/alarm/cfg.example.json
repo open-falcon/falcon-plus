@@ -36,5 +36,9 @@
     "worker": {
         "sms": 10,
         "mail": 50
+    },
+    "housekeeper": {
+        "event_retention_days": 7,
+        "event_delete_batch": 100
     }
 }

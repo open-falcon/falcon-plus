@@ -41,6 +41,11 @@ type WorkerConfig struct {
 	Mail int `json:"mail"`
 }
 
+type HousekeeperConfig struct {
+	EventRetentionDays int `json:"event_retention_days"`
+	EventDeleteBatch   int `json:"event_delete_batch"`
+}
+
 type GlobalConfig struct {
 	LogLevel     string              `json:"log_level"`
 	FalconPortal *FalconPortalConfig `json:"falcon_portal"`
@@ -48,6 +53,7 @@ type GlobalConfig struct {
 	Redis        *RedisConfig        `json:"redis"`
 	Api          *ApiConfig          `json:"api"`
 	Worker       *WorkerConfig       `json:"worker"`
+	Housekeeper  *HousekeeperConfig  `json:"Housekeeper"`
 }
 
 var (
