@@ -7,6 +7,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/gin-gonic/gin"
 	"github.com/open-falcon/falcon-plus/modules/alarm/cron"
 	"github.com/open-falcon/falcon-plus/modules/alarm/g"
 	"github.com/open-falcon/falcon-plus/modules/alarm/http"
@@ -32,6 +33,10 @@ func main() {
 	g.ParseConfig(*cfg)
 
 	g.InitLog(g.Config().LogLevel)
+	if g.Config().LogLevel != "debug" {
+		gin.SetMode(gin.ReleaseMode)
+	}
+
 	g.InitRedisConnPool()
 	model.InitDatabase()
 	cron.InitSenderWorker()
