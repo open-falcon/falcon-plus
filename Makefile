@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 TARGET_SOURCE = $(shell find main.go g cmd common -name '*.go')
-CMD = agent aggregator graph hbs judge nodata sender task transfer gateway api alarm
+CMD = agent aggregator graph hbs judge nodata task transfer gateway api alarm
 TARGET = open-falcon
 
 VERSION := $(shell cat VERSION)
@@ -44,4 +44,4 @@ trash:
 	go get -u github.com/rancher/trash
 	trash -k -cache package_cache_tmp
 
-.PHONY: trash clean all agent aggregator graph hbs judge nodata sender task transfer gateway api alarm
+.PHONY: trash clean all agent aggregator graph hbs judge nodata task transfer gateway api alarm
