@@ -23,7 +23,6 @@ func consume(event *cmodel.Event, isHigh bool) {
 
 	if action.Callback == 1 {
 		HandleCallback(event, action)
-		return
 	}
 
 	if isHigh {
