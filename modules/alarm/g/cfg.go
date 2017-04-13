@@ -13,11 +13,6 @@ type HttpConfig struct {
 	Listen  string `json:"listen"`
 }
 
-type QueueConfig struct {
-	Sms  string `json:"sms"`
-	Mail string `json:"mail"`
-}
-
 type RedisConfig struct {
 	Addr          string   `json:"addr"`
 	MaxIdle       int      `json:"maxIdle"`
@@ -28,9 +23,11 @@ type RedisConfig struct {
 }
 
 type ApiConfig struct {
-	Portal string `json:"portal"`
-	Uic    string `json:"uic"`
-	Links  string `json:"links"`
+	Sms          string `json:"sms"`
+	Mail         string `json:"mail"`
+	Dashboard    string `json:"dashboard"`
+	PlusApi      string `json:"plus_api"`
+	PlusApiToken string `json:"plus_api_token"`
 }
 
 type FalconPortalConfig struct {
@@ -39,14 +36,24 @@ type FalconPortalConfig struct {
 	Max  int    `json:"max"`
 }
 
+type WorkerConfig struct {
+	Sms  int `json:"sms"`
+	Mail int `json:"mail"`
+}
+
+type HousekeeperConfig struct {
+	EventRetentionDays int `json:"event_retention_days"`
+	EventDeleteBatch   int `json:"event_delete_batch"`
+}
+
 type GlobalConfig struct {
-	Debug        bool                `json:"debug"`
-	UicToken     string              `json:"uicToken"`
+	LogLevel     string              `json:"log_level"`
 	FalconPortal *FalconPortalConfig `json:"falcon_portal"`
 	Http         *HttpConfig         `json:"http"`
-	Queue        *QueueConfig        `json:"queue"`
 	Redis        *RedisConfig        `json:"redis"`
 	Api          *ApiConfig          `json:"api"`
+	Worker       *WorkerConfig       `json:"worker"`
+	Housekeeper  *HousekeeperConfig  `json:"Housekeeper"`
 }
 
 var (

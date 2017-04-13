@@ -20,9 +20,10 @@ import (
 // 0.5.3 fix bug of last&last_raw
 // 0.5.4 fix bug of Query.merge
 // 0.5.5 use commom(rm model), fix sync disk
+// 0.5.7 set xff to 0 from 0.5, in order to support irregular step counter
 
 const (
-	VERSION         = "0.5.6"
+	VERSION         = "0.5.7"
 	GAUGE           = "GAUGE"
 	DERIVE          = "DERIVE"
 	COUNTER         = "COUNTER"

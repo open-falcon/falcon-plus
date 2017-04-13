@@ -411,7 +411,7 @@ body,
 input,
 textarea {
   color: #191919;
-  font: 14px/140% 'Open Sans', Arial, sans-serif;
+  font: 12px/120% 'Open Sans', Arial, sans-serif;
 }
 
 a {
@@ -458,7 +458,7 @@ code {
 
 #sidebar h2 {
   color: #888;
-  font-size: 14px;
+  font-size: 12px;
   margin: 0;
 }
 
@@ -542,14 +542,14 @@ code {
 
 #content a h2 {
   color: #fff;
-  font-size: 18px;
+  font-size: 14px;
   font-weight: normal;
   margin: 0;
 }
 
 #content a h2 code {
   float: right;
-  font-size: 14px;
+  font-size: 12px;
 }
 
 #content a h2 code b {

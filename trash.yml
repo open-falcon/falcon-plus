@@ -22,3 +22,5 @@ import:
 - package: github.com/spf13/cobra
   version: 7be4beda01ec05d0b93d80b3facd2b6f44080d94
 
+- package: github.com/smartystreets/goconvey/convey
+  version: HEAD

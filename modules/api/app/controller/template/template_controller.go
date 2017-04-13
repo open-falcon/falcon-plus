@@ -335,3 +335,21 @@ func UpdateActionToTmplate(c *gin.Context) {
 	h.JSONR(c, fmt.Sprintf("action is updated, row affected: %d", dt.RowsAffected))
 	return
 }
+
+func GetActionByID(c *gin.Context) {
+	aid := c.Param("act_id")
+	act_id, err := strconv.Atoi(aid)
+	if err != nil {
+		h.JSONR(c, badstatus, "invalid action id")
+		return
+	}
+
+	act := f.Action{}
+	dt := db.Falcon.Table("action").Where("id = ?", act_id).First(&act)
+	if dt.Error != nil {
+		h.JSONR(c, badstatus, dt.Error)
+		return
+	}
+
+	h.JSONR(c, act)
+}

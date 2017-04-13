@@ -13,7 +13,7 @@ func InitDatabase() {
 	orm.RegisterDataBase("default", "mysql", config.FalconPortal.Addr, config.FalconPortal.Idle, config.FalconPortal.Max)
 	// register model
 	orm.RegisterModel(new(event.Events), new(event.EventCases))
-	if config.Debug {
+	if config.LogLevel == "debug" {
 		orm.Debug = true
 	}
 }

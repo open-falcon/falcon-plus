@@ -6,7 +6,7 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/garyburd/redigo/redis"
-	"github.com/open-falcon/falcon-plus/common/model"
+	cmodel "github.com/open-falcon/falcon-plus/common/model"
 	"github.com/open-falcon/falcon-plus/modules/alarm/g"
 	eventmodel "github.com/open-falcon/falcon-plus/modules/alarm/model/event"
 )
@@ -43,7 +43,7 @@ func ReadLowEvent() {
 	}
 }
 
-func popEvent(queues []string) (*model.Event, error) {
+func popEvent(queues []string) (*cmodel.Event, error) {
 
 	count := len(queues)
 
@@ -59,26 +59,22 @@ func popEvent(queues []string) (*model.Event, error) {
 
 	reply, err := redis.Strings(rc.Do("BRPOP", params...))
 	if err != nil {
-		log.Printf("get alarm event from redis fail: %v", err)
+		log.Errorf("get alarm event from redis fail: %v", err)
 		return nil, err
 	}
 
-	var event model.Event
+	var event cmodel.Event
 	err = json.Unmarshal([]byte(reply[1]), &event)
 	if err != nil {
-		log.Printf("parse alarm event fail: %v", err)
+		log.Errorf("parse alarm event fail: %v", err)
 		return nil, err
 	}
 
-	if g.Config().Debug {
-		log.Println("======>>>>")
-		log.Println(event.String())
-	}
+	log.Debugf("pop event: %s", event.String())
 
 	//insert event into database
 	eventmodel.InsertEvent(&event)
-	// save in memory. display in dashboard
-	g.Events.Put(&event)
+	// events no longer saved in memory
 
 	return &event, nil
 }

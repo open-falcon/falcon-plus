@@ -2,15 +2,15 @@ package cron
 
 import (
 	"encoding/json"
-	"log"
+	log "github.com/Sirupsen/logrus"
 
-	"github.com/open-falcon/falcon-plus/common/model"
+	cmodel "github.com/open-falcon/falcon-plus/common/model"
 	"github.com/open-falcon/falcon-plus/modules/alarm/api"
 	"github.com/open-falcon/falcon-plus/modules/alarm/g"
-	"github.com/open-falcon/falcon-plus/modules/alarm/redis"
+	"github.com/open-falcon/falcon-plus/modules/alarm/redi"
 )
 
-func consume(event *model.Event, isHigh bool) {
+func consume(event *cmodel.Event, isHigh bool) {
 	actionId := event.ActionId()
 	if actionId <= 0 {
 		return
@@ -23,7 +23,6 @@ func consume(event *model.Event, isHigh bool) {
 
 	if action.Callback == 1 {
 		HandleCallback(event, action)
-		return
 	}
 
 	if isHigh {
@@ -34,7 +33,7 @@ func consume(event *model.Event, isHigh bool) {
 }
 
 // 高优先级的不做报警合并
-func consumeHighEvents(event *model.Event, action *api.Action) {
+func consumeHighEvents(event *cmodel.Event, action *api.Action) {
 	if action.Uic == "" {
 		return
 	}
@@ -45,14 +44,14 @@ func consumeHighEvents(event *model.Event, action *api.Action) {
 	mailContent := GenerateMailContent(event)
 
 	if event.Priority() < 3 {
-		redis.WriteSms(phones, smsContent)
+		redi.WriteSms(phones, smsContent)
 	}
 
-	redis.WriteMail(mails, smsContent, mailContent)
+	redi.WriteMail(mails, smsContent, mailContent)
 }
 
 // 低优先级的做报警合并
-func consumeLowEvents(event *model.Event, action *api.Action) {
+func consumeLowEvents(event *cmodel.Event, action *api.Action) {
 	if action.Uic == "" {
 		return
 	}
@@ -64,7 +63,7 @@ func consumeLowEvents(event *model.Event, action *api.Action) {
 	ParseUserMail(event, action)
 }
 
-func ParseUserSms(event *model.Event, action *api.Action) {
+func ParseUserSms(event *cmodel.Event, action *api.Action) {
 	userMap := api.GetUsers(action.Uic)
 
 	content := GenerateSmsContent(event)
@@ -87,18 +86,18 @@ func ParseUserSms(event *model.Event, action *api.Action) {
 		}
 		bs, err := json.Marshal(dto)
 		if err != nil {
-			log.Println("json marshal SmsDto fail:", err)
+			log.Error("json marshal SmsDto fail:", err)
 			continue
 		}
 
 		_, err = rc.Do("LPUSH", queue, string(bs))
 		if err != nil {
-			log.Println("LPUSH redis", queue, "fail:", err, "dto:", string(bs))
+			log.Error("LPUSH redis", queue, "fail:", err, "dto:", string(bs))
 		}
 	}
 }
 
-func ParseUserMail(event *model.Event, action *api.Action) {
+func ParseUserMail(event *cmodel.Event, action *api.Action) {
 	userMap := api.GetUsers(action.Uic)
 
 	metric := event.Metric()
@@ -123,13 +122,13 @@ func ParseUserMail(event *model.Event, action *api.Action) {
 		}
 		bs, err := json.Marshal(dto)
 		if err != nil {
-			log.Println("json marshal MailDto fail:", err)
+			log.Error("json marshal MailDto fail:", err)
 			continue
 		}
 
 		_, err = rc.Do("LPUSH", queue, string(bs))
 		if err != nil {
-			log.Println("LPUSH redis", queue, "fail:", err, "dto:", string(bs))
+			log.Error("LPUSH redis", queue, "fail:", err, "dto:", string(bs))
 		}
 	}
 }

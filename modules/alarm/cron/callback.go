@@ -2,18 +2,18 @@ package cron
 
 import (
 	"fmt"
+	log "github.com/Sirupsen/logrus"
 	"strings"
 	"time"
 
 	"github.com/open-falcon/falcon-plus/common/model"
 	"github.com/open-falcon/falcon-plus/modules/alarm/api"
-	"github.com/open-falcon/falcon-plus/modules/alarm/redis"
+	"github.com/open-falcon/falcon-plus/modules/alarm/redi"
 	"github.com/toolkits/net/httplib"
 )
 
 func HandleCallback(event *model.Event, action *api.Action) {
 
-	// falcon,dinp
 	teams := action.Uic
 	phones := []string{}
 	mails := []string{}
@@ -23,11 +23,11 @@ func HandleCallback(event *model.Event, action *api.Action) {
 		smsContent := GenerateSmsContent(event)
 		mailContent := GenerateMailContent(event)
 		if action.BeforeCallbackSms == 1 {
-			redis.WriteSms(phones, smsContent)
+			redi.WriteSms(phones, smsContent)
 		}
 
 		if action.BeforeCallbackMail == 1 {
-			redis.WriteMail(mails, smsContent, mailContent)
+			redi.WriteMail(mails, smsContent, mailContent)
 		}
 	}
 
@@ -35,11 +35,11 @@ func HandleCallback(event *model.Event, action *api.Action) {
 
 	if teams != "" {
 		if action.AfterCallbackSms == 1 {
-			redis.WriteSms(phones, message)
+			redi.WriteSms(phones, message)
 		}
 
 		if action.AfterCallbackMail == 1 {
-			redis.WriteMail(mails, message, message)
+			redi.WriteMail(mails, message, message)
 		}
 	}
 
@@ -79,9 +79,11 @@ func Callback(event *model.Event, action *api.Action) string {
 
 	success := "success"
 	if e != nil {
+		log.Errorf("callback fail, action:%v, event:%s, error:%s", action, event.String(), e.Error())
 		success = fmt.Sprintf("fail:%s", e.Error())
 	}
 	message := fmt.Sprintf("curl %s %s. resp: %s", action.Url, success, resp)
+	log.Debugf("callback to url:%s, event:%s, resp:%s", action.Url, event.String(), resp)
 
 	return message
 }
