@@ -21,8 +21,13 @@
 And then
 
 ```
+# set $GOPATH and $GOROOT
+
+mkdir -p $GOPATH/src/github.com/open-falcon
+cd $GOPATH/src/github.com/open-falcon
 git clone https://github.com/open-falcon/falcon-plus.git
 cd falcon-plus/
+
 ```
 
 # Compilation
@@ -62,7 +67,6 @@ for example:
 ./open-falcon check
         falcon-graph         UP           79292
           falcon-hbs         UP           79295
-       falcon-sender         UP           79298
         falcon-judge         UP           79301
      falcon-transfer         UP           79304
        falcon-nodata         UP           79307
