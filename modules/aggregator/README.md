@@ -58,7 +58,7 @@ ss -tln
     },
     "api": {
         "hostnames": "http://127.0.0.1:5050/api/group/%s/hosts.json", # 注意修改为你的portal的ip:port
-        "push": "http://127.0.0.1:6060/api/push", # 注意修改为你的transfer的ip:port
+        "push": "http://127.0.0.1:6060/api/push", # 注意修改为你的transfer的http ip:port
         "graphLast": "http://127.0.0.1:9966/graph/last" # 注意修改为你的query的ip:port
     }
 }
