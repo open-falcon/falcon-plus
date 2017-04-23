@@ -249,6 +249,9 @@ func (this *Graph) Query(param cmodel.GraphQueryParam, resp *cmodel.GraphQueryRe
 
 		// fmt result
 		ret_size := int((end_ts - start_ts) / int64(step))
+		if dsType == g.GAUGE {
+			ret_size += 1
+		}
 		ret := make([]*cmodel.RRDData, ret_size, ret_size)
 		mergedIdx := 0
 		ts = start_ts
