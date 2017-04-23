@@ -2,11 +2,14 @@ package api
 
 import (
 	"fmt"
+	"log"
 	"math"
 	"time"
 
+	pfc "github.com/niean/goperfcounter"
 	cmodel "github.com/open-falcon/falcon-plus/common/model"
 	cutils "github.com/open-falcon/falcon-plus/common/utils"
+
 	"github.com/open-falcon/falcon-plus/modules/graph/g"
 	"github.com/open-falcon/falcon-plus/modules/graph/index"
 	"github.com/open-falcon/falcon-plus/modules/graph/proc"
@@ -63,6 +66,25 @@ func handleItems(items []*cmodel.GraphItem) {
 		if items[i] == nil {
 			continue
 		}
+
+		endpoint := items[i].Endpoint
+		if !g.IsValidString(endpoint) {
+			if cfg.Debug {
+				log.Printf("invalid endpoint: %s", endpoint)
+			}
+			pfc.Meter("invalidEnpoint", 1)
+			continue
+		}
+
+		counter := cutils.Counter(items[i].Metric, items[i].Tags)
+		if !g.IsValidString(counter) {
+			if cfg.Debug {
+				log.Printf("invalid counter: %s/%s", endpoint, counter)
+			}
+			pfc.Meter("invalidCounter", 1)
+			continue
+		}
+
 		dsType := items[i].DsType
 		step := items[i].Step
 		checksum := items[i].Checksum()
