@@ -24,7 +24,7 @@ const (
 
 // item缓存
 var (
-	indexedItemCache   = NewIndexCacheBase(DefaultMaxCacheSize)
+	IndexedItemCache   = NewIndexCacheBase(DefaultMaxCacheSize)
 	unIndexedItemCache = NewIndexCacheBase(DefaultMaxCacheSize)
 )
 
@@ -45,7 +45,7 @@ func InitCache() {
 func GetTypeAndStep(endpoint string, counter string) (dsType string, step int, found bool) {
 	// get it from index cache
 	pk := cutils.Md5(fmt.Sprintf("%s/%s", endpoint, counter))
-	if icitem := indexedItemCache.Get(pk); icitem != nil {
+	if icitem := IndexedItemCache.Get(pk); icitem != nil {
 		if item := icitem.(*IndexCacheItem).Item; item != nil {
 			dsType = item.DsType
 			step = item.Step
@@ -137,7 +137,7 @@ func GetCounterFromCache(endpointId int64, counter string) (dsType string, step 
 func startCacheProcUpdateTask() {
 	for {
 		time.Sleep(DefaultCacheProcUpdateTaskSleepInterval)
-		proc.IndexedItemCacheCnt.SetCnt(int64(indexedItemCache.Size()))
+		proc.IndexedItemCacheCnt.SetCnt(int64(IndexedItemCache.Size()))
 		proc.UnIndexedItemCacheCnt.SetCnt(int64(unIndexedItemCache.Size()))
 		proc.EndpointCacheCnt.SetCnt(int64(dbEndpointCache.Size()))
 		proc.CounterCacheCnt.SetCnt(int64(dbEndpointCounterCache.Size()))

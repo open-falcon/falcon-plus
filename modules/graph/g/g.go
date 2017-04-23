@@ -31,6 +31,7 @@ const (
 	FLUSH_DISK_STEP = 1000    //ms
 	DEFAULT_STEP    = 60      //s
 	MIN_STEP        = 30      //s
+	CLEAN_CACHE     = 86400   //s
 )
 const (
 	GRAPH_F_MISS uint32 = 1 << iota

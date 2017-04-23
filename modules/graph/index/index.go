@@ -24,12 +24,12 @@ func ReceiveItem(item *cmodel.GraphItem, md5 string) {
 	uuid := item.UUID()
 
 	// 已上报过的数据
-	if indexedItemCache.ContainsKey(md5) {
-		old := indexedItemCache.Get(md5).(*IndexCacheItem)
+	if IndexedItemCache.ContainsKey(md5) {
+		old := IndexedItemCache.Get(md5).(*IndexCacheItem)
 		if uuid == old.UUID { // dsType+step没有发生变化,只更新缓存 TODO 存在线程安全的问题
 			old.Item = item
 		} else { // dsType+step变化了,当成一个新的增量来处理(甚至,不用rrd文件来过滤)
-			//indexedItemCache.Remove(md5)
+			//IndexedItemCache.Remove(md5)
 			unIndexedItemCache.Put(md5, NewIndexCacheItem(uuid, item))
 		}
 		return
@@ -39,7 +39,7 @@ func ReceiveItem(item *cmodel.GraphItem, md5 string) {
 	// 针对 索引缓存重建场景 做的优化, 结合索引全量更新 来保证一致性
 	rrdFileName := g.RrdFileName(g.Config().RRD.Storage, md5, item.DsType, item.Step)
 	if g.IsRrdFileExist(rrdFileName) {
-		indexedItemCache.Put(md5, NewIndexCacheItem(uuid, item))
+		IndexedItemCache.Put(md5, NewIndexCacheItem(uuid, item))
 		return
 	}
 
@@ -59,7 +59,7 @@ func GetIndexedItemCache(endpoint string, metric string, tags map[string]string,
 	md5 := itemDemo.Checksum()
 	uuid := itemDemo.UUID()
 
-	cached := indexedItemCache.Get(md5)
+	cached := IndexedItemCache.Get(md5)
 	if cached == nil {
 		rerr = fmt.Errorf("not found")
 		return

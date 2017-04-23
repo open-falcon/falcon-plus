@@ -9,6 +9,7 @@ import (
 	"syscall"
 
 	"github.com/open-falcon/falcon-plus/modules/graph/api"
+	"github.com/open-falcon/falcon-plus/modules/graph/cron"
 	"github.com/open-falcon/falcon-plus/modules/graph/g"
 	"github.com/open-falcon/falcon-plus/modules/graph/http"
 	"github.com/open-falcon/falcon-plus/modules/graph/index"
@@ -76,6 +77,7 @@ func main() {
 	index.Start()
 	// start http server
 	go http.Start()
+	go cron.CleanCache()
 
 	start_signal(os.Getpid(), g.Config())
 }

@@ -64,7 +64,7 @@ func updateIndexIncr() int {
 				if err != nil {
 					proc.IndexUpdateIncrErrorCnt.Incr()
 				} else {
-					indexedItemCache.Put(key, icitem)
+					IndexedItemCache.Put(key, icitem)
 				}
 			}(key, icitem.(*IndexCacheItem), dbConn)
 			ret++
