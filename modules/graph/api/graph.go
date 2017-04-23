@@ -160,7 +160,9 @@ func (this *Graph) Query(param cmodel.GraphQueryParam, resp *cmodel.GraphQueryRe
 		datas_size = len(datas)
 	} else {
 		// read data from rrd file
-		datas, _ = rrdtool.Fetch(filename, param.ConsolFun, start_ts, end_ts, step)
+		// 从RRD中获取数据不包含起始时间点
+		// 例: start_ts=1484651400,step=60,则第一个数据时间为1484651460)
+		datas, _ = rrdtool.Fetch(filename, param.ConsolFun, start_ts-int64(step), end_ts, step)
 		datas_size = len(datas)
 	}
 
