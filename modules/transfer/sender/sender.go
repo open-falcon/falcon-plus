@@ -41,6 +41,7 @@ var (
 	JudgeConnPools     *backend.SafeRpcConnPools
 	TsdbConnPoolHelper *backend.TsdbConnPoolHelper
 	GraphConnPools     *backend.SafeRpcConnPools
+	GraphApiConnPools  *backend.SafeRpcConnPools
 )
 
 // 初始化数据发送服务, 在main函数中调用

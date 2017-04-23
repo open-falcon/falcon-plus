@@ -34,6 +34,7 @@ func startHttpServer() {
 	configDebugHttpRoutes()
 
 	configApiRoutes()
+	configApiGraphRoutes()
 
 	s := &http.Server{
 		Addr:           addr,
