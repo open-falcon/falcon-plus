@@ -37,7 +37,7 @@ func init() {
 }
 
 func syncDisk() {
-	time.Sleep(time.Second * 300)
+	time.Sleep(time.Second * g.CACHE_DELAY)
 	ticker := time.NewTicker(time.Millisecond * g.FLUSH_DISK_STEP).C
 	var idx int = 0
 
