@@ -2,11 +2,14 @@ package api
 
 import (
 	"fmt"
+	"log"
 	"math"
 	"time"
 
+	pfc "github.com/niean/goperfcounter"
 	cmodel "github.com/open-falcon/falcon-plus/common/model"
 	cutils "github.com/open-falcon/falcon-plus/common/utils"
+
 	"github.com/open-falcon/falcon-plus/modules/graph/g"
 	"github.com/open-falcon/falcon-plus/modules/graph/index"
 	"github.com/open-falcon/falcon-plus/modules/graph/proc"
@@ -63,6 +66,25 @@ func handleItems(items []*cmodel.GraphItem) {
 		if items[i] == nil {
 			continue
 		}
+
+		endpoint := items[i].Endpoint
+		if !g.IsValidString(endpoint) {
+			if cfg.Debug {
+				log.Printf("invalid endpoint: %s", endpoint)
+			}
+			pfc.Meter("invalidEnpoint", 1)
+			continue
+		}
+
+		counter := cutils.Counter(items[i].Metric, items[i].Tags)
+		if !g.IsValidString(counter) {
+			if cfg.Debug {
+				log.Printf("invalid counter: %s/%s", endpoint, counter)
+			}
+			pfc.Meter("invalidCounter", 1)
+			continue
+		}
+
 		dsType := items[i].DsType
 		step := items[i].Step
 		checksum := items[i].Checksum()
@@ -138,7 +160,9 @@ func (this *Graph) Query(param cmodel.GraphQueryParam, resp *cmodel.GraphQueryRe
 		datas_size = len(datas)
 	} else {
 		// read data from rrd file
-		datas, _ = rrdtool.Fetch(filename, param.ConsolFun, start_ts, end_ts, step)
+		// 从RRD中获取数据不包含起始时间点
+		// 例: start_ts=1484651400,step=60,则第一个数据时间为1484651460)
+		datas, _ = rrdtool.Fetch(filename, param.ConsolFun, start_ts-int64(step), end_ts, step)
 		datas_size = len(datas)
 	}
 
@@ -249,6 +273,9 @@ func (this *Graph) Query(param cmodel.GraphQueryParam, resp *cmodel.GraphQueryRe
 
 		// fmt result
 		ret_size := int((end_ts - start_ts) / int64(step))
+		if dsType == g.GAUGE {
+			ret_size += 1
+		}
 		ret := make([]*cmodel.RRDData, ret_size, ret_size)
 		mergedIdx := 0
 		ts = start_ts
