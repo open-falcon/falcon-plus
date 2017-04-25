@@ -60,7 +60,7 @@ func (this *SingleConnRpcClient) Call(method string, args interface{}, reply int
 		return err
 	}
 
-	timeout := time.Duration(50 * time.Second)
+	timeout := time.Duration(10 * time.Second)
 	done := make(chan error, 1)
 
 	go func() {
