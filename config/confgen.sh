@@ -15,6 +15,7 @@ confs=(
     [%%TRANSFER_RPC%%]=127.0.0.1:8433
     [%%REDIS%%]=127.0.0.1:6379
     [%%MYSQL%%]="root:@tcp(127.0.0.1:3306)"
+    [%%PLUS_API_DEFAULT_TOKEN%%]="default-token-used-in-server-side"
 )
 
 configurer() {
@@ -23,7 +24,7 @@ configurer() {
         search=$i
         replace=${confs[$i]}
         # Note the "" and -e  after -i, needed in OS X
-        find ./out/*/config/*.json -type f -exec sed -i -e "s/${search}/${replace}/g" {} \;
+        find ./out/*/config/*.json -type f -exec sed -i tpl -e "s/${search}/${replace}/g" {} \;
     done
 }
 configurer

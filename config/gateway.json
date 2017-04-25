@@ -22,7 +22,7 @@
         "maxConns": 32,
         "maxIdle": 32,
         "cluster": {
-            "t1": "127.0.0.1:8433"
+            "t1":"%%TRANSFER_RPC%%"
         }
     }
 }

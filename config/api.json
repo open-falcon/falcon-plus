@@ -1,11 +1,11 @@
 {
 	"log_level": "debug",
 	"db": {
-		"faclon_portal": "root:@tcp(127.0.0.1:3306)/falcon_portal?charset=utf8&parseTime=True&loc=Local",
-		"graph": "root:@tcp(127.0.0.1:3306)/graph?charset=utf8&parseTime=True&loc=Local",
-		"uic": "root:@tcp(127.0.0.1:3306)/uic?charset=utf8&parseTime=True&loc=Local",
-		"dashboard": "root:@tcp(127.0.0.1:3306)/dashboard?charset=utf8&parseTime=True&loc=Local",
-		"alarms": "root:@tcp(127.0.0.1:3306)/alarms?charset=utf8&parseTime=True&loc=Local",
+		"faclon_portal": "%%MYSQL%%/falcon_portal?charset=utf8&parseTime=True&loc=Local",
+		"graph": "%%MYSQL%%/graph?charset=utf8&parseTime=True&loc=Local",
+		"uic": "%%MYSQL%%/uic?charset=utf8&parseTime=True&loc=Local",
+		"dashboard": "%%MYSQL%%/dashboard?charset=utf8&parseTime=True&loc=Local",
+		"alarms": "%%MYSQL%%/alarms?charset=utf8&parseTime=True&loc=Local",
 		"db_bug": true
 	},
 	"graphs": {
@@ -23,7 +23,7 @@
 	"access_control": true,
 	"salt": "pleaseinputwhichyouareusingnow",
 	"skip_auth": false,
-    "default_token": "used-by-alarm-in-server-side-and-disabled-by-set-to-blank",
+	"default_token": "%%PLUS_API_DEFAULT_TOKEN%%",
 	"gen_doc": false,
 	"gen_doc_path": "doc/module.html"
 }
