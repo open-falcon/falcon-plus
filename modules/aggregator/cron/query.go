@@ -1,8 +1,7 @@
 package cron
 
 import (
-	"github.com/open-falcon/falcon-plus/common/model"
-	"github.com/open-falcon/falcon-plus/common/sdk/graph"
+	"github.com/open-falcon/falcon-plus/modules/aggregator/sdk"
 )
 
 func queryCounterLast(numeratorOperands, denominatorOperands, hostnames []string, begin, end int64) (map[string]float64, error) {
@@ -15,19 +14,9 @@ func queryCounterLast(numeratorOperands, denominatorOperands, hostnames []string
 		counters = append(counters, counter)
 	}
 
-	params := []*model.GraphLastParam{}
-	counterSize := len(counters)
-	hostnameSize := len(hostnames)
-
-	for i := 0; i < counterSize; i++ {
-		for j := 0; j < hostnameSize; j++ {
-			params = append(params, &model.GraphLastParam{Endpoint: hostnames[j], Counter: counters[i]})
-		}
-	}
-
-	resp, err := graph.Lasts(params)
+	resp, err := sdk.QueryLastPoints(hostnames, counters)
 	if err != nil {
-		return nil, err
+		return map[string]float64{}, err
 	}
 
 	ret := make(map[string]float64)

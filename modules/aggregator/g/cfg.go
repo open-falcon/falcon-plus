@@ -20,9 +20,9 @@ type DatabaseConfig struct {
 }
 
 type ApiConfig struct {
-	Hostnames string `json:"hostnames"`
-	Push      string `json:"push"`
-	GraphLast string `json:"graphLast'`
+	PlusApi      string `json:"plus_api"`
+	PlusApiToken string `json:"plus_api_token"`
+	PushApi      string `json:"push_api"`
 }
 
 type GlobalConfig struct {
