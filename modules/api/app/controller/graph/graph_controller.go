@@ -5,22 +5,23 @@ import (
 	"strconv"
 	"strings"
 
-	"net/http"
-	"github.com/jinzhu/gorm"
 	log "github.com/Sirupsen/logrus"
 	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
 	cmodel "github.com/open-falcon/falcon-plus/common/model"
 	h "github.com/open-falcon/falcon-plus/modules/api/app/helper"
 	m "github.com/open-falcon/falcon-plus/modules/api/app/model/graph"
 	"github.com/open-falcon/falcon-plus/modules/api/app/utils"
-	g "github.com/open-falcon/falcon-plus/modules/api/graph"
+	grh "github.com/open-falcon/falcon-plus/modules/api/graph"
+	"net/http"
 )
 
 type APIEndpointRegexpQueryInputs struct {
-	Q string `json:"q" form:"q"`
+	Q     string `json:"q" form:"q"`
 	Label string `json:"tags" form:"tags"`
-	Limit int `json:"limit" form:"limit"`
+	Limit int    `json:"limit" form:"limit"`
 }
+
 func EndpointRegexpQuery(c *gin.Context) {
 	inputs := APIEndpointRegexpQueryInputs{
 		//set default is 500
@@ -170,11 +171,39 @@ func QueryGraphDrawData(c *gin.Context) {
 }
 
 func fetchData(hostname string, counter string, consolFun string, startTime int64, endTime int64, step int) (resp *cmodel.GraphQueryResponse, err error) {
-	qparm := g.GenQParam(hostname, counter, consolFun, startTime, endTime, step)
+	qparm := grh.GenQParam(hostname, counter, consolFun, startTime, endTime, step)
 	// log.Debugf("qparm: %v", qparm)
-	resp, err = g.QueryOne(qparm)
+	resp, err = grh.QueryOne(qparm)
 	if err != nil {
 		log.Debugf("query graph got error: %s", err.Error())
 	}
 	return
+}
+
+type APIQueryLastPointInputs struct {
+	Endpoints []string `json:"endpoints" binding:"required"`
+	Counters  []string `json:"counters" binding:"required"`
+}
+
+func QueryGraphLastPoint(c *gin.Context) {
+	var inputs APIQueryLastPointInputs
+	if err := c.Bind(&inputs); err != nil {
+		h.JSONR(c, badstatus, err)
+		return
+	}
+	respData := []*cmodel.GraphLastResp{}
+
+	for _, endpoint := range inputs.Endpoints {
+		for _, counter := range inputs.Counters {
+			param := cmodel.GraphLastParam{endpoint, counter}
+			one_resp, err := grh.Last(param)
+			if err != nil {
+				log.Warn("query last point from graph fail:", err)
+			} else {
+				respData = append(respData, one_resp)
+			}
+		}
+	}
+
+	h.JSONR(c, respData)
 }
