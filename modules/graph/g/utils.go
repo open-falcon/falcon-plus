@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"unicode"
 
 	"github.com/toolkits/file"
 )
@@ -41,4 +42,37 @@ func SplitRrdCacheKey(ckey string) (md5 string, dsType string, step int, err err
 	// return
 	err = nil
 	return
+}
+
+// 判断是否为有效字符串(不包含指定字符和多字节字符)
+func IsValidString(str string) bool {
+
+	r := []rune(str)
+	// 多字节字符
+	if len(r) != len(str) {
+		return false
+	}
+
+	for _, t := range r {
+		switch t {
+		case '\r':
+			return false
+		case '\n':
+			return false
+		case '\'':
+			return false
+		case '"':
+			return false
+		case '>':
+			return false
+		case '\032':
+			return false
+		default:
+			// 不可打印字符
+			if !unicode.IsPrint(t) {
+				return false
+			}
+		}
+	}
+	return true
 }
