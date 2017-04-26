@@ -28,7 +28,8 @@
         "backdoor": false
     },
     "collector": {
-        "ifacePrefix": ["eth", "em"]
+        "ifacePrefix": ["eth", "em"],
+        "mountPoint": []
     },
     "default_tags": {
     },

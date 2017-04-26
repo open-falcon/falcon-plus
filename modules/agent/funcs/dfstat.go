@@ -2,27 +2,44 @@ package funcs
 
 import (
 	"fmt"
+	log "github.com/Sirupsen/logrus"
 	"github.com/open-falcon/falcon-plus/common/model"
+	"github.com/open-falcon/falcon-plus/modules/agent/g"
 	"github.com/toolkits/nux"
-	"log"
 )
 
 func DeviceMetrics() (L []*model.MetricValue) {
 	mountPoints, err := nux.ListMountPoint()
 
 	if err != nil {
-		log.Println(err)
+		log.Error("collect device metrics fail:", err)
 		return
+	}
+
+	var myMountPoints map[string]bool = make(map[string]bool)
+
+	if len(g.Config().Collector.MountPoint) > 0 {
+		for _, mp := range g.Config().Collector.MountPoint {
+			myMountPoints[mp] = true
+		}
 	}
 
 	var diskTotal uint64 = 0
 	var diskUsed uint64 = 0
 
 	for idx := range mountPoints {
+		fsSpec, fsFile, fsVfstype := mountPoints[idx][0], mountPoints[idx][1], mountPoints[idx][2]
+		if len(myMountPoints) > 0 {
+			if _, ok := myMountPoints[fsFile]; !ok {
+				log.Debug("mount point not matched with config", fsFile, "ignored.")
+				continue
+			}
+		}
+
 		var du *nux.DeviceUsage
-		du, err = nux.BuildDeviceUsage(mountPoints[idx][0], mountPoints[idx][1], mountPoints[idx][2])
+		du, err = nux.BuildDeviceUsage(fsSpec, fsFile, fsVfstype)
 		if err != nil {
-			log.Println(err)
+			log.Error(err)
 			continue
 		}
 
