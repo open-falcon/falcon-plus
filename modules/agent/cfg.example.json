@@ -31,6 +31,8 @@
     "collector": {
         "ifacePrefix": ["eth", "em"]
     },
+    "default_tags": {
+    },
     "ignore": {
         "cpu.busy": true,
         "df.bytes.free": true,
