@@ -24,7 +24,7 @@ configurer() {
         search=$i
         replace=${confs[$i]}
         # Note the "" and -e  after -i, needed in OS X
-        find ./out/*/config/*.json -type f -exec sed -i tpl -e "s/${search}/${replace}/g" {} \;
+        find ./out/*/config/*.json -type f -exec sed -i .tpl -e "s/${search}/${replace}/g" {} \;
     done
 }
 configurer
