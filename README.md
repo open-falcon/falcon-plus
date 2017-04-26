@@ -19,17 +19,18 @@
 **before start, please make sure you prepared this:**
 
 ```
-$ yum install -y redis
-$ yum install -y msyql-server
+yum install -y redis
+yum install -y msyql-server
 
-and be sure to check redis and mysql-server have successfully started.
 ```
+
+*NOTE: be sure to check redis and mysql-server have successfully started.*
 
 And then
 
 ```
 # Please make sure that you have set `$GOPATH` and `$GOROOT` correctly.
-# If you have not golang in your host, please follow [this](https://golang.org/doc/install) to install golang.
+# If you have not golang in your host, please follow [https://golang.org/doc/install] to install golang.
 
 mkdir -p $GOPATH/src/github.com/open-falcon
 cd $GOPATH/src/github.com/open-falcon
@@ -40,17 +41,17 @@ git clone https://github.com/open-falcon/falcon-plus.git
 **And do not forget to init the database first (if you have not loaded the database schema before)**
 
 ```
-$ cd $GOPATH/src/github.com/open-falcon/falcon-plus/scripts/mysql/db_schema/
-$ mysql -h 127.0.0.1 -u root -p < alarms-db-schema.sql
-$ mysql -h 127.0.0.1 -u root -p < portal-db-schema.sql
-$ mysql -h 127.0.0.1 -u root -p < uic-db-schema.sql
-$ mysql -h 127.0.0.1 -u root -p < graph-db-schema.sql
-$ mysql -h 127.0.0.1 -u root -p < dashboard-db-schema.sql
+cd $GOPATH/src/github.com/open-falcon/falcon-plus/scripts/mysql/db_schema/
+mysql -h 127.0.0.1 -u root -p < uic-db-schema.sql
+mysql -h 127.0.0.1 -u root -p < portal-db-schema.sql
+mysql -h 127.0.0.1 -u root -p < graph-db-schema.sql
+mysql -h 127.0.0.1 -u root -p < dashboard-db-schema.sql
+mysql -h 127.0.0.1 -u root -p < alarms-db-schema.sql
 ```
 
 **NOTE: if you are upgrading from v0.1 to current version v0.2.0,then**
 
-    $ mysql -h 127.0.0.1 -u root -p < alarms-db-schema.sql
+    mysql -h 127.0.0.1 -u root -p < alarms-db-schema.sql
 
 # Compilation
 
