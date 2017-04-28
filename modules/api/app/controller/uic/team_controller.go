@@ -336,9 +336,9 @@ func GetTeamByName(c *gin.Context) {
 		h.JSONR(c, badstatus, "team name is missing")
 		return
 	}
-	team := uic.Team{Name: name}
+	var team uic.Team
 
-	dt := db.Uic.Table("team").Find(&team)
+	dt := db.Uic.Table("team").Where(&uic.Team{Name: name}).Find(&team)
 	if dt.Error != nil {
 		h.JSONR(c, badstatus, dt.Error)
 		return
