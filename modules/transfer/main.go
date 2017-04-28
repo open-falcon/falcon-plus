@@ -3,17 +3,25 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
+
+	"github.com/open-falcon/falcon-plus/modules/ctrl/falcon"
 	"github.com/open-falcon/falcon-plus/modules/transfer/g"
 	"github.com/open-falcon/falcon-plus/modules/transfer/http"
 	"github.com/open-falcon/falcon-plus/modules/transfer/proc"
 	"github.com/open-falcon/falcon-plus/modules/transfer/receiver"
 	"github.com/open-falcon/falcon-plus/modules/transfer/sender"
-	"os"
 )
+
+func leaseStart() {
+	c := falcon.NewEtcdCli2(g.Config().Lease)
+	c.Prestart()
+	c.Start()
+}
 
 func main() {
 	cfg := flag.String("c", "cfg.json", "configuration file")
-	version := flag.Bool("v", false, "show version")
+	version := flag.Bool("version", false, "show version")
 	versionGit := flag.Bool("vg", false, "show version")
 	flag.Parse()
 
@@ -28,6 +36,8 @@ func main() {
 
 	// global config
 	g.ParseConfig(*cfg)
+	// lease key to etcd server (v3)
+	leaseStart()
 	// proc
 	proc.Start()
 

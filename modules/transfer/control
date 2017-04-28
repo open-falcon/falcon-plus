@@ -82,14 +82,14 @@ function show_version() {
 function pack() {
     build
     git log -1 --pretty=%h > gitversion
-    version=`./$app -v`
+    version=`./$app -version`
     tar zcvf $app-$version.tar.gz control $app cfg.example.json gitversion ./test/debug
 }
 
 function packbin() {
     build
     git log -1 --pretty=%h > gitversion
-    version=`./$app -v`
+    version=`./$app -vversion`
     tar zcvf $app-bin-$version.tar.gz $app gitversion
 }
 

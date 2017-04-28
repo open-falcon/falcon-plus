@@ -6,6 +6,7 @@ import (
 	"sync/atomic"
 	"unsafe"
 
+	"github.com/open-falcon/falcon-plus/modules/ctrl/falcon"
 	"github.com/toolkits/file"
 )
 
@@ -34,13 +35,14 @@ type DBConfig struct {
 }
 
 type GlobalConfig struct {
-	Pid         string      `json:"pid"`
-	Debug       bool        `json:"debug"`
-	Http        *HttpConfig `json:"http"`
-	Rpc         *RpcConfig  `json:"rpc"`
-	RRD         *RRDConfig  `json:"rrd"`
-	DB          *DBConfig   `json:"db"`
-	CallTimeout int32       `json:"callTimeout"`
+	Pid         string                `json:"pid"`
+	Debug       bool                  `json:"debug"`
+	Http        *HttpConfig           `json:"http"`
+	Rpc         *RpcConfig            `json:"rpc"`
+	RRD         *RRDConfig            `json:"rrd"`
+	DB          *DBConfig             `json:"db"`
+	CallTimeout int32                 `json:"callTimeout"`
+	Lease       *falcon.EtcdCliConfig `json:"lease"`
 	Migrate     struct {
 		Concurrency int               `json:"concurrency"` //number of multiple worker per node
 		Enabled     bool              `json:"enabled"`

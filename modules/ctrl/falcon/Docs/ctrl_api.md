@@ -1,0 +1,62 @@
+## API
+ctrl的api文档，使用swagger.json导出，在开发模式下访问http://x.x.x.x/doc
+
+#### admin
+- /admin/config/{module}
+  * module 为模块名称, GET的返回值(resp)类型为[3]map[string]string
+    -resp[0]: 默认值
+    -resp[1]: 页面管理端设置的值（存在数据库）
+    -resp[2]: 启动时，配置文件中设置的值
+  * PUT时的map[string]string和GET得到的resp[1]对应，key列表如下
+    - module == graph
+      * debug
+      * dsn
+      * dbmaxidle
+      * httpenable
+      * httpaddr
+      * rpcenable
+      * rpcaddr
+      * grpcenable
+      * grpcaddr
+      * rrd_storage
+      * calltimeout
+      * leasettl
+      * migrate_enabled
+      * migrate_concurrency
+      * migrate_replicas
+      * migrate_cluster
+    - module == transfer
+      * debug
+      * minstep
+      * httpenable
+      * httpaddr
+      * rpcenable
+      * rpcaddr
+      * socket_enable
+      * socket_listen
+      * socket_timeout
+      * leasettl
+      * judge_enabled
+      * judge_batch
+      * judge_conntimeout
+      * judge_calltimeout
+      * judge_maxconns
+      * judge_maxidle
+      * judge_replicas
+      * judge_cluster
+      * graph_enabled
+      * graph_batch
+      * graph_conntimeout
+      * graph_calltimeout
+      * graph_maxconns
+      * graph_maxidle
+      * graph_replicas
+      * graph_cluster
+      * tsdb_enabled
+      * tsdb_batch
+      * tsdb_conntimeout
+      * tsdb_calltimeout
+      * tsdb_maxconns
+      * tsdb_maxidle
+      * tsdb_retry
+      * tsdb_address
