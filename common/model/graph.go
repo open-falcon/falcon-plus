@@ -50,6 +50,17 @@ func (this *GraphItem) UUID() string {
 	return MUtils.UUID(this.Endpoint, this.Metric, this.Tags, this.DsType, this.Step)
 }
 
+type GraphDeleteParam struct {
+	Endpoint string `json:"endpoint"`
+	Metric   string `json:"metric"`
+	Step     int    `json:"step"`
+	DsType   string `json:"dstype"`
+	Tags     string `json:"tags"`
+}
+
+type GraphDeleteResp struct {
+}
+
 // ConsolFun 是RRD中的概念，比如：MIN|MAX|AVERAGE
 type GraphQueryParam struct {
 	Start     int64  `json:"start"`

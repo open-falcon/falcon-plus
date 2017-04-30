@@ -1,10 +1,10 @@
 package requests
 
 import (
-	"github.com/toolkits/net/httplib"
-	"time"
 	"encoding/json"
 	"errors"
+	"github.com/toolkits/net/httplib"
+	"time"
 )
 
 func CurlPlus(uri, method, token_name, token_sig string, headers, params map[string]string) (req *httplib.BeegoHttpRequest, err error) {

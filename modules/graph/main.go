@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"log"
 	"os"
 	"os/signal"
@@ -66,6 +67,14 @@ func main() {
 
 	// global config
 	g.ParseConfig(*cfg)
+
+	if g.Config().Debug {
+		g.InitLog("debug")
+	} else {
+		g.InitLog("info")
+		gin.SetMode(gin.ReleaseMode)
+	}
+
 	// init db
 	g.InitDB()
 	// rrdtool before api for disable loopback connection
