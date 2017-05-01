@@ -222,48 +222,48 @@ func DeleteGraphEndpoint(c *gin.Context) {
 		return
 	}
 
-	if len(rows) == 0 {
-		h.JSONR(c, map[string]int64{
-			"affected_endpoint": 0,
-			"affected_counter":  0,
-		})
-		return
-	}
+	var affected_counter int64 = 0
+	var affected_endpoint int64 = 0
 
-	var params []*cmodel.GraphDeleteParam = []*cmodel.GraphDeleteParam{}
-	for _, row := range rows {
-		param := &cmodel.GraphDeleteParam{
-			Endpoint: row.Endpoint,
-			DsType:   row.Type,
-			Step:     row.Step,
+	if len(rows) > 0 {
+		var params []*cmodel.GraphDeleteParam = []*cmodel.GraphDeleteParam{}
+		for _, row := range rows {
+			param := &cmodel.GraphDeleteParam{
+				Endpoint: row.Endpoint,
+				DsType:   row.Type,
+				Step:     row.Step,
+			}
+			fields := strings.SplitN(row.Counter, "/", 2)
+			if len(fields) == 1 {
+				param.Metric = fields[0]
+			} else if len(fields) == 2 {
+				param.Metric = fields[0]
+				param.Tags = fields[1]
+			} else {
+				log.Error("invalid counter", row.Counter)
+				continue
+			}
+			params = append(params, param)
 		}
-		fields := strings.SplitN(row.Counter, "/", 2)
-		if len(fields) == 1 {
-			param.Metric = fields[0]
-		} else if len(fields) == 2 {
-			param.Metric = fields[0]
-			param.Tags = fields[1]
-		} else {
-			log.Error("invalid counter", row.Counter)
-			continue
-		}
-		params = append(params, param)
+		grh.Delete(params)
 	}
-	grh.Delete(params)
 
 	tx := db.Graph.Begin()
-	var cids []int = make([]int, len(rows))
-	for i, row := range rows {
-		cids[i] = row.CounterId
-	}
 
-	dt = tx.Table("endpoint_counter").Where("id in (?)", cids).Delete(&m.EndpointCounter{})
-	if dt.Error != nil {
-		h.JSONR(c, badstatus, dt.Error)
-		tx.Rollback()
-		return
+	if len(rows) > 0 {
+		var cids []int = make([]int, len(rows))
+		for i, row := range rows {
+			cids[i] = row.CounterId
+		}
+
+		dt = tx.Table("endpoint_counter").Where("id in (?)", cids).Delete(&m.EndpointCounter{})
+		if dt.Error != nil {
+			h.JSONR(c, badstatus, dt.Error)
+			tx.Rollback()
+			return
+		}
+		affected_counter = dt.RowsAffected
 	}
-	affected_counter := dt.RowsAffected
 
 	dt = tx.Table("endpoint").Where("endpoint in (?)", inputs).Delete(&m.Endpoint{})
 	if dt.Error != nil {
@@ -271,7 +271,7 @@ func DeleteGraphEndpoint(c *gin.Context) {
 		tx.Rollback()
 		return
 	}
-	affected_endpoint := dt.RowsAffected
+	affected_endpoint = dt.RowsAffected
 	tx.Commit()
 
 	h.JSONR(c, map[string]int64{
