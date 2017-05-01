@@ -13,13 +13,11 @@ import (
 
 func TestGraph(t *testing.T) {
 	viper.AddConfigPath("../../")
-	viper.SetConfigName("cfg_test")
+	viper.SetConfigName("cfg.example")
 	viper.ReadInConfig()
 	log.SetLevel(log.DebugLevel)
-	host := "http://localhost:3000/api/v1/graph"
-	// cname := "test1"
-	// csig := "d4f71cba377911e699d60242ac110010"
-	Apitoken := `{"name": "test1", "sig": "d4f71cba377911e699d60242ac110010"}`
+	host := "http://localhost:8080/api/v1/graph"
+	Apitoken := `{"name": "laiwei4", "sig": "022a294d108e11e7b7d1f45c89cb3693"}`
 	rt := resty.New()
 	rt.SetHeader("Apitoken", Apitoken)
 	Convey("Get Endpoint Failed", t, func() {
@@ -43,6 +41,22 @@ func TestGraph(t *testing.T) {
 
 	Convey("Get Counter List", t, func() {
 		resp, _ := rt.R().SetQueryParam("eid", "6,7").SetQueryParam("metricQuery", "disk.+").Get(fmt.Sprintf("%s/endpoint_counter", host))
+		log.Debug(resp.String())
+		So(resp.StatusCode(), ShouldEqual, 200)
+	})
+
+	Convey("Delete counter", t, func() {
+		resp, _ := rt.R().SetHeader("Content-Type", "application/json").
+			SetBody(`{"endpoints":["laiwei-aggregator-1"], "counters":["agent.alive.percent/name=xx"]}`).
+			Delete(fmt.Sprintf("%s/counter", host))
+		log.Debug(resp.String())
+		So(resp.StatusCode(), ShouldEqual, 200)
+	})
+
+	Convey("Delete endpoint", t, func() {
+		resp, _ := rt.R().SetHeader("Content-Type", "application/json").
+			SetBody(`["0.0.0.0"]`).
+			Delete(fmt.Sprintf("%s/endpoint", host))
 		log.Debug(resp.String())
 		So(resp.StatusCode(), ShouldEqual, 200)
 	})

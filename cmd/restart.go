@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"strings"
+	"time"
 
 	"github.com/open-falcon/falcon-plus/g"
 	"github.com/spf13/cobra"
@@ -28,6 +29,11 @@ func restart(c *cobra.Command, args []string) error {
 	for _, moduleName := range args {
 		if err := stop(c, []string{moduleName}); err != nil {
 			return err
+		}
+		if strings.Contains(moduleName, "graph") {
+			time.Sleep(2 * time.Second)
+		} else {
+			time.Sleep(1 * time.Second)
 		}
 		if err := start(c, []string{moduleName}); err != nil {
 			return err

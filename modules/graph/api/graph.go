@@ -2,7 +2,7 @@ package api
 
 import (
 	"fmt"
-	"log"
+	log "github.com/Sirupsen/logrus"
 	"math"
 	"time"
 
@@ -294,6 +294,29 @@ func (this *Graph) Query(param cmodel.GraphQueryParam, resp *cmodel.GraphQueryRe
 _RETURN_OK:
 	// statistics
 	proc.GraphQueryItemCnt.IncrBy(int64(len(resp.Values)))
+	return nil
+}
+
+//从内存索引、MySQL中删除counter，并从磁盘上删除对应rrd文件
+func (this *Graph) Delete(params []*cmodel.GraphDeleteParam, resp *cmodel.GraphDeleteResp) error {
+	resp = &cmodel.GraphDeleteResp{}
+	for _, param := range params {
+		err, tags := cutils.SplitTagsString(param.Tags)
+		if err != nil {
+			log.Error("invalid tags:", param.Tags, "error:", err)
+			continue
+		}
+
+		var item *cmodel.GraphItem = &cmodel.GraphItem{
+			Endpoint: param.Endpoint,
+			Metric:   param.Metric,
+			Tags:     tags,
+			DsType:   param.DsType,
+			Step:     param.Step,
+		}
+		index.RemoveItem(item)
+	}
+
 	return nil
 }
 
