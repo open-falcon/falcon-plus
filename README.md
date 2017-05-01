@@ -20,7 +20,7 @@
 
 ```
 yum install -y redis
-yum install -y msyql-server
+yum install -y mysql-server
 
 ```
 
