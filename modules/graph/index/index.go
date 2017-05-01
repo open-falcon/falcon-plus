@@ -50,7 +50,9 @@ func ReceiveItem(item *cmodel.GraphItem, md5 string) {
 func RemoveItem(item *cmodel.GraphItem) {
 	md5 := item.Checksum()
 	indexedItemCache.Remove(md5)
+	unIndexedItemCache.Remove(md5)
 
 	rrdFileName := g.RrdFileName(g.Config().RRD.Storage, md5, item.DsType, item.Step)
 	file.Remove(rrdFileName)
+	log.Debug("remove rrdfile:", rrdFileName)
 }

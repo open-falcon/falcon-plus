@@ -38,7 +38,7 @@ func stop(c *cobra.Command, args []string) error {
 			continue
 		}
 
-		cmd := exec.Command("kill", "-9", g.Pid(moduleName))
+		cmd := exec.Command("kill", "-TERM", g.Pid(moduleName))
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
 		err := cmd.Run()

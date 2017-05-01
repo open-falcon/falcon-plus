@@ -152,7 +152,6 @@ func Delete(params []*cmodel.GraphDeleteParam) {
 			nodes[pk] = []*cmodel.GraphDeleteParam{para}
 		}
 	}
-	log.Debug(nodes)
 
 	type ChResult struct {
 		Err  error
@@ -178,7 +177,6 @@ func Delete(params []*cmodel.GraphDeleteParam) {
 			log.Errorf("conn has been closed, rpcConn:%v", rpcConn)
 			continue
 		}
-		log.Debug(rpcConn)
 
 		ch := make(chan *ChResult, 1)
 		go func() {
