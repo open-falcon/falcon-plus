@@ -24,7 +24,7 @@ configurer() {
         search=$i
         replace=${confs[$i]}
 
-        if [ $UNAME == "Darwin" ] ; then
+        if [ "$UNAME" == "Darwin" ] ; then
             # Note the "" and -e  after -i, needed in OS X
             find ./out/*/config/*.json -type f -exec sed -i .tpl -e "s/${search}/${replace}/g" {} \;
         else
