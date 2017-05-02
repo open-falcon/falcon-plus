@@ -61,6 +61,14 @@ func (this *Event) TplId() int {
 	return 0
 }
 
+func (this *Event) Tpl() *Template {
+	if this.Strategy != nil {
+		return this.Strategy.Tpl
+	}
+
+	return nil
+}
+
 func (this *Event) ActionId() int {
 	if this.Expression != nil {
 		return this.Expression.ActionId
