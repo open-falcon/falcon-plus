@@ -5,6 +5,7 @@ import (
 
 	cmodel "github.com/open-falcon/falcon-plus/common/model"
 	"github.com/open-falcon/falcon-plus/modules/graph/g"
+	"github.com/open-falcon/falcon-plus/modules/graph/store"
 	"github.com/toolkits/file"
 )
 
@@ -34,8 +35,7 @@ func ReceiveItem(item *cmodel.GraphItem, md5 string) {
 		return
 	}
 
-	// 针对 索引缓存重建场景 做的优化, 结合索引全量更新 来保证一致性
-	// 是否有rrdtool文件存在,如果有 认为已建立索引
+	// 针对 mysql索引重建场景 做的优化，是否有rrdtool文件存在,如果有 则认为MySQL中已建立索引；
 	rrdFileName := g.RrdFileName(g.Config().RRD.Storage, md5, item.DsType, item.Step)
 	if g.IsRrdFileExist(rrdFileName) {
 		indexedItemCache.Put(md5, NewIndexCacheItem(uuid, item))
@@ -51,6 +51,12 @@ func RemoveItem(item *cmodel.GraphItem) {
 	md5 := item.Checksum()
 	indexedItemCache.Remove(md5)
 	unIndexedItemCache.Remove(md5)
+
+	//discard data of memory
+	checksum := item.Checksum()
+	key := g.FormRrdCacheKey(checksum, item.DsType, item.Step)
+	poped_items := store.GraphItems.PopAll(key)
+	log.Debugf("discard data of item:%v, size:%d", item, len(poped_items))
 
 	rrdFileName := g.RrdFileName(g.Config().RRD.Storage, md5, item.DsType, item.Step)
 	file.Remove(rrdFileName)
