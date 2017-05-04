@@ -2,6 +2,9 @@ package graph
 
 import (
 	"fmt"
+	"regexp"
+	"strings"
+
 	log "github.com/Sirupsen/logrus"
 	"github.com/emirpasic/gods/maps/hashmap"
 	"github.com/gin-gonic/gin"
@@ -9,8 +12,6 @@ import (
 	h "github.com/open-falcon/falcon-plus/modules/api/app/helper"
 	m "github.com/open-falcon/falcon-plus/modules/api/app/model/graph"
 	u "github.com/open-falcon/falcon-plus/modules/api/app/utils"
-	"regexp"
-	"strings"
 )
 
 type APIGrafanaMainQueryInputs struct {
@@ -207,18 +208,18 @@ func GrafanaMainQuery(c *gin.Context) {
 	} else if strings.Contains(inputs.Query, "#") && !strings.Contains(inputs.Query, "#select metric") {
 		output = responseCounterRegexp(inputs.Query)
 	}
-	h.JSONR(c, output)
+	c.JSON(200, output)
 	return
 }
 
 type APIGrafanaRenderInput struct {
-	Target        string `json:"target" form:"target"  binding:"required"`
-	From          int64  `json:"from" form:"from" binding:"required"`
-	Until         int64  `json:"until" form:"until" binding:"required"`
-	Format        string `json:"format" form:"format"`
-	MaxDataPoints int64  `json:"maxDataPoints" form:"maxDataPoints"`
-	Step          int    `json:"step" form:"step"`
-	ConsolFun     string `json:"consolFun" form:"consolFun"`
+	Target        []string `json:"target" form:"target"  binding:"required"`
+	From          int64    `json:"from" form:"from" binding:"required"`
+	Until         int64    `json:"until" form:"until" binding:"required"`
+	Format        string   `json:"format" form:"format"`
+	MaxDataPoints int64    `json:"maxDataPoints" form:"maxDataPoints"`
+	Step          int      `json:"step" form:"step"`
+	ConsolFun     string   `json:"consolFun" form:"consolFun"`
 }
 
 func GrafanaRender(c *gin.Context) {
@@ -230,41 +231,42 @@ func GrafanaRender(c *gin.Context) {
 		h.JSONR(c, badstatus, err.Error())
 		return
 	}
-	hosts, counter := cutEndpointCounterHelp(inputs.Target)
-	//clean characters
-	log.Println(counter)
-	re := regexp.MustCompile("\\\\.\\$\\s*$")
-	flag := re.MatchString(counter)
-	counter = re.ReplaceAllString(counter, "")
-	counter = strings.Replace(counter, "\\.%", ".+", -1)
-	ecHelp := m.EndpointCounter{}
-	counters := []m.EndpointCounter{}
-	log.Println(counter)
-	hostIds := findEndpointIdByEndpointList(hosts)
-	if flag {
-		db.Graph.Table(ecHelp.TableName()).Select("distinct counter").Where(fmt.Sprintf("endpoint_id IN (%s) AND counter = '%s'", u.ArrInt64ToStringMust(hostIds), counter)).Scan(&counters)
-	} else {
-		db.Graph.Table(ecHelp.TableName()).Select("distinct counter").Where(fmt.Sprintf("endpoint_id IN (%s) AND counter regexp '%s'", u.ArrInt64ToStringMust(hostIds), counter)).Scan(&counters)
-	}
-	if len(counters) == 0 {
-		h.JSONR(c, []interface{}{})
-		return
-	}
-	counterArr := make([]string, len(counters))
-	for indx, c := range counters {
-		counterArr[indx] = c.Counter
-	}
 	respList := []*cmodel.GraphQueryResponse{}
-	for _, host := range hosts {
-		for _, c := range counterArr {
-			resp, err := fetchData(host, c, inputs.ConsolFun, inputs.From, inputs.Until, inputs.Step)
-			if err != nil {
-				log.Debugf("query graph got error with: %v", inputs)
-			} else {
-				respList = append(respList, resp)
+	for _, target := range inputs.Target {
+		hosts, counter := cutEndpointCounterHelp(target)
+		//clean characters
+		log.Debug(counter)
+		re := regexp.MustCompile("\\\\.\\$\\s*$")
+		flag := re.MatchString(counter)
+		counter = re.ReplaceAllString(counter, "")
+		counter = strings.Replace(counter, "\\.%", ".+", -1)
+		ecHelp := m.EndpointCounter{}
+		counters := []m.EndpointCounter{}
+		hostIds := findEndpointIdByEndpointList(hosts)
+		if flag {
+			db.Graph.Table(ecHelp.TableName()).Select("distinct counter").Where(fmt.Sprintf("endpoint_id IN (%s) AND counter = '%s'", u.ArrInt64ToStringMust(hostIds), counter)).Scan(&counters)
+		} else {
+			db.Graph.Table(ecHelp.TableName()).Select("distinct counter").Where(fmt.Sprintf("endpoint_id IN (%s) AND counter regexp '%s'", u.ArrInt64ToStringMust(hostIds), counter)).Scan(&counters)
+		}
+		if len(counters) == 0 {
+			h.JSONR(c, []interface{}{})
+			return
+		}
+		counterArr := make([]string, len(counters))
+		for indx, c := range counters {
+			counterArr[indx] = c.Counter
+		}
+		for _, host := range hosts {
+			for _, c := range counterArr {
+				resp, err := fetchData(host, c, inputs.ConsolFun, inputs.From, inputs.Until, inputs.Step)
+				if err != nil {
+					log.Debugf("query graph got error with: %v", inputs)
+				} else {
+					respList = append(respList, resp)
+				}
 			}
 		}
 	}
-	h.JSONR(c, respList)
+	c.JSON(200, respList)
 	return
 }
