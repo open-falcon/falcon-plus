@@ -14,6 +14,10 @@
 - [Usage](http://book.open-falcon.org)
 - [Open-Faclon API](http://open-falcon.org/falcon-plus)
 
+# Prerequisite
+
+- Git >= 1.7.5
+
 # Getting Started
 
 **before start, please make sure you prepared this:**
@@ -70,7 +74,7 @@ make pack
 
 * *after `make pack` you will got `open-falcon-vx.x.x.tar.gz`*
 * *if you want to edit configure file for each module, you can edit `config/xxx.json` before you do `make pack`*
-* if you got dependencies fetch error on `golang.org/x/*`, please run `sh fix_gosrouce_fetch_error.sh` before you compile it. 
+* if you got dependencies fetch error on `golang.org/x/*`, please run `sh fix_gosrouce_fetch_error.sh` before you compile it.
 
 #  Unpack and Decompose
 
@@ -100,16 +104,16 @@ for example:
 ./open-falcon start agent
 
 ./open-falcon check
-        falcon-graph         UP           53007 
-          falcon-hbs         UP           53014 
-        falcon-judge         UP           53020 
-     falcon-transfer         UP           53026 
-       falcon-nodata         UP           53032 
-   falcon-aggregator         UP           53038 
-        falcon-agent         UP           53044 
-      falcon-gateway         UP           53050 
-          falcon-api         UP           53056 
-        falcon-alarm         UP           53063 
+        falcon-graph         UP           53007
+          falcon-hbs         UP           53014
+        falcon-judge         UP           53020
+     falcon-transfer         UP           53026
+       falcon-nodata         UP           53032
+   falcon-aggregator         UP           53038
+        falcon-agent         UP           53044
+      falcon-gateway         UP           53050
+          falcon-api         UP           53056
+        falcon-alarm         UP           53063
 ```
 
 * For debugging , You can check `$WorkDir/$moduleName/log/logs/xxx.log`
