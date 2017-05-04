@@ -170,28 +170,20 @@ func QueryGraphDrawData(c *gin.Context) {
 	h.JSONR(c, respData)
 }
 
-type APIQueryLastPointInputs struct {
-	Endpoints []string `json:"endpoints" binding:"required"`
-	Counters  []string `json:"counters" binding:"required"`
-}
-
 func QueryGraphLastPoint(c *gin.Context) {
-	var inputs APIQueryLastPointInputs
+	var inputs []cmodel.GraphLastParam
 	if err := c.Bind(&inputs); err != nil {
 		h.JSONR(c, badstatus, err)
 		return
 	}
 	respData := []*cmodel.GraphLastResp{}
 
-	for _, endpoint := range inputs.Endpoints {
-		for _, counter := range inputs.Counters {
-			param := cmodel.GraphLastParam{endpoint, counter}
-			one_resp, err := grh.Last(param)
-			if err != nil {
-				log.Warn("query last point from graph fail:", err)
-			} else {
-				respData = append(respData, one_resp)
-			}
+	for _, param := range inputs {
+		one_resp, err := grh.Last(param)
+		if err != nil {
+			log.Warn("query last point from graph fail:", err)
+		} else {
+			respData = append(respData, one_resp)
 		}
 	}
 

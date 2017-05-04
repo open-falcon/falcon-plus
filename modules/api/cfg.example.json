@@ -21,7 +21,7 @@
 	"metric_list_file": "./api/data/metric",
 	"web_port": ":8080",
 	"access_control": true,
-	"salt": "pleaseinputwhichyouareusingnow",
+	"salt": "",
 	"skip_auth": false,
     "default_token": "used-by-alarm-in-server-side-and-disabled-by-set-to-blank",
 	"gen_doc": false,

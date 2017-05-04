@@ -11,8 +11,10 @@
         "interval": 55
     },
     "api": {
+        "connect_timeout": 500,
+        "request_timeout": 2000,
         "plus_api": "http://127.0.0.1:8080",
-        "plus_api_token": "used-by-alarm-in-server-side-and-disabled-by-set-to-blank",
+        "plus_api_token": "default-token-used-in-server-side",
         "push_api": "http://127.0.0.1:1988/v1/push"
     }
 }

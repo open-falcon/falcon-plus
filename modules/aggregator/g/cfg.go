@@ -20,9 +20,11 @@ type DatabaseConfig struct {
 }
 
 type ApiConfig struct {
-	PlusApi      string `json:"plus_api"`
-	PlusApiToken string `json:"plus_api_token"`
-	PushApi      string `json:"push_api"`
+	ConnectTimeout int32  `json:"connect_timeout"`
+	RequestTimeout int32  `json:"request_timeout"`
+	PlusApi        string `json:"plus_api"`
+	PlusApiToken   string `json:"plus_api_token"`
+	PushApi        string `json:"push_api"`
 }
 
 type GlobalConfig struct {

@@ -19,9 +19,9 @@
 		"numberOfReplicas": 500
 	},
 	"metric_list_file": "./api/data/metric",
-	"web_port": ":8080",
+	"web_port": "%%PLUS_API_HTTP%%",
 	"access_control": true,
-	"salt": "pleaseinputwhichyouareusingnow",
+	"salt": "",
 	"skip_auth": false,
 	"default_token": "%%PLUS_API_DEFAULT_TOKEN%%",
 	"gen_doc": false,
