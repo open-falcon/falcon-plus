@@ -57,7 +57,7 @@ func GetExpression(c *gin.Context) {
 		h.JSONR(c, badstatus, dt.Error)
 		return
 	}
-	action := f.Action{ID: expression.ID}
+	action := f.Action{ID: expression.ActionId}
 	if dt := db.Falcon.Find(&action); dt.Error != nil {
 		h.JSONR(c, badstatus, fmt.Sprintf("find action got error: %v", dt.Error.Error()))
 		return
