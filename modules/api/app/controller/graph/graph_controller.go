@@ -256,7 +256,7 @@ func DeleteGraphEndpoint(c *gin.Context) {
 		}
 		affected_counter = dt.RowsAffected
 
-		dt = tx.Raw(`delete from tag_endpoint where endpoint_id in 
+		dt = tx.Exec(`delete from tag_endpoint where endpoint_id in 
 			(select id from endpoint where endpoint in (?))`, inputs)
 		if dt.Error != nil {
 			h.JSONR(c, badstatus, dt.Error)
