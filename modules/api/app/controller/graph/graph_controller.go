@@ -20,12 +20,14 @@ type APIEndpointRegexpQueryInputs struct {
 	Q     string `json:"q" form:"q"`
 	Label string `json:"tags" form:"tags"`
 	Limit int    `json:"limit" form:"limit"`
+	Page  int    `json:"page" form:"page"`
 }
 
 func EndpointRegexpQuery(c *gin.Context) {
 	inputs := APIEndpointRegexpQueryInputs{
 		//set default is 500
 		Limit: 500,
+		Page:  1,
 	}
 	if err := c.Bind(&inputs); err != nil {
 		h.JSONR(c, badstatus, err)
@@ -45,6 +47,11 @@ func EndpointRegexpQuery(c *gin.Context) {
 		qs = strings.Split(inputs.Q, " ")
 	}
 
+	var offset int = 0
+	if inputs.Page > 1 {
+		offset = (inputs.Page - 1) * inputs.Limit
+	}
+
 	var endpoint []m.Endpoint
 	var endpoint_id []int
 	var dt *gorm.DB
@@ -53,7 +60,7 @@ func EndpointRegexpQuery(c *gin.Context) {
 		for _, trem := range labels {
 			dt = dt.Where(" counter like ? ", "%"+strings.TrimSpace(trem)+"%")
 		}
-		dt = dt.Limit(500).Pluck("distinct endpoint_id", &endpoint_id)
+		dt = dt.Limit(inputs.Limit).Offset(offset).Pluck("distinct endpoint_id", &endpoint_id)
 		if dt.Error != nil {
 			h.JSONR(c, http.StatusBadRequest, dt.Error)
 			return
@@ -69,12 +76,11 @@ func EndpointRegexpQuery(c *gin.Context) {
 		for _, trem := range qs {
 			dt = dt.Where(" endpoint regexp ? ", strings.TrimSpace(trem))
 		}
-		dt.Limit(inputs.Limit).Scan(&endpoint)
+		dt.Limit(inputs.Limit).Offset(offset).Scan(&endpoint)
 	} else if len(endpoint_id) != 0 {
 		dt = db.Graph.Table("endpoint").
 			Select("endpoint, id").
 			Where("id in (?)", endpoint_id).
-			Limit(inputs.Limit).
 			Scan(&endpoint)
 	}
 	if dt.Error != nil {
@@ -99,6 +105,16 @@ func EndpointCounterRegexpQuery(c *gin.Context) {
 		h.JSONR(c, http.StatusBadRequest, err)
 		return
 	}
+	pageTmp := c.DefaultQuery("page", "1")
+	page, err := strconv.Atoi(pageTmp)
+	if err != nil {
+		h.JSONR(c, http.StatusBadRequest, err)
+		return
+	}
+	var offset int = 0
+	if page > 1 {
+		offset = (page - 1) * limit
+	}
 	if eid == "" {
 		h.JSONR(c, http.StatusBadRequest, "eid is missing")
 	} else {
@@ -120,7 +136,7 @@ func EndpointCounterRegexpQuery(c *gin.Context) {
 				}
 			}
 		}
-		dt = dt.Limit(limit).Scan(&counters)
+		dt = dt.Limit(limit).Offset(offset).Scan(&counters)
 		if dt.Error != nil {
 			h.JSONR(c, http.StatusBadRequest, dt.Error)
 			return
