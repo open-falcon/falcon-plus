@@ -1,6 +1,7 @@
 package g
 
 import (
+	"bytes"
 	"github.com/open-falcon/falcon-plus/common/model"
 	"github.com/toolkits/slice"
 	"log"
@@ -53,6 +54,32 @@ func InitRpcClients() {
 func SendToTransfer(metrics []*model.MetricValue) {
 	if len(metrics) == 0 {
 		return
+	}
+
+	dt := Config().DefaultTags
+	if len(dt) > 0 {
+		var buf bytes.Buffer
+		default_tags_list := []string{}
+		for k, v := range dt {
+			buf.Reset()
+			buf.WriteString(k)
+			buf.WriteString("=")
+			buf.WriteString(v)
+			default_tags_list = append(default_tags_list, buf.String())
+		}
+		default_tags := strings.Join(default_tags_list, ",")
+
+		for i, x := range metrics {
+			buf.Reset()
+			if x.Tags == "" {
+				metrics[i].Tags = default_tags
+			} else {
+				buf.WriteString(metrics[i].Tags)
+				buf.WriteString(",")
+				buf.WriteString(default_tags)
+				metrics[i].Tags = buf.String()
+			}
+		}
 	}
 
 	debug := Config().Debug

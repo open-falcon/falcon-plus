@@ -20,9 +20,14 @@ func Routes(r *gin.Engine) {
 	authapi.GET("/graph/endpoint", EndpointRegexpQuery)
 	authapi.GET("/graph/endpoint_counter", EndpointCounterRegexpQuery)
 	authapi.POST("/graph/history", QueryGraphDrawData)
+	authapi.POST("/graph/lastpoint", QueryGraphLastPoint)
+	authapi.DELETE("/graph/endpoint", DeleteGraphEndpoint)
+	authapi.DELETE("/graph/counter", DeleteGraphCounter)
+
 	grfanaapi := r.Group("/api")
 	grfanaapi.GET("/v1/grafana", GrafanaMainQuery)
 	grfanaapi.GET("/v1/grafana/metrics/find", GrafanaMainQuery)
 	grfanaapi.POST("/v1/grafana/render", GrafanaRender)
 	grfanaapi.GET("/v1/grafana/render", GrafanaRender)
+
 }

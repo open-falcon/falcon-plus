@@ -18,31 +18,45 @@ func SendMetrics(metrics []*model.MetricValue, resp *model.TransferResponse) {
 	rand.Seed(time.Now().UnixNano())
 	for _, i := range rand.Perm(len(Config().Transfer.Addrs)) {
 		addr := Config().Transfer.Addrs[i]
-		if _, ok := TransferClients[addr]; !ok {
-			initTransferClient(addr)
+
+		c := getTransferClient(addr)
+		if c == nil {
+			c = initTransferClient(addr)
 		}
-		if updateMetrics(addr, metrics, resp) {
+
+		if updateMetrics(c, metrics, resp) {
 			break
 		}
 	}
 }
 
-func initTransferClient(addr string) {
-	TransferClientsLock.Lock()
-	defer TransferClientsLock.Unlock()
-	TransferClients[addr] = &SingleConnRpcClient{
+func initTransferClient(addr string) *SingleConnRpcClient {
+	var c *SingleConnRpcClient = &SingleConnRpcClient{
 		RpcServer: addr,
 		Timeout:   time.Duration(Config().Transfer.Timeout) * time.Millisecond,
 	}
+	TransferClientsLock.Lock()
+	defer TransferClientsLock.Unlock()
+	TransferClients[addr] = c
+
+	return c
 }
 
-func updateMetrics(addr string, metrics []*model.MetricValue, resp *model.TransferResponse) bool {
-	TransferClientsLock.RLock()
-	defer TransferClientsLock.RUnlock()
-	err := TransferClients[addr].Call("Transfer.Update", metrics, resp)
+func updateMetrics(c *SingleConnRpcClient, metrics []*model.MetricValue, resp *model.TransferResponse) bool {
+	err := c.Call("Transfer.Update", metrics, resp)
 	if err != nil {
-		log.Println("call Transfer.Update fail", addr, err)
+		log.Println("call Transfer.Update fail:", c, err)
 		return false
 	}
 	return true
+}
+
+func getTransferClient(addr string) *SingleConnRpcClient {
+	TransferClientsLock.RLock()
+	defer TransferClientsLock.RUnlock()
+
+	if c, ok := TransferClients[addr]; ok {
+		return c
+	}
+	return nil
 }

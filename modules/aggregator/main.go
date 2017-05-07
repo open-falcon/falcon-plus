@@ -7,8 +7,6 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/open-falcon/falcon-plus/common/sdk/graph"
-	"github.com/open-falcon/falcon-plus/common/sdk/portal"
 	"github.com/open-falcon/falcon-plus/common/sdk/sender"
 	"github.com/open-falcon/falcon-plus/modules/aggregator/cron"
 	"github.com/open-falcon/falcon-plus/modules/aggregator/db"
@@ -39,10 +37,8 @@ func main() {
 	go cron.UpdateItems()
 
 	// sdk configuration
-	graph.GraphLastUrl = g.Config().Api.GraphLast
 	sender.Debug = g.Config().Debug
-	sender.PostPushUrl = g.Config().Api.Push
-	portal.HostnamesUrl = g.Config().Api.Hostnames
+	sender.PostPushUrl = g.Config().Api.PushApi
 
 	sender.StartSender()
 

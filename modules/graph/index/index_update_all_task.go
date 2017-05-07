@@ -2,8 +2,9 @@ package index
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
-	"log"
+	log "github.com/Sirupsen/logrus"
 	"time"
 
 	nsema "github.com/toolkits/concurrent/semaphore"
@@ -24,38 +25,6 @@ var (
 	semaIndexUpdateAllTask = nsema.NewSemaphore(ConcurrentOfUpdateIndexAll) //全量同步任务 并发控制器
 	semaIndexUpdateAll     = nsema.NewSemaphore(4)                          // 索引全量更新时的mysql操作并发控制
 )
-
-// 更新一条监控数据对应的索引. 用于手动添加索引,一般情况下不会使用
-func UpdateIndexOne(endpoint string, metric string, tags map[string]string, dstype string, step int) error {
-	itemDemo := &cmodel.GraphItem{
-		Endpoint: endpoint,
-		Metric:   metric,
-		Tags:     tags,
-		DsType:   dstype,
-		Step:     step,
-	}
-	md5 := itemDemo.Checksum()
-	uuid := itemDemo.UUID()
-
-	cached := IndexedItemCache.Get(md5)
-	if cached == nil {
-		return fmt.Errorf("not found")
-	}
-
-	icitem := cached.(*IndexCacheItem)
-	if icitem.UUID != uuid {
-		return fmt.Errorf("bad type or step")
-	}
-	gitem := icitem.Item
-
-	dbConn, err := g.GetDbConn("UpdateIndexIncrTask")
-	if err != nil {
-		log.Println("[ERROR] make dbConn fail", err)
-		return err
-	}
-
-	return updateIndexFromOneItem(gitem, dbConn)
-}
 
 // 索引全量更新的当前并行数
 func GetConcurrentOfUpdateIndexAll() int {
@@ -89,6 +58,38 @@ func UpdateIndexAll(updateStepInSec int64) {
 	proc.IndexUpdateAll.PutOther("updateStepInSec", updateStepInSec)
 	proc.IndexUpdateAll.PutOther("lastTimeConsumingInSec", endTs-startTs)
 	proc.IndexUpdateAll.PutOther("updateCnt", cnt)
+}
+
+// 更新一条监控数据对应的索引. 用于手动添加索引,一般情况下不会使用
+func UpdateIndexOne(endpoint string, metric string, tags map[string]string, dstype string, step int) error {
+	itemDemo := &cmodel.GraphItem{
+		Endpoint: endpoint,
+		Metric:   metric,
+		Tags:     tags,
+		DsType:   dstype,
+		Step:     step,
+	}
+	md5 := itemDemo.Checksum()
+	uuid := itemDemo.UUID()
+
+	cached := IndexedItemCache.Get(md5)
+	if cached == nil {
+		return fmt.Errorf("not found")
+	}
+
+	icitem := cached.(*IndexCacheItem)
+	if icitem.UUID != uuid {
+		return fmt.Errorf("bad type or step")
+	}
+	gitem := icitem.Item
+
+	dbConn, err := g.GetDbConn("UpdateIndexIncrTask")
+	if err != nil {
+		log.Println("[ERROR] make dbConn fail", err)
+		return err
+	}
+
+	return updateIndexFromOneItem(gitem, dbConn)
 }
 
 func updateIndexAll(updateStepInSec int64) int {
@@ -135,73 +136,68 @@ func updateIndexAll(updateStepInSec int64) int {
 	return ret
 }
 
-// 根据item,更新db存储. 不用本地缓存 优化db访问频率.
+// 根据item,更新mysql
 func updateIndexFromOneItem(item *cmodel.GraphItem, conn *sql.DB) error {
 	if item == nil {
 		return nil
 	}
 
-	endpoint := item.Endpoint
 	ts := item.Timestamp
 	var endpointId int64 = -1
-	sqlDuplicateString := " ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id), ts=VALUES(ts)" //第一个字符是空格
 
 	// endpoint表
-	{
-		sqlStr := "INSERT INTO endpoint(endpoint, ts, t_create) VALUES (?, ?, now())" + sqlDuplicateString
-		ret, err := conn.Exec(sqlStr, endpoint, ts)
-		if err != nil {
-			log.Println(err)
-			return err
-		}
+	sqlStr := `INSERT INTO endpoint(endpoint, ts, t_create)
+		VALUES (?, ?, NOW())
+		ON DUPLICATE KEY UPDATE ts=?, t_modify=NOW()`
 
-		endpointId, err = ret.LastInsertId()
-		if err != nil {
-			log.Println(err)
-			return err
-		}
+	_, err := conn.Exec(sqlStr, item.Endpoint, ts, ts)
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+	proc.IndexUpdateIncrDbEndpointInsertCnt.Incr()
+
+	err = conn.QueryRow("SELECT id FROM endpoint WHERE endpoint = ?", item.Endpoint).Scan(&endpointId)
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+	if endpointId <= 0 {
+		log.Errorf("no such endpoint in db, endpoint=%s", item.Endpoint)
+		return errors.New("no such endpoint")
 	}
 
 	// tag_endpoint表
-	{
-		sqlStr := "INSERT INTO tag_endpoint(tag, endpoint_id, ts, t_create) VALUES (?, ?, ?, now())" + sqlDuplicateString
-		for tagKey, tagVal := range item.Tags {
-			tag := fmt.Sprintf("%s=%s", tagKey, tagVal)
+	for tagKey, tagVal := range item.Tags {
+		tag := fmt.Sprintf("%s=%s", tagKey, tagVal)
+		sqlStr := `INSERT INTO tag_endpoint(tag, endpoint_id, ts, t_create)
+			VALUES (?, ?, ?, NOW())
+			ON DUPLICATE KEY UPDATE ts=?, t_modify=NOW()`
 
-			ret, err := conn.Exec(sqlStr, tag, endpointId, ts)
-			if err != nil {
-				log.Println(err)
-				return err
-			}
-
-			_, err = ret.LastInsertId()
-			if err != nil {
-				log.Println(err)
-				return err
-			}
+		_, err := conn.Exec(sqlStr, tag, endpointId, ts, ts)
+		if err != nil {
+			log.Error(err)
+			return err
 		}
+		proc.IndexUpdateIncrDbTagEndpointInsertCnt.Incr()
 	}
 
 	// endpoint_counter表
-	{
-		counter := item.Metric
-		if len(item.Tags) > 0 {
-			counter = fmt.Sprintf("%s/%s", counter, cutils.SortedTags(item.Tags))
-		}
-
-		sqlStr := "INSERT INTO endpoint_counter(endpoint_id,counter,step,type,ts,t_create) VALUES (?,?,?,?,?,now())" + sqlDuplicateString
-		ret, err := conn.Exec(sqlStr, endpointId, counter, item.Step, item.DsType, ts)
-		if err != nil {
-			log.Println(err)
-			return err
-		}
-
-		_, err = ret.LastInsertId()
-		if err != nil {
-			log.Println(err)
-			return err
-		}
+	counter := item.Metric
+	if len(item.Tags) > 0 {
+		counter = fmt.Sprintf("%s/%s", counter, cutils.SortedTags(item.Tags))
 	}
+
+	sqlStr = `INSERT INTO endpoint_counter(endpoint_id,counter,step,type,ts,t_create)
+		VALUES (?,?,?,?,?,NOW())
+		ON DUPLICATE KEY UPDATE ts=?,step=?,type=?,t_modify=NOW()`
+
+	_, err = conn.Exec(sqlStr, endpointId, counter, item.Step, item.DsType, ts, ts, item.Step, item.DsType)
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+	proc.IndexUpdateIncrDbEndpointCounterInsertCnt.Incr()
 
 	return nil
 }

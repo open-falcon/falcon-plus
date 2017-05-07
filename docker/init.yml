@@ -28,3 +28,9 @@ services:
     ports:
     - 6379:6379
     restart: always
+  falcon-plus:
+    command: bash /run.sh hbs
+    image: openfalcon/falcon-plus:0.2.0
+    ports:
+    - 8081:8081
+    restart: always

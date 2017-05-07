@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 TARGET_SOURCE = $(shell find main.go g cmd common -name '*.go')
-CMD = agent aggregator graph hbs judge nodata task transfer gateway api alarm
+CMD = agent aggregator graph hbs judge nodata transfer gateway api alarm
 TARGET = open-falcon
 
 VERSION := $(shell cat VERSION)
@@ -23,7 +23,10 @@ pack: checkbin
 	@$(foreach var,$(CMD),mkdir -p ./out/$(var)/logs;)
 	@$(foreach var,$(CMD),cp ./config/$(var).json ./out/$(var)/config/cfg.json;)
 	@$(foreach var,$(CMD),cp ./bin/$(var)/falcon-$(var) ./out/$(var)/bin;)
-	@cp -r ./modules/agent/public ./out/agent/bin
+	@cp -r ./modules/agent/public ./out/agent/
+	@(cd ./out && ln -s ./agent/public/ ./public)
+	@cp -r ./modules/agent/plugins ./out/agent/
+	@(cd ./out && ln -s ./agent/plugins/ ./plugins)
 	@cp -r ./modules/api/data ./out/api/
 	@mkdir out/graph/data
 	@bash ./config/confgen.sh
@@ -43,4 +46,4 @@ trash:
 	go get -u github.com/rancher/trash
 	trash -k -cache package_cache_tmp
 
-.PHONY: trash clean all agent aggregator graph hbs judge nodata task transfer gateway api alarm
+.PHONY: trash clean all agent aggregator graph hbs judge nodata transfer gateway api alarm

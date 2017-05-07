@@ -10,7 +10,6 @@ import (
 	"github.com/open-falcon/falcon-plus/modules/nodata/g"
 	"github.com/open-falcon/falcon-plus/modules/nodata/http"
 	"github.com/open-falcon/falcon-plus/modules/nodata/judge"
-	"github.com/open-falcon/falcon-plus/modules/nodata/sender"
 )
 
 func main() {
@@ -39,8 +38,6 @@ func main() {
 	collector.Start()
 	// judge
 	judge.Start()
-	// sender
-	sender.Start()
 
 	// http
 	http.Start()

@@ -10,7 +10,7 @@
     },
     "heartbeat": {
         "enabled": true,
-        "addr": "%%HBS_HTTP%%",
+        "addr": "%%HBS_RPC%%",
         "interval": 60,
         "timeout": 1000
     },
@@ -28,7 +28,10 @@
         "backdoor": false
     },
     "collector": {
-        "ifacePrefix": ["eth", "em"]
+        "ifacePrefix": ["eth", "em"],
+        "mountPoint": []
+    },
+    "default_tags": {
     },
     "ignore": {
         "cpu.busy": true,

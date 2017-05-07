@@ -513,6 +513,8 @@ code {
   float:left;
   padding: 20px;
   max-width: 700px;
+  overflow: auto;
+  height: 100%;
 }
 
 #content .control {

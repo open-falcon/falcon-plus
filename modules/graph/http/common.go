@@ -1,37 +1,57 @@
 package http
 
 import (
-	"net/http"
-	"strings"
-
+	"github.com/open-falcon/falcon-plus/modules/graph/g"
+	"github.com/open-falcon/falcon-plus/modules/graph/store"
 	"github.com/toolkits/file"
 
-	"github.com/open-falcon/falcon-plus/modules/graph/g"
+	"github.com/gin-gonic/gin"
+	"strconv"
+	"time"
 )
 
 func configCommonRoutes() {
-	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("ok"))
+	router.GET("/api/v2/health", func(c *gin.Context) {
+		JSONR(c, 200, gin.H{"msg": "ok"})
 	})
 
-	http.HandleFunc("/version", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte(g.VERSION))
+	router.GET("/api/v2/version", func(c *gin.Context) {
+		JSONR(c, 200, gin.H{"value": g.VERSION})
 	})
 
-	http.HandleFunc("/workdir", func(w http.ResponseWriter, r *http.Request) {
-		RenderDataJson(w, file.SelfDir())
+	router.GET("/api/v2/workdir", func(c *gin.Context) {
+		JSONR(c, 200, gin.H{"value": file.SelfDir()})
 	})
 
-	http.HandleFunc("/config", func(w http.ResponseWriter, r *http.Request) {
-		RenderDataJson(w, g.Config())
+	router.GET("/api/v2/config", func(c *gin.Context) {
+		JSONR(c, 200, gin.H{"value": g.Config()})
 	})
 
-	http.HandleFunc("/config/reload", func(w http.ResponseWriter, r *http.Request) {
-		if strings.HasPrefix(r.RemoteAddr, "127.0.0.1") {
-			g.ParseConfig(g.ConfigFile)
-			RenderDataJson(w, "ok")
-		} else {
-			RenderDataJson(w, "no privilege")
+	router.POST("/api/v2/config/reload", func(c *gin.Context) {
+		g.ParseConfig(g.ConfigFile)
+		JSONR(c, 200, gin.H{"msg": "ok"})
+	})
+
+	router.GET("/api/v2/stats/graph-queue-size", func(c *gin.Context) {
+		rt := make(map[string]int)
+		for i := 0; i < store.GraphItems.Size; i++ {
+			keys := store.GraphItems.KeysByIndex(i)
+			oneHourAgo := time.Now().Unix() - 3600
+
+			count := 0
+			for _, ckey := range keys {
+				item := store.GraphItems.First(ckey)
+				if item == nil {
+					continue
+				}
+
+				if item.Timestamp > oneHourAgo {
+					count++
+				}
+			}
+			i_s := strconv.Itoa(i)
+			rt[i_s] = count
 		}
+		JSONR(c, 200, rt)
 	})
 }

@@ -30,6 +30,12 @@ func main() {
 
 	g.ParseConfig(*cfg)
 
+	if g.Config().Debug {
+		g.InitLog("debug")
+	} else {
+		g.InitLog("info")
+	}
+
 	g.InitRootDir()
 	g.InitLocalIp()
 	g.InitRpcClients()

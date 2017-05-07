@@ -108,7 +108,7 @@ func CreateTeam(c *gin.Context) {
 		Resume:  cteam.Resume,
 		Creator: user.ID,
 	}
-	dt := db.Uic.Table("team").Save(&team)
+	dt := db.Uic.Table("team").Create(&team)
 	if dt.Error != nil {
 		h.JSONR(c, badstatus, dt.Error)
 		return
@@ -116,7 +116,7 @@ func CreateTeam(c *gin.Context) {
 	var dt2 *gorm.DB
 	if len(cteam.UserIDs) > 0 {
 		for i := 0; i < len(cteam.UserIDs); i++ {
-			dt2 = db.Uic.Save(&uic.RelTeamUser{Tid: team.ID, Uid: cteam.UserIDs[i]})
+			dt2 = db.Uic.Create(&uic.RelTeamUser{Tid: team.ID, Uid: cteam.UserIDs[i]})
 			if dt2.Error != nil {
 				err = dt2.Error
 				break
@@ -169,8 +169,8 @@ func UpdateTeam(c *gin.Context) {
 		return
 	}
 
-	tm := uic.Team{ID: int64(cteam.ID), Resume: cteam.Resume}
-	dt = db.Uic.Table("team").Save(&tm)
+	tm := uic.Team{Resume: cteam.Resume}
+	dt = db.Uic.Table("team").Where("id=?", cteam.ID).Update(&tm)
 	if dt.Error != nil {
 		h.JSONR(c, badstatus, dt.Error)
 		return
@@ -214,7 +214,7 @@ func bindUsers(db config.DBPool, tid int, users []int) (err error) {
 		ur := uic.RelTeamUser{Tid: int64(tid), Uid: int64(i)}
 		db.Uic.Table("rel_team_user").Where(&ur).Find(&ur)
 		if ur.ID == 0 {
-			dt = db.Uic.Table("rel_team_user").Save(&ur)
+			dt = db.Uic.Table("rel_team_user").Create(&ur)
 		} else {
 			//if record exist, do next
 			continue
@@ -336,9 +336,9 @@ func GetTeamByName(c *gin.Context) {
 		h.JSONR(c, badstatus, "team name is missing")
 		return
 	}
-	team := uic.Team{Name: name}
+	var team uic.Team
 
-	dt := db.Uic.Table("team").Find(&team)
+	dt := db.Uic.Table("team").Where(&uic.Team{Name: name}).Find(&team)
 	if dt.Error != nil {
 		h.JSONR(c, badstatus, dt.Error)
 		return

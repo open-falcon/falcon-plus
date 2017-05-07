@@ -5,17 +5,17 @@
         "listen": "0.0.0.0:9912"
     },
     "redis": {
-        "addr": "127.0.0.1:6379",
+        "addr": "%%REDIS%%",
         "maxIdle": 5,
         "highQueues": [
             "event:p0",
             "event:p1",
-            "event:p2",
-            "event:p3",
-            "event:p4",
-            "event:p5"
+            "event:p2"
         ],
         "lowQueues": [
+            "event:p3",
+            "event:p4",
+            "event:p5",
             "event:p6"
         ],
         "userSmsQueue": "/queue/user/sms",
@@ -26,10 +26,10 @@
         "mail": "http://127.0.0.1:10086/mail",
         "dashboard": "http://127.0.0.1:8081",
         "plus_api":"http://127.0.0.1:8080",
-        "plus_api_token": "used-by-alarm-in-server-side-and-disabled-by-set-to-blank"
+        "plus_api_token": "%%PLUS_API_DEFAULT_TOKEN%%"
     },
     "falcon_portal": {
-        "addr": "root:@tcp(127.0.0.1:3306)/alarms?charset=utf8&loc=Asia%2FChongqing",
+        "addr": "%%MYSQL%%/alarms?charset=utf8&loc=Asia%2FChongqing",
         "idle": 10,
         "max": 100
     },

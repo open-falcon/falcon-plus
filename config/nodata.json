@@ -4,10 +4,11 @@
         "enabled": true,
         "listen": "%%NODATA_HTTP%%"
     },
-    "query":{
-        "connectTimeout": 5000,
-        "requestTimeout": 30000,
-        "queryAddr": "%%QUERY_HTTP%%"
+    "plus_api":{
+        "connectTimeout": 500,
+        "requestTimeout": 2000,
+        "addr": "http://127.0.0.1:8080",
+        "token": "default-token-used-in-server-side"
     },
     "config": {
         "enabled": true,
@@ -21,13 +22,9 @@
     },
     "sender":{
         "enabled": true,
-        "connectTimeout": 5000,
-        "requestTimeout": 30000,
+        "connectTimeout": 500,
+        "requestTimeout": 2000,
         "transferAddr": "%%TRANSFER_HTTP%%",
-        "batch": 500,
-        "block": {
-            "enabled": false,
-            "threshold": 32
-        }
+        "batch": 500
     }
 }

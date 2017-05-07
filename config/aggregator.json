@@ -11,8 +11,8 @@
         "interval": 55
     },
     "api": {
-        "hostnames": "http://127.0.0.1:5050/api/group/%s/hosts.json",
-        "push": "http://%%TRANSFER_HTTP%%/api/push",
-        "graphLast": "http://%%QUERY_HTTP%%/graph/last"
+        "plus_api": "http://127.0.0.1:8080",
+        "plus_api_token": "%%PLUS_API_DEFAULT_TOKEN%%",
+        "push_api": "http://127.0.0.1:1988/v1/push"
     }
 }

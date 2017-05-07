@@ -1,10 +1,9 @@
 package cron
 
 import (
-	"fmt"
-	"github.com/open-falcon/falcon-plus/common/sdk/portal"
 	"github.com/open-falcon/falcon-plus/common/sdk/sender"
 	"github.com/open-falcon/falcon-plus/modules/aggregator/g"
+	"github.com/open-falcon/falcon-plus/modules/aggregator/sdk"
 	"log"
 	"strconv"
 	"strings"
@@ -38,7 +37,7 @@ func WorkerRun(item *g.Cluster) {
 		return
 	}
 
-	hostnames, err := portal.Hostnames(fmt.Sprintf("%d", item.GroupId))
+	hostnames, err := sdk.HostnamesByID(item.GroupId)
 	if err != nil || len(hostnames) == 0 {
 		return
 	}

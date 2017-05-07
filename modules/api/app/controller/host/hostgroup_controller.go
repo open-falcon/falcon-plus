@@ -135,7 +135,7 @@ func UnBindAHostToHostGroup(c *gin.Context) {
 			h.JSONR(c, badstatus, dt.Error)
 			return
 		}
-		if hostgroup.CreateUser == user.Name {
+		if hostgroup.CreateUser != user.Name {
 			h.JSONR(c, badstatus, "You don't have permission!")
 			return
 		}
