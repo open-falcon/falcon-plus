@@ -176,6 +176,35 @@ func (this *GraphItemMap) KeysByIndex(idx int) []string {
 	return keys
 }
 
+func (this *GraphItemMap) Back(key string) *cmodel.GraphItem {
+	this.RLock()
+	defer this.RUnlock()
+	idx := hashKey(key) % uint32(this.Size)
+	L, ok := this.A[idx][key]
+	if !ok {
+		return nil
+	}
+
+	back := L.Back()
+	if back == nil {
+		return nil
+	}
+
+	return back.Value.(*cmodel.GraphItem)
+}
+
+// 指定key对应的Item数量
+func (this *GraphItemMap) ItemCnt(key string) int {
+	this.Lock()
+	defer this.Unlock()
+	idx := hashKey(key) % uint32(this.Size)
+	L, ok := this.A[idx][key]
+	if !ok {
+		return 0
+	}
+	return L.Len()
+}
+
 func init() {
 	size := g.CACHE_TIME / g.FLUSH_DISK_STEP
 	if size < 0 {

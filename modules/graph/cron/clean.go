@@ -74,7 +74,7 @@ func DeleteInvalidHistory() int {
 
 	deleteKeys := make([]string, 0)
 	historyCache.RLock()
-	for key, _ := range historyCache.M {
+	for key := range historyCache.M {
 		if !index.IndexedItemCache.ContainsKey(key) {
 			deleteKeys = append(deleteKeys, key)
 		}
