@@ -21,7 +21,7 @@ type APIGetAlarmListsInputs struct {
 	//number of reacord's limit on each page
 	Limit int `json:"limit" form:"limit"`
 	//pagging
-	Page int `json:"page"`
+	Page int `json:"page" form:"page"`
 }
 
 func (input APIGetAlarmListsInputs) checkInputsContain() error {
