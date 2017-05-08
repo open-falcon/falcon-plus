@@ -15,7 +15,7 @@ var Mappers []FuncsAndInterval
 func BuildMappers() {
 	interval := g.Config().Transfer.Interval
 	Mappers = []FuncsAndInterval{
-		FuncsAndInterval{
+		{
 			Fs: []func() []*model.MetricValue{
 				AgentMetrics,
 				CpuMetrics,
@@ -31,26 +31,26 @@ func BuildMappers() {
 			},
 			Interval: interval,
 		},
-		FuncsAndInterval{
+		{
 			Fs: []func() []*model.MetricValue{
 				DeviceMetrics,
 			},
 			Interval: interval,
 		},
-		FuncsAndInterval{
+		{
 			Fs: []func() []*model.MetricValue{
 				PortMetrics,
 				SocketStatSummaryMetrics,
 			},
 			Interval: interval,
 		},
-		FuncsAndInterval{
+		{
 			Fs: []func() []*model.MetricValue{
 				DuMetrics,
 			},
 			Interval: interval,
 		},
-		FuncsAndInterval{
+		{
 			Fs: []func() []*model.MetricValue{
 				UrlMetrics,
 			},

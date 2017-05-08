@@ -37,7 +37,7 @@ func startSendTasks() {
 	}
 
 	// init send go-routines
-	for node, _ := range cfg.Judge.Cluster {
+	for node := range cfg.Judge.Cluster {
 		queue := JudgeQueues[node]
 		go forward2JudgeTask(queue, node, judgeConcurrent)
 	}

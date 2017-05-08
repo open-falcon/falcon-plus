@@ -1,7 +1,9 @@
 language: go
 
 go:
-  - 1.6
+  - 1.6.x
+  - 1.7.x
+  - 1.8.x
 
 before_install:
   - go get github.com/rancher/trash
@@ -11,7 +13,8 @@ install:
   - go get ./
 
 script:
-    make all
+  - make fmt-check
+  - make all
 
 after_success:
   - go test -race -coverprofile=coverage.txt -covermode=atomic github.com/open-falcon/falcon-plus/modules/api/test
