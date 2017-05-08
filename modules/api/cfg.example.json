@@ -23,7 +23,7 @@
 	"access_control": true,
 	"salt": "",
 	"skip_auth": false,
-    "default_token": "used-by-alarm-in-server-side-and-disabled-by-set-to-blank",
+	"default_token": "default-token-used-in-server-side",
 	"gen_doc": false,
 	"gen_doc_path": "doc/module.html"
 }

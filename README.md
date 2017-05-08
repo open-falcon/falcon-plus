@@ -17,6 +17,7 @@
 # Prerequisite
 
 - Git >= 1.7.5
+- Go >= 1.6
 
 # Getting Started
 
