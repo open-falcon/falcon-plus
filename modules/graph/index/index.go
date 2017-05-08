@@ -25,10 +25,10 @@ func ReceiveItem(item *cmodel.GraphItem, md5 string) {
 	uuid := item.UUID()
 
 	// 已上报过的数据
-	if indexedItemCache.ContainsKey(md5) {
-		old := indexedItemCache.Get(md5).(*IndexCacheItem)
+	if IndexedItemCache.ContainsKey(md5) {
+		old := IndexedItemCache.Get(md5).(*IndexCacheItem)
 		if uuid == old.UUID { // dsType+step没有发生变化,只更新缓存
-			indexedItemCache.Put(md5, NewIndexCacheItem(uuid, item))
+			IndexedItemCache.Put(md5, NewIndexCacheItem(uuid, item))
 		} else { // dsType+step变化了,当成一个新的增量来处理
 			unIndexedItemCache.Put(md5, NewIndexCacheItem(uuid, item))
 		}
@@ -38,7 +38,7 @@ func ReceiveItem(item *cmodel.GraphItem, md5 string) {
 	// 针对 mysql索引重建场景 做的优化，是否有rrdtool文件存在,如果有 则认为MySQL中已建立索引；
 	rrdFileName := g.RrdFileName(g.Config().RRD.Storage, md5, item.DsType, item.Step)
 	if g.IsRrdFileExist(rrdFileName) {
-		indexedItemCache.Put(md5, NewIndexCacheItem(uuid, item))
+		IndexedItemCache.Put(md5, NewIndexCacheItem(uuid, item))
 		return
 	}
 
@@ -49,7 +49,7 @@ func ReceiveItem(item *cmodel.GraphItem, md5 string) {
 //从graph cache中删除掉某个item, 并删除指定的counter对应的rrd文件
 func RemoveItem(item *cmodel.GraphItem) {
 	md5 := item.Checksum()
-	indexedItemCache.Remove(md5)
+	IndexedItemCache.Remove(md5)
 	unIndexedItemCache.Remove(md5)
 
 	//discard data of memory
