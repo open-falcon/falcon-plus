@@ -16,7 +16,7 @@ func UniqSet(list []interface{}) []interface{} {
 		}
 	}
 	var keys []interface{}
-	for k, _ := range mapTmp {
+	for k := range mapTmp {
 		keys = append(keys, k)
 	}
 	return keys

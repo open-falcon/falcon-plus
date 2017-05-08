@@ -42,9 +42,9 @@ func configSystemRoutes() {
 		}
 
 		ret := [3][2]interface{}{
-			[2]interface{}{load.Avg1min, int64(load.Avg1min * 100.0 / float64(cpuNum))},
-			[2]interface{}{load.Avg5min, int64(load.Avg5min * 100.0 / float64(cpuNum))},
-			[2]interface{}{load.Avg15min, int64(load.Avg15min * 100.0 / float64(cpuNum))},
+			{load.Avg1min, int64(load.Avg1min * 100.0 / float64(cpuNum))},
+			{load.Avg5min, int64(load.Avg5min * 100.0 / float64(cpuNum))},
+			{load.Avg15min, int64(load.Avg15min * 100.0 / float64(cpuNum))},
 		}
 		RenderDataJson(w, ret)
 	})
