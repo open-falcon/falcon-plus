@@ -212,12 +212,14 @@ func DeleteTemplate(c *gin.Context) {
 		tx.Rollback()
 		return
 	}
+	//delete template
 	actionId := tpl.ActionID
 	if dt := tx.Delete(&tpl); dt.Error != nil {
 		h.JSONR(c, badstatus, dt.Error)
 		tx.Rollback()
 		return
 	}
+	//delete action
 	if actionId != 0 {
 		if dt := tx.Delete(&f.Action{}, actionId); dt.Error != nil {
 			h.JSONR(c, badstatus, dt.Error)
@@ -225,7 +227,14 @@ func DeleteTemplate(c *gin.Context) {
 			return
 		}
 	}
+	//delete strategy
 	if dt := tx.Where("tpl_id = ?", tplId).Delete(&f.Strategy{}); dt.Error != nil {
+		h.JSONR(c, badstatus, dt.Error)
+		tx.Rollback()
+		return
+	}
+	//delete grp_tpl
+	if dt := tx.Where("tpl_id = ?", tplId).Delete(&f.GrpTpl{}); dt.Error != nil {
 		h.JSONR(c, badstatus, dt.Error)
 		tx.Rollback()
 		return
@@ -291,7 +300,7 @@ func CreateActionToTmplate(c *gin.Context) {
 }
 
 type APIUpdateActionToTmplateInput struct {
-	ID                 int64  `json:"id" validate:"required"`
+	ID                 int64  `json:"id" binding:"required"`
 	UIC                string `json:"uic" binding:"exists"`
 	URL                string `json:"url" binding:"exists"`
 	Callback           int    `json:"callback" binding:"exists"`
