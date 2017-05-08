@@ -1,9 +1,10 @@
 package cron
 
 import (
-	"github.com/open-falcon/falcon-plus/modules/aggregator/g"
 	"log"
 	"time"
+
+	"github.com/open-falcon/falcon-plus/modules/aggregator/g"
 )
 
 type Worker struct {
