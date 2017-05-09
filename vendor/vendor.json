@@ -135,6 +135,30 @@
 			"revisionTime": "2016-12-13T08:39:40Z"
 		},
 		{
+			"checksumSHA1": "0JN3QmYINZcQ72hwXACOtg8SOqk=",
+			"path": "github.com/masato25/yaag/gin",
+			"revision": "b04f9b8a11ae0427e738ef1affd11a3184bb144d",
+			"revisionTime": "2016-12-13T08:39:40Z"
+		},
+		{
+			"checksumSHA1": "j8JHUWdIveEm6PRmu3q9V7GKZw8=",
+			"path": "github.com/masato25/yaag/middleware",
+			"revision": "b04f9b8a11ae0427e738ef1affd11a3184bb144d",
+			"revisionTime": "2016-12-13T08:39:40Z"
+		},
+		{
+			"checksumSHA1": "KkYjlcGejb/sIXcO+YriMzOaMYw=",
+			"path": "github.com/masato25/yaag/yaag",
+			"revision": "b04f9b8a11ae0427e738ef1affd11a3184bb144d",
+			"revisionTime": "2016-12-13T08:39:40Z"
+		},
+		{
+			"checksumSHA1": "QdC2uSm/t+57FYv5Z7He0ItvJM0=",
+			"path": "github.com/masato25/yaag/yaag/models",
+			"revision": "b04f9b8a11ae0427e738ef1affd11a3184bb144d",
+			"revisionTime": "2016-12-13T08:39:40Z"
+		},
+		{
 			"checksumSHA1": "U6lX43KDDlNOn+Z0Yyww+ZzHfFo=",
 			"path": "github.com/mattn/go-isatty",
 			"revision": "fc9e8d8ef48496124e79ae0df75490096eccf6fe",
