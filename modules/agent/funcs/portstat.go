@@ -17,7 +17,13 @@ func PortMetrics() (L []*model.MetricValue) {
 		return
 	}
 
-	allListeningPorts, err := nux.ListeningPorts()
+	allTcpPorts, err := nux.TcpPorts()
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	allUdpPorts, err := nux.UdpPorts()
 	if err != nil {
 		log.Println(err)
 		return
@@ -25,7 +31,7 @@ func PortMetrics() (L []*model.MetricValue) {
 
 	for i := 0; i < sz; i++ {
 		tags := fmt.Sprintf("port=%d", reportPorts[i])
-		if slice.ContainsInt64(allListeningPorts, reportPorts[i]) {
+		if slice.ContainsInt64(allTcpPorts, reportPorts[i]) || slice.ContainsInt64(allUdpPorts, reportPorts[i]) {
 			L = append(L, GaugeValue(g.NET_PORT_LISTEN, 1, tags))
 		} else {
 			L = append(L, GaugeValue(g.NET_PORT_LISTEN, 0, tags))
