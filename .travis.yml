@@ -5,13 +5,6 @@ go:
   - 1.7.x
   - 1.8.x
 
-before_install:
-  - go get github.com/rancher/trash
-
-install:
-  - trash
-  - go get ./
-
 script:
   - make fmt-check
   - make all

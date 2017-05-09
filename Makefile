@@ -7,7 +7,13 @@ GOFMT ?= gofmt "-s"
 
 VERSION := $(shell cat VERSION)
 
-all: trash $(CMD) $(TARGET)
+all: install $(CMD) $(TARGET)
+
+install:
+	@hash govendor > /dev/null 2>&1; if [ $$? -ne 0 ]; then \
+		go get -u github.com/kardianos/govendor; \
+	fi
+	govendor sync
 
 fmt:
 	$(GOFILES) | xargs $(GOFMT) -w
@@ -52,12 +58,6 @@ clean:
 	@rm -rf ./bin
 	@rm -rf ./out
 	@rm -rf ./$(TARGET)
-	@rm -rf ./package_cache_tmp
-	@rm -rf ./vendor
 	@rm -rf open-falcon-v$(VERSION).tar.gz
 
-trash:
-	go get -u github.com/rancher/trash
-	trash -k -cache package_cache_tmp
-
-.PHONY: trash clean all agent aggregator graph hbs judge nodata transfer gateway api alarm
+.PHONY: clean all agent aggregator graph hbs judge nodata transfer gateway api alarm
