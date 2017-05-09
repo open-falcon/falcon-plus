@@ -2,7 +2,7 @@ SHELL := /bin/bash
 TARGET_SOURCE = $(shell find main.go g cmd common -name '*.go')
 CMD = agent aggregator graph hbs judge nodata transfer gateway api alarm
 TARGET = open-falcon
-GOFILES := find . -name "*.go" -type f -not -path "./vendor/*"
+GOFILES := $(shell find . -name "*.go" -type f -not -path "./vendor/*")
 GOFMT ?= gofmt "-s"
 
 VERSION := $(shell cat VERSION)
@@ -16,16 +16,17 @@ install:
 	govendor sync
 
 fmt:
-	$(GOFILES) | xargs $(GOFMT) -w
+	$(GOFMT) -w $(GOFILES)
 
 .PHONY: fmt-check
 fmt-check:
-	@# get all go files and run go fmt on them
-	@files=$$($(GOFILES) | xargs $(GOFMT) -l); if [ -n "$$files" ]; then \
+	# get all go files and run go fmt on them
+	@diff=$$($(GOFMT) -d $(GOFILES)); \
+	if [ -n "$$diff" ]; then \
 		echo "Please run 'make fmt' and commit the result:"; \
-		echo "$${files}"; \
+		echo "$${diff}"; \
 		exit 1; \
-		fi;
+	fi;
 
 $(CMD):
 	go get ./modules/$@
@@ -35,6 +36,7 @@ $(TARGET): $(TARGET_SOURCE)
 	go build -ldflags "-X main.GitCommit=`git rev-parse --short HEAD` -X main.Version=$(VERSION)" -o open-falcon
 
 checkbin: bin/ config/ open-falcon
+
 pack: checkbin
 	@if [ -e out ] ; then rm -rf out; fi
 	@mkdir out
