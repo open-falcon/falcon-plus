@@ -43,6 +43,10 @@ func DeviceMetrics() (L []*model.MetricValue) {
 			continue
 		}
 
+		if du.BlocksAll == 0 {
+			continue
+		}
+
 		diskTotal += du.BlocksAll
 		diskUsed += du.BlocksUsed
 
