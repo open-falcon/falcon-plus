@@ -24,6 +24,7 @@ func SendSmsList(L []*model.Sms) {
 	for _, sms := range L {
 		SmsWorkerChan <- 1
 		go SendSms(sms)
+		go SendChat(sms)
 	}
 }
 
@@ -33,13 +34,32 @@ func SendSms(sms *model.Sms) {
 	}()
 
 	url := g.Config().Api.Sms
-	r := httplib.Post(url).SetTimeout(5*time.Second, 30*time.Second)
-	r.Param("tos", sms.Tos)
-	r.Param("content", sms.Content)
-	resp, err := r.String()
+	resp, err := post(url, sms)
 	if err != nil {
 		log.Errorf("send sms fail, tos:%s, cotent:%s, error:%v", sms.Tos, sms.Content, err)
 	}
 
 	log.Debugf("send sms:%v, resp:%v, url:%s", sms, resp, url)
 }
+
+func SendChat(sms *model.Sms) {
+	defer func() {
+		<-SmsWorkerChan
+	}()
+
+	url := g.Config().Api.Chat
+	resp, err := post(url, sms)
+	if err != nil {
+		log.Errorf("send chat message fail, tos:%s, cotent:%s, error:%v", sms.Tos, sms.Content, err)
+	}
+
+	log.Debugf("send chat message:%v, resp:%v, url:%s", sms, resp, url)
+}
+
+func post(url string, sms *model.Sms) (string, error) {
+	r := httplib.Post(url).SetTimeout(5*time.Second, 30*time.Second)
+	r.Param("tos", sms.Tos)
+	r.Param("content", sms.Content)
+	return r.String()
+}
+
