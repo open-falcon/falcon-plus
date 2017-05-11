@@ -7,7 +7,7 @@ GOFMT ?= gofmt "-s"
 
 VERSION := $(shell cat VERSION)
 
-all: install $(CMD) $(TARGET)
+all: $(CMD) $(TARGET)
 
 install:
 	@hash govendor > /dev/null 2>&1; if [ $$? -ne 0 ]; then \
