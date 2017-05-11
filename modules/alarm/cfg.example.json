@@ -18,10 +18,12 @@
         "lowQueues": [
             "event:p6"
         ],
+        "userChatQueue": "/queue/user/chat",
         "userSmsQueue": "/queue/user/sms",
         "userMailQueue": "/queue/user/mail"
     },
     "api": {
+        "chat": "http://127.0.0.1:4567/send",
         "sms": "http://127.0.0.1:10086/sms",
         "mail": "http://127.0.0.1:10086/mail",
         "dashboard": "http://127.0.0.1:8081",
@@ -34,6 +36,7 @@
         "max": 100
     },
     "worker": {
+        "chat": 10,
         "sms": 10,
         "mail": 50
     },
