@@ -3,6 +3,7 @@ package cron
 import (
 	"encoding/json"
 	log "github.com/Sirupsen/logrus"
+	"strings"
 
 	cmodel "github.com/open-falcon/falcon-plus/common/model"
 	"github.com/open-falcon/falcon-plus/modules/alarm/api"
@@ -38,13 +39,21 @@ func consumeHighEvents(event *cmodel.Event, action *api.Action) {
 		return
 	}
 
-	phones, mails := api.ParseTeams(action.Uic)
+	phones, mails, IMs := api.ParseTeams(action.Uic)
 
 	smsContent := GenerateSmsContent(event)
 	mailContent := GenerateMailContent(event)
+	chatContent := GenerateChatContent(event)
 
+	if len(IMs) > 0 {
+		log.Debugf("combined chat Ims is:%s", strings.Join(IMs, ","))
+	} else {
+		log.Debug("combined chat Ims is null")
+
+	}
 	if event.Priority() < 3 {
 		redi.WriteSms(phones, smsContent)
+		redi.WriteChat(IMs, chatContent)
 	}
 
 	redi.WriteMail(mails, smsContent, mailContent)
@@ -58,6 +67,7 @@ func consumeLowEvents(event *cmodel.Event, action *api.Action) {
 
 	if event.Priority() < 3 {
 		ParseUserSms(event, action)
+		ParseUserChat(event, action)
 	}
 
 	ParseUserMail(event, action)
@@ -87,6 +97,40 @@ func ParseUserSms(event *cmodel.Event, action *api.Action) {
 		bs, err := json.Marshal(dto)
 		if err != nil {
 			log.Error("json marshal SmsDto fail:", err)
+			continue
+		}
+
+		_, err = rc.Do("LPUSH", queue, string(bs))
+		if err != nil {
+			log.Error("LPUSH redis", queue, "fail:", err, "dto:", string(bs))
+		}
+	}
+}
+
+func ParseUserChat(event *cmodel.Event, action *api.Action) {
+	userMap := api.GetUsers(action.Uic)
+
+	content := GenerateChatContent(event)
+	metric := event.Metric()
+	status := event.Status
+	priority := event.Priority()
+
+	queue := g.Config().Redis.UserChatQueue
+
+	rc := g.RedisConnPool.Get()
+	defer rc.Close()
+
+	for _, user := range userMap {
+		dto := ChatDto{
+			Priority: priority,
+			Metric:   metric,
+			Content:  content,
+			IM:       user.IM,
+			Status:   status,
+		}
+		bs, err := json.Marshal(dto)
+		if err != nil {
+			log.Error("json marshal ChatDto fail:", err)
 			continue
 		}
 

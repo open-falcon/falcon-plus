@@ -18,6 +18,7 @@ type RedisConfig struct {
 	MaxIdle       int      `json:"maxIdle"`
 	HighQueues    []string `json:"highQueues"`
 	LowQueues     []string `json:"lowQueues"`
+	UserChatQueue string   `json:"userChatQueue"`
 	UserSmsQueue  string   `json:"userSmsQueue"`
 	UserMailQueue string   `json:"userMailQueue"`
 }
@@ -28,6 +29,7 @@ type ApiConfig struct {
 	Dashboard    string `json:"dashboard"`
 	PlusApi      string `json:"plus_api"`
 	PlusApiToken string `json:"plus_api_token"`
+	Chat         string `json:"chat"`
 }
 
 type FalconPortalConfig struct {
@@ -37,6 +39,7 @@ type FalconPortalConfig struct {
 }
 
 type WorkerConfig struct {
+	Chat int `json:"chat"`
 	Sms  int `json:"sms"`
 	Mail int `json:"mail"`
 }

@@ -33,6 +33,21 @@ func WriteSmsModel(sms *model.Sms) {
 	lpush(SMS_QUEUE_NAME, string(bs))
 }
 
+func WriteChatModel(chat *model.Chat) {
+	if chat == nil {
+		return
+	}
+
+	bs, err := json.Marshal(chat)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+
+	log.Debugf("write chat to queue, chat:%v, queue:%s", chat, CHAT_QUEUE_NAME)
+	lpush(CHAT_QUEUE_NAME, string(bs))
+}
+
 func WriteMailModel(mail *model.Mail) {
 	if mail == nil {
 		return
@@ -55,6 +70,15 @@ func WriteSms(tos []string, content string) {
 
 	sms := &model.Sms{Tos: strings.Join(tos, ","), Content: content}
 	WriteSmsModel(sms)
+}
+
+func WriteChat(tos []string, content string) {
+	if len(tos) == 0 {
+		return
+	}
+
+	chat := &model.Chat{Tos: strings.Join(tos, ","), Content: content}
+	WriteChatModel(chat)
 }
 
 func WriteMail(tos []string, subject, content string) {
