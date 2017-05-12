@@ -87,6 +87,13 @@ func Start() {
 		c.JSON(200, gin.H{"msg": "ok", "counter": cnt})
 	})
 
+	//compatible with open-falcon v0.1
+	router.GET("/counter/migrate", func(c *gin.Context) {
+		cnt := rrdtool.GetCounter()
+		log.Debug("migrating counter:", cnt)
+		c.JSON(200, gin.H{"msg": "ok", "counter": cnt})
+	})
+
 	addr := g.Config().Http.Listen
 	if addr == "" {
 		return
