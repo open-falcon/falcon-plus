@@ -124,15 +124,6 @@ for example:
 
 **NOTE: if you want to use grafana as the dashboard, please check [this](https://github.com/open-falcon/grafana-openfalcon-datasource).**
 
-# Package Management
-## How-to
-
-Make sure you're using Go 1.5+ and **GO15VENDOREXPERIMENT=1** env var is exported. (You can ignore **GO15VENDOREXPERIMENT** using Go 1.6+.)
-
-```
-make install
-```
-
 # Package Release
 
 ```

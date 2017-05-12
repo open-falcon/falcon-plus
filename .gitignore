@@ -4,7 +4,5 @@ open-falcon
 
 *.swp
 *.swo
-vendor/*
-!vendor/vendor.json
 *.tar.gz
 docs/_site
