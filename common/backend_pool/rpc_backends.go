@@ -3,7 +3,7 @@ package backend_pool
 import (
 	"fmt"
 	"net"
-	"net/rpc"
+	"net/rpc/jsonrpc"
 	"sync"
 	"time"
 
@@ -115,7 +115,7 @@ func createOnePool(name string, address string, connTimeout time.Duration, maxCo
 			return nil, err
 		}
 
-		return rpcpool.NewRpcClient(rpc.NewClient(conn), connName), nil
+		return rpcpool.NewRpcClient(jsonrpc.NewClient(conn), connName), nil
 	}
 
 	return p

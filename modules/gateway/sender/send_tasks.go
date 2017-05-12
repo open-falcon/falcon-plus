@@ -51,7 +51,7 @@ func forward2TransferTask(Q *nlist.SafeListLimited, concurrent int32) {
 			var err error
 
 			// 随机遍历transfer列表，直到数据发送成功 或者 遍历完;随机遍历，可以缓解慢transfer
-			resp := &g.TransferResp{}
+			resp := &cmodel.TransferResponse{}
 			sendOk := false
 
 			for j := 0; j < retry && !sendOk; j++ {
