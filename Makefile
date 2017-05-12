@@ -1,11 +1,8 @@
-SHELL := /bin/bash
-TARGET_SOURCE = $(shell find main.go g cmd common -name '*.go')
 CMD = agent aggregator graph hbs judge nodata transfer gateway api alarm
 TARGET = open-falcon
 PACKAGES ?= $(shell go list ./... | grep -v /vendor/)
 GOFILES := $(shell find . -name "*.go" -type f -not -path "./vendor/*")
 GOFMT ?= gofmt "-s"
-
 VERSION := $(shell cat VERSION)
 
 all: $(CMD) $(TARGET)
@@ -37,7 +34,8 @@ $(CMD):
 	go get ./modules/$@
 	go build -o bin/$@/falcon-$@ ./modules/$@
 
-$(TARGET): $(TARGET_SOURCE)
+.PHONY: $(TARGET)
+$(TARGET): $(GOFILES)
 	go build -ldflags "-X main.GitCommit=`git rev-parse --short HEAD` -X main.Version=$(VERSION)" -o open-falcon
 
 checkbin: bin/ config/ open-falcon
