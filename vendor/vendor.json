@@ -267,6 +267,12 @@
 			"revisionTime": "2016-12-13T09:38:49Z"
 		},
 		{
+			"checksumSHA1": "G87soMmOMAdhn6z5jcDRYiynmU0=",
+			"path": "github.com/toolkits/conn_pool",
+			"revision": "2b758bec1177994af1eae2f5dcf3e9f4bee8139a",
+			"revisionTime": "2017-05-12T06:18:17Z"
+		},
+		{
 			"checksumSHA1": "XqTDLy8bXAGifWuqK+OgvxOFgeU=",
 			"path": "github.com/toolkits/file",
 			"revision": "a5b3c5147e07f934d9f9d00b901a20b2529f1a57",
