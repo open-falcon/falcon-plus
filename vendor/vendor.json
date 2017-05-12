@@ -273,6 +273,12 @@
 			"revisionTime": "2017-05-12T06:18:17Z"
 		},
 		{
+			"checksumSHA1": "4fzsr46ghJVdP+p0zusYNGm0tYM=",
+			"path": "github.com/toolkits/conn_pool/rpc_conn_pool",
+			"revision": "2b758bec1177994af1eae2f5dcf3e9f4bee8139a",
+			"revisionTime": "2017-05-12T06:18:17Z"
+		},
+		{
 			"checksumSHA1": "XqTDLy8bXAGifWuqK+OgvxOFgeU=",
 			"path": "github.com/toolkits/file",
 			"revision": "a5b3c5147e07f934d9f9d00b901a20b2529f1a57",
