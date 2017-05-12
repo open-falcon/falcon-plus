@@ -1,7 +1,7 @@
 package sender
 
 import (
-	"log"
+	log "github.com/Sirupsen/logrus"
 	"math/rand"
 	"time"
 
@@ -77,6 +77,7 @@ func forward2TransferTask(Q *nlist.SafeListLimited, concurrent int32) {
 						TransferSendCnt[host].IncrBy(int64(count))
 					} else {
 						// statistics
+						log.Errorf("transfer update fail, items size:%d, error:%v, resp:%v", len(transItems), err, resp)
 						TransferSendFailCnt[host].IncrBy(int64(count))
 					}
 				}
@@ -84,9 +85,6 @@ func forward2TransferTask(Q *nlist.SafeListLimited, concurrent int32) {
 
 			// statistics
 			if !sendOk {
-				if cfg.Debug {
-					log.Printf("send to transfer fail, connpool:%v", SenderConnPools.Proc())
-				}
 				pfc.Meter("SendFail", int64(count))
 			} else {
 				pfc.Meter("Send", int64(count))

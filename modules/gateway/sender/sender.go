@@ -68,6 +68,6 @@ func initConnPools() {
 	}
 
 	// init conn pools
-	SenderConnPools = backend.CreateSafeRpcConnPools(int(cfg.Transfer.MaxConns), int(cfg.Transfer.MaxIdle),
+	SenderConnPools = backend.CreateSafeJsonrpcConnPools(int(cfg.Transfer.MaxConns), int(cfg.Transfer.MaxIdle),
 		int(cfg.Transfer.ConnTimeout), int(cfg.Transfer.CallTimeout), addrs)
 }

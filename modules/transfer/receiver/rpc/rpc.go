@@ -35,7 +35,6 @@ func StartRpc() {
 			log.Println("listener.Accept occur error:", err)
 			continue
 		}
-		// go rpc.ServeConn(conn)
 		go server.ServeCodec(jsonrpc.NewServerCodec(conn))
 	}
 }
