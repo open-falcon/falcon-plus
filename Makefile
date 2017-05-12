@@ -2,6 +2,7 @@ SHELL := /bin/bash
 TARGET_SOURCE = $(shell find main.go g cmd common -name '*.go')
 CMD = agent aggregator graph hbs judge nodata transfer gateway api alarm
 TARGET = open-falcon
+PACKAGES ?= $(shell go list ./... | grep -v /vendor/)
 GOFILES := $(shell find . -name "*.go" -type f -not -path "./vendor/*")
 GOFMT ?= gofmt "-s"
 
@@ -15,6 +16,9 @@ install:
 	fi
 	@if [ -f ~/.bash_profile ]; then source ~/.bash_profile; fi
 	govendor sync
+
+vet:
+	go vet $(PACKAGES)
 
 fmt:
 	$(GOFMT) -w $(GOFILES)

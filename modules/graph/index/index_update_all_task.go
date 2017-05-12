@@ -38,7 +38,7 @@ func UpdateIndexAllByDefaultStep() {
 func UpdateIndexAll(updateStepInSec int64) {
 	// 减少任务积压,但高并发时可能无效(AvailablePermits不是线程安全的)
 	if semaIndexUpdateAllTask.AvailablePermits() <= 0 {
-		log.Println("updateIndexAll, concurrent not avaiable")
+		log.Println("updateIndexAll, concurrent not available")
 		return
 	}
 
