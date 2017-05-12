@@ -13,6 +13,7 @@ import (
 	h "github.com/open-falcon/falcon-plus/modules/api/app/helper"
 	"github.com/open-falcon/falcon-plus/modules/api/app/model/uic"
 	"github.com/open-falcon/falcon-plus/modules/api/app/utils"
+	"github.com/spf13/viper"
 )
 
 type APIUserInput struct {
@@ -28,12 +29,17 @@ type APIUserInput struct {
 func CreateUser(c *gin.Context) {
 	var inputs APIUserInput
 	err := c.Bind(&inputs)
+	signupDisable := viper.GetBool("signup_disable")
+
 	switch {
 	case err != nil:
 		h.JSONR(c, http.StatusBadRequest, err)
 		return
 	case utils.HasDangerousCharacters(inputs.Cnname):
 		h.JSONR(c, http.StatusBadRequest, "name pattern is invalid")
+		return
+	case signupDisable:
+		h.JSONR(c, badstatus, "sign up is not enabled, please contact administrator")
 		return
 	}
 	var user uic.User
