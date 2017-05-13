@@ -27,7 +27,7 @@ func start_signal(pid int, cfg *g.GlobalConfig) {
 
 		switch s {
 		case syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT:
-			log.Println("gracefull shut down")
+			log.Println("graceful shut down")
 			if cfg.Http.Enabled {
 				http.Close_chan <- 1
 				<-http.Close_done_chan

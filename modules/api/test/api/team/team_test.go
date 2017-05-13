@@ -52,7 +52,7 @@ func TestTeam(t *testing.T) {
 					Get(fmt.Sprintf("%s/team", host))
 				So(resp.StatusCode(), ShouldEqual, 200)
 			})
-			Convey("Get Team List witn params", func() {
+			Convey("Get Team List with params", func() {
 				var id int
 				rt := resty.New()
 				rt.SetHeader("Apitoken", Apitoken)

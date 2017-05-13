@@ -177,7 +177,7 @@ func UserInfo(c *gin.Context) {
 	return
 }
 
-// anyone should get the user infomation
+// anyone should get the user information
 func GetUser(c *gin.Context) {
 	uidtmp := c.Params.ByName("uid")
 	if uidtmp == "" {
