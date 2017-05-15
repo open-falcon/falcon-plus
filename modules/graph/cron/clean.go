@@ -38,31 +38,25 @@ func CleanCache() {
 // TODO: 删除长期不更新数据(依赖index)
 func DeleteInvalidItems() int {
 
+	var currentCnt, deleteCnt int
 	graphItems := store.GraphItems
 
-	deleteCnt := 0
 	for idx := 0; idx < graphItems.Size; idx++ {
 		keys := graphItems.KeysByIndex(idx)
 
-		deleteKeys := make([]string, 0)
 		for _, key := range keys {
 			tmp := strings.Split(key, "_") // key = md5_type_step
 			if len(tmp) == 3 && !index.IndexedItemCache.ContainsKey(tmp[0]) {
-				deleteKeys = append(deleteKeys, key)
+				graphItems.Remove(key)
+				deleteCnt++
 			}
 		}
-
-		graphItems.Lock()
-		for _, key := range deleteKeys {
-			delete(graphItems.A[idx], key)
-		}
-		graphItems.Unlock()
-		deleteCnt += len(deleteKeys)
 	}
+	currentCnt = graphItems.Len()
 
-	pfc.Gauge("GraphItemsCacheCnt", int64(graphItems.Len()))
+	pfc.Gauge("GraphItemsCacheCnt", int64(currentCnt))
 	pfc.Gauge("GraphItemsCacheInvalidCnt", int64(deleteCnt))
-	log.Printf("GraphItemsCache: Count=>%d, DeleteInvalid=>%d", graphItems.Len(), deleteCnt)
+	log.Printf("GraphItemsCache: Count=>%d, DeleteInvalid=>%d", currentCnt, deleteCnt)
 
 	return deleteCnt
 }
@@ -70,26 +64,21 @@ func DeleteInvalidItems() int {
 // TODO: 删除长期不更新数据(依赖index)
 func DeleteInvalidHistory() int {
 
+	var currentCnt, deleteCnt int
 	historyCache := store.HistoryCache
 
-	deleteKeys := make([]string, 0)
-	historyCache.RLock()
-	for key := range historyCache.M {
+	keys := historyCache.Keys()
+	for _, key := range keys {
 		if !index.IndexedItemCache.ContainsKey(key) {
-			deleteKeys = append(deleteKeys, key)
+			historyCache.Remove(key)
+			deleteCnt++
 		}
 	}
-	historyCache.RUnlock()
+	currentCnt = historyCache.Size()
 
-	historyCache.Lock()
-	for _, key := range deleteKeys {
-		delete(historyCache.M, key)
-	}
+	pfc.Gauge("HistoryCacheCnt", int64(currentCnt))
+	pfc.Gauge("HistoryCacheInvalidCnt", int64(deleteCnt))
+	log.Printf("HistoryCache: Count=>%d, DeleteInvalid=>%d", currentCnt, deleteCnt)
 
-	pfc.Gauge("HistoryCacheCnt", int64(len(historyCache.M)))
-	pfc.Gauge("HistoryCacheInvalidCnt", int64(len(deleteKeys)))
-	log.Printf("HistoryCache: Count=>%d, DeleteInvalid=>%d", len(historyCache.M), len(deleteKeys))
-
-	historyCache.Unlock()
-	return len(deleteKeys)
+	return deleteCnt
 }
