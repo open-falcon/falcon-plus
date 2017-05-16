@@ -118,12 +118,12 @@ for example:
 
 * For debugging , You can check `$WorkDir/$moduleName/log/logs/xxx.log`
 
-# Install Front-end Dashboard
+# Install Frontend Dashboard
 - Follow [this](https://github.com/open-falcon/dashboard).
 
 **NOTE: if you want to use grafana as the dashboard, please check [this](https://github.com/open-falcon/grafana-openfalcon-datasource).**
 
-# Pckange Management
+# Package Management
 
 We use govendor to manage the golang packages. Most depended packages are saved under `./vendor` dir. 
 
