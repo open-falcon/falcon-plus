@@ -292,8 +292,23 @@ func FlushRRD(idx int, force bool) {
 				atomic.StoreInt32(&flushrrd_timeout, 1)
 			}
 			PullByKey(key)
-		} else {
+		} else if force || shouldFlush(key) {
 			CommitByKey(key)
 		}
 	}
+}
+
+func shouldFlush(key string) bool {
+
+	if store.GraphItems.ItemCnt(key) >= g.FLUSH_MIN_COUNT {
+		return true
+	}
+
+	deadline := time.Now().Unix() - int64(g.FLUSH_MAX_WAIT)
+	back := store.GraphItems.Back(key)
+	if back != nil && back.Timestamp <= deadline {
+		return true
+	}
+
+	return false
 }

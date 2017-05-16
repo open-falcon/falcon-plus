@@ -5,11 +5,14 @@ import (
 	"errors"
 	"hash/crc32"
 	"log"
+	"strings"
 	"sync"
 
+	pfc "github.com/niean/goperfcounter"
 	cmodel "github.com/open-falcon/falcon-plus/common/model"
 
 	"github.com/open-falcon/falcon-plus/modules/graph/g"
+	"github.com/open-falcon/falcon-plus/modules/graph/index"
 )
 
 var GraphItems *GraphItemMap
@@ -176,6 +179,35 @@ func (this *GraphItemMap) KeysByIndex(idx int) []string {
 	return keys
 }
 
+func (this *GraphItemMap) Back(key string) *cmodel.GraphItem {
+	this.RLock()
+	defer this.RUnlock()
+	idx := hashKey(key) % uint32(this.Size)
+	L, ok := this.A[idx][key]
+	if !ok {
+		return nil
+	}
+
+	back := L.Back()
+	if back == nil {
+		return nil
+	}
+
+	return back.Value.(*cmodel.GraphItem)
+}
+
+// 指定key对应的Item数量
+func (this *GraphItemMap) ItemCnt(key string) int {
+	this.Lock()
+	defer this.Unlock()
+	idx := hashKey(key) % uint32(this.Size)
+	L, ok := this.A[idx][key]
+	if !ok {
+		return 0
+	}
+	return L.Len()
+}
+
 func init() {
 	size := g.CACHE_TIME / g.FLUSH_DISK_STEP
 	if size < 0 {
@@ -189,4 +221,34 @@ func init() {
 	for i := 0; i < size; i++ {
 		GraphItems.A[i] = make(map[string]*SafeLinkedList)
 	}
+}
+
+// TODO: 删除长期不更新数据(依赖index)
+func DeleteInvalidItems() int {
+
+	deleteCnt := 0
+	for idx := 0; idx < GraphItems.Size; idx++ {
+		keys := GraphItems.KeysByIndex(idx)
+
+		deleteKeys := make([]string, 0)
+		for _, key := range keys {
+			tmp := strings.Split(key, "_") // key = md5_type_step
+			if len(tmp) == 3 && !index.IndexedItemCache.ContainsKey(tmp[0]) {
+				deleteKeys = append(deleteKeys, key)
+			}
+		}
+
+		GraphItems.Lock()
+		for _, key := range deleteKeys {
+			delete(GraphItems.A[idx], key)
+		}
+		GraphItems.Unlock()
+		deleteCnt += len(deleteKeys)
+	}
+
+	pfc.Gauge("GraphCacheCnt", int64(GraphItems.Len()))
+	pfc.Gauge("GraphCacheInvalidCnt", int64(deleteCnt))
+	log.Printf("GraphCache: Len=>%d, DeleteInvalid=>%d", GraphItems.Len(), deleteCnt)
+
+	return deleteCnt
 }

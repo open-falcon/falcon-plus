@@ -1,10 +1,14 @@
 package store
 
 import (
+	"log"
+
+	pfc "github.com/niean/goperfcounter"
+	cmodel "github.com/open-falcon/falcon-plus/common/model"
 	tlist "github.com/toolkits/container/list"
 	tmap "github.com/toolkits/container/nmap"
 
-	cmodel "github.com/open-falcon/falcon-plus/common/model"
+	"github.com/open-falcon/falcon-plus/modules/graph/index"
 )
 
 const (
@@ -63,4 +67,29 @@ func AddItem(key string, val *cmodel.GraphItem) {
 	if first == nil || first.(*cmodel.GraphItem).Timestamp < val.Timestamp { // first item or latest one
 		slist.PushFrontViolently(val)
 	}
+}
+
+// TODO: 删除长期不更新数据(依赖index)
+func DeleteInvalidHistory() int {
+
+	deleteKeys := make([]string, 0)
+	HistoryCache.RLock()
+	for key, _ := range HistoryCache.M {
+		if !index.IndexedItemCache.ContainsKey(key) {
+			deleteKeys = append(deleteKeys, key)
+		}
+	}
+	HistoryCache.RUnlock()
+
+	HistoryCache.Lock()
+	for _, key := range deleteKeys {
+		delete(HistoryCache.M, key)
+	}
+
+	pfc.Gauge("HistoryCacheCnt", int64(len(HistoryCache.M)))
+	pfc.Gauge("HistoryCacheInvalidCnt", int64(len(deleteKeys)))
+	log.Printf("HistoryCache: Len=>%d, DeleteInvalid=>%d", len(HistoryCache.M), len(deleteKeys))
+
+	HistoryCache.Unlock()
+	return len(deleteKeys)
 }
