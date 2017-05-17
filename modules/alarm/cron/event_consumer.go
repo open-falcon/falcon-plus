@@ -38,13 +38,15 @@ func consumeHighEvents(event *cmodel.Event, action *api.Action) {
 		return
 	}
 
-	phones, mails := api.ParseTeams(action.Uic)
+	phones, mails, ims := api.ParseTeams(action.Uic)
 
 	smsContent := GenerateSmsContent(event)
 	mailContent := GenerateMailContent(event)
+	imContent := GenerateIMContent(event)
 
 	if event.Priority() < 3 {
 		redi.WriteSms(phones, smsContent)
+		redi.WriteIM(ims, imContent)
 	}
 
 	redi.WriteMail(mails, smsContent, mailContent)

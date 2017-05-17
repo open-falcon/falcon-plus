@@ -17,13 +17,16 @@ func HandleCallback(event *model.Event, action *api.Action) {
 	teams := action.Uic
 	phones := []string{}
 	mails := []string{}
+	ims := []string{}
 
 	if teams != "" {
-		phones, mails = api.ParseTeams(teams)
+		phones, mails, ims = api.ParseTeams(teams)
 		smsContent := GenerateSmsContent(event)
 		mailContent := GenerateMailContent(event)
+		imContent := GenerateIMContent(event)
 		if action.BeforeCallbackSms == 1 {
 			redi.WriteSms(phones, smsContent)
+			redi.WriteIM(ims, imContent)
 		}
 
 		if action.BeforeCallbackMail == 1 {
@@ -36,6 +39,7 @@ func HandleCallback(event *model.Event, action *api.Action) {
 	if teams != "" {
 		if action.AfterCallbackSms == 1 {
 			redi.WriteSms(phones, message)
+			redi.WriteIM(ims, message)
 		}
 
 		if action.AfterCallbackMail == 1 {
