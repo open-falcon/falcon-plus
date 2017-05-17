@@ -26,7 +26,7 @@ func BuildCommonSMSContent(event *model.Event) string {
 	)
 }
 
-func BuildCommonChatContent(event *model.Event) string {
+func BuildCommonIMContent(event *model.Event) string {
 	return fmt.Sprintf(
 		"[P%d][%s][%s][][%s %s %s %s %s%s%s][O%d %s]",
 		event.Priority(),
@@ -73,6 +73,6 @@ func GenerateMailContent(event *model.Event) string {
 	return BuildCommonMailContent(event)
 }
 
-func GenerateChatContent(event *model.Event) string {
-	return BuildCommonChatContent(event)
+func GenerateIMContent(event *model.Event) string {
+	return BuildCommonIMContent(event)
 }

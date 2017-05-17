@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	CHAT_QUEUE_NAME = "/chat"
+	IM_QUEUE_NAME   = "/im"
 	SMS_QUEUE_NAME  = "/sms"
 	MAIL_QUEUE_NAME = "/mail"
 )
@@ -47,9 +47,9 @@ func PopAllSms() []*model.Sms {
 	return ret
 }
 
-func PopAllChat() []*model.Chat {
-	ret := []*model.Chat{}
-	queue := CHAT_QUEUE_NAME
+func PopAllIM() []*model.IM {
+	ret := []*model.IM{}
+	queue := IM_QUEUE_NAME
 
 	rc := g.RedisConnPool.Get()
 	defer rc.Close()
@@ -67,14 +67,14 @@ func PopAllChat() []*model.Chat {
 			continue
 		}
 
-		var chat model.Chat
-		err = json.Unmarshal([]byte(reply), &chat)
+		var im model.IM
+		err = json.Unmarshal([]byte(reply), &im)
 		if err != nil {
 			log.Error(err, reply)
 			continue
 		}
 
-		ret = append(ret, &chat)
+		ret = append(ret, &im)
 	}
 
 	return ret

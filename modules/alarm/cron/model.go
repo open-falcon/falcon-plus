@@ -16,11 +16,3 @@ type SmsDto struct {
 	Phone    string `json:"phone"`
 	Status   string `json:"status"`
 }
-
-type ChatDto struct {
-	Priority int    `json:"priority"`
-	Metric   string `json:"metric"`
-	Content  string `json:"content"`
-	IM       string `json:"im"`
-	Status   string `json:"status"`
-}
