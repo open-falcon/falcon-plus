@@ -21,6 +21,11 @@
 
 # Getting Started
 
+## Docker
+
+Please refer to ./docker/[README.md](https://github.com/open-falcon/falcon-plus/blob/master/docker/README.md).
+
+## Build from source
 **before start, please make sure you prepared this:**
 
 ```
@@ -54,7 +59,7 @@ mysql -h 127.0.0.1 -u root -p < dashboard-db-schema.sql
 mysql -h 127.0.0.1 -u root -p < alarms-db-schema.sql
 ```
 
-**NOTE: if you are upgrading from v0.1 to current version v0.2.0,then**. [More upgrading instruction](http://www.jianshu.com/p/6fb2c2b4d030) 
+**NOTE: if you are upgrading from v0.1 to current version v0.2.0,then**. [More upgrading instruction](http://www.jianshu.com/p/6fb2c2b4d030)
 
     mysql -h 127.0.0.1 -u root -p < alarms-db-schema.sql
 
@@ -125,9 +130,11 @@ for example:
 
 # Package Management
 
-We use govendor to manage the golang packages. Most depended packages are saved under `./vendor` dir. 
+We use govendor to manage the golang packages. Please install `govendor` before compilation.
 
-If you want to add or update a package, just run `govendor fetch xxxx@commitID` or `govendor fetch xxxx@v1.x.x`, then you will find the package have been placed in `./vendor` correctly.
+    go get -u github.com/kardianos/govendor
+
+Most depended packages are saved under `./vendor` dir. If you want to add or update a package, just run `govendor fetch xxxx@commitID` or `govendor fetch xxxx@v1.x.x`, then you will find the package have been placed in `./vendor` correctly.
 
 # Package Release
 
