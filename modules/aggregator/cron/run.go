@@ -1,13 +1,15 @@
 package cron
 
 import (
-	"github.com/open-falcon/falcon-plus/common/sdk/sender"
-	"github.com/open-falcon/falcon-plus/modules/aggregator/g"
-	"github.com/open-falcon/falcon-plus/modules/aggregator/sdk"
 	"log"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/open-falcon/falcon-plus/common/sdk/sender"
+	"github.com/open-falcon/falcon-plus/modules/aggregator/g"
+	"github.com/open-falcon/falcon-plus/modules/aggregator/sdk"
 )
 
 func WorkerRun(item *g.Cluster) {
@@ -29,8 +31,8 @@ func WorkerRun(item *g.Cluster) {
 		return
 	}
 
-	numeratorOperands, numeratorOperators := parse(numeratorStr, needComputeNumerator)
-	denominatorOperands, denominatorOperators := parse(denominatorStr, needComputeDenominator)
+	numeratorOperands, numeratorOperators, numeratorComputeMode := parse(numeratorStr, needComputeNumerator)
+	denominatorOperands, denominatorOperators, denominatorComputeMode := parse(denominatorStr, needComputeDenominator)
 
 	if !operatorsValid(numeratorOperators) || !operatorsValid(denominatorOperators) {
 		log.Println("[W] operators invalid", item)
@@ -55,30 +57,42 @@ func WorkerRun(item *g.Cluster) {
 
 	for _, hostname := range hostnames {
 		var numeratorVal, denominatorVal float64
-		var (
-			numeratorValid   = true
-			denominatorValid = true
-		)
+		var err error
 
 		if needComputeNumerator {
-			numeratorVal, numeratorValid = compute(numeratorOperands, numeratorOperators, hostname, valueMap)
-			if !numeratorValid && debug {
-				log.Printf("[W] [hostname:%s] [numerator:%s] invalid or not found", hostname, item.Numerator)
+			numeratorVal, err = compute(numeratorOperands, numeratorOperators, numeratorComputeMode, hostname, valueMap)
+
+			if debug && err != nil {
+				log.Printf("[W] [hostname:%s] [numerator:%s] id:%d, err:%v", hostname, item.Numerator, item.Id, err)
+			} else if debug {
+				log.Printf("[D] [hostname:%s] [numerator:%s] id:%d, value:%0.4f", hostname, item.Numerator, item.Id, numeratorVal)
+			}
+
+			if err != nil {
+				continue
 			}
 		}
 
 		if needComputeDenominator {
-			denominatorVal, denominatorValid = compute(denominatorOperands, denominatorOperators, hostname, valueMap)
-			if !denominatorValid && debug {
-				log.Printf("[W] [hostname:%s] [denominator:%s] invalid or not found", hostname, item.Denominator)
+			denominatorVal, err = compute(denominatorOperands, denominatorOperators, denominatorComputeMode, hostname, valueMap)
+
+			if debug && err != nil {
+				log.Printf("[W] [hostname:%s] [denominator:%s] id:%d, err:%v", hostname, item.Denominator, item.Id, err)
+			} else if debug {
+				log.Printf("[D] [hostname:%s] [denominator:%s] id:%d, value:%0.4f", hostname, item.Denominator, item.Id, denominatorVal)
+			}
+
+			if err != nil {
+				continue
 			}
 		}
 
-		if numeratorValid && denominatorValid {
-			numerator += numeratorVal
-			denominator += denominatorVal
-			validCount += 1
+		if debug {
+			log.Printf("[D] hostname:%s  numerator:%0.4f  denominator:%0.4f  per:%0.4f\n", hostname, numeratorVal, denominatorVal, numeratorVal/denominatorVal)
 		}
+		numerator += numeratorVal
+		denominator += denominatorVal
+		validCount += 1
 	}
 
 	if !needComputeNumerator {
@@ -87,7 +101,7 @@ func WorkerRun(item *g.Cluster) {
 		} else {
 			numerator, err = strconv.ParseFloat(numeratorStr, 64)
 			if err != nil {
-				log.Printf("[E] strconv.ParseFloat(%s) fail %v", numeratorStr, item)
+				log.Printf("[E] strconv.ParseFloat(%s) fail %v, id:%d", numeratorStr, item.Id)
 				return
 			}
 		}
@@ -99,47 +113,50 @@ func WorkerRun(item *g.Cluster) {
 		} else {
 			denominator, err = strconv.ParseFloat(denominatorStr, 64)
 			if err != nil {
-				log.Printf("[E] strconv.ParseFloat(%s) fail %v", denominatorStr, item)
+				log.Printf("[E] strconv.ParseFloat(%s) fail %v, id:%d", denominatorStr, item.Id)
 				return
 			}
 		}
 	}
 
 	if denominator == 0 {
-		log.Println("[W] denominator == 0", item)
+		log.Println("[W] denominator == 0, id:", item.Id)
 		return
 	}
 
+	if validCount == 0 {
+		log.Println("[W] validCount == 0, id:", item.Id)
+		return
+	}
+
+	if debug {
+		log.Printf("[D] hostname:all  numerator:%0.4f  denominator:%0.4f  per:%0.4f\n", numerator, denominator, numerator/denominator)
+	}
 	sender.Push(item.Endpoint, item.Metric, item.Tags, numerator/denominator, item.DsType, int64(item.Step))
 }
 
-func parse(expression string, needCompute bool) (operands []string, operators []uint8) {
+func parse(expression string, needCompute bool) (operands []string, operators []string, computeMode string) {
 	if !needCompute {
 		return
 	}
 
-	// e.g. $(cpu.busy)+$(cpu.idle)-$(cpu.nice)-$(cpu.guest)
-	//      xx          --          --          --         x
-	newExpression := expression[2 : len(expression)-1]
-	arr := strings.Split(newExpression, "$(")
-	count := len(arr)
-	if count == 1 {
-		operands = append(operands, arr[0])
-		return
-	}
+	// e.g. $(cpu.busy)
+	// e.g. $(cpu.busy)+$(cpu.idle)-$(cpu.nice)
+	// e.g. $(cpu.busy)>=80
+	// e.g. ($(cpu.busy)+$(cpu.idle)-$(cpu.nice))>80
 
-	if count > 1 {
-		for i := 0; i < count; i++ {
-			item := arr[i]
-			length := len(item)
-			if i == count-1 {
-				operands = append(operands, item)
-				continue
-			}
-			operators = append(operators, item[length-1])
-			operands = append(operands, item[0:length-2])
+	splitCounter, _ := regexp.Compile(`[\$\(\)]+`)
+	items := splitCounter.Split(expression, -1)
+
+	count := len(items)
+	for i, val := range items[1 : count-1] {
+		if i%2 == 0 {
+			operands = append(operands, val)
+		} else {
+			operators = append(operators, val)
 		}
 	}
+	computeMode = items[count-1]
 
 	return
 }
@@ -166,17 +183,47 @@ func needCompute(val string) bool {
 
 func expressionValid(val string) bool {
 	// use chinese character?
+
 	if strings.Contains(val, "（") || strings.Contains(val, "）") {
 		return false
 	}
 
-	return true
+	if val == "$#" {
+		return true
+	}
+
+	// e.g. $(cpu.busy)
+	// e.g. $(cpu.busy)+$(cpu.idle)-$(cpu.nice)
+	matchMode0 := `^(\$\([^\(\)]+\)[+-])*\$\([^\(\)]+\)$`
+	if ok, err := regexp.MatchString(matchMode0, val); err == nil && ok {
+		return true
+	}
+
+	// e.g. $(cpu.busy)>=80
+	matchMode1 := `^\$\([^\(\)]+\)(>|=|<|>=|<=)\d+(\.\d+)?$`
+	if ok, err := regexp.MatchString(matchMode1, val); err == nil && ok {
+		return true
+	}
+
+	// e.g. ($(cpu.busy)+$(cpu.idle)-$(cpu.nice))>80
+	matchMode2 := `^\((\$\([^\(\)]+\)[+-])*\$\([^\(\)]+\)\)(>|=|<|>=|<=)\d+(\.\d+)?$`
+	if ok, err := regexp.MatchString(matchMode2, val); err == nil && ok {
+		return true
+	}
+
+	// e.g. 纯数字
+	matchMode3 := `^\d+$`
+	if ok, err := regexp.MatchString(matchMode3, val); err == nil && ok {
+		return true
+	}
+
+	return false
 }
 
-func operatorsValid(ops []uint8) bool {
+func operatorsValid(ops []string) bool {
 	count := len(ops)
 	for i := 0; i < count; i++ {
-		if ops[i] != '+' && ops[i] != '-' {
+		if ops[i] != "+" && ops[i] != "-" {
 			return false
 		}
 	}
