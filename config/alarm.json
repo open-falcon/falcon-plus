@@ -18,10 +18,12 @@
             "event:p5",
             "event:p6"
         ],
+        "userIMQueue": "/queue/user/im",
         "userSmsQueue": "/queue/user/sms",
         "userMailQueue": "/queue/user/mail"
     },
     "api": {
+        "im": "http://127.0.0.1:10086/wechat",
         "sms": "http://127.0.0.1:10086/sms",
         "mail": "http://127.0.0.1:10086/mail",
         "dashboard": "http://127.0.0.1:8081",
@@ -34,6 +36,7 @@
         "max": 100
     },
     "worker": {
+        "im": 10,
         "sms": 10,
         "mail": 50
     },
