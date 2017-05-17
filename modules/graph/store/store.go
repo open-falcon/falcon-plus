@@ -28,6 +28,20 @@ func (this *GraphItemMap) Get(key string) (*SafeLinkedList, bool) {
 	return val, ok
 }
 
+// Remove method remove key from GraphItemMap, return true if exists
+func (this *GraphItemMap) Remove(key string) bool {
+	this.Lock()
+	defer this.Unlock()
+	idx := hashKey(key) % uint32(this.Size)
+	_, exists := this.A[idx][key]
+	if !exists {
+		return false
+	}
+
+	delete(this.A[idx], key)
+	return true
+}
+
 func (this *GraphItemMap) Getitems(idx int) map[string]*SafeLinkedList {
 	this.RLock()
 	defer this.RUnlock()
@@ -174,6 +188,35 @@ func (this *GraphItemMap) KeysByIndex(idx int) []string {
 	}
 
 	return keys
+}
+
+func (this *GraphItemMap) Back(key string) *cmodel.GraphItem {
+	this.RLock()
+	defer this.RUnlock()
+	idx := hashKey(key) % uint32(this.Size)
+	L, ok := this.A[idx][key]
+	if !ok {
+		return nil
+	}
+
+	back := L.Back()
+	if back == nil {
+		return nil
+	}
+
+	return back.Value.(*cmodel.GraphItem)
+}
+
+// 指定key对应的Item数量
+func (this *GraphItemMap) ItemCnt(key string) int {
+	this.RLock()
+	defer this.RUnlock()
+	idx := hashKey(key) % uint32(this.Size)
+	L, ok := this.A[idx][key]
+	if !ok {
+		return 0
+	}
+	return L.Len()
 }
 
 func init() {
