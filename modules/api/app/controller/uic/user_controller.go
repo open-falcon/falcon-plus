@@ -38,9 +38,22 @@ func CreateUser(c *gin.Context) {
 	case utils.HasDangerousCharacters(inputs.Cnname):
 		h.JSONR(c, http.StatusBadRequest, "name pattern is invalid")
 		return
+	//when sign is disabled, only admin user can create user
 	case signupDisable:
-		h.JSONR(c, badstatus, "sign up is not enabled, please contact administrator")
-		return
+		user, err := h.GetUser(c)
+		errorMsgs := []string{"sign up is not enabled, please contact administrator"}
+		if err != nil {
+			if !strings.Contains(err.Error(), "token key is not set") {
+				errorMsgs = append(errorMsgs, err.Error())
+			}
+			h.JSONR(c, badstatus, strings.Join(errorMsgs, ". "))
+			return
+		} else if !user.IsAdmin() {
+			errorMsgs = append(errorMsgs, "You are not admin, no permissions can do this")
+			h.JSONR(c, badstatus, strings.Join(errorMsgs, ". "))
+			return
+		}
+		//if current user is admin will passed this and continue to next part
 	}
 	var user uic.User
 	db.Uic.Table("user").Where("name = ?", inputs.Name).Scan(&user)
@@ -109,7 +122,11 @@ func UpdateCurrentUser(c *gin.Context) {
 		h.JSONR(c, http.StatusBadRequest, "name pattern is invalid")
 		return
 	}
-	websession, _ := h.GetSession(c)
+	websession, err := h.GetSession(c)
+	if err != nil {
+		h.JSONR(c, badstatus, err)
+		return
+	}
 	user := uic.User{}
 	db.Uic.Table("user").Where("name = ?", websession.Name).Scan(&user)
 	if user.ID == 0 {
@@ -144,7 +161,12 @@ func ChangePassword(c *gin.Context) {
 	if err != nil {
 		h.JSONR(c, http.StatusBadRequest, err)
 	}
-	websession, _ := h.GetSession(c)
+	websession, err := h.GetSession(c)
+	if err != nil {
+		h.JSONR(c, badstatus, err)
+		return
+	}
+
 	user := uic.User{Name: websession.Name}
 
 	dt := db.Uic.Where(&user).Find(&user)
