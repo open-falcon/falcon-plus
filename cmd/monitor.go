@@ -35,18 +35,19 @@ func checkMonReq(name string) error {
 }
 
 func monitor(c *cobra.Command, args []string) error {
-	if len(args) != 1 {
+	if len(args) < 1 {
 		return c.Usage()
 	}
-	moduleName := args[0]
-	if err := checkMonReq(moduleName); err != nil {
-		return err
-	}
+	var tailArgs []string = []string{"-f"}
+	for _,moduleName := range args {
+		if err := checkMonReq(moduleName); err != nil {
+			return err
+		}
 
-	logPath := g.LogPath(moduleName)
-	cmd := exec.Command("tail", "-f", logPath)
+		tailArgs = append(tailArgs, g.LogPath(moduleName))
+	}
+	cmd := exec.Command("tail", tailArgs[0:]...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-
 	return cmd.Run()
 }
