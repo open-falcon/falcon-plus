@@ -39,7 +39,7 @@ func monitor(c *cobra.Command, args []string) error {
 		return c.Usage()
 	}
 	var tailArgs []string = []string{"-f"}
-	for _,moduleName := range args {
+	for _, moduleName := range args {
 		if err := checkMonReq(moduleName); err != nil {
 			return err
 		}
