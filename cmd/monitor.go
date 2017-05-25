@@ -46,7 +46,7 @@ func monitor(c *cobra.Command, args []string) error {
 
 		tailArgs = append(tailArgs, g.LogPath(moduleName))
 	}
-	cmd := exec.Command("tail", tailArgs[0:]...)
+	cmd := exec.Command("tail", tailArgs...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	return cmd.Run()
