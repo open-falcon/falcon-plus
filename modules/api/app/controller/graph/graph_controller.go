@@ -16,6 +16,41 @@ import (
 	"net/http"
 )
 
+type APIEndpointObjGetInputs struct {
+	Endpoints []string `json:"endpoints" form:"endpoints"`
+	Deadline  int64    `json:"deadline" form:"deadline"`
+}
+
+func EndpointObjGet(c *gin.Context) {
+	inputs := APIEndpointObjGetInputs{
+		Deadline: 0,
+	}
+	if err := c.Bind(&inputs); err != nil {
+		h.JSONR(c, badstatus, err)
+		return
+	}
+	if len(inputs.Endpoints) == 0 {
+		h.JSONR(c, http.StatusBadRequest, "endpoints missing")
+		return
+	}
+
+	var result []m.Endpoint = []m.Endpoint{}
+	dt := db.Graph.Table("endpoint").
+		Where("endpoint in (?) and ts >= ?", inputs.Endpoints, inputs.Deadline).
+		Scan(&result)
+	if dt.Error != nil {
+		h.JSONR(c, http.StatusBadRequest, dt.Error)
+		return
+	}
+
+	endpoints := []map[string]interface{}{}
+	for _, r := range result {
+		endpoints = append(endpoints, map[string]interface{}{"id": r.ID, "endpoint": r.Endpoint, "ts": r.Ts})
+	}
+
+	h.JSONR(c, endpoints)
+}
+
 type APIEndpointRegexpQueryInputs struct {
 	Q     string `json:"q" form:"q"`
 	Label string `json:"tags" form:"tags"`
@@ -127,7 +162,7 @@ func EndpointCounterRegexpQuery(c *gin.Context) {
 		}
 
 		var counters []m.EndpointCounter
-		dt := db.Graph.Table("endpoint_counter").Select("counter, step, type").Where(fmt.Sprintf("endpoint_id IN %s", eids))
+		dt := db.Graph.Table("endpoint_counter").Select("endpoint_id, counter, step, type").Where(fmt.Sprintf("endpoint_id IN %s", eids))
 		if metricQuery != "" {
 			qs := strings.Split(metricQuery, " ")
 			if len(qs) > 0 {
@@ -145,9 +180,10 @@ func EndpointCounterRegexpQuery(c *gin.Context) {
 		countersResp := []interface{}{}
 		for _, c := range counters {
 			countersResp = append(countersResp, map[string]interface{}{
-				"counter": c.Counter,
-				"step":    c.Step,
-				"type":    c.Type,
+				"endpoint_id": c.EndpointID,
+				"counter":     c.Counter,
+				"step":        c.Step,
+				"type":        c.Type,
 			})
 		}
 		h.JSONR(c, countersResp)
