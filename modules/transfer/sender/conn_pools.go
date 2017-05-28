@@ -31,11 +31,13 @@ func initConnPools() {
 	}
 	GraphConnPools = backend.CreateSafeRpcConnPools(cfg.Graph.MaxConns, cfg.Graph.MaxIdle,
 		cfg.Graph.ConnTimeout, cfg.Graph.CallTimeout, graphInstances.ToSlice())
-
+	GraphApiConnPools = backend.CreateSafeRpcConnPools(cfg.Graph.MaxConns, cfg.Graph.MaxIdle,
+		cfg.Graph.ConnTimeout, cfg.Graph.CallTimeout, graphInstances.ToSlice())
 }
 
 func DestroyConnPools() {
 	JudgeConnPools.Destroy()
 	GraphConnPools.Destroy()
+	GraphApiConnPools.Destroy()
 	TsdbConnPoolHelper.Destroy()
 }
