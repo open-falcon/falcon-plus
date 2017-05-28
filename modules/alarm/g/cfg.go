@@ -26,6 +26,7 @@ type RedisConfig struct {
 type ApiConfig struct {
 	Sms          string `json:"sms"`
 	Mail         string `json:"mail"`
+	Chat         string `json:"chat"`
 	Dashboard    string `json:"dashboard"`
 	PlusApi      string `json:"plus_api"`
 	PlusApiToken string `json:"plus_api_token"`
