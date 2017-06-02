@@ -32,9 +32,10 @@ func Collect() {
 }
 
 func collect(sec int64, fns []func() []*model.MetricValue) {
-	t := time.NewTicker(time.Second * time.Duration(sec)).C
+	t := time.NewTicker(time.Second * time.Duration(sec))
+	defer t.Stop()
 	for {
-		<-t
+		<-t.C
 
 		hostname, err := g.Hostname()
 		if err != nil {

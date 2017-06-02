@@ -29,6 +29,7 @@ import (
 func CleanCache() {
 
 	ticker := time.NewTicker(time.Duration(g.CLEAN_CACHE) * time.Second)
+	defer ticker.Stop()
 	for {
 		<-ticker.C
 		DeleteInvalidItems()   // 删除无效的GraphItems

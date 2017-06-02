@@ -80,7 +80,7 @@ func checkStartReq(name string) error {
 
 func isStarted(name string) bool {
 	ticker := time.NewTicker(time.Millisecond * 100)
-
+	defer ticker.Stop()
 	for {
 		select {
 		case <-ticker.C:
