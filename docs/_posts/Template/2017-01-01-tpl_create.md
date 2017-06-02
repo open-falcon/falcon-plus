@@ -1,6 +1,6 @@
 ---
 category: Template
-apiurl: '/api/v1/template/'
+apiurl: '/api/v1/template'
 title: "Create Template"
 type: 'POST'
 sample_doc: 'template.html'
