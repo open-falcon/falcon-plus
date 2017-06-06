@@ -86,9 +86,15 @@ func ParseTeams(teams string) ([]string, []string, []string) {
 	mailSet := set.NewStringSet()
 	imSet := set.NewStringSet()
 	for _, user := range userMap {
-		phoneSet.Add(user.Phone)
-		mailSet.Add(user.Email)
-		imSet.Add(user.IM)
+		if user.Phone != "" {
+			phoneSet.Add(user.Phone)
+		}
+		if user.Email != "" {
+			mailSet.Add(user.Email)
+		}
+		if user.IM != "" {
+			imSet.Add(user.IM)
+		}
 	}
 	return phoneSet.ToSlice(), mailSet.ToSlice(), imSet.ToSlice()
 }
