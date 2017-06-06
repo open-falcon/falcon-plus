@@ -241,6 +241,52 @@ func GetHostGroup(c *gin.Context) {
 	return
 }
 
+type APIHostGroupInputs struct {
+	Name string `json:"grp_name" binding:"required"`
+	//create_user string `json:"create_user" binding:"required"`
+}
+func PutHostGroup(c *gin.Context) {
+	grpIDtmp := c.Params.ByName("host_group")
+	if grpIDtmp == "" {
+		h.JSONR(c, badstatus, "grp id is missing")
+		return
+	}
+	grpID, err := strconv.Atoi(grpIDtmp)
+	if err != nil {
+		log.Debugf("grpIDtmp: %v", grpIDtmp)
+		h.JSONR(c, badstatus, err)
+		return
+	}
+	var inputs APIHostGroupInputs
+	err = c.BindJSON(&inputs)
+	switch {
+	case err != nil:
+		h.JSONR(c, badstatus, err)
+		return
+	case u.HasDangerousCharacters(inputs.Name):
+		h.JSONR(c, badstatus, "grp_name is invalid")
+		return
+	}
+	hostgroup := f.HostGroup{ID: int64(grpID)}
+	if dt := db.Falcon.Find(&hostgroup); dt.Error != nil {
+		h.JSONR(c, expecstatus, dt.Error)
+		return
+	}
+	hostgroup.Name = inputs.Name
+	uhostgroup := map[string]interface{}{
+		"grp_name":     hostgroup.Name,
+		"create_user":  hostgroup.CreateUser,
+		"come_from":    hostgroup.ComeFrom,
+	}
+	dt := db.Falcon.Model(&hostgroup).Where("id = ?", grpID).Update(uhostgroup)
+	if dt.Error != nil {
+		h.JSONR(c, badstatus, dt.Error)
+		return
+	}
+	h.JSONR(c, "hostgroup profile updated")
+	return
+}
+
 type APIBindTemplateToGroupInputs struct {
 	TplID int64 `json:"tpl_id"`
 	GrpID int64 `json:"grp_id"`
