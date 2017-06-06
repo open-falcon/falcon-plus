@@ -44,12 +44,14 @@ func consumeHighEvents(event *cmodel.Event, action *api.Action) {
 	mailContent := GenerateMailContent(event)
 	imContent := GenerateIMContent(event)
 
+	// <=P2 才发送短信
 	if event.Priority() < 3 {
 		redi.WriteSms(phones, smsContent)
-		redi.WriteIM(ims, imContent)
 	}
 
+	redi.WriteIM(ims, imContent)
 	redi.WriteMail(mails, smsContent, mailContent)
+
 }
 
 // 低优先级的做报警合并
@@ -58,10 +60,12 @@ func consumeLowEvents(event *cmodel.Event, action *api.Action) {
 		return
 	}
 
+	// <=P2 才发送短信
 	if event.Priority() < 3 {
 		ParseUserSms(event, action)
 	}
 
+	ParseUserIm(event, action)
 	ParseUserMail(event, action)
 }
 
@@ -125,6 +129,40 @@ func ParseUserMail(event *cmodel.Event, action *api.Action) {
 		bs, err := json.Marshal(dto)
 		if err != nil {
 			log.Error("json marshal MailDto fail:", err)
+			continue
+		}
+
+		_, err = rc.Do("LPUSH", queue, string(bs))
+		if err != nil {
+			log.Error("LPUSH redis", queue, "fail:", err, "dto:", string(bs))
+		}
+	}
+}
+
+func ParseUserIm(event *cmodel.Event, action *api.Action) {
+	userMap := api.GetUsers(action.Uic)
+
+	content := GenerateIMContent(event)
+	metric := event.Metric()
+	status := event.Status
+	priority := event.Priority()
+
+	queue := g.Config().Redis.UserIMQueue
+
+	rc := g.RedisConnPool.Get()
+	defer rc.Close()
+
+	for _, user := range userMap {
+		dto := ImDto{
+			Priority: priority,
+			Metric:   metric,
+			Content:  content,
+			IM:       user.IM,
+			Status:   status,
+		}
+		bs, err := json.Marshal(dto)
+		if err != nil {
+			log.Error("json marshal ImDto fail:", err)
 			continue
 		}
 
