@@ -1,6 +1,6 @@
 ---
 category: HostGroup
-apiurl: '/api/v1/hostgroup/'
+apiurl: '/api/v1/hostgroup'
 title: "HostGroup List"
 type: 'GET'
 sample_doc: 'hostgroup.html'

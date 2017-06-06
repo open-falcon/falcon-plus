@@ -1,7 +1,7 @@
 ---
 category: Alarm
 apiurl: '/api/v1/alarm/eventcases'
-title: 'Create EventCases'
+title: 'EventCases List'
 type: 'POST'
 sample_doc: 'alarm.html'
 layout: default
