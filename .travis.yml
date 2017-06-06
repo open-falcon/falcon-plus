@@ -7,6 +7,7 @@ go:
 
 script:
   - make fmt-check
+  - make misspell-check
   - make all
 
 after_success:

@@ -7,6 +7,20 @@ VERSION := $(shell cat VERSION)
 
 all: $(CMD) $(TARGET)
 
+.PHONY: misspell-check
+misspell-check:
+	@hash misspell > /dev/null 2>&1; if [ $$? -ne 0 ]; then \
+		go get -u github.com/client9/misspell/cmd/misspell; \
+	fi
+	misspell -error $(GOFILES)
+
+.PHONY: misspell
+misspell:
+	@hash misspell > /dev/null 2>&1; if [ $$? -ne 0 ]; then \
+		go get -u github.com/client9/misspell/cmd/misspell; \
+	fi
+	misspell -w $(GOFILES)
+
 install:
 	@hash govendor > /dev/null 2>&1; if [ $$? -ne 0 ]; then \
 		go get -u github.com/kardianos/govendor; \
