@@ -284,6 +284,48 @@ func IsUserInTeams(c *gin.Context) {
 	return
 }
 
+func GetUserTeams(c *gin.Context) {
+	uidtmp := c.Params.ByName("uid")
+	if uidtmp == "" {
+		h.JSONR(c, badstatus, "user id is missing")
+		return
+	}
+	uid, err := strconv.Atoi(uidtmp)
+	if err != nil {
+		h.JSONR(c, badstatus, err)
+		return
+	}
+
+	user := uic.User{}
+	dt := db.Uic.Table("user").Where("id = ?", uid).First(&user)
+	if dt.Error != nil {
+		h.JSONR(c, http.StatusExpectationFailed, dt.Error)
+		return
+	}
+
+	tus := []uic.RelTeamUser{}
+	dt = db.Uic.Table("rel_team_user").Where("uid = ?", uid).Find(&tus)
+	if dt.Error != nil {
+		h.JSONR(c, http.StatusExpectationFailed, dt.Error)
+		return
+	}
+	tids := []int64{}
+	for _, ut := range tus{
+	    tids = append(tids, ut.Tid)
+	}
+    teams := []uic.Team{}
+    tidsStr, _ := utils.ArrInt64ToString(tids)
+	dt = db.Uic.Table("team").Where(fmt.Sprintf("id in (%s)", tidsStr)).Find(&teams)
+	if dt.Error != nil {
+		h.JSONR(c, http.StatusExpectationFailed, dt.Error)
+		return
+	}
+	h.JSONR(c, map[string]interface{}{
+		"teams": teams,
+	})
+	return
+}
+
 //admin usage
 
 type APIAdminChangeUserProfileInput struct {
