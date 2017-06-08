@@ -1,9 +1,11 @@
 package graph
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/gin-gonic/gin"
@@ -13,7 +15,12 @@ import (
 	m "github.com/open-falcon/falcon-plus/modules/api/app/model/graph"
 	"github.com/open-falcon/falcon-plus/modules/api/app/utils"
 	grh "github.com/open-falcon/falcon-plus/modules/api/graph"
+	tcache "github.com/toolkits/cache/localcache/timedcache"
 	"net/http"
+)
+
+var (
+	localStepCache = tcache.New(600*time.Second, 60*time.Second)
 )
 
 type APIEndpointObjGetInputs struct {
@@ -202,20 +209,24 @@ type APIQueryGraphDrawData struct {
 
 func QueryGraphDrawData(c *gin.Context) {
 	var inputs APIQueryGraphDrawData
-	if err := c.Bind(&inputs); err != nil {
+	var err error
+	if err = c.Bind(&inputs); err != nil {
 		h.JSONR(c, badstatus, err)
 		return
 	}
 	respData := []*cmodel.GraphQueryResponse{}
 	for _, host := range inputs.HostNames {
 		for _, counter := range inputs.Counters {
-			// TODO:cache step
-			var step []int
-			dt := db.Graph.Raw("select a.step from endpoint_counter as a, endpoint as b where b.endpoint = ? and a.endpoint_id = b.id and a.counter = ? limit 1", host, counter).Scan(&step)
-			if dt.Error != nil || len(step) == 0 {
-				continue
+			var step int
+			if inputs.Step > 0 {
+				step = inputs.Step
+			} else {
+				step, err = getCounterStep(host, counter)
+				if err != nil {
+					continue
+				}
 			}
-			data, _ := fetchData(host, counter, inputs.ConsolFun, inputs.StartTime, inputs.EndTime, step[0])
+			data, _ := fetchData(host, counter, inputs.ConsolFun, inputs.StartTime, inputs.EndTime, step)
 			respData = append(respData, data)
 		}
 	}
@@ -352,7 +363,8 @@ func DeleteGraphCounter(c *gin.Context) {
 		Step      int
 	}
 	rows := []DBRows{}
-	dt := db.Graph.Raw(`select a.endpoint, b.id AS counter_id, b.counter, b.type, b.step from endpoint as a, endpoint_counter as b
+	dt := db.Graph.Raw(`select a.endpoint, b.id AS counter_id, b.counter, b.type, b.step from endpoint as a,
+		endpoint_counter as b
 		where b.endpoint_id = a.id 
 		AND a.endpoint in (?)
 		AND b.counter in (?)`, inputs.Endpoints, inputs.Counters).Scan(&rows)
@@ -415,5 +427,30 @@ func fetchData(hostname string, counter string, consolFun string, startTime int6
 	if err != nil {
 		log.Debugf("query graph got error: %s", err.Error())
 	}
+	return
+}
+
+func getCounterStep(endpoint, counter string) (step int, err error) {
+	cache_key := fmt.Sprintf("step:%s/%s", endpoint, counter)
+	s, found := localStepCache.Get(cache_key)
+	if found && s != nil {
+		step = s.(int)
+		return
+	}
+
+	var rows []int
+	dt := db.Graph.Raw(`select a.step from endpoint_counter as a, endpoint as b
+		where b.endpoint = ? and a.endpoint_id = b.id and a.counter = ? limit 1`, endpoint, counter).Scan(&rows)
+	if dt.Error != nil {
+		err = dt.Error
+		return
+	}
+	if len(rows) == 0 {
+		err = errors.New("empty result")
+		return
+	}
+	step = rows[0]
+	localStepCache.Set(cache_key, step, tcache.DefaultExpiration)
+
 	return
 }
