@@ -10,6 +10,7 @@ import (
 	"log"
 	"os/exec"
 	"path/filepath"
+	"syscall"
 	"time"
 )
 
@@ -64,7 +65,11 @@ func PluginRun(plugin *Plugin) {
 	cmd.Stdout = &stdout
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr
+	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 	cmd.Start()
+	if debug {
+		log.Println("plugin started:", fpath)
+	}
 
 	err, isTimeout := sys.CmdRunWithTimeout(cmd, time.Duration(timeout)*time.Millisecond)
 
