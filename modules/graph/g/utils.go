@@ -48,10 +48,10 @@ func SplitRrdCacheKey(ckey string) (md5 string, dsType string, step int, err err
 func IsValidString(str string) bool {
 
 	r := []rune(str)
-	// 多字节字符
-	if len(r) != len(str) {
-		return false
-	}
+	// 允许多字节字符，这样可以保持继续支持中文counter
+	// if len(r) != len(str) {
+	// 	return false
+	// }
 
 	for _, t := range r {
 		switch t {
