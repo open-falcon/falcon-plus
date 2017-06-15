@@ -97,6 +97,8 @@ func IsRunning(name string) bool {
 	return true
 }
 
+// RmDup deduplcate while preseve the original order,
+// a similar function: UniqueString located at github.com/toolkits/slice does not
 func RmDup(args []string) []string {
 	if len(args) == 0 {
 		return []string{}
