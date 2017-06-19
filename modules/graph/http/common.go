@@ -14,7 +14,7 @@ func configCommonRoutes() {
 	// compatible anteye to monitor
 	router.GET("/health", func(c *gin.Context) {
 		c.String(200, "ok")
-	}	
+	})
 
 	router.GET("/api/v2/health", func(c *gin.Context) {
 		JSONR(c, 200, gin.H{"msg": "ok"})
