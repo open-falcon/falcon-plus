@@ -26,8 +26,8 @@ type Host struct {
 	Ip            string `json:"ip" gorm:"column:ip"`
 	AgentVersion  string `json:"agent_version"  gorm:"column:agent_version"`
 	PluginVersion string `json:"plugin_version"  gorm:"column:plugin_version"`
-	MaintainBegin uint16 `json:"maintain_begin"  gorm:"column:maintain_begin"`
-	MaintainEnd   uint16 `json:"maintain_end"  gorm:"column:maintain_end"`
+	MaintainBegin int64  `json:"maintain_begin"  gorm:"column:maintain_begin"`
+	MaintainEnd   int64  `json:"maintain_end"  gorm:"column:maintain_end"`
 }
 
 func (this Host) TableName() string {
