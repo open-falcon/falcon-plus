@@ -48,5 +48,5 @@ func Routes(r *gin.Engine) {
 
 	//maintain
 	hostr.POST("/host/maintain", SetMaintain)
-	hostr.POST("/host/reset", UnsetMaintain)
+	hostr.DELETE("/host/maintain", UnsetMaintain)
 }
