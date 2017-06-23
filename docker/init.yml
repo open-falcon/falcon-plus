@@ -17,7 +17,7 @@ services:
     - ../scripts/mysql/db_schema:/docker-entrypoint-initdb.d
     - ./mysql.cnf:/etc/mysql/conf.d/mysql.cnf:ro
   redis:
-    command: redis-server ./redis.conf
+    command: redis-server /redis.conf
     extends:
       file: common.yml
       service: template-backend
@@ -28,6 +28,8 @@ services:
     ports:
     - 6379:6379
     restart: always
+    volumes:
+    - ./redis.conf:/redis.conf
   falcon-plus:
     command: bash /run.sh hbs
     image: openfalcon/falcon-plus:0.2.0
