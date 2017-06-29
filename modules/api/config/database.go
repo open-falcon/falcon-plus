@@ -35,7 +35,7 @@ func SetLogLevel(loggerlevel bool) {
 
 func InitDB(loggerlevel bool) (err error) {
 	var p *sql.DB
-	portal, err := gorm.Open("mysql", viper.GetString("db.faclon_portal"))
+	portal, err := gorm.Open("mysql", viper.GetString("db.falcon_portal"))
 	portal.Dialect().SetDB(p)
 	portal.LogMode(loggerlevel)
 	if err != nil {
