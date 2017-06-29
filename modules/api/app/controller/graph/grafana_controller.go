@@ -249,8 +249,8 @@ func GrafanaRender(c *gin.Context) {
 			db.Graph.Table(ecHelp.TableName()).Select("distinct counter").Where(fmt.Sprintf("endpoint_id IN (%s) AND counter regexp '%s'", u.ArrInt64ToStringMust(hostIds), counter)).Scan(&counters)
 		}
 		if len(counters) == 0 {
-			h.JSONR(c, []interface{}{})
-			return
+			// 没有匹配到的继续执行，避免当grafana graph有多个查询时，其他正常的查询也无法渲染视图
+			continue
 		}
 		counterArr := make([]string, len(counters))
 		for indx, c := range counters {
