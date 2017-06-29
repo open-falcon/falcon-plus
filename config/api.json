@@ -1,7 +1,7 @@
 {
 	"log_level": "debug",
 	"db": {
-		"faclon_portal": "%%MYSQL%%/falcon_portal?charset=utf8&parseTime=True&loc=Local",
+		"falcon_portal": "%%MYSQL%%/falcon_portal?charset=utf8&parseTime=True&loc=Local",
 		"graph": "%%MYSQL%%/graph?charset=utf8&parseTime=True&loc=Local",
 		"uic": "%%MYSQL%%/uic?charset=utf8&parseTime=True&loc=Local",
 		"dashboard": "%%MYSQL%%/dashboard?charset=utf8&parseTime=True&loc=Local",
