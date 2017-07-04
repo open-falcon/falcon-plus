@@ -1,8 +1,8 @@
 ---
 category: Host
-apiurl: '/api/v1/host/reset'
+apiurl: '/api/v1/host/maintain'
 title: "Reset host maintain by ids or hostnames"
-type: 'POST'
+type: 'DELETE'
 sample_doc: 'host.html'
 layout: default
 ---

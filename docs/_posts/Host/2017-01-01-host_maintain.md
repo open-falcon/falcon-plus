@@ -12,17 +12,17 @@ layout: default
 ### Request
 ```
 {
-	"ids": [1,2,3,4],
+    "ids": [1,2,3,4],
     "maintain_begin": 1497951907,
-	"maintain_end": 1497951907
+    "maintain_end": 1497951907
 }
 ```
 or
 ```
 {
-	"hosts": ["host.a","host.b"],
+    "hosts": ["host.a","host.b"],
     "maintain_begin": 1497951907,
-	"maintain_end": 1497951907
+    "maintain_end": 1497951907
 }
 ```
 
