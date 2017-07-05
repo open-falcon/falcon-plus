@@ -4,10 +4,15 @@ go:
   - 1.6.x
   - 1.7.x
   - 1.8.x
+  - tip
+
+install:
+  - echo "Don't use go get package command."
 
 script:
   - make fmt-check
   - make misspell-check
+  - make test-vendor
   - make all
 
 after_success:
