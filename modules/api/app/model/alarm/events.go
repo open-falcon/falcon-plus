@@ -16,10 +16,10 @@ import "time"
 type Events struct {
 	ID          int64      `json:"id" gorm:"column:id"`
 	EventCaseId string     `json:"event_caseId" gorm:"column:event_caseId"`
-	Step        int        `json:"step" grom:"step"`
-	Cond        string     `json:"cond" grom:"cond"`
-	Status      int        `json:"status" grom:"status"`
-	Timestamp   *time.Time `json:"timestamp" grom:"timestamp"`
+	Step        int        `json:"step" gorm:"step"`
+	Cond        string     `json:"cond" gorm:"cond"`
+	Status      int        `json:"status" gorm:"status"`
+	Timestamp   *time.Time `json:"timestamp" gorm:"timestamp"`
 }
 
 func (this Events) TableName() string {
