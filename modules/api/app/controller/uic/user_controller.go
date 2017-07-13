@@ -310,11 +310,11 @@ func GetUserTeams(c *gin.Context) {
 		return
 	}
 	tids := []int64{}
-	for _, ut := range tus{
-	    tids = append(tids, ut.Tid)
+	for _, ut := range tus {
+		tids = append(tids, ut.Tid)
 	}
-    teams := []uic.Team{}
-    tidsStr, _ := utils.ArrInt64ToString(tids)
+	teams := []uic.Team{}
+	tidsStr, _ := utils.ArrInt64ToString(tids)
 	dt = db.Uic.Table("team").Where(fmt.Sprintf("id in (%s)", tidsStr)).Find(&teams)
 	if dt.Error != nil {
 		h.JSONR(c, http.StatusExpectationFailed, dt.Error)

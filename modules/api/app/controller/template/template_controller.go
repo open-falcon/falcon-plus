@@ -273,7 +273,7 @@ func GetATemplateHostgroup(c *gin.Context) {
 		db.Falcon.Where(fmt.Sprintf("id in (%s)", tipsStr)).Find(&hostgroups)
 	}
 	h.JSONR(c, map[string]interface{}{
-        "template": tpl,
+		"template":   tpl,
 		"hostgroups": hostgroups,
 	})
 	return

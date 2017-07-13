@@ -170,7 +170,7 @@ func UpdateTeam(c *gin.Context) {
 		return
 	}
 
-	tm := uic.Team{Name:cteam.Name, Resume: cteam.Resume}
+	tm := uic.Team{Name: cteam.Name, Resume: cteam.Resume}
 	dt = db.Uic.Table("team").Where("id=?", cteam.ID).Update(&tm)
 	if dt.Error != nil {
 		h.JSONR(c, badstatus, dt.Error)

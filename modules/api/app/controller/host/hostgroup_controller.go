@@ -245,6 +245,7 @@ type APIHostGroupInputs struct {
 	Name string `json:"grp_name" binding:"required"`
 	//create_user string `json:"create_user" binding:"required"`
 }
+
 func PutHostGroup(c *gin.Context) {
 	grpIDtmp := c.Params.ByName("host_group")
 	if grpIDtmp == "" {
@@ -274,9 +275,9 @@ func PutHostGroup(c *gin.Context) {
 	}
 	hostgroup.Name = inputs.Name
 	uhostgroup := map[string]interface{}{
-		"grp_name":     hostgroup.Name,
-		"create_user":  hostgroup.CreateUser,
-		"come_from":    hostgroup.ComeFrom,
+		"grp_name":    hostgroup.Name,
+		"create_user": hostgroup.CreateUser,
+		"come_from":   hostgroup.ComeFrom,
 	}
 	dt := db.Falcon.Model(&hostgroup).Where("id = ?", grpID).Update(uhostgroup)
 	if dt.Error != nil {
