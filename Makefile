@@ -45,7 +45,6 @@ fmt-check:
 	fi;
 
 $(CMD):
-	go get ./modules/$@
 	go build -o bin/$@/falcon-$@ ./modules/$@
 
 .PHONY: $(TARGET)
