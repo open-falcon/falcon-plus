@@ -72,3 +72,18 @@ func DeviceMetrics() (L []*model.MetricValue) {
 
 	return
 }
+
+func DeviceMetricsCheck() bool {
+	mountPoints, err := nux.ListMountPoint()
+
+	if err != nil {
+		log.Error("collect device metrics fail:", err)
+		return false
+	}
+
+	if len(mountPoints) <= 0 {
+		return false
+	}
+
+	return true
+}

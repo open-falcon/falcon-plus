@@ -7,6 +7,12 @@
 			"revision": ""
 		},
 		{
+			"checksumSHA1": "QfNyP58Wby5nuvgr37f7vxct75A=",
+			"path": "github.com/BurntSushi/toml",
+			"revision": "056c9bc7be7190eaa7715723883caffa5f8fa3e4",
+			"revisionTime": "2015-05-01T10:40:42Z"
+		},
+		{
 			"checksumSHA1": "dGXnnR7ZhsrZNnEqFimk6q7YCqs=",
 			"path": "github.com/Sirupsen/logrus",
 			"revision": "61e43dc76f7ee59a82bdf3d71033dc12bea4c77d",
@@ -17,6 +23,18 @@
 			"path": "github.com/astaxie/beego/orm",
 			"revision": "cab8458c1c4a5a3b4bf5192922be620e6dede15b",
 			"revisionTime": "2017-05-19T13:19:18Z"
+		},
+		{
+			"checksumSHA1": "3wKVAKACcQc5f6lLn/LrRLLVCMo=",
+			"path": "github.com/chyeh/cast",
+			"revision": "14ed842421beffe8201f18ece67578ffdf59526c",
+			"revisionTime": "2017-02-10T07:00:46Z"
+		},
+		{
+			"checksumSHA1": "lIEevSZRxMyjJ3o3UEj7uRc49QI=",
+			"path": "github.com/chyeh/viper",
+			"revision": "57390a15d63073c39afead641955b9aa63b3a163",
+			"revisionTime": "2016-06-21T06:25:18Z"
 		},
 		{
 			"checksumSHA1": "+pJ/Bz81Y9SJsSZk5W2acx9IfnE=",
@@ -193,6 +211,12 @@
 			"revisionTime": "2016-01-26T18:01:36Z"
 		},
 		{
+			"checksumSHA1": "nZjXphKXslmvuOpODCXuDjwFTQ8=",
+			"path": "github.com/masato25/resty",
+			"revision": "927c0e7d74a06df167960e43bc92fd01345a5b8c",
+			"revisionTime": "2016-12-09T04:08:32Z"
+		},
+		{
 			"checksumSHA1": "axswMhBCpP5B8T5cuFhHZtvZ/y4=",
 			"path": "github.com/masato25/yaag",
 			"revision": "b04f9b8a11ae0427e738ef1affd11a3184bb144d",
@@ -257,18 +281,6 @@
 			"path": "github.com/niean/gotools/http/httpclient/beego",
 			"revision": "ff3f51fc5c60fdcde5a9633c50105fb5f1811d38",
 			"revisionTime": "2015-12-21T08:53:10Z"
-		},
-		{
-			"checksumSHA1": "V1CPhLg28hDpvqwyp6/zeyHCwsw=",
-			"path": "github.com/open-falcon/common/model",
-			"revision": "b9ba65549217ef89b4d1d05d8eb58fe493e5f982",
-			"revisionTime": "2016-09-12T14:56:37Z"
-		},
-		{
-			"checksumSHA1": "KB8Kcyx85OMt19yKtwQO3ig+j/0=",
-			"path": "github.com/open-falcon/common/utils",
-			"revision": "b9ba65549217ef89b4d1d05d8eb58fe493e5f982",
-			"revisionTime": "2016-09-12T14:56:37Z"
 		},
 		{
 			"checksumSHA1": "I0kIkGOtYBit3XflqEqbEt+kuhQ=",
@@ -505,46 +517,28 @@
 			"revisionTime": "2017-05-02T17:39:58Z"
 		},
 		{
+			"checksumSHA1": "cNb8crpYl0AH7nr8D8KjxQdZpGU=",
+			"path": "golang.org/x/net/publicsuffix",
+			"revision": "972f0c5fbe4ae29e666c3f78c3ed42ae7a448b0a",
+			"revisionTime": "2015-01-01T02:52:33Z"
+		},
+		{
 			"checksumSHA1": "IawG7xjKYf2JnFsj+3unrFidmJU=",
 			"path": "golang.org/x/sys/unix",
 			"revision": "9ccfe848b9db8435a24c424abbc07a921adf1df5",
 			"revisionTime": "2017-04-27T03:54:25Z"
 		},
 		{
-			"checksumSHA1": "ZQdHbB9VYCXwQ+9/CmZPhJv0+SM=",
-			"path": "golang.org/x/text/internal/gen",
-			"revision": "470f45bf29f4147d6fbd7dfd0a02a848e49f5bf4",
-			"revisionTime": "2017-04-25T18:31:26Z"
-		},
-		{
-			"checksumSHA1": "47nwiUyVBY2RKoEGXmCSvusY4Js=",
-			"path": "golang.org/x/text/internal/triegen",
-			"revision": "470f45bf29f4147d6fbd7dfd0a02a848e49f5bf4",
-			"revisionTime": "2017-04-25T18:31:26Z"
-		},
-		{
-			"checksumSHA1": "Yd5wMObzagIfCiKLpZbtBIrOUA4=",
-			"path": "golang.org/x/text/internal/ucd",
-			"revision": "470f45bf29f4147d6fbd7dfd0a02a848e49f5bf4",
-			"revisionTime": "2017-04-25T18:31:26Z"
-		},
-		{
-			"checksumSHA1": "ziMb9+ANGRJSSIuxYdRbA+cDRBQ=",
+			"checksumSHA1": "TZDHZj3zWDc5LKqpoLamOKt6Nmo=",
 			"path": "golang.org/x/text/transform",
-			"revision": "470f45bf29f4147d6fbd7dfd0a02a848e49f5bf4",
-			"revisionTime": "2017-04-25T18:31:26Z"
+			"revision": "d69c40b4be55797923cec7457fac7a244d91a9b6",
+			"revisionTime": "2016-08-15T22:39:46Z"
 		},
 		{
-			"checksumSHA1": "+U+vu5UQXoIB4egXy7uX3GYBxVo=",
-			"path": "golang.org/x/text/unicode/cldr",
-			"revision": "470f45bf29f4147d6fbd7dfd0a02a848e49f5bf4",
-			"revisionTime": "2017-04-25T18:31:26Z"
-		},
-		{
-			"checksumSHA1": "kKylzIrLEnH8NKyeVAL0dq5gjVQ=",
+			"checksumSHA1": "pDDMc5yLVQ2xeR9CajcgIJODPcw=",
 			"path": "golang.org/x/text/unicode/norm",
-			"revision": "470f45bf29f4147d6fbd7dfd0a02a848e49f5bf4",
-			"revisionTime": "2017-04-25T18:31:26Z"
+			"revision": "d69c40b4be55797923cec7457fac7a244d91a9b6",
+			"revisionTime": "2016-08-15T22:39:46Z"
 		},
 		{
 			"checksumSHA1": "39V1idWER42Lmcmg2Uy40wMzOlo=",

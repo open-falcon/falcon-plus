@@ -18,7 +18,7 @@ func CheckCollector() {
 	_, duErr := sys.CmdOut("du", "--help")
 
 	output["kernel  "] = len(KernelMetrics()) > 0
-	output["df.bytes"] = len(DeviceMetrics()) > 0
+	output["df.bytes"] = DeviceMetricsCheck()
 	output["net.if  "] = len(CoreNetMetrics([]string{})) > 0
 	output["loadavg "] = len(LoadAvgMetrics()) > 0
 	output["cpustat "] = procStatErr == nil
