@@ -45,7 +45,7 @@ And then
 mkdir -p $GOPATH/src/github.com/open-falcon
 cd $GOPATH/src/github.com/open-falcon
 git clone https://github.com/open-falcon/falcon-plus.git
-
+go get -u -v github.com/open-falcon/rrdlite
 ```
 
 **And do not forget to init the database first (if you have not loaded the database schema before)**
