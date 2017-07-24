@@ -28,7 +28,7 @@ type Cluster struct {
 	Endpoint    string `json:"endpoint" gorm:"endpoint"`
 	Metric      string `json:"metric" gorm:"metric"`
 	Tags        string `json:"tags" gorm:"tags"`
-	DsType      string `json:"ds_type" grom:"ds_type"`
+	DsType      string `json:"ds_type" gorm:"ds_type"`
 	Step        int    `json:"step" gorm:"step"`
 	Creator     string `json:"creator" gorm:"creator"`
 }

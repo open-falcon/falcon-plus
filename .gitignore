@@ -1,7 +1,5 @@
 bin/
 out/
-open-falcon
-
 *.swp
 *.swo
 *.tar.gz

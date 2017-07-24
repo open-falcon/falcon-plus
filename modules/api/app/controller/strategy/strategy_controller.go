@@ -52,7 +52,7 @@ type APICreateStrategyInput struct {
 
 func (this APICreateStrategyInput) CheckFormat() (err error) {
 	validOp := regexp.MustCompile(`^(>|=|<|!)(=)?$`)
-	validRightValue := regexp.MustCompile(`^\d+$`)
+	validRightValue := regexp.MustCompile(`^\-?\d+(\.\d+)?$`)
 	validTime := regexp.MustCompile(`^\d{2}:\d{2}$`)
 	switch {
 	case !validOp.MatchString(this.Op):

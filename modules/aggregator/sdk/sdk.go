@@ -3,7 +3,7 @@ package sdk
 import (
 	"encoding/json"
 	"fmt"
-	cmodel "github.com/open-falcon/common/model"
+	cmodel "github.com/open-falcon/falcon-plus/common/model"
 	"github.com/open-falcon/falcon-plus/common/sdk/requests"
 	"github.com/open-falcon/falcon-plus/modules/aggregator/g"
 	f "github.com/open-falcon/falcon-plus/modules/api/app/model/falcon_portal"

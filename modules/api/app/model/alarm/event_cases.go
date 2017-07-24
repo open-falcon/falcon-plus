@@ -35,26 +35,26 @@ import (
 
 type EventCases struct {
 	ID            string     `json:"id" gorm:"column:id"`
-	Endpoint      string     `json:"endpoint" grom:"column:endpoint"`
-	Metric        string     `json:"metric" grom:"metric"`
-	Func          string     `json:"func" grom:"func"`
-	Cond          string     `json:"cond" grom:"cond"`
-	Note          string     `json:"note" grom:"note"`
-	MaxStep       int        `json:"step" grom:"step"`
-	CurrentStep   int        `json:"current_step" grom:"current_step"`
-	Priority      int        `json:"priority" grom:"priority"`
-	Status        string     `json:"status" grom:"status"`
-	Timestamp     *time.Time `json:"timestamp" grom:"timestamp"`
-	UpdateAt      *time.Time `json:"update_at" grom:"update_at"`
-	ClosedAt      *time.Time `json:"closed_at" grom:"closed_at"`
-	ClosedNote    string     `json:"closed_note" grom:"closed_note"`
-	UserModified  int64      `json:"user_modified" grom:"user_modified"`
-	TplCreator    string     `json:"tpl_creator" grom:"tpl_creator"`
-	ExpressionId  int64      `json:"expression_id" grom:"expression_id"`
-	StrategyId    int64      `json:"strategy_id" grom:"strategy_id"`
-	TemplateId    int64      `json:"template_id" grom:"template_id"`
-	ProcessNote   int64      `json:"process_note" grom:"process_note"`
-	ProcessStatus string     `json:"process_status" grom:"process_status"`
+	Endpoint      string     `json:"endpoint" gorm:"column:endpoint"`
+	Metric        string     `json:"metric" gorm:"metric"`
+	Func          string     `json:"func" gorm:"func"`
+	Cond          string     `json:"cond" gorm:"cond"`
+	Note          string     `json:"note" gorm:"note"`
+	MaxStep       int        `json:"step" gorm:"step"`
+	CurrentStep   int        `json:"current_step" gorm:"current_step"`
+	Priority      int        `json:"priority" gorm:"priority"`
+	Status        string     `json:"status" gorm:"status"`
+	Timestamp     *time.Time `json:"timestamp" gorm:"timestamp"`
+	UpdateAt      *time.Time `json:"update_at" gorm:"update_at"`
+	ClosedAt      *time.Time `json:"closed_at" gorm:"closed_at"`
+	ClosedNote    string     `json:"closed_note" gorm:"closed_note"`
+	UserModified  int64      `json:"user_modified" gorm:"user_modified"`
+	TplCreator    string     `json:"tpl_creator" gorm:"tpl_creator"`
+	ExpressionId  int64      `json:"expression_id" gorm:"expression_id"`
+	StrategyId    int64      `json:"strategy_id" gorm:"strategy_id"`
+	TemplateId    int64      `json:"template_id" gorm:"template_id"`
+	ProcessNote   int64      `json:"process_note" gorm:"process_note"`
+	ProcessStatus string     `json:"process_status" gorm:"process_status"`
 }
 
 func (this EventCases) TableName() string {
