@@ -112,18 +112,22 @@ func DashboardGraphCreate(c *gin.Context) {
 		d.GraphType = "h"
 	}
 
-	dt := db.Dashboard.Table("dashboard_graph").Create(&d)
+	tx := db.Dashboard.Begin()
+	dt := tx.Table("dashboard_graph").Create(&d)
 	if dt.Error != nil {
+		tx.Rollback()
 		h.JSONR(c, badstatus, dt.Error)
 		return
 	}
 
 	var lid []int
-	dt = db.Dashboard.Table("dashboard_graph").Raw("select LAST_INSERT_ID() as id").Pluck("id", &lid)
+	dt = tx.Table("dashboard_graph").Raw("select LAST_INSERT_ID() as id").Pluck("id", &lid)
 	if dt.Error != nil {
+		tx.Rollback()
 		h.JSONR(c, badstatus, dt.Error)
 		return
 	}
+	tx.Commit()
 	aid := lid[0]
 
 	h.JSONR(c, map[string]int{"id": aid})
