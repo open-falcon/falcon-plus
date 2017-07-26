@@ -10,4 +10,13 @@ func configProcRoutes() {
 	router.GET("/counter/all", func(c *gin.Context) {
 		JSONR(c, 200, proc.GetAll())
 	})
+
+	// compatible with falcon task monitor
+	router.GET("/statistics/all", func(c *gin.Context) {
+		ret := make(map[string]interface{})
+		ret["msg"] = "success"
+		ret["data"] = proc.GetAll()
+		JSONR(c, 200, ret)
+	})
+
 }
