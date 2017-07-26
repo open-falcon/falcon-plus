@@ -28,17 +28,16 @@ func (this *SafeAgents) Put(req *model.AgentReportRequest) {
 		ReportRequest: req,
 	}
 
-	this.Lock()
-	defer this.Unlock()
-	this.M[req.Hostname] = val
-	if h, ok := this.M[req.Hostname]; ok {
-		if h.ReportRequest.AgentVersion != req.AgentVersion || h.ReportRequest.IP != req.IP || h.ReportRequest.PluginVersion != req.PluginVersion {
-			db.UpdateAgent(val)
-		}
-	} else {
-		db.UpdateAgent(val)
-	}
+	if agentInfo, exists := this.Get(req.Hostname); !exists ||
+		agentInfo.ReportRequest.AgentVersion != req.AgentVersion ||
+		agentInfo.ReportRequest.IP != req.IP ||
+		agentInfo.ReportRequest.PluginVersion != req.PluginVersion {
 
+		db.UpdateAgent(val)
+		this.Lock()
+		this.M[req.Hostname] = val
+		this.Unlock()
+	}
 }
 
 func (this *SafeAgents) Get(hostname string) (*model.AgentUpdateInfo, bool) {

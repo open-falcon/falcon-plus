@@ -16,7 +16,7 @@ func Init() {
 		log.Fatalln("open db fail:", err)
 	}
 
-	DB.SetMaxIdleConns(g.Config().MaxConns)
+	DB.SetMaxOpenConns(g.Config().MaxConns)
 	DB.SetMaxIdleConns(g.Config().MaxIdle)
 
 	err = DB.Ping()
