@@ -294,7 +294,6 @@ func CreateActionToTmplate(c *gin.Context) {
 		return
 	}
 	tx.Commit()
-	// db.Falcon.Commit()
 	h.JSONR(c, fmt.Sprintf("action is created and bind to template: %d", inputs.TplId))
 	return
 }
