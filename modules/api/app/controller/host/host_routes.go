@@ -23,7 +23,7 @@ func Routes(r *gin.Engine) {
 	hostr.POST("/hostgroup/host", BindHostToHostGroup)
 	hostr.PUT("/hostgroup/host", UnBindAHostToHostGroup)
 	hostr.GET("/hostgroup/:host_group", GetHostGroup)
-	hostr.PUT("/hostgroup/update/:host_group", PutHostGroup)
+	hostr.PUT("/hostgroup", PutHostGroup)
 	hostr.DELETE("/hostgroup/:host_group", DeleteHostGroup)
 
 	//plugins

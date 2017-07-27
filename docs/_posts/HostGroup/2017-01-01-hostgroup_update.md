@@ -8,11 +8,12 @@ layout: default
 ---
 
 * [Session](#/authentication) Required
-* ex. /api/v1/hostgroup/update/343
+* ex. /api/v1/hostgroup
 
 ### Request
 ```{
-  "grp_name": "test1",
+  "id" : 343,
+  "grp_name": "test1"
 }```
 
 ### Response
