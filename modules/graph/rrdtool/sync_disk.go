@@ -38,12 +38,13 @@ func init() {
 
 func syncDisk() {
 	time.Sleep(time.Second * g.CACHE_DELAY)
-	ticker := time.NewTicker(time.Millisecond * g.FLUSH_DISK_STEP).C
+	ticker := time.NewTicker(time.Millisecond * g.FLUSH_DISK_STEP)
+	defer ticker.Stop()
 	var idx int = 0
 
 	for {
 		select {
-		case <-ticker:
+		case <-ticker.C:
 			idx = idx % store.GraphItems.Size
 			FlushRRD(idx, false)
 			idx += 1
