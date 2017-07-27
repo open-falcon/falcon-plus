@@ -70,10 +70,7 @@ func HasCfg(name string) bool {
 }
 
 func HasModule(name string) bool {
-	if Modules[name] {
-		return true
-	}
-	return false
+	return Modules[name]
 }
 
 func setPid(name string) {
@@ -91,10 +88,7 @@ func Pid(name string) string {
 
 func IsRunning(name string) bool {
 	setPid(name)
-	if Pid(name) == "" {
-		return false
-	}
-	return true
+	return Pid(name) != ""
 }
 
 func RmDup(args []string) []string {

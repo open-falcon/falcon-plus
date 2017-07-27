@@ -6,13 +6,9 @@ import (
 
 func queryCounterLast(numeratorOperands, denominatorOperands, hostnames []string, begin, end int64) (map[string]float64, error) {
 	counters := []string{}
-	for _, counter := range numeratorOperands {
-		counters = append(counters, counter)
-	}
 
-	for _, counter := range denominatorOperands {
-		counters = append(counters, counter)
-	}
+	counters = append(counters, numeratorOperands...)
+	counters = append(counters, denominatorOperands...)
 
 	resp, err := sdk.QueryLastPoints(hostnames, counters)
 	if err != nil {
