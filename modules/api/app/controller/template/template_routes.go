@@ -20,6 +20,7 @@ func Routes(r *gin.Engine) {
 	tmpr.POST("", CreateTemplate)
 	tmpr.GET("/:tpl_id", GetATemplate)
 	tmpr.PUT("", UpdateTemplate)
+	tmpr.GET("/:tpl_id/hostgroup", GetATemplateHostgroup)
 	tmpr.DELETE("/:tpl_id", DeleteTemplate)
 	tmpr.POST("/action", CreateActionToTmplate)
 	tmpr.PUT("/action", UpdateActionToTmplate)

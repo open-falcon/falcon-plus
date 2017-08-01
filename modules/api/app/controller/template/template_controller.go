@@ -9,6 +9,7 @@ import (
 	"github.com/jinzhu/gorm"
 	h "github.com/open-falcon/falcon-plus/modules/api/app/helper"
 	f "github.com/open-falcon/falcon-plus/modules/api/app/model/falcon_portal"
+	u "github.com/open-falcon/falcon-plus/modules/api/app/utils"
 )
 
 type APIGetTemplatesOutput struct {
@@ -241,6 +242,40 @@ func DeleteTemplate(c *gin.Context) {
 	}
 	tx.Commit()
 	h.JSONR(c, fmt.Sprintf("template %d has been deleted", tplId))
+	return
+}
+
+func GetATemplateHostgroup(c *gin.Context) {
+	tplidtmp := c.Params.ByName("tpl_id")
+	if tplidtmp == "" {
+		h.JSONR(c, badstatus, "tpl_id is missing")
+		return
+	}
+	tplId, err := strconv.Atoi(tplidtmp)
+	if err != nil {
+		h.JSONR(c, badstatus, err)
+		return
+	}
+	var tpl f.Template
+	if dt := db.Falcon.Find(&tpl, tplId); dt.Error != nil {
+		h.JSONR(c, badstatus, dt.Error)
+		return
+	}
+	tplGrps := []f.GrpTpl{}
+	hostgroups := []f.HostGroup{}
+	db.Falcon.Where("tpl_id = ?", tplId).Find(&tplGrps)
+	if len(tplGrps) != 0 {
+		tips := []int64{}
+		for _, t := range tplGrps {
+			tips = append(tips, t.GrpID)
+		}
+		tipsStr, _ := u.ArrInt64ToString(tips)
+		db.Falcon.Where(fmt.Sprintf("id in (%s)", tipsStr)).Find(&hostgroups)
+	}
+	h.JSONR(c, map[string]interface{}{
+		"template":   tpl,
+		"hostgroups": hostgroups,
+	})
 	return
 }
 

@@ -11,11 +11,13 @@ layout: default
 * [Session](#/authentication) Required
 * users: 属於该群组的user id list
 * resume: team的描述
+* name: team的名字
 * 除Admin外, 使用者只能更新自己创建的team
 
 ### Request
 ```{
   "team_id": 107,
+  "name": "new_name",
   "resume": "i'm descript update",
   "users": [4,5,6,7]
 }```
