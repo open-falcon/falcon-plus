@@ -174,11 +174,7 @@ func cleanParam(val string) string {
 // 200
 // $(cpu.busy) + $(cpu.idle)
 func needCompute(val string) bool {
-	if strings.Contains(val, "$(") {
-		return true
-	}
-
-	return false
+	return strings.Contains(val, "$(")
 }
 
 func expressionValid(val string) bool {
