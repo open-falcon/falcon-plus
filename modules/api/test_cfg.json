@@ -1,0 +1,31 @@
+{
+  "log_level": "debug",
+  "db": {
+    "falcon_portal": "root:password@tcp(0.0.0.0:3307)/falcon_portal?charset=utf8&parseTime=True&loc=Local",
+    "graph": "root:password@tcp(0.0.0.0:3307)/graph?charset=utf8&parseTime=True&loc=Local",
+    "uic": "root:password@tcp(0.0.0.0:3307)/uic?charset=utf8&parseTime=True&loc=Local",
+    "dashboard": "root:password@tcp(0.0.0.0:3307)/dashboard?charset=utf8&parseTime=True&loc=Local",
+    "boss": "root:password@tcp(0.0.0.0:3307)/boss?charset=utf8&parseTime=True&loc=Local",
+    "alarms": "root:password@tcp(0.0.0.0:3307)/falcon_portal?charset=utf8&parseTime=True&loc=Local",
+    "db_debug": true
+  },
+  "graphs": {
+    "cluster": {
+      "graph-01" : "0.0.0.0:6070"
+    },
+    "max_conns": 100,
+    "max_idle": 100,
+    "conn_timeout": 1000,
+    "call_timeout": 5000,
+    "numberOfReplicas": 500
+  },
+	"metric_list_file": "./api/data/metric",
+  "web_port": ":10080",
+  "access_control": true,
+  "signup_disable": false,
+  "salt": "salt123",
+  "skip_auth": false ,
+	"default_token": "default-token-used-in-server-side",
+  "gen_doc": false,
+  "gen_doc_path": "doc/module.html"
+}

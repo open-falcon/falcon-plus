@@ -16,6 +16,22 @@ services:
     volumes:
     - ../scripts/mysql/db_schema:/docker-entrypoint-initdb.d
     - ./mysql.cnf:/etc/mysql/conf.d/mysql.cnf:ro
+  mysqltest:
+    build:
+      context: ../
+      dockerfile: ./docker/dockerfile/mysqltest/Dockerfile
+    environment:
+    - MYSQL_ROOT_PASSWORD=password
+    extends:
+      file: common.yml
+      service: template
+    hostname: docker-mysql
+    labels:
+      owl: mysql
+    ports:
+    - 3307:3306
+    volumes:
+    - ./mysql.cnf:/etc/mysql/conf.d/mysql.cnf:ro
   redis:
     command: redis-server /redis.conf
     extends:
