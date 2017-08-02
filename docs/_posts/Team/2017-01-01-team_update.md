@@ -19,10 +19,22 @@ layout: default
   "team_id": 107,
   "name": "new_name",
   "resume": "i'm descript update",
-  "users": [4,5,6,7]
+  "users": [4]
 }```
 
 ### Response
 
 ```Status: 200```
-```{"message":"team updated!"}```
+```
+{
+  "id": 107,
+  "name": "new_name",
+  "resume":"i'm descript update",
+  "creator":3,
+  "users":[
+    {"id":4,"name":"testuser99","cnname":"testuser99","email":"","phone":"","im":"","qq":"","role":0}
+  ],
+  "creator_name": "",
+  "message": "team updated!"
+}
+```

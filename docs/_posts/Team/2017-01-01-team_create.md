@@ -18,4 +18,14 @@ layout: default
 ### Response
 
 ```Status: 200```
-```{"message":"team created! Afftect row: 1, Affect refer: 1"}```
+```
+{
+  "team": {
+    "id": 6,
+    "name": "ateamname",
+    "resume": "i'm descript",
+    "creator": 3
+  },
+  "message": "team created! Afftect row: 1, Affect refer: 1"
+}
+```

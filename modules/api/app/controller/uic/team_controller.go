@@ -54,8 +54,8 @@ func Teams(c *gin.Context) {
 	} else {
 		//team creator and team member can manage the team
 		dt = db.Uic.Raw(
-			`select a.* from team as a, rel_team_user as b 
-			where a.name regexp ? and a.id = b.tid and b.uid = ? 
+			`select a.* from team as a, rel_team_user as b
+			where a.name regexp ? and a.id = b.tid and b.uid = ?
 			UNION select * from team where name regexp ? and creator = ?`,
 			query, user.ID, query, user.ID).Scan(&teams)
 		err = dt.Error
@@ -127,7 +127,10 @@ func CreateTeam(c *gin.Context) {
 			return
 		}
 	}
-	h.JSONR(c, fmt.Sprintf("team created! Afftect row: %d, Affect refer: %d", dt.RowsAffected, len(cteam.UserIDs)))
+	h.JSONR(c, map[string]interface{}{
+		"team":    team,
+		"message": fmt.Sprintf("team created! Afftect row: %d, Affect refer: %d", dt.RowsAffected, len(cteam.UserIDs)),
+	})
 	return
 }
 
@@ -158,8 +161,8 @@ func UpdateTeam(c *gin.Context) {
 		dt = dt.Table("team").Where("id = ?", cteam.ID)
 	} else {
 		dt = dt.Raw(
-			`select a.* from team as a, rel_team_user as b 
-			where a.id = b.tid AND a.id = ? AND b.uid = ? 
+			`select a.* from team as a, rel_team_user as b
+			where a.id = b.tid AND a.id = ? AND b.uid = ?
 			UNION select * from team where creator = ? AND id = ?`,
 			cteam.ID, user.ID, user.ID, cteam.ID)
 	}
@@ -181,7 +184,15 @@ func UpdateTeam(c *gin.Context) {
 	if err != nil {
 		h.JSONR(c, badstatus, err)
 	} else {
-		h.JSONR(c, "team updated!")
+		respOutput := struct {
+			APIGetTeamOutput
+			Message string `json:"message"`
+		}{
+			Message: "team updated!",
+		}
+		respOutput.Team = team
+		respOutput.Users, _ = team.Members()
+		h.JSONR(c, respOutput)
 	}
 }
 
@@ -312,20 +323,10 @@ func GetTeam(c *gin.Context) {
 	}
 	var resp APIGetTeamOutput
 	resp.Team = team
-	resp.Users = []uic.User{}
-	if len(uidarr) != 0 {
-		uids := ""
-		for indx, v := range uidarr {
-			if indx == 0 {
-				uids = fmt.Sprintf("%v", v.Uid)
-			} else {
-				uids = fmt.Sprintf("%v,%v", uids, v.Uid)
-			}
-		}
-		log.Debugf("uids:%s", uids)
-		var users []uic.User
-		db.Uic.Table("user").Where(fmt.Sprintf("id IN (%s)", uids)).Find(&users)
-		resp.Users = users
+	resp.Users, err = team.Members()
+	if err != nil {
+		h.JSONR(c, badstatus, err.Error())
+		return
 	}
 	h.JSONR(c, resp)
 	return
