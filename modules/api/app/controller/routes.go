@@ -17,7 +17,7 @@ import (
 	"github.com/open-falcon/falcon-plus/modules/api/app/utils"
 )
 
-func StartGin(port string, r *gin.Engine) {
+func StartGin(port string, r *gin.Engine, testMode bool) *gin.Engine {
 	r.Use(utils.CORS())
 	r.GET("/", func(c *gin.Context) {
 		c.String(http.StatusOK, "Hello, I'm Falcon+ (｡A｡)")
@@ -32,5 +32,8 @@ func StartGin(port string, r *gin.Engine) {
 	dashboard_graph.Routes(r)
 	dashboard_screen.Routes(r)
 	alarm.Routes(r)
-	r.Run(port)
+	if !testMode {
+		r.Run(port)
+	}
+	return r
 }

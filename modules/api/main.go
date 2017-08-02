@@ -74,7 +74,7 @@ func main() {
 	initGraph()
 	//start gin server
 	log.Debugf("will start with port:%v", viper.GetString("web_port"))
-	go controller.StartGin(viper.GetString("web_port"), routes)
+	go controller.StartGin(viper.GetString("web_port"), routes, false)
 
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
