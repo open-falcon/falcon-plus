@@ -26,7 +26,7 @@ func SetUpGin() *gin.Engine {
 		gin.SetMode(gin.TestMode)
 		log.SetLevel(log.DebugLevel)
 		config.InitDB(viper.GetBool("db.db_debug"))
-		//test with defualt set of db
+		//test with default set of db
 		routes := gin.Default()
 		routes = controller.StartGin(":9898", routes, true)
 		return routes
