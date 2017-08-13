@@ -72,6 +72,11 @@ func Hostname() (string, error) {
 		return hostname, nil
 	}
 
+	if os.Getenv("ENDPOINT") != "" {
+		hostname = os.Getenv("ENDPOINT")
+		return hostname, nil
+	}
+
 	hostname, err := os.Hostname()
 	if err != nil {
 		log.Println("ERROR: os.Hostname() fail", err)
