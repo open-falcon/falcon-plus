@@ -3,7 +3,11 @@ package funcs
 import (
 	"github.com/open-falcon/falcon-plus/common/model"
 	"github.com/toolkits/nux"
+	"github.com/toolkits/sys"
 	"sync"
+	"fmt"
+	"strconv"
+	"strings"
 )
 
 const (
@@ -36,6 +40,20 @@ func deltaTotal() uint64 {
 		return 0
 	}
 	return procStatHistory[0].Cpu.Total - procStatHistory[1].Cpu.Total
+}
+
+func cpunumTotal() uint64 {
+	s,err := sys.CmdOutBytes("sh","-c","cat /proc/cpuinfo | grep processor | wc -l")
+	if err !=nil {
+		return 0
+	}
+	ss := string(s)
+	t := strings.TrimSpace(ss)
+	b,e := strconv.ParseUint(t,10,64)
+	if e !=nil {
+		fmt.Println(e)
+	}
+	return b
 }
 
 func CpuIdle() float64 {
@@ -153,7 +171,7 @@ func CpuMetrics() []*model.MetricValue {
 	if !CpuPrepared() {
 		return []*model.MetricValue{}
 	}
-
+	cpuns := GaugeValue("cpu.ns", cpunumTotal())
 	cpuIdleVal := CpuIdle()
 	idle := GaugeValue("cpu.idle", cpuIdleVal)
 	busy := GaugeValue("cpu.busy", 100.0-cpuIdleVal)
@@ -166,5 +184,5 @@ func CpuMetrics() []*model.MetricValue {
 	steal := GaugeValue("cpu.steal", CpuSteal())
 	guest := GaugeValue("cpu.guest", CpuGuest())
 	switches := CounterValue("cpu.switches", CurrentCpuSwitches())
-	return []*model.MetricValue{idle, busy, user, nice, system, iowait, irq, softirq, steal, guest, switches}
+	return []*model.MetricValue{cpuns,idle, busy, user, nice, system, iowait, irq, softirq, steal, guest, switches}
 }
