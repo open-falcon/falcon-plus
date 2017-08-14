@@ -4,9 +4,8 @@ import (
 	"fmt"
 	"github.com/open-falcon/falcon-plus/common/model"
 	"github.com/toolkits/nux"
-	"github.com/toolkits/sys"
+	"runtime"
 	"strconv"
-	"strings"
 	"sync"
 )
 
@@ -43,13 +42,9 @@ func deltaTotal() uint64 {
 }
 
 func cpunumTotal() uint64 {
-	s, err := sys.CmdOutBytes("sh", "-c", "cat /proc/cpuinfo | grep processor | wc -l")
-	if err != nil {
-		return 0
-	}
-	ss := string(s)
-	t := strings.TrimSpace(ss)
-	b, e := strconv.ParseUint(t, 10, 64)
+	num := runtime.NumCPU()
+	ss := strconv.Itoa(num)
+	b, e := strconv.ParseUint(ss, 10, 64)
 	if e != nil {
 		fmt.Println(e)
 	}
