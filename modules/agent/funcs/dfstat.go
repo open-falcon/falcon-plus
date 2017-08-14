@@ -56,6 +56,11 @@ func DeviceMetrics() (L []*model.MetricValue) {
 		L = append(L, GaugeValue("df.bytes.free", du.BlocksFree, tags))
 		L = append(L, GaugeValue("df.bytes.used.percent", du.BlocksUsedPercent, tags))
 		L = append(L, GaugeValue("df.bytes.free.percent", du.BlocksFreePercent, tags))
+
+		if du.InodesAll == 0 {
+			continue
+		}
+
 		L = append(L, GaugeValue("df.inodes.total", du.InodesAll, tags))
 		L = append(L, GaugeValue("df.inodes.used", du.InodesUsed, tags))
 		L = append(L, GaugeValue("df.inodes.free", du.InodesFree, tags))
