@@ -1,13 +1,13 @@
 package funcs
 
 import (
+	"fmt"
 	"github.com/open-falcon/falcon-plus/common/model"
 	"github.com/toolkits/nux"
 	"github.com/toolkits/sys"
-	"sync"
-	"fmt"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 const (
@@ -43,14 +43,14 @@ func deltaTotal() uint64 {
 }
 
 func cpunumTotal() uint64 {
-	s,err := sys.CmdOutBytes("sh","-c","cat /proc/cpuinfo | grep processor | wc -l")
-	if err !=nil {
+	s, err := sys.CmdOutBytes("sh", "-c", "cat /proc/cpuinfo | grep processor | wc -l")
+	if err != nil {
 		return 0
 	}
 	ss := string(s)
 	t := strings.TrimSpace(ss)
-	b,e := strconv.ParseUint(t,10,64)
-	if e !=nil {
+	b, e := strconv.ParseUint(t, 10, 64)
+	if e != nil {
 		fmt.Println(e)
 	}
 	return b
@@ -184,5 +184,5 @@ func CpuMetrics() []*model.MetricValue {
 	steal := GaugeValue("cpu.steal", CpuSteal())
 	guest := GaugeValue("cpu.guest", CpuGuest())
 	switches := CounterValue("cpu.switches", CurrentCpuSwitches())
-	return []*model.MetricValue{cpuns,idle, busy, user, nice, system, iowait, irq, softirq, steal, guest, switches}
+	return []*model.MetricValue{cpuns, idle, busy, user, nice, system, iowait, irq, softirq, steal, guest, switches}
 }
