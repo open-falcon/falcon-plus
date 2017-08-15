@@ -72,8 +72,8 @@ func Hostname() (string, error) {
 		return hostname, nil
 	}
 
-	if os.Getenv("ENDPOINT") != "" {
-		hostname = os.Getenv("ENDPOINT")
+	if os.Getenv("FALCON_ENDPOINT") != "" {
+		hostname = os.Getenv("FALCON_ENDPOINT")
 		return hostname, nil
 	}
 
