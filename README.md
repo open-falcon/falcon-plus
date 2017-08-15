@@ -61,7 +61,7 @@ mysql -h 127.0.0.1 -u root -p < 5_alarms-db-schema.sql
 
 **NOTE: if you are upgrading from v0.1 to current version v0.2.0,then**. [More upgrading instruction](http://www.jianshu.com/p/6fb2c2b4d030)
 
-    mysql -h 127.0.0.1 -u root -p < alarms-db-schema.sql
+    mysql -h 127.0.0.1 -u root -p < 5_alarms-db-schema.sql
 
 # Compilation
 
@@ -144,4 +144,6 @@ make clean all pack
 
 # Q&A
 
-Any issue or question is welcome, Please feel free to open [github issues](https://github.com/open-falcon/falcon-plus/issues) :)
+- Any issue or question is welcome, Please feel free to open [github issues](https://github.com/open-falcon/falcon-plus/issues) :)
+- [FAQ](https://book.open-falcon.org/zh_0_2/faq/)
+
