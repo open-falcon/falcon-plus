@@ -13,7 +13,7 @@ confs=(
     '%%TRANSFER_HTTP%%=0.0.0.0:6060'
     '%%TRANSFER_RPC%%=0.0.0.0:8433'
     '%%REDIS%%=127.0.0.1:6379'
-    '%%MYSQL%%=root:password@tcp(127.0.0.1:3306)'
+    '%%MYSQL%%=root:@tcp(127.0.0.1:3306)'
     '%%PLUS_API_DEFAULT_TOKEN%%=default-token-used-in-server-side'
     '%%PLUS_API_HTTP%%=0.0.0.0:8080'
  )
