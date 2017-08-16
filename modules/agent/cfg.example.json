@@ -1,6 +1,7 @@
 {
     "debug": true,
     "hostname": "",
+    "falcon_endpoint_env": "FALCON_ENDPOINT",
     "ip": "",
     "plugin": {
         "enabled": false,
