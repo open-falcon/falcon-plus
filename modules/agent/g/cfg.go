@@ -45,6 +45,7 @@ type GlobalConfig struct {
 	Debug         bool              `json:"debug"`
 	Hostname      string            `json:"hostname"`
 	IP            string            `json:"ip"`
+	EndpointEnv   string            `json:"falcon_endpoint_env"`
 	Plugin        *PluginConfig     `json:"plugin"`
 	Heartbeat     *HeartbeatConfig  `json:"heartbeat"`
 	Transfer      *TransferConfig   `json:"transfer"`
@@ -72,8 +73,12 @@ func Hostname() (string, error) {
 		return hostname, nil
 	}
 
-	if os.Getenv("FALCON_ENDPOINT") != "" {
-		hostname = os.Getenv("FALCON_ENDPOINT")
+	EndpointEnv := Config().EndpointEnv
+	if EndpointEnv == "" {
+		EndpointEnv = "FALCON_ENDPOINT"
+	}
+	if os.Getenv(EndpointEnv) != "" {
+		hostname = os.Getenv(EndpointEnv)
 		return hostname, nil
 	}
 
