@@ -373,3 +373,113 @@ func GetTemplateOfHostGroup(c *gin.Context) {
 	})
 	return
 }
+
+type APIPatchHostGroupHost struct {
+	Action string   `json:"action" binding:"required"`
+	Hosts  []string `json:"hosts" binding:"required"`
+}
+
+func PatchHostGroupHost(c *gin.Context) {
+	var inputs APIPatchHostGroupHost
+	if err := c.Bind(&inputs); err != nil {
+		h.JSONR(c, badstatus, err)
+		return
+	}
+
+	grpIDParams := c.Params.ByName("host_group")
+	if grpIDParams == "" {
+		h.JSONR(c, badstatus, "grp id is missing")
+		return
+	}
+	grpID, err := strconv.Atoi(grpIDParams)
+	if err != nil {
+		log.Debugf("grpIDParams: %v", grpIDParams)
+		h.JSONR(c, badstatus, err)
+		return
+	}
+
+	action := inputs.Action
+	if action != "add" && action != "remove" {
+		h.JSONR(c, badstatus, "action must be add or remove")
+		return
+	}
+
+	user, _ := h.GetUser(c)
+
+	hostgroup := f.HostGroup{ID: int64(grpID)}
+	if dt := db.Falcon.Find(&hostgroup); dt.Error != nil {
+		h.JSONR(c, expecstatus, dt.Error)
+		return
+	}
+	if !user.IsAdmin() && hostgroup.CreateUser != user.Name {
+		h.JSONR(c, expecstatus, "You don't have permission.")
+		return
+	}
+
+	switch action {
+	case "add":
+		bindHostToHostGroup(c, hostgroup, inputs.Hosts)
+		return
+	case "remove":
+		unbindHostToHostGroup(c, hostgroup, inputs.Hosts)
+		return
+	}
+}
+
+func bindHostToHostGroup(c *gin.Context, hostgroup f.HostGroup, hosts []string) {
+	tx := db.Falcon.Begin()
+	var bindHosts []string
+	var existHosts []string
+	for _, host := range hosts {
+		ahost := f.Host{Hostname: host}
+		var id int64
+		var ok bool
+		if id, ok = ahost.Existing(); !ok {
+			if dt := tx.Save(&ahost); dt.Error != nil {
+				h.JSONR(c, expecstatus, dt.Error)
+				tx.Rollback()
+				return
+			}
+			id = ahost.ID
+		}
+
+		tGrpHost := f.GrpHost{GrpID: hostgroup.ID, HostID: id}
+		if ok = tGrpHost.Existing(); ok {
+			existHosts = append(existHosts, host)
+		} else {
+			bindHosts = append(bindHosts, host)
+			if dt := tx.Debug().Create(&tGrpHost); dt.Error != nil {
+				h.JSONR(c, expecstatus, fmt.Sprintf("create grphost got error: %s , grp_id: %v, host_id: %v", dt.Error, hostgroup.ID, id))
+				tx.Rollback()
+				return
+			}
+		}
+	}
+	tx.Commit()
+	h.JSONR(c, fmt.Sprintf("%v bind to hostgroup: %s, %v have been exist", bindHosts, hostgroup.Name, existHosts))
+	return
+}
+
+func unbindHostToHostGroup(c *gin.Context, hostgroup f.HostGroup, hosts []string) {
+	tx := db.Falcon.Begin()
+	var unbindHosts []string
+	for _, host := range hosts {
+		dhost := f.Host{Hostname: host}
+		var id int64
+		var ok bool
+		if id, ok = dhost.Existing(); ok {
+			unbindHosts = append(unbindHosts, host)
+		} else {
+			log.Debugf("Host %s does not exists!", host)
+			continue
+		}
+		if dt := db.Falcon.Where("grp_id = ? AND host_id = ?", hostgroup.ID, id).Delete(&f.GrpHost{}); dt.Error != nil {
+			h.JSONR(c, expecstatus, dt.Error)
+			tx.Rollback()
+			return
+		}
+	}
+	tx.Commit()
+	h.JSONR(c, fmt.Sprintf("%v unbind to hostgroup: %s", unbindHosts, hostgroup.Name))
+	return
+}
