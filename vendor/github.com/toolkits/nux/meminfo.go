@@ -19,10 +19,11 @@ type Mem struct {
 	SwapTotal uint64
 	SwapUsed  uint64
 	SwapFree  uint64
+	MemAvailable  uint64
 }
 
 func (this *Mem) String() string {
-	return fmt.Sprintf("<MemTotal:%d, MemFree:%d, Buffers:%d, Cached:%d...>", this.MemTotal, this.MemFree, this.Buffers, this.Cached)
+	return fmt.Sprintf("<MemTotal:%d, MemFree:%d, MemAvailable:%s, Buffers:%d, Cached:%d...>", this.MemTotal, this.MemFree, this.MemAvailable, this.Buffers, this.Cached)
 }
 
 var Multi uint64 = 1024
@@ -34,6 +35,7 @@ var WANT = map[string]struct{}{
 	"MemFree:":   struct{}{},
 	"SwapTotal:": struct{}{},
 	"SwapFree:":  struct{}{},
+	"MemAvailable:":  struct{}{},
 }
 
 func MemInfo() (*Mem, error) {
@@ -77,6 +79,8 @@ func MemInfo() (*Mem, error) {
 				memInfo.SwapTotal = val * Multi
 			case "SwapFree:":
 				memInfo.SwapFree = val * Multi
+			case "MemAvailable:":
+				memInfo.MemAvailable = val * Multi
 			}
 		}
 	}
