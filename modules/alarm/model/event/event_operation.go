@@ -185,6 +185,6 @@ func DeleteEventOlder(before time.Time, limit int) {
 		log.Errorf("delete event older than %v fail, error:%v", t, err)
 	} else {
 		affected, _ := resp.RowsAffected()
-		log.Debugf("delete event order than %v, rows affected:%v", t, affected)
+		log.Debugf("delete event older than %v, rows affected:%v", t, affected)
 	}
 }
