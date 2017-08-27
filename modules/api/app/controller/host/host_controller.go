@@ -119,3 +119,28 @@ func GetTplsRelatedHost(c *gin.Context) {
 	h.JSONR(c, tpls)
 	return
 }
+
+func GetGrpsRelatedEndpoint(c *gin.Context) {
+	hostNameTmp := c.Params.ByName("endpoint_name")
+	if hostNameTmp == "" {
+		h.JSONR(c, badstatus, "endpoint is missing")
+		return
+	}
+	ahost := f.Host{Hostname: hostNameTmp}
+	var hostID int64
+	var ok bool
+	if hostID, ok = ahost.Existing(); ok {
+		host := f.Host{ID: int64(hostID)}
+		if dt := db.Falcon.Find(&host); dt.Error != nil {
+			h.JSONR(c, expecstatus, dt.Error)
+			return
+		}
+		grps := host.RelatedGrp()
+		h.JSONR(c, grps)
+		return
+	} else {
+		//h.JSONR(c, fmt.Sprintf("no endpoint %s", hostNameTmp))
+		h.JSONR(c, badstatus, "endpoint is missing")
+		return
+	}
+}

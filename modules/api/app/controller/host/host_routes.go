@@ -51,4 +51,7 @@ func Routes(r *gin.Engine) {
 	//maintain
 	hostr.POST("/host/maintain", SetMaintain)
 	hostr.DELETE("/host/maintain", UnsetMaintain)
+
+	//endpoint
+	hostr.GET("/endpoint/:endpoint_name/hostgroup", GetGrpsRelatedEndpoint)
 }
