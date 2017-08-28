@@ -16,8 +16,11 @@ func SetUpGin() *gin.Engine {
 	if routes != nil {
 		return routes
 	} else {
-		confPath := flag.String("conf", "/home/masato/Dev/go/src/github.com/open-falcon/falcon-plus/modules/api/test_cfg", "test conf")
+		confPath := flag.String("conf", "test_cfg", "set test configure file's name")
+		viper.AddConfigPath(".")
 		viper.AddConfigPath("/")
+		viper.AddConfigPath("../../../")
+		viper.AddConfigPath("../../../../")
 		viper.SetConfigName(*confPath)
 		err := viper.ReadInConfig()
 		if err != nil {
