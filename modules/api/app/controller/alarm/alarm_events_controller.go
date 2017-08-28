@@ -22,12 +22,16 @@ type APIGetAlarmListsInputs struct {
 	Limit int `json:"limit" form:"limit"`
 	//pagging
 	Page int `json:"page" form:"page"`
+	//endpoints strategy template
+	Endpoints  []string `json:"endpoints" form:"endpoints"`
+	StrategyId int      `json:"strategy_id" form:"strategy_id"`
+	TemplateId int      `json:"template_id" form:"template_id"`
 }
 
 func (input APIGetAlarmListsInputs) checkInputsContain() error {
 	if input.StartTime == 0 && input.EndTime == 0 {
-		if input.EventId == "" {
-			return errors.New("startTime, endTime OR event_id, You have to at least pick one on the request.")
+		if input.EventId == "" && input.Endpoints == nil && input.StrategyId == 0 && input.TemplateId == 0 {
+			return errors.New("startTime, endTime, event_id, endpoints, strategy_id or template_id, You have to at least pick one on the request.")
 		}
 	}
 	return nil
@@ -75,6 +79,18 @@ func (s APIGetAlarmListsInputs) collectFilters() string {
 	}
 	if s.EventId != "" {
 		tmp = append(tmp, fmt.Sprintf("id = '%s'", s.EventId))
+	}
+	if s.Endpoints != nil && len(s.Endpoints) != 0 {
+		for i, ep := range s.Endpoints {
+			s.Endpoints[i] = fmt.Sprintf("'%s'", ep)
+		}
+		tmp = append(tmp, fmt.Sprintf("endpoint in (%s)", strings.Join(s.Endpoints, ", ")))
+	}
+	if s.StrategyId != 0 {
+		tmp = append(tmp, fmt.Sprintf("strategy_id = %d", s.StrategyId))
+	}
+	if s.TemplateId != 0 {
+		tmp = append(tmp, fmt.Sprintf("template_id = %d", s.TemplateId))
 	}
 	filterStrTmp := strings.Join(tmp, " AND ")
 	if filterStrTmp != "" {
