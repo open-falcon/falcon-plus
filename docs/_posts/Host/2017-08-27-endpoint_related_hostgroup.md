@@ -8,7 +8,7 @@ layout: default
 ---
 
 * [Session](#/authentication) Required
-* ex. /api/v1/host/test1/hostgroup
+* ex. /api/v1/endpoint/test1/hostgroup
 * grp_name: hostgroup name
 
 ### Response

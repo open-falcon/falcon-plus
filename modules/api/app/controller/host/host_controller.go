@@ -131,15 +131,10 @@ func GetGrpsRelatedEndpoint(c *gin.Context) {
 	var ok bool
 	if hostID, ok = ahost.Existing(); ok {
 		host := f.Host{ID: int64(hostID)}
-		if dt := db.Falcon.Find(&host); dt.Error != nil {
-			h.JSONR(c, expecstatus, dt.Error)
-			return
-		}
 		grps := host.RelatedGrp()
 		h.JSONR(c, grps)
 		return
 	} else {
-		//h.JSONR(c, fmt.Sprintf("no endpoint %s", hostNameTmp))
 		h.JSONR(c, badstatus, "endpoint is missing")
 		return
 	}
