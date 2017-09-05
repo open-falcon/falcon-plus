@@ -10,8 +10,8 @@ import (
 	"github.com/gin-gonic/gin"
 	cmodel "github.com/open-falcon/falcon-plus/common/model"
 	h "github.com/open-falcon/falcon-plus/modules/api/app/helper"
-	m "github.com/open-falcon/falcon-plus/modules/api/app/model/graph"
 	pm "github.com/open-falcon/falcon-plus/modules/api/app/model/falcon_portal"
+	m "github.com/open-falcon/falcon-plus/modules/api/app/model/graph"
 	u "github.com/open-falcon/falcon-plus/modules/api/app/utils"
 )
 
