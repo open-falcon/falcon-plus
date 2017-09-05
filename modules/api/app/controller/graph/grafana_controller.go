@@ -95,9 +95,9 @@ func responseHostsByHostGroup(limit int, hostgroup string) (result []APIGrafanaM
 	for _, grpHost := range grpHosts {
 		hostIDs = append(hostIDs, grpHost.HostID)
 	}
-        if 0 == len(hostIDs) {
+	if 0 == len(hostIDs) {
 		return
-        }
+	}
 	db.Falcon.Table(hostHelp.TableName()).Where("id in (?)", hostIDs).Limit(limit).Scan(&hosts)
 	for _, host := range hosts {
 		result = append(result, APIGrafanaMainQueryOutputs{
