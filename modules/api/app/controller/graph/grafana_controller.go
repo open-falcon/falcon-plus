@@ -11,6 +11,7 @@ import (
 	cmodel "github.com/open-falcon/falcon-plus/common/model"
 	h "github.com/open-falcon/falcon-plus/modules/api/app/helper"
 	m "github.com/open-falcon/falcon-plus/modules/api/app/model/graph"
+	pm "github.com/open-falcon/falcon-plus/modules/api/app/model/falcon_portal"
 	u "github.com/open-falcon/falcon-plus/modules/api/app/utils"
 )
 
@@ -51,6 +52,57 @@ func responseHostsRegexp(limit int, regexpKey string) (result []APIGrafanaMainQu
 		result = append(result, APIGrafanaMainQueryOutputs{
 			Expandable: true,
 			Text:       h.Endpoint,
+		})
+	}
+	return
+}
+
+// for find hostgroup list & grafana template searching
+func responseHostGroupRegexp(limit int, regexpKey string) (result []APIGrafanaMainQueryOutputs) {
+	result = []APIGrafanaMainQueryOutputs{}
+	hostgroupHelp := pm.HostGroup{}
+	hgs := []pm.HostGroup{}
+	db.Falcon.Table(hostgroupHelp.TableName()).Where("grp_name regexp ?", regexpKey).Limit(limit).Scan(&hgs)
+	for _, hg := range hgs {
+		result = append(result, APIGrafanaMainQueryOutputs{
+			Expandable: true,
+			Text:       hg.Name,
+		})
+	}
+	return
+}
+
+// for find host list by HostGroup & grafana template searching
+func responseHostsByHostGroup(limit int, hostgroup string) (result []APIGrafanaMainQueryOutputs) {
+	result = []APIGrafanaMainQueryOutputs{}
+
+	hostHelp := pm.Host{}
+	hosts := []pm.Host{}
+	hgHelp := pm.HostGroup{}
+	hgs := []pm.HostGroup{}
+	grpHostHelp := pm.GrpHost{}
+	grpHosts := []pm.GrpHost{}
+	db.Falcon.Table(hgHelp.TableName()).Where("grp_name regexp ?", hostgroup).Limit(limit).Scan(&hgs)
+	hgIDs := []int64{}
+	for _, hg := range hgs {
+		hgIDs = append(hgIDs, hg.ID)
+	}
+	if 0 == len(hgIDs) {
+		return
+	}
+	db.Falcon.Table(grpHostHelp.TableName()).Where("grp_id in (?)", hgIDs).Find(&grpHosts)
+	hostIDs := []int64{}
+	for _, grpHost := range grpHosts {
+		hostIDs = append(hostIDs, grpHost.HostID)
+	}
+        if 0 == len(hostIDs) {
+		return
+        }
+	db.Falcon.Table(hostHelp.TableName()).Where("id in (?)", hostIDs).Limit(limit).Scan(&hosts)
+	for _, host := range hosts {
+		result = append(result, APIGrafanaMainQueryOutputs{
+			Expandable: true,
+			Text:       host.Hostname,
 		})
 	}
 	return
@@ -203,6 +255,10 @@ func GrafanaMainQuery(c *gin.Context) {
 	output := []APIGrafanaMainQueryOutputs{}
 	if inputs.Query == "!N!" {
 		output = repsonseDefault(inputs.Limit)
+	} else if strings.HasPrefix(inputs.Query, "!HG!") {
+		output = responseHostGroupRegexp(inputs.Limit, inputs.Query[len("!HG!"):])
+	} else if strings.HasPrefix(inputs.Query, "!HGH!") {
+		output = responseHostsByHostGroup(inputs.Limit, inputs.Query[len("!HGH!"):])
 	} else if !strings.Contains(inputs.Query, "#") {
 		output = responseHostsRegexp(inputs.Limit, inputs.Query)
 	} else if strings.Contains(inputs.Query, "#") && !strings.Contains(inputs.Query, "#select metric") {
