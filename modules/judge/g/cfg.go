@@ -18,9 +18,10 @@ type RpcConfig struct {
 }
 
 type HbsConfig struct {
-	Servers  []string `json:"servers"`
-	Timeout  int64    `json:"timeout"`
-	Interval int64    `json:"interval"`
+	Servers     []string `json:"servers"`
+	Timeout     int64    `json:"timeout"`
+	Interval    int64    `json:"interval"`
+	CallTimeout int64    `json:"callTimeout"`
 }
 
 type RedisConfig struct {
