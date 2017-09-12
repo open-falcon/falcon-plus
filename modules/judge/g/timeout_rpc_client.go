@@ -1,11 +1,11 @@
 package g
 
 import (
-	"time"
 	"errors"
 	"net"
 	"net/rpc"
 	"net/rpc/jsonrpc"
+	"time"
 )
 
 type TimeoutRpcClient struct {
@@ -18,7 +18,7 @@ func NewTimeoutRpcClient(network, address string, timeout time.Duration) (*Timeo
 		return nil, err
 	}
 
-	return &TimeoutRpcClient {
+	return &TimeoutRpcClient{
 		Client: jsonrpc.NewClient(conn),
 	}, nil
 }
