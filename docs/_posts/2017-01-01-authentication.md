@@ -1,6 +1,6 @@
 ---
 title: 'Auth Session'
-apiurl: '/api/v1/user/login'
+apiurl: '/api/v1/user/auth_session'
 type: 'GET'
 layout: default
 ---
