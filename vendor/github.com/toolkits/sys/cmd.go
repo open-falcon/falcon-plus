@@ -37,12 +37,6 @@ func CmdOutNoLn(name string, arg ...string) (out string, err error) {
 func CmdRunWithTimeout(cmd *exec.Cmd, timeout time.Duration) (error, bool) {
 	var err error
 
-	//set group id
-	err = syscall.Setpgid(cmd.Process.Pid, cmd.Process.Pid)
-	if err != nil {
-		log.Println("Setpgid failed, error:", err)
-	}
-
 	done := make(chan error)
 	go func() {
 		done <- cmd.Wait()
@@ -56,7 +50,7 @@ func CmdRunWithTimeout(cmd *exec.Cmd, timeout time.Duration) (error, bool) {
 			<-done // allow goroutine to exit
 		}()
 
-		// cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true} is necessary before cmd.Start()
+		//IMPORTANT: cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true} is necessary before cmd.Start()
 		err = syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
 		if err != nil {
 			log.Println("kill failed, error:", err)
