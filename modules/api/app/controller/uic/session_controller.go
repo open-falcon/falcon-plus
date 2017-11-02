@@ -37,7 +37,7 @@ func Login(c *gin.Context) {
 		return
 	}
 	user := uic.User{}
-	db.Uic.Where(uic.User{Name:inputs.Name}).Find(&user)
+	db.Uic.Where(uic.User{Name: inputs.Name}).Find(&user)
 	switch {
 	case user.Name == "":
 		h.JSONR(c, badstatus, "no such user")
