@@ -26,7 +26,8 @@ import (
 // RRDTOOL UTILS
 // 监控数据对应的rrd文件名称
 func RrdFileName(baseDir string, md5 string, dsType string, step int) string {
-	return fmt.Sprintf("%s/%s/%s_%s_%d.rrd", baseDir, md5[0:2], md5, dsType, step)
+	return baseDir + "/" + md5[0:2] + "/" +
+		md5 + "_" + dsType + "_" + strconv.Itoa(step) + ".rrd"
 }
 
 // rrd文件是否存在
@@ -36,7 +37,7 @@ func IsRrdFileExist(filename string) bool {
 
 // 生成rrd缓存数据的key
 func FormRrdCacheKey(md5 string, dsType string, step int) string {
-	return fmt.Sprintf("%s_%s_%d", md5, dsType, step)
+	return md5 + "_" + dsType + "_" + strconv.Itoa(step)
 }
 func SplitRrdCacheKey(ckey string) (md5 string, dsType string, step int, err error) {
 	ckey_slice := strings.Split(ckey, "_")
