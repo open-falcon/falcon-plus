@@ -21,6 +21,7 @@
         "queuePattern": "event:p%v",
         "redis": {
             "dsn": "%%REDIS%%",
+            "password": "open-falcon",
             "maxIdle": 5,
             "connTimeout": 5000,
             "readTimeout": 5000,

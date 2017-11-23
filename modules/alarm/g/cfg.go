@@ -29,6 +29,7 @@ type HttpConfig struct {
 
 type RedisConfig struct {
 	Addr          string   `json:"addr"`
+	Password      string   `json:"password"`
 	MaxIdle       int      `json:"maxIdle"`
 	HighQueues    []string `json:"highQueues"`
 	LowQueues     []string `json:"lowQueues"`

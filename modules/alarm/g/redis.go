@@ -33,6 +33,9 @@ func InitRedisConnPool() {
 			if err != nil {
 				return nil, err
 			}
+			if _, err := c.Do("AUTH",redisConfig.Password); err != nil {
+                return nil, err
+             }
 			return c, err
 		},
 		TestOnBorrow: PingRedis,

@@ -6,6 +6,7 @@
     },
     "redis": {
         "addr": "%%REDIS%%",
+        "password": "open-falcon",
         "maxIdle": 5,
         "highQueues": [
             "event:p0",

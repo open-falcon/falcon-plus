@@ -28,6 +28,7 @@ func InitRedisConnPool() {
 	}
 
 	dsn := Config().Alarm.Redis.Dsn
+    Password := Config().Alarm.Redis.Password
 	maxIdle := Config().Alarm.Redis.MaxIdle
 	idleTimeout := 240 * time.Second
 
@@ -43,6 +44,9 @@ func InitRedisConnPool() {
 			if err != nil {
 				return nil, err
 			}
+			 if _, err := c.Do("AUTH",Password); err != nil {
+                return nil, err
+               }
 			return c, err
 		},
 		TestOnBorrow: PingRedis,
