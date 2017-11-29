@@ -400,11 +400,11 @@
     },
     {
       "HttpVerb": "GET",
-      "Path": "/api/v1/metric/tmplist",
+      "Path": "/api/v1/metric/default_list",
       "Calls": [
         {
           "Id": 13,
-          "CurrentPath": "/api/v1/metric/tmplist",
+          "CurrentPath": "/api/v1/metric/default_list",
           "MethodType": "GET",
           "PostForm": null,
           "RequestHeader": {

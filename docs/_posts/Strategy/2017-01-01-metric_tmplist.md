@@ -1,7 +1,7 @@
 ---
 category: Metric
-apiurl: '/api/v1/metric/tmplist'
-title: "Get Metric List"
+apiurl: '/api/v1/metric/default_list'
+title: "Get Default Builtin Metric List"
 type: 'GET'
 sample_doc: 'template.html'
 layout: default
