@@ -15,6 +15,7 @@
 package g
 
 import (
+	"errors"
 	"github.com/toolkits/net"
 	"log"
 	"math"
@@ -86,6 +87,7 @@ func (this *SingleConnRpcClient) Call(method string, args interface{}, reply int
 	case <-time.After(timeout):
 		log.Printf("[WARN] rpc call timeout %v => %v", this.rpcClient, this.RpcServer)
 		this.close()
+		return errors.New(this.RpcServer + " rpc call timeout")
 	case err := <-done:
 		if err != nil {
 			this.close()
