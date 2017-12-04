@@ -23,6 +23,7 @@ import (
 	h "github.com/open-falcon/falcon-plus/modules/api/app/helper"
 	f "github.com/open-falcon/falcon-plus/modules/api/app/model/falcon_portal"
 	u "github.com/open-falcon/falcon-plus/modules/api/app/utils"
+	"github.com/jinzhu/gorm"
 )
 
 func GetHostBindToWhichHostGroup(c *gin.Context) {
@@ -131,5 +132,34 @@ func GetTplsRelatedHost(c *gin.Context) {
 	}
 	tpls := host.RelatedTpl()
 	h.JSONR(c, tpls)
+	return
+}
+
+func GetHosts(c *gin.Context) {
+	var (
+		limit int
+		page  int
+		err   error
+	)
+	pageTmp := c.DefaultQuery("page", "")
+	limitTmp := c.DefaultQuery("limit", "")
+	q := c.DefaultQuery("q", ".+")
+	page, limit, err = h.PageParser(pageTmp, limitTmp)
+	if err != nil {
+		h.JSONR(c, badstatus, err.Error())
+		return
+	}
+	var hosts []f.Host
+	var dt *gorm.DB
+	if limit != -1 && page != -1 {
+		dt = db.Falcon.Raw(fmt.Sprintf("SELECT * from host  where hostname regexp '%s' limit %d,%d", q, page, limit)).Scan(&hosts)
+	} else {
+		dt = db.Falcon.Table("host").Where("hostname regexp ?", q).Find(&hosts)
+	}
+	if dt.Error != nil {
+		h.JSONR(c, expecstatus, dt.Error)
+		return
+	}
+	h.JSONR(c, hosts)
 	return
 }
