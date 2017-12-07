@@ -156,7 +156,7 @@ func flushrrd(filename string, items []*cmodel.GraphItem) error {
 	return update(filename, items)
 }
 
-func ReadFile(filename string) ([]byte, error) {
+func ReadFile(filename, md5 string) ([]byte, error) {
 	done := make(chan error, 1)
 	task := &io_task_t{
 		method: IO_TASK_M_READ,
@@ -164,14 +164,14 @@ func ReadFile(filename string) ([]byte, error) {
 		done:   done,
 	}
 
-	io_task_chan <- task
+	io_task_chans[getIndex(md5)] <- task
 	err := <-done
 	return task.args.(*readfile_t).data, err
 }
 
-func FlushFile(filename string, items []*cmodel.GraphItem) error {
+func FlushFile(filename, md5 string, items []*cmodel.GraphItem) error {
 	done := make(chan error, 1)
-	io_task_chan <- &io_task_t{
+	io_task_chans[getIndex(md5)] <- &io_task_t{
 		method: IO_TASK_M_FLUSH,
 		args: &flushfile_t{
 			filename: filename,
@@ -183,7 +183,7 @@ func FlushFile(filename string, items []*cmodel.GraphItem) error {
 	return <-done
 }
 
-func Fetch(filename string, cf string, start, end int64, step int) ([]*cmodel.RRDData, error) {
+func Fetch(filename string, md5 string, cf string, start, end int64, step int) ([]*cmodel.RRDData, error) {
 	done := make(chan error, 1)
 	task := &io_task_t{
 		method: IO_TASK_M_FETCH,
@@ -196,7 +196,7 @@ func Fetch(filename string, cf string, start, end int64, step int) ([]*cmodel.RR
 		},
 		done: done,
 	}
-	io_task_chan <- task
+	io_task_chans[getIndex(md5)] <- task
 	err := <-done
 	return task.args.(*fetch_t).data, err
 }
@@ -245,7 +245,6 @@ func FlushAll(force bool) {
 }
 
 func CommitByKey(key string) {
-
 	md5, dsType, step, err := g.SplitRrdCacheKey(key)
 	if err != nil {
 		return
@@ -256,7 +255,7 @@ func CommitByKey(key string) {
 	if len(items) == 0 {
 		return
 	}
-	FlushFile(filename, items)
+	FlushFile(filename, md5, items)
 }
 
 func PullByKey(key string) {

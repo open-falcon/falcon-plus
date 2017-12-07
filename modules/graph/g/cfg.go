@@ -17,6 +17,7 @@ package g
 import (
 	"encoding/json"
 	"log"
+	"strconv"
 	"sync/atomic"
 	"unsafe"
 
@@ -48,14 +49,16 @@ type DBConfig struct {
 }
 
 type GlobalConfig struct {
-	Pid         string      `json:"pid"`
-	Debug       bool        `json:"debug"`
-	Http        *HttpConfig `json:"http"`
-	Rpc         *RpcConfig  `json:"rpc"`
-	RRD         *RRDConfig  `json:"rrd"`
-	DB          *DBConfig   `json:"db"`
-	CallTimeout int32       `json:"callTimeout"`
-	Migrate     struct {
+	Pid            string      `json:"pid"`
+	Debug          bool        `json:"debug"`
+	Http           *HttpConfig `json:"http"`
+	Rpc            *RpcConfig  `json:"rpc"`
+	RRD            *RRDConfig  `json:"rrd"`
+	DB             *DBConfig   `json:"db"`
+	CallTimeout    int32       `json:"callTimeout"`
+	IOWorkerNum    int         `json:"ioWorkerNum"`
+	FirstBytesSize int
+	Migrate        struct {
 		Concurrency int               `json:"concurrency"` //number of multiple worker per node
 		Enabled     bool              `json:"enabled"`
 		Replicas    int               `json:"replicas"`
@@ -97,6 +100,14 @@ func ParseConfig(cfg string) {
 	if c.Migrate.Enabled && len(c.Migrate.Cluster) == 0 {
 		c.Migrate.Enabled = false
 	}
+
+	// 确保ioWorkerNum是2^N
+	if c.IOWorkerNum == 0 || (c.IOWorkerNum&(c.IOWorkerNum-1) != 0) {
+		log.Fatalf("IOWorkerNum must be 2^N, current IOWorkerNum is %v", c.IOWorkerNum)
+	}
+
+	// 需要md5的前多少位参与ioWorker的分片计算
+	c.FirstBytesSize = len(strconv.FormatInt(int64(c.IOWorkerNum), 16))
 
 	// set config
 	atomic.StorePointer(&ptr, unsafe.Pointer(&c))
