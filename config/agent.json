@@ -2,19 +2,22 @@
     "debug": true,
     "hostname": "",
     "ip": "",
-    "plugin": {
+    "plugin":
+    {
         "enabled": false,
         "dir": "./plugin",
         "git": "https://github.com/open-falcon/plugin.git",
         "logs": "./logs"
     },
-    "heartbeat": {
+    "heartbeat":
+    {
         "enabled": true,
         "addr": "%%HBS_RPC%%",
         "interval": 60,
         "timeout": 1000
     },
-    "transfer": {
+    "transfer":
+    {
         "enabled": true,
         "addrs": [
             "%%TRANSFER_RPC%%"
@@ -22,18 +25,21 @@
         "interval": 60,
         "timeout": 1000
     },
-    "http": {
+    "http":
+    {
         "enabled": true,
         "listen": ":1988",
         "backdoor": false
     },
-    "collector": {
-        "ifacePrefix": ["eth", "em"],
+    "collector":
+    {
+        "ifacePrefix": ["eth", "em", "ens"],
         "mountPoint": []
     },
-    "default_tags": {
-    },
-    "ignore": {
+    "default_tags":
+    {},
+    "ignore":
+    {
         "cpu.busy": true,
         "df.bytes.free": true,
         "df.bytes.total": true,
