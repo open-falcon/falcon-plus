@@ -131,6 +131,7 @@ func getEndpointFromHosts(hosts string) []string {
 		mystruct.hostlist = strings.Split(hosts, ",")
 	}
 	hlist := mystruct.hostlist
+	
 	for _, host := range hlist {
 		nh := strings.TrimSpace(host)
 		if nh != "" {
