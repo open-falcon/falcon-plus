@@ -37,11 +37,10 @@ type MockCfg struct {
 
 //增加struct
 type MyStruct struct {
-	grplist   []string
-	hostlist  []string
+	grplist []string
+	hostlist []string
 	otherlist []string
 }
-
 //定义一个groups
 var mystruct MyStruct
 
@@ -128,11 +127,11 @@ func getEndpointFromHosts(hosts string) []string {
 	//在这里判断分隔符是"\n"还是","
 	if strings.Contains(hosts, "\n") {
 		mystruct.hostlist = strings.Split(hosts, "\n")
-	} else if strings.Contains(hosts, ",") {
+	}else if strings.Contains(hosts, ","){
 		mystruct.hostlist = strings.Split(hosts, ",")
 	}
 	hlist := mystruct.hostlist
-
+	
 	for _, host := range hlist {
 		nh := strings.TrimSpace(host)
 		if nh != "" {
@@ -147,7 +146,7 @@ func getEndpointFromGroups(grps string) []string {
 	//在这里判断分隔符是"\n"还是","
 	if strings.Contains(grps, "\n") {
 		mystruct.grplist = strings.Split(grps, "\n")
-	} else if strings.Contains(grps, ",") {
+	}else if strings.Contains(grps, ","){
 		mystruct.grplist = strings.Split(grps, ",")
 	}
 	grplist := mystruct.grplist
