@@ -124,7 +124,7 @@ func getEndpointFromHosts(hosts string) []string {
 	ret := make([]string, 0)
 
 	//hlist := strings.Split(hosts, "\n")
-	//在这里判断分隔符是"\n"还是","
+	//Judge the separation here
 	if strings.Contains(hosts, "\n") {
 		mystruct.hostlist = strings.Split(hosts, "\n")
 	}else if strings.Contains(hosts, ","){
@@ -143,7 +143,7 @@ func getEndpointFromHosts(hosts string) []string {
 }
 
 func getEndpointFromGroups(grps string) []string {
-	//在这里判断分隔符是"\n"还是","
+	//Judge the separation here
 	if strings.Contains(grps, "\n") {
 		mystruct.grplist = strings.Split(grps, "\n")
 	}else if strings.Contains(grps, ","){
