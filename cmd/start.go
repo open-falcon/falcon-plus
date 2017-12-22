@@ -125,7 +125,9 @@ func start(c *cobra.Command, args []string) error {
 
 		// Skip starting if the module is already running
 		if g.IsRunning(moduleName) {
-			fmt.Print("[", g.ModuleApps[moduleName], "] ", g.Pid(moduleName), "\n")
+			//falcon-agent now is running already, pid=137887
+			fmt.Print("[", g.ModuleApps[moduleName], "] ", " now is running already, pid=", g.Pid(moduleName), "\n")
+			//fmt.Print("[", g.ModuleApps[moduleName], "] ", g.Pid(moduleName), "\n")
 			continue
 		}
 
@@ -134,7 +136,9 @@ func start(c *cobra.Command, args []string) error {
 		}
 
 		if isStarted(moduleName) {
-			fmt.Print("[", g.ModuleApps[moduleName], "] ", g.Pid(moduleName), "\n")
+			//falcon-agent started..., pid=137887
+			fmt.Print("[", g.ModuleApps[moduleName], "]", " started...  pid=", g.Pid(moduleName), "\n")
+			//fmt.Print("[", g.ModuleApps[moduleName], "] ", g.Pid(moduleName), "\n")
 			continue
 		}
 
