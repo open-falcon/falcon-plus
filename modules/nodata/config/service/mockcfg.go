@@ -35,6 +35,15 @@ type MockCfg struct {
 	Mock    float64
 }
 
+//增加struct
+type MyStruct struct {
+	grplist []string
+	hostlist []string
+	otherlist []string
+}
+//定义一个groups
+var mystruct MyStruct
+
 // 当 grp展开结果 与 host结果 存在冲突时, 优先选择 host结果
 func GetMockCfgFromDB() map[string]*cmodel.NodataConfig {
 	ret := make(map[string]*cmodel.NodataConfig)
@@ -70,6 +79,7 @@ func GetMockCfgFromDB() map[string]*cmodel.NodataConfig {
 		}
 
 		endpoints := getEndpoint(t.ObjType, t.Obj)
+		//log.Println("The endpoints is ",endpoints)
 		if len(endpoints) < 1 {
 			continue
 		}
@@ -113,7 +123,15 @@ func getEndpoint(objType string, obj string) []string {
 func getEndpointFromHosts(hosts string) []string {
 	ret := make([]string, 0)
 
-	hlist := strings.Split(hosts, "\n")
+	//hlist := strings.Split(hosts, "\n")
+	//在这里判断分隔符是"\n"还是","
+	if strings.Contains(hosts, "\n") {
+		mystruct.hostlist = strings.Split(hosts, "\n")
+	}else if strings.Contains(hosts, ","){
+		mystruct.hostlist = strings.Split(hosts, ",")
+	}
+	hlist := mystruct.hostlist
+	
 	for _, host := range hlist {
 		nh := strings.TrimSpace(host)
 		if nh != "" {
@@ -125,7 +143,15 @@ func getEndpointFromHosts(hosts string) []string {
 }
 
 func getEndpointFromGroups(grps string) []string {
-	grplist := strings.Split(grps, "\n")
+	//在这里判断分隔符是"\n"还是","
+	if strings.Contains(grps, "\n") {
+		mystruct.grplist = strings.Split(grps, "\n")
+	}else if strings.Contains(grps, ","){
+		mystruct.grplist = strings.Split(grps, ",")
+	}
+	grplist := mystruct.grplist
+	//grplist := strings.Split(grps, ",")
+	//grplist := strings.Split(grps, "\n")
 
 	// get host map, avoid duplicating
 	hosts := make(map[string]string)
