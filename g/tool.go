@@ -15,6 +15,7 @@
 package g
 
 import (
+	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -90,6 +91,11 @@ func HasModule(name string) bool {
 func setPid(name string) {
 	output, _ := exec.Command("pgrep", "-f", ModuleApps[name]).Output()
 	pidStr := strings.TrimSpace(string(output))
+	//Write the pid in the file
+	pid := pidStr + "\n"
+	pid_file := ModuleApps[name][7:] + "/logs/" + ModuleApps[name][7:] + ".pid"
+	ioutil.WriteFile(pid_file, []byte(pid), 0644)
+
 	PidOf[name] = pidStr
 }
 
