@@ -80,8 +80,7 @@ func combineMail() {
 		for i := 0; i < size; i++ {
 			contentArr[i] = arr[i].Content
 		}
-		//这里邮件聚合的时候把每一条告警通过<br />进行换行，便于看内容！
-		content := strings.Join(contentArr, "\r\n<br />")
+		content := strings.Join(contentArr, "\r\n")
 
 		log.Debugf("combined mail subject:%s, content:%s", subject, content)
 		redi.WriteMail([]string{arr[0].Email}, subject, content)
