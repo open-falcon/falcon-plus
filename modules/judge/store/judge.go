@@ -91,9 +91,7 @@ func sendEvent(event *model.Event) {
 
 	// send to redis
 	redisKey := fmt.Sprintf(g.Config().Alarm.QueuePattern, event.Priority())
-	rc := g.RedisConnPool.Get()
-	defer rc.Close()
-	rc.Do("LPUSH", redisKey, string(bs))
+	g.RedisDo("LPUSH", redisKey, string(bs))
 }
 
 func CheckExpression(L *SafeLinkedList, firstItem *model.JudgeItem, now int64) {

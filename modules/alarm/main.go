@@ -56,8 +56,35 @@ func main() {
 	cron.InitSenderWorker()
 
 	go http.Start()
-	go cron.ReadHighEvent()
-	go cron.ReadLowEvent()
+
+	high_queues := g.Config().Redis.HighQueues
+	if len(high_queues) == 0 {
+		return
+	} else {
+		count := len(high_queues)
+		for i := 0; i < count; i++ {
+			params := make([]interface{}, 2)
+			params[0] = high_queues[i]
+			params[1] = 0
+			go cron.SinglePopEvent(true, params...)
+		}
+
+	}
+
+	low_queues := g.Config().Redis.LowQueues
+	if len(low_queues) == 0 {
+		return
+	} else {
+		count := len(low_queues)
+		for i := 0; i < count; i++ {
+			params := make([]interface{}, 2)
+			params[0] = low_queues[i]
+			params[1] = 0
+			go cron.SinglePopEvent(false, params...)
+		}
+
+	}
+
 	go cron.CombineSms()
 	go cron.CombineMail()
 	go cron.CombineIM()
@@ -71,7 +98,7 @@ func main() {
 	go func() {
 		<-sigs
 		fmt.Println()
-		g.RedisConnPool.Close()
+		g.RedisClose()
 		os.Exit(0)
 	}()
 

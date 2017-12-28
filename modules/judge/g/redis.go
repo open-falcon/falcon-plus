@@ -15,12 +15,14 @@
 package g
 
 import (
-	"github.com/garyburd/redigo/redis"
+	redisgo "github.com/garyburd/redigo/redis"
+	redisCluster "github.com/chasex/redis-go-cluster"
 	"log"
 	"time"
 )
 
-var RedisConnPool *redis.Pool
+var RedisConnPool *redisgo.Pool
+var RedisCluster *redisCluster.Cluster
 
 func InitRedisConnPool() {
 	if !Config().Alarm.Enabled {
@@ -35,24 +37,68 @@ func InitRedisConnPool() {
 	readTimeout := time.Duration(Config().Alarm.Redis.ReadTimeout) * time.Millisecond
 	writeTimeout := time.Duration(Config().Alarm.Redis.WriteTimeout) * time.Millisecond
 
-	RedisConnPool = &redis.Pool{
-		MaxIdle:     maxIdle,
-		IdleTimeout: idleTimeout,
-		Dial: func() (redis.Conn, error) {
-			c, err := redis.DialTimeout("tcp", dsn, connTimeout, readTimeout, writeTimeout)
-			if err != nil {
-				return nil, err
-			}
-			return c, err
-		},
-		TestOnBorrow: PingRedis,
+	if Config().Alarm.Redis.Cluster {
+		var err error
+		RedisCluster, err = redisCluster.NewCluster(
+			&redisCluster.Options{
+				StartNodes: []string{dsn},
+				ConnTimeout: connTimeout,
+				ReadTimeout: readTimeout,
+				WriteTimeout: writeTimeout,
+				KeepAlive: 16,
+				AliveTime: 60 * time.Second,
+			})
+		if err != nil {
+			log.Println("[ERROR] redis cluster init fail", err)
+		}
+	} else {
+		RedisConnPool = &redisgo.Pool{
+			MaxIdle:     maxIdle,
+			IdleTimeout: idleTimeout,
+			Dial: func() (redisgo.Conn, error) {
+				c, err := redisgo.DialTimeout("tcp", dsn, connTimeout, readTimeout, writeTimeout)
+				if err != nil {
+					log.Println("[ERROR] redis pool init fail", err)
+					return nil, err
+				}
+				return c, err
+			},
+			TestOnBorrow: PingRedis,
+		}
 	}
+
 }
 
-func PingRedis(c redis.Conn, t time.Time) error {
+func PingRedis(c redisgo.Conn, t time.Time) error {
 	_, err := c.Do("ping")
 	if err != nil {
 		log.Println("[ERROR] ping redis fail", err)
 	}
 	return err
+}
+
+func RedisDo(commandName string, args ...interface{}) (interface{}, error) {
+	if Config().Alarm.Redis.Cluster {
+		reply, err := RedisCluster.Do(commandName, args...)
+		if err == redisCluster.ErrNil {
+			err = nil
+		}
+		return reply, err
+	} else {
+		rc := RedisConnPool.Get()
+		defer rc.Close()
+		reply, err := rc.Do(commandName, args...)
+		if err == redisgo.ErrNil {
+			err = nil
+		}
+		return reply, err
+	}
+}
+
+func RedisClose() {
+	if Config().Alarm.Redis.Cluster {
+		RedisCluster.Close()
+	} else {
+		RedisConnPool.Close()
+	}
 }

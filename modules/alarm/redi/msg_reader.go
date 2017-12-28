@@ -17,14 +17,13 @@ package redi
 import (
 	"encoding/json"
 	log "github.com/Sirupsen/logrus"
-	"github.com/garyburd/redigo/redis"
 	"github.com/open-falcon/falcon-plus/modules/alarm/g"
 	"github.com/open-falcon/falcon-plus/modules/alarm/model"
 )
 
 const (
-	IM_QUEUE_NAME   = "/im"
-	SMS_QUEUE_NAME  = "/sms"
+	IM_QUEUE_NAME = "/im"
+	SMS_QUEUE_NAME = "/sms"
 	MAIL_QUEUE_NAME = "/mail"
 )
 
@@ -32,15 +31,10 @@ func PopAllSms() []*model.Sms {
 	ret := []*model.Sms{}
 	queue := SMS_QUEUE_NAME
 
-	rc := g.RedisConnPool.Get()
-	defer rc.Close()
-
 	for {
-		reply, err := redis.String(rc.Do("RPOP", queue))
+		reply, err := g.RedisString(g.RedisDo("RPOP", queue))
 		if err != nil {
-			if err != redis.ErrNil {
-				log.Error(err)
-			}
+			log.Error("rpop all sms msg fail:", err)
 			break
 		}
 
@@ -65,15 +59,10 @@ func PopAllIM() []*model.IM {
 	ret := []*model.IM{}
 	queue := IM_QUEUE_NAME
 
-	rc := g.RedisConnPool.Get()
-	defer rc.Close()
-
 	for {
-		reply, err := redis.String(rc.Do("RPOP", queue))
+		reply, err := g.RedisString(g.RedisDo("RPOP", queue))
 		if err != nil {
-			if err != redis.ErrNil {
-				log.Error(err)
-			}
+			log.Error("rpop all im msg fail:", err)
 			break
 		}
 
@@ -98,15 +87,10 @@ func PopAllMail() []*model.Mail {
 	ret := []*model.Mail{}
 	queue := MAIL_QUEUE_NAME
 
-	rc := g.RedisConnPool.Get()
-	defer rc.Close()
-
 	for {
-		reply, err := redis.String(rc.Do("RPOP", queue))
+		reply, err := g.RedisString(g.RedisDo("RPOP", queue))
 		if err != nil {
-			if err != redis.ErrNil {
-				log.Error(err)
-			}
+			log.Error("rpop all mail msg fail:", err)
 			break
 		}
 

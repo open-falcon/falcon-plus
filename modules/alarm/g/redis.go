@@ -15,34 +15,136 @@
 package g
 
 import (
-	"github.com/garyburd/redigo/redis"
+	redisgo "github.com/garyburd/redigo/redis"
+	redisCluster "github.com/chasex/redis-go-cluster"
 	"log"
 	"time"
 )
 
-var RedisConnPool *redis.Pool
+var RedisConnPool *redisgo.Pool
+var RedisCluster *redisCluster.Cluster
 
 func InitRedisConnPool() {
 	redisConfig := Config().Redis
-
-	RedisConnPool = &redis.Pool{
-		MaxIdle:     redisConfig.MaxIdle,
-		IdleTimeout: 240 * time.Second,
-		Dial: func() (redis.Conn, error) {
-			c, err := redis.Dial("tcp", redisConfig.Addr)
-			if err != nil {
-				return nil, err
-			}
-			return c, err
-		},
-		TestOnBorrow: PingRedis,
+	if redisConfig.Cluster {
+		var err error
+		RedisCluster, err = redisCluster.NewCluster(
+			&redisCluster.Options{
+				StartNodes: []string{redisConfig.Addr},
+				ConnTimeout: 500 * time.Millisecond,
+				ReadTimeout: 500 * time.Millisecond,
+				WriteTimeout: 500 * time.Millisecond,
+				KeepAlive: 16,
+				AliveTime: 60 * time.Second,
+			})
+		if err != nil {
+			log.Println("[ERROR] redis cluster init fail", err)
+		}
+	} else {
+		RedisConnPool = &redisgo.Pool{
+			MaxIdle:     redisConfig.MaxIdle,
+			IdleTimeout: 240 * time.Second,
+			Dial: func() (redisgo.Conn, error) {
+				c, err := redisgo.Dial("tcp", redisConfig.Addr)
+				if err != nil {
+					log.Println("[ERROR] redis pool init fail", err)
+					return nil, err
+				}
+				return c, err
+			},
+			TestOnBorrow: PingRedis,
+		}
 	}
 }
 
-func PingRedis(c redis.Conn, t time.Time) error {
+func PingRedis(c redisgo.Conn, t time.Time) error {
 	_, err := c.Do("ping")
 	if err != nil {
 		log.Println("[ERROR] ping redis fail", err)
 	}
 	return err
+}
+
+func RedisString(reply interface{}, err error) (string, error) {
+	redisConfig := Config().Redis
+	if redisConfig.Cluster {
+		reply, err := redisCluster.String(reply, err)
+		if err == redisCluster.ErrNil {
+			err = nil
+		}
+		if err != nil {
+			log.Println("[ERROR] RedisString", err, reply)
+		}
+		return reply, err
+	} else {
+		rc := RedisConnPool.Get()
+		defer rc.Close()
+		reply, err := redisgo.String(reply, err)
+		if err == redisgo.ErrNil {
+			err = nil
+		}
+		if err != nil {
+			log.Println("[ERROR] RedisString", err, reply)
+		}
+		return reply, err
+	}
+}
+
+func RedisStrings(reply interface{}, err error) ([]string, error) {
+	redisConfig := Config().Redis
+	if redisConfig.Cluster {
+		reply, err := redisCluster.Strings(reply, err)
+		if err == redisCluster.ErrNil {
+			err = nil
+		}
+		if err != nil {
+			log.Println("[ERROR] RedisString", err, reply)
+		}
+		return reply, err
+	} else {
+		rc := RedisConnPool.Get()
+		defer rc.Close()
+		reply, err := redisgo.Strings(reply, err)
+		if err == redisgo.ErrNil {
+			err = nil
+		}
+		if err != nil {
+			log.Println("[ERROR] RedisString", err, reply)
+		}
+		return reply, err
+	}
+}
+
+func RedisDo(commandName string, args ...interface{}) (interface{}, error) {
+	redisConfig := Config().Redis
+	if redisConfig.Cluster {
+		reply, err := RedisCluster.Do(commandName, args...)
+		if err == redisCluster.ErrNil {
+			err = nil
+		}
+		if err != nil {
+			log.Println("[ERROR] RedisDo", err, commandName, args)
+		}
+		return reply, err
+	} else {
+		rc := RedisConnPool.Get()
+		defer rc.Close()
+		reply, err := rc.Do(commandName, args...)
+		if err == redisgo.ErrNil {
+			err = nil
+		}
+		if err != nil {
+			log.Println("[ERROR] RedisDo", err, commandName, args)
+		}
+		return reply, err
+	}
+}
+
+func RedisClose() {
+	redisConfig := Config().Redis
+	if redisConfig.Cluster {
+		RedisCluster.Close()
+	} else {
+		RedisConnPool.Close()
+	}
 }
