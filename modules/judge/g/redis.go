@@ -15,8 +15,8 @@
 package g
 
 import (
-	redisgo "github.com/garyburd/redigo/redis"
 	redisCluster "github.com/chasex/redis-go-cluster"
+	redisgo "github.com/garyburd/redigo/redis"
 	"log"
 	"time"
 )
@@ -41,12 +41,12 @@ func InitRedisConnPool() {
 		var err error
 		RedisCluster, err = redisCluster.NewCluster(
 			&redisCluster.Options{
-				StartNodes: []string{dsn},
-				ConnTimeout: connTimeout,
-				ReadTimeout: readTimeout,
+				StartNodes:   []string{dsn},
+				ConnTimeout:  connTimeout,
+				ReadTimeout:  readTimeout,
 				WriteTimeout: writeTimeout,
-				KeepAlive: 16,
-				AliveTime: 60 * time.Second,
+				KeepAlive:    16,
+				AliveTime:    60 * time.Second,
 			})
 		if err != nil {
 			log.Println("[ERROR] redis cluster init fail", err)

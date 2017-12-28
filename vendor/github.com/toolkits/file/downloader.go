@@ -1,9 +1,9 @@
 package file
 
 import (
-    "io"
-    "net/http"
-    "os"
+	"io"
+	"net/http"
+	"os"
 )
 
 func Download(toFile, url string) error {

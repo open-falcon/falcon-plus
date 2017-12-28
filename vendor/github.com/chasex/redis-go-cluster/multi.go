@@ -15,162 +15,162 @@
 package redis
 
 import (
-    "fmt"
+	"fmt"
 )
 
 type multiTask struct {
-    node    *redisNode
-    slot    uint16
+	node *redisNode
+	slot uint16
 
-    cmd	    string
-    args    []interface{}
+	cmd  string
+	args []interface{}
 
-    reply   interface{}
-    replies []interface{}
-    err	    error
+	reply   interface{}
+	replies []interface{}
+	err     error
 
-    done    chan int
+	done chan int
 }
 
 func (cluster *Cluster) multiSet(cmd string, args ...interface{}) (interface{}, error) {
-    if len(args) & 1 != 0 {
-	return nil, fmt.Errorf("multiSet: invalid args %v", args)
-    }
-
-    tasks := make([]*multiTask, 0)
-
-    cluster.rwLock.RLock()
-    for i := 0; i < len(args); i += 2 {
-	key, err := key(args[i])
-	if err != nil {
-	    cluster.rwLock.RUnlock()
-	    return nil, fmt.Errorf("multiSet: invalid key %v", args[i])
+	if len(args)&1 != 0 {
+		return nil, fmt.Errorf("multiSet: invalid args %v", args)
 	}
 
-	slot := hash(key)
+	tasks := make([]*multiTask, 0)
 
-	var j int
-	for j = 0; j < len(tasks); j++ {
-	    if tasks[j].slot == slot {
-		tasks[j].args = append(tasks[j].args, args[i])	    // key
-		tasks[j].args = append(tasks[j].args, args[i+1])    // value
+	cluster.rwLock.RLock()
+	for i := 0; i < len(args); i += 2 {
+		key, err := key(args[i])
+		if err != nil {
+			cluster.rwLock.RUnlock()
+			return nil, fmt.Errorf("multiSet: invalid key %v", args[i])
+		}
 
-		break
-	    }
+		slot := hash(key)
+
+		var j int
+		for j = 0; j < len(tasks); j++ {
+			if tasks[j].slot == slot {
+				tasks[j].args = append(tasks[j].args, args[i])   // key
+				tasks[j].args = append(tasks[j].args, args[i+1]) // value
+
+				break
+			}
+		}
+
+		if j == len(tasks) {
+			node := cluster.slots[slot]
+			if node == nil {
+				cluster.rwLock.RUnlock()
+				return nil, fmt.Errorf("multiSet: %s[%d] no node found", key, slot)
+			}
+
+			task := &multiTask{
+				node: node,
+				slot: slot,
+				cmd:  cmd,
+				args: []interface{}{args[i], args[i+1]},
+				done: make(chan int),
+			}
+			tasks = append(tasks, task)
+		}
+	}
+	cluster.rwLock.RUnlock()
+
+	for i := range tasks {
+		go handleSetTask(tasks[i])
 	}
 
-	if j == len(tasks) {
-	    node := cluster.slots[slot]
-	    if node == nil {
-		cluster.rwLock.RUnlock()
-		return nil, fmt.Errorf("multiSet: %s[%d] no node found", key, slot)
-	    }
-
-	    task := &multiTask{
-		node: node,
-		slot: slot,
-		cmd: cmd,
-		args: []interface{}{args[i], args[i+1]},
-		done: make(chan int),
-	    }
-	    tasks = append(tasks, task)
+	for i := range tasks {
+		<-tasks[i].done
 	}
-    }
-    cluster.rwLock.RUnlock()
 
-    for i := range tasks {
-	go handleSetTask(tasks[i])
-    }
-
-    for i := range tasks {
-	<-tasks[i].done
-    }
-
-    for i := range tasks {
-	_, err := String(tasks[i].reply, tasks[i].err)
-	if err != nil {
-	    return nil, err
+	for i := range tasks {
+		_, err := String(tasks[i].reply, tasks[i].err)
+		if err != nil {
+			return nil, err
+		}
 	}
-    }
 
-    return "OK", nil
+	return "OK", nil
 }
 
 func (cluster *Cluster) multiGet(cmd string, args ...interface{}) (interface{}, error) {
-    tasks := make([]*multiTask, 0)
-    index := make([]*multiTask, len(args))
+	tasks := make([]*multiTask, 0)
+	index := make([]*multiTask, len(args))
 
-    cluster.rwLock.RLock()
-    for i := 0; i < len(args); i++ {
-	key, err := key(args[i])
-	if err != nil {
-	    cluster.rwLock.RUnlock()
-	    return nil, fmt.Errorf("multiGet: invalid key %v", args[i])
+	cluster.rwLock.RLock()
+	for i := 0; i < len(args); i++ {
+		key, err := key(args[i])
+		if err != nil {
+			cluster.rwLock.RUnlock()
+			return nil, fmt.Errorf("multiGet: invalid key %v", args[i])
+		}
+
+		slot := hash(key)
+
+		var j int
+		for j = 0; j < len(tasks); j++ {
+			if tasks[j].slot == slot {
+				tasks[j].args = append(tasks[j].args, args[i]) // key
+				index[i] = tasks[j]
+
+				break
+			}
+		}
+
+		if j == len(tasks) {
+			node := cluster.slots[slot]
+			if node == nil {
+				cluster.rwLock.RUnlock()
+				return nil, fmt.Errorf("multiGet: %s[%d] no node found", key, slot)
+			}
+
+			task := &multiTask{
+				node: node,
+				slot: slot,
+				cmd:  cmd,
+				args: []interface{}{args[i]},
+				done: make(chan int),
+			}
+			tasks = append(tasks, task)
+			index[i] = tasks[j]
+		}
+	}
+	cluster.rwLock.RUnlock()
+
+	for i := range tasks {
+		go handleGetTask(tasks[i])
 	}
 
-	slot := hash(key)
-
-	var j int
-	for j = 0; j < len(tasks); j++ {
-	    if tasks[j].slot == slot {
-		tasks[j].args = append(tasks[j].args, args[i])	    // key
-		index[i] = tasks[j]
-
-		break
-	    }
+	for i := range tasks {
+		<-tasks[i].done
 	}
 
-	if j == len(tasks) {
-	    node := cluster.slots[slot]
-	    if node == nil {
-		cluster.rwLock.RUnlock()
-		return nil, fmt.Errorf("multiGet: %s[%d] no node found", key, slot)
-	    }
+	reply := make([]interface{}, len(args))
+	for i := range reply {
+		if index[i].err != nil {
+			return nil, index[i].err
+		}
 
-	    task := &multiTask{
-		node: node,
-		slot: slot,
-		cmd: cmd,
-		args: []interface{}{args[i]},
-		done: make(chan int),
-	    }
-	    tasks = append(tasks, task)
-	    index[i] = tasks[j]
-	}
-    }
-    cluster.rwLock.RUnlock()
+		if len(index[i].replies) < 0 {
+			panic("unreachable")
+		}
 
-    for i := range tasks {
-	go handleGetTask(tasks[i])
-    }
-
-    for i := range tasks {
-	<-tasks[i].done
-    }
-
-    reply := make([]interface{}, len(args))
-    for i := range reply {
-	if index[i].err != nil {
-	    return nil, index[i].err
+		reply[i] = index[i].replies[0]
+		index[i].replies = index[i].replies[1:]
 	}
 
-	if len(index[i].replies) < 0 {
-	    panic("unreachable")
-	}
-
-	reply[i] = index[i].replies[0]
-	index[i].replies = index[i].replies[1:]
-    }
-
-    return reply, nil
+	return reply, nil
 }
 
 func handleSetTask(task *multiTask) {
-    task.reply, task.err = task.node.do(task.cmd, task.args...)
-    task.done <- 1
+	task.reply, task.err = task.node.do(task.cmd, task.args...)
+	task.done <- 1
 }
 
 func handleGetTask(task *multiTask) {
-    task.replies, task.err = Values(task.node.do(task.cmd, task.args...))
-    task.done <- 1
+	task.replies, task.err = Values(task.node.do(task.cmd, task.args...))
+	task.done <- 1
 }

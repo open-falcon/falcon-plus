@@ -31,9 +31,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/chyeh/cast"
 	"github.com/fsnotify/fsnotify"
 	"github.com/mitchellh/mapstructure"
-	"github.com/chyeh/cast"
 	jww "github.com/spf13/jwalterweatherman"
 	"github.com/spf13/pflag"
 )
