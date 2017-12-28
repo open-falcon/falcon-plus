@@ -121,7 +121,7 @@ for example:
         falcon-alarm         UP           53063
 ```
 
-* For debugging , You can check `$WorkDir/$moduleName/log/logs/xxx.log`
+* For debugging , You can check `$WorkDir/$moduleName/logs/xxx.log`
 
 # Install Frontend Dashboard
 - Follow [this](https://github.com/open-falcon/dashboard).
