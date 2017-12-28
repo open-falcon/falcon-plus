@@ -26,7 +26,7 @@ func GetHostsFromGroup(grpName string) map[string]int {
 
 	now := time.Now().Unix()
 	q := fmt.Sprintf("SELECT host.id, host.hostname FROM grp_host AS gh "+
-		" INNER JOIN host ON host.id=gh.host_id AND (host.maintain_begin > %d OR host.maintain_end < %d)"+
+		" INNER JOIN host ON host.id=gh.host_id AND (host.maintain_begin <= %d AND host.maintain_end >= %d)"+
 		" INNER JOIN grp ON grp.id=gh.grp_id AND grp.grp_name='%s'", now, now, grpName)
 
 	dbConn, err := GetDbConn("nodata.host")
