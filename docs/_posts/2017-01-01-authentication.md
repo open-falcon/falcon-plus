@@ -18,9 +18,10 @@ layout: default
 ```
 
 ### Response
-
+```
 Session 为有效
-```Status: 200```
-```{"message":"session is vaild!"}```
+   Status: 200
+   {"message":"session is vaild!"}
+```   
 
 For errors responses, see the [response status codes documentation](#/response-status-codes).
