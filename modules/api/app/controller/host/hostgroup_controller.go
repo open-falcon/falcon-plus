@@ -99,11 +99,6 @@ func BindHostToHostGroup(c *gin.Context) {
 		return
 	}
 	tx := db.Falcon.Begin()
-	if dt := tx.Where("grp_id = ?", hostgroup.ID).Delete(&f.GrpHost{}); dt.Error != nil {
-		h.JSONR(c, expecstatus, fmt.Sprintf("delete grp_host got error: %v", dt.Error))
-		dt.Rollback()
-		return
-	}
 	var ids []int64
 	for _, host := range inputs.Hosts {
 		ahost := f.Host{Hostname: host}
@@ -119,6 +114,17 @@ func BindHostToHostGroup(c *gin.Context) {
 			}
 			id = ahost.ID
 			ids = append(ids, id)
+		}
+		//通过hostgroup_id和hostid来查询是否数据存在避免有重复数据。注释了之前插入数据前清表的问题。
+		grphost_count := []f.GrpHost{}
+		if dt := tx.Where(&f.GrpHost{GrpID: hostgroup.ID, HostID: id}).Find(&grphost_count); dt.Error != nil {
+			h.JSONR(c, expecstatus, fmt.Sprintf("select grp_host got error: %s , grp_id: %v, host_id: %v", dt.Error, hostgroup.ID, id))
+			return
+		} else {
+			if len(grphost_count) > 0 {
+				log.Debugf("The grp_id: %v and host_id: %v are already in the  grp_host !", hostgroup.ID, id)
+				continue
+			}
 		}
 		if dt := tx.Debug().Create(&f.GrpHost{GrpID: hostgroup.ID, HostID: id}); dt.Error != nil {
 			h.JSONR(c, expecstatus, fmt.Sprintf("create grphost got error: %s , grp_id: %v, host_id: %v", dt.Error, hostgroup.ID, id))
