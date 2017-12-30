@@ -126,8 +126,20 @@ func PluginRun(plugin *Plugin) {
 	err = json.Unmarshal(data, &metrics)
 	if err != nil {
 		log.Printf("[ERROR] json.Unmarshal stdout of %s fail. error:%s stdout: \n%s\n", fpath, err, stdout.String())
-		return
+		for _, line := range bytes.Split(bytes.Trim(data, "\n"), []byte("\n")) {
+			var tmp_metrics []*model.MetricValue
+			err = json.Unmarshal(line, &tmp_metrics)
+			if err != nil {
+				log.Printf("[ERROR] json.Unmarshal stdout subslice of %s fail. error:%s stdout: \n%s\n", fpath, err, string(line))
+				continue
+			}
+			for _, metric := range tmp_metrics {
+				metrics = append(metrics, metric)
+			}
+		}
 	}
 
-	g.SendToTransfer(metrics)
+	if len(metrics) > 0 {
+		g.SendToTransfer(metrics)
+	}
 }
