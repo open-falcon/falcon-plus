@@ -17,7 +17,7 @@ layout: default
 ```
 or
 ```
-{"hostname": ["host.a"]}
+    {"hostname": ["host.a"]}
 ```
 
 ### Response
