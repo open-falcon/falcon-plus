@@ -16,8 +16,9 @@ package store
 
 import (
 	"container/list"
-	"github.com/open-falcon/falcon-plus/common/model"
 	"sync"
+
+	"github.com/open-falcon/falcon-plus/common/model"
 )
 
 type JudgeItemMap struct {
@@ -87,17 +88,24 @@ func (this *JudgeItemMap) CleanStale(before int64) {
 }
 
 func (this *JudgeItemMap) PushFrontAndMaintain(key string, val *model.JudgeItem, maxCount int, now int64) {
+	validStrategies, needJudgeByStrategy := CheckStrategy(val)
+	validExpressions, needJudgeByExpression := CheckExpression(val)
+
+	if !needJudgeByStrategy && !needJudgeByExpression {
+		return
+	}
+
 	if linkedList, exists := this.Get(key); exists {
 		needJudge := linkedList.PushFrontAndMaintain(val, maxCount)
 		if needJudge {
-			Judge(linkedList, val, now)
+			Judge(linkedList, val, now, validStrategies, validExpressions)
 		}
 	} else {
 		NL := list.New()
 		NL.PushFront(val)
 		safeList := &SafeLinkedList{L: NL}
 		this.Set(key, safeList)
-		Judge(safeList, val, now)
+		Judge(safeList, val, now, validStrategies, validExpressions)
 	}
 }
 

@@ -17,23 +17,32 @@ package store
 import (
 	"encoding/json"
 	"fmt"
+	"log"
+
 	"github.com/open-falcon/falcon-plus/common/model"
 	"github.com/open-falcon/falcon-plus/modules/judge/g"
-	"log"
 )
 
-func Judge(L *SafeLinkedList, firstItem *model.JudgeItem, now int64) {
-	CheckStrategy(L, firstItem, now)
-	CheckExpression(L, firstItem, now)
+func Judge(L *SafeLinkedList, firstItem *model.JudgeItem, now int64, strategies []model.Strategy, expressions []*model.Expression) {
+	for _, strategy := range strategies {
+		judgeItemWithStrategy(L, strategy, firstItem, now)
+	}
+
+	for _, expression := range expressions {
+		judgeItemWithExpression(L, expression, firstItem, now)
+	}
 }
 
-func CheckStrategy(L *SafeLinkedList, firstItem *model.JudgeItem, now int64) {
+func CheckStrategy(firstItem *model.JudgeItem) (validStrategies []model.Strategy, needJudge bool) {
 	key := fmt.Sprintf("%s/%s", firstItem.Endpoint, firstItem.Metric)
 	strategyMap := g.StrategyMap.Get()
 	strategies, exists := strategyMap[key]
 	if !exists {
-		return
+		return []model.Strategy{}, false
 	}
+
+	validStrategies = []model.Strategy{}
+	needJudge = false
 
 	for _, s := range strategies {
 		// 因为key仅仅是endpoint和metric，所以得到的strategies并不一定是与当前judgeItem相关的
@@ -51,8 +60,11 @@ func CheckStrategy(L *SafeLinkedList, firstItem *model.JudgeItem, now int64) {
 			continue
 		}
 
-		judgeItemWithStrategy(L, s, firstItem, now)
+		validStrategies = append(validStrategies, s)
+		needJudge = true
 	}
+
+	return
 }
 
 func judgeItemWithStrategy(L *SafeLinkedList, strategy model.Strategy, firstItem *model.JudgeItem, now int64) {
@@ -96,14 +108,17 @@ func sendEvent(event *model.Event) {
 	rc.Do("LPUSH", redisKey, string(bs))
 }
 
-func CheckExpression(L *SafeLinkedList, firstItem *model.JudgeItem, now int64) {
+func CheckExpression(firstItem *model.JudgeItem) (validExpressions []*model.Expression, needJudge bool) {
 	keys := buildKeysFromMetricAndTags(firstItem)
 	if len(keys) == 0 {
-		return
+		return []*model.Expression{}, false
 	}
 
 	// expression可能会被多次重复处理，用此数据结构保证只被处理一次
 	handledExpression := make(map[int]struct{})
+
+	validExpressions = []*model.Expression{}
+	needJudge = false
 
 	expressionMap := g.ExpressionMap.Get()
 	for _, key := range keys {
@@ -118,9 +133,12 @@ func CheckExpression(L *SafeLinkedList, firstItem *model.JudgeItem, now int64) {
 				continue
 			}
 			handledExpression[exp.Id] = struct{}{}
-			judgeItemWithExpression(L, exp, firstItem, now)
+			validExpressions = append(validExpressions, exp)
+			needJudge = true
 		}
 	}
+
+	return
 }
 
 func buildKeysFromMetricAndTags(item *model.JudgeItem) (keys []string) {
