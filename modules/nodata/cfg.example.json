@@ -25,6 +25,7 @@
         "connectTimeout": 500,
         "requestTimeout": 2000,
         "transferAddr": "127.0.0.1:6060",
-        "batch": 500
+        "batch": 500,
+        "delayPeriod": 2
     }
 }

@@ -30,7 +30,7 @@ import (
 )
 
 var (
-	judgeCron     = tcron.New()
+	judgeCron = tcron.New()
 	judgeCronSpec = "0 * * * * ?"
 )
 
@@ -40,7 +40,7 @@ func StartJudgeCron() {
 		judge()
 		end := time.Now().Unix()
 		if g.Config().Debug {
-			log.Printf("judge cron, time %ds, start %s\n", end-start, ttime.FormatTs(start))
+			log.Printf("judge cron, time %ds, start %s\n", end - start, ttime.FormatTs(start))
 		}
 
 		// statistics
@@ -59,32 +59,37 @@ func judge() {
 	keys := config.Keys()
 	for _, key := range keys {
 		ndcfg, found := config.GetNdConfig(key)
-		if !found { //策略不存在,不处理
+		if !found {
+			//策略不存在,不处理
 			continue
 		}
 		step := ndcfg.Step
 		mock := ndcfg.Mock
 
 		item, found := collector.GetFirstItem(key)
-		if !found { //没有数据,未开始采集,不处理
+		if !found {
+			//没有数据,未开始采集,不处理
 			continue
 		}
 
 		lastTs := now - getTimeout(step)
-		if item.FStatus != "OK" || item.FTs < lastTs { //数据采集失败,不处理
+		if item.FStatus != "OK" || item.FTs < lastTs {
+			//数据采集失败,不处理
 			continue
 		}
 
-		if fCompare(mock, item.Value) == 0 { //采集到的数据为mock数据,则认为上报超时了
-			if LastTs(key)+step <= now {
+		if fCompare(mock, item.Value) == 0 {
+			//采集到的数据为mock数据,则认为上报超时了
+			if LastTs(key) + step <= now {
 				TurnNodata(key, now)
 				genMock(genTs(now, step), key, ndcfg)
 			}
 			continue
 		}
 
-		if item.Ts < lastTs { //数据过期, 则认为上报超时
-			if LastTs(key)+step <= now {
+		if item.Ts < lastTs {
+			//数据过期, 则认为上报超时
+			if LastTs(key) + step <= now {
 				TurnNodata(key, now)
 				genMock(genTs(now, step), key, ndcfg)
 			}
@@ -104,8 +109,8 @@ func genTs(nowTs int64, step int64) int64 {
 	if step < 1 {
 		step = 60
 	}
-
-	return nowTs - nowTs%step - 2*step
+	delayPeriod := g.Config().Sender.DelayPeriod
+	return nowTs - nowTs % step - delayPeriod * step
 }
 
 func getTimeout(step int64) int64 {

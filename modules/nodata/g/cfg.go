@@ -51,6 +51,7 @@ type SenderConfig struct {
 	ConnectTimeout int32  `json:"connectTimeout"`
 	RequestTimeout int32  `json:"requestTimeout"`
 	Batch          int32  `json:"batch"`
+	DelayPeriod      int32  `json:"delayPeriod"`
 }
 
 type GlobalConfig struct {
