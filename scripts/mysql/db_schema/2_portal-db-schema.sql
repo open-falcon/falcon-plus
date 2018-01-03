@@ -180,7 +180,7 @@ CREATE TABLE `mockcfg` (
   `step`     INT(11) UNSIGNED  NOT NULL DEFAULT 60,
   `mock`     DOUBLE  NOT NULL DEFAULT 0  COMMENT 'mocked value when nodata occurs',
   `creator`  VARCHAR(64)  NOT NULL DEFAULT '',
-  `t_create` DATETIME NOT NULL COMMENT 'create time',
+  `t_create` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT  'create time',
   `t_modify` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'last modify time',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uniq_name` (`name`)
