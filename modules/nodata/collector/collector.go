@@ -56,10 +56,24 @@ func GetFirstItem(key string) (*DataItem, bool) {
 	return first.(*DataItem), true
 }
 
+func GetItemByIndex(key string, index int) (*DataItem, bool) {
+	listv, found := ItemMap.Get(key)
+	if !found || listv == nil {
+		return &DataItem{}, false
+	}
+
+	all := listv.(*tlist.SafeListLimited).FrontAll()
+	if all == nil || len(all) <= index {
+		return &DataItem{}, false
+	}
+
+	return all[index].(*DataItem), true
+}
+
 func AddItem(key string, val *DataItem) {
 	listv, found := ItemMap.Get(key)
 	if !found {
-		ll := tlist.NewSafeListLimited(3) //每个采集指标,缓存最新的3个数据点
+		ll := tlist.NewSafeListLimited(10) //每个采集指标,缓存最新的3个数据点
 		ll.PushFrontViolently(val)
 		ItemMap.Put(key, ll)
 		return

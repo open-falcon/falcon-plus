@@ -26,6 +26,6 @@
         "requestTimeout": 2000,
         "transferAddr": "127.0.0.1:6060",
         "batch": 500,
-        "delayPeriod": 2
+        "delayPeriod": 2 //range(2,10),because cache just save last 10 data
     }
 }

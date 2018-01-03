@@ -57,6 +57,7 @@ func StartJudgeCron() {
 func judge() {
 	now := time.Now().Unix()
 	keys := config.Keys()
+	delayPeriod := int(g.Config().Sender.DelayPeriod)
 	for _, key := range keys {
 		ndcfg, found := config.GetNdConfig(key)
 		if !found {
@@ -66,7 +67,8 @@ func judge() {
 		step := ndcfg.Step
 		mock := ndcfg.Mock
 
-		item, found := collector.GetFirstItem(key)
+		//item, found := collector.GetFirstItem(key)
+		item, found := collector.GetItemByIndex(key, delayPeriod)
 		if !found {
 			//没有数据,未开始采集,不处理
 			continue
@@ -109,16 +111,17 @@ func genTs(nowTs int64, step int64) int64 {
 	if step < 1 {
 		step = 60
 	}
-	delayPeriod := g.Config().Sender.DelayPeriod
+	delayPeriod := int64(g.Config().Sender.DelayPeriod)
 	return nowTs - nowTs % step - delayPeriod * step
 }
 
 func getTimeout(step int64) int64 {
+	delayPeriod := int64(g.Config().Sender.DelayPeriod)
 	if step < 60 {
-		return 180 //60*3
+		return (delayPeriod + 1) * 60 //60*3
 	}
 
-	return step * 3
+	return step * (delayPeriod + 1)
 }
 
 const minfloat64 = 0.000001
