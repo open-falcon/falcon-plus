@@ -11,10 +11,13 @@ layout: default
 
 ### Request
 Content-type: application/x-www-form-urlencoded
-```limit=100```
+
+* params:
+  * limit: 【选填】查询最大数据量，默认值：500，如：limit=10 只查询最多10条数据
 
 ### Response
 ```Status: 200```
+
 ```
 [
     {
