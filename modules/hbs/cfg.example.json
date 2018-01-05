@@ -2,7 +2,7 @@
     "debug": true,
     "database": "root:@tcp(127.0.0.1:3306)/falcon_portal?loc=Local&parseTime=true",
     "hosts": "",
-    "maxConns": 21,
+    "maxConns": 20,
     "maxIdle": 100,
     "listen": ":6030",
     "trustable": [""],
