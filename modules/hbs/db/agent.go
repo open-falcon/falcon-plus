@@ -23,16 +23,13 @@ import (
 
 func UpdateAgent(agentInfo *model.AgentUpdateInfo) {
 	sql := ""
-	if g.Config().Hosts == "" {
-		sql = fmt.Sprintf(
-			"insert into host(hostname, ip, agent_version, plugin_version) values ('%s', '%s', '%s', '%s') on duplicate key update ip='%s', agent_version='%s', plugin_version='%s'",
-			agentInfo.ReportRequest.Hostname,
-			agentInfo.ReportRequest.IP,
-			agentInfo.ReportRequest.AgentVersion,
-			agentInfo.ReportRequest.PluginVersion,
-			agentInfo.ReportRequest.IP,
-			agentInfo.ReportRequest.AgentVersion,
-			agentInfo.ReportRequest.PluginVersion,
+	sql = fmt.Sprintf(
+		    "insert into host(hostname, ip, agent_version, plugin_version) select '%s', '%s', '%s', '%s' from dual where not exists (select * from host where hostname='%s')",
+		    agentInfo.ReportRequest.Hostname,
+		    agentInfo.ReportRequest.IP,
+		    agentInfo.ReportRequest.AgentVersion,
+		    agentInfo.ReportRequest.PluginVersion,
+		    agentInfo.ReportRequest.Hostname,
 		)
 	} else {
 		// sync, just update
