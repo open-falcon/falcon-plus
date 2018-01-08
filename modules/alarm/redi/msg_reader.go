@@ -39,7 +39,7 @@ func PopAllSms() []*model.Sms {
 		}
 
 		if reply == "" || reply == "nil" {
-			continue
+			break
 		}
 
 		var sms model.Sms
@@ -67,7 +67,7 @@ func PopAllIM() []*model.IM {
 		}
 
 		if reply == "" || reply == "nil" {
-			continue
+			break
 		}
 
 		var im model.IM
@@ -95,7 +95,7 @@ func PopAllMail() []*model.Mail {
 		}
 
 		if reply == "" || reply == "nil" {
-			continue
+			break
 		}
 
 		var mail model.Mail
