@@ -142,8 +142,8 @@ func AlarmLists(c *gin.Context) {
 		if inputs.Limit >= 50 {
 			inputs.Limit = 50
 		}
-		
-		// if page stands for step page 
+
+		// if page stands for step page
 		// {"page":0} for actual page 1
 		// step = page * limit
 		step := inputs.Page * inputs.Limit
