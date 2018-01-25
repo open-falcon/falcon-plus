@@ -26,9 +26,9 @@ import (
 
 type SingleConnRpcClient struct {
 	sync.Mutex
-	rpcClient *rpc.Client
-	RpcServer string
-	Timeout   time.Duration
+	rpcClient  *rpc.Client
+	RpcServers []string
+	Timeout    time.Duration
 }
 
 func (this *SingleConnRpcClient) close() {
@@ -44,25 +44,29 @@ func (this *SingleConnRpcClient) serverConn() error {
 	}
 
 	var err error
-	var retry int = 1
+	var retry int
 
-	for {
-		if this.rpcClient != nil {
-			return nil
-		}
+	for _, addr := range this.RpcServers {
+		retry = 1
 
-		this.rpcClient, err = net.JsonRpcClient("tcp", this.RpcServer, this.Timeout)
+	RETRY:
+		this.rpcClient, err = net.JsonRpcClient("tcp", addr, this.Timeout)
 		if err != nil {
-			log.Printf("dial %s fail: %v", this.RpcServer, err)
+			log.Println("net.JsonRpcClient failed", err)
 			if retry > 3 {
-				return err
+				continue
 			}
+
 			time.Sleep(time.Duration(math.Pow(2.0, float64(retry))) * time.Second)
 			retry++
-			continue
+			goto RETRY
 		}
-		return err
+		log.Println("connected RPC server", addr)
+
+		return nil
 	}
+
+	return errors.New("connect to RPC servers failed")
 }
 
 func (this *SingleConnRpcClient) Call(method string, args interface{}, reply interface{}) error {
@@ -85,9 +89,9 @@ func (this *SingleConnRpcClient) Call(method string, args interface{}, reply int
 
 	select {
 	case <-time.After(timeout):
-		log.Printf("[WARN] rpc call timeout %v => %v", this.rpcClient, this.RpcServer)
+		log.Printf("[WARN] rpc call timeout %v => %v", this.rpcClient, this.RpcServers)
 		this.close()
-		return errors.New(this.RpcServer + " rpc call timeout")
+		return errors.New("rpc call timeout")
 	case err := <-done:
 		if err != nil {
 			this.close()

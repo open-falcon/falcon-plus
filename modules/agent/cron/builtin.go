@@ -15,16 +15,17 @@
 package cron
 
 import (
-	"github.com/open-falcon/falcon-plus/common/model"
-	"github.com/open-falcon/falcon-plus/modules/agent/g"
 	"log"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/open-falcon/falcon-plus/common/model"
+	"github.com/open-falcon/falcon-plus/modules/agent/g"
 )
 
 func SyncBuiltinMetrics() {
-	if g.Config().Heartbeat.Enabled && g.Config().Heartbeat.Addr != "" {
+	if g.Config().Heartbeat.Enabled && len(g.Config().Heartbeat.Addrs) > 0 {
 		go syncBuiltinMetrics()
 	}
 }
