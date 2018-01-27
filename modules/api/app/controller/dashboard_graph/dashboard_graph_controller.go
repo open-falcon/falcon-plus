@@ -200,15 +200,13 @@ func DashboardGraphUpdate(c *gin.Context) {
 	if inputs.GraphType != "" {
 		d.GraphType = inputs.GraphType
 	}
-	if inputs.Method != "" {
-		d.Method = inputs.Method
-	}
 	if inputs.Position != 0 {
 		d.Position = inputs.Position
 	}
 	if inputs.FalconTags != "" {
 		d.FalconTags = inputs.FalconTags
 	}
+    d.Method = inputs.Method
 
 	graph := m.DashboardGraph{}
 	dt := db.Dashboard.Table("dashboard_graph").Model(&graph).Where("id = ?", gid).Updates(d)
@@ -216,6 +214,13 @@ func DashboardGraphUpdate(c *gin.Context) {
 		h.JSONR(c, badstatus, dt.Error)
 		return
 	}
+
+    dt = db.Dashboard.Table("dashboard_graph").Model(&graph).Where("id = ?", gid).Update("method", d.Method)
+	if dt.Error != nil {
+		h.JSONR(c, badstatus, dt.Error)
+		return
+	}
+
 
 	h.JSONR(c, map[string]int{"id": gid})
 
