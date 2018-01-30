@@ -22,6 +22,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 
 	"github.com/open-falcon/falcon-plus/common/model"
+	"github.com/open-falcon/falcon-plus/common/utils"
 	"github.com/open-falcon/falcon-plus/modules/alarm/api"
 	"github.com/open-falcon/falcon-plus/modules/alarm/redi"
 	"github.com/toolkits/net/httplib"
@@ -92,7 +93,7 @@ func Callback(event *model.Event, action *api.Action) string {
 	req.Param("tpl_id", fmt.Sprintf("%d", event.TplId()))
 	req.Param("exp_id", fmt.Sprintf("%d", event.ExpressionId()))
 	req.Param("stra_id", fmt.Sprintf("%d", event.StrategyId()))
-	req.Param("left_value", fmt.Sprintf("%d", event.LeftValue))
+	req.Param("left_value", fmt.Sprintf("%s", utils.ReadableFloat(event.LeftValue)))
 	req.Param("tags", tags)
 
 	resp, e := req.String()
