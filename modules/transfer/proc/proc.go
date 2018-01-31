@@ -39,19 +39,23 @@ var (
 
 	SendToJudgeCnt = nproc.NewSCounterQps("SendToJudgeCnt")
 	SendToTsdbCnt  = nproc.NewSCounterQps("SendToTsdbCnt")
+	SendToKafkaCnt  = nproc.NewSCounterQps("SendToKafkaCnt")
 	SendToGraphCnt = nproc.NewSCounterQps("SendToGraphCnt")
 
 	SendToJudgeDropCnt = nproc.NewSCounterQps("SendToJudgeDropCnt")
 	SendToTsdbDropCnt  = nproc.NewSCounterQps("SendToTsdbDropCnt")
+	SendToKafkaDropCnt  = nproc.NewSCounterQps("SendToKafkaDropCnt")
 	SendToGraphDropCnt = nproc.NewSCounterQps("SendToGraphDropCnt")
 
 	SendToJudgeFailCnt = nproc.NewSCounterQps("SendToJudgeFailCnt")
 	SendToTsdbFailCnt  = nproc.NewSCounterQps("SendToTsdbFailCnt")
+	SendToKafkaFailCnt  = nproc.NewSCounterQps("SendToKafkaFailCnt")
 	SendToGraphFailCnt = nproc.NewSCounterQps("SendToGraphFailCnt")
 
 	// 发送缓存大小
 	JudgeQueuesCnt = nproc.NewSCounterBase("JudgeSendCacheCnt")
 	TsdbQueuesCnt  = nproc.NewSCounterBase("TsdbSendCacheCnt")
+	KafkaQueuesCnt  = nproc.NewSCounterBase("KafkaSendCacheCnt")
 	GraphQueuesCnt = nproc.NewSCounterBase("GraphSendCacheCnt")
 
 	// http请求次数
@@ -83,21 +87,25 @@ func GetAll() []interface{} {
 	// send cnt
 	ret = append(ret, SendToJudgeCnt.Get())
 	ret = append(ret, SendToTsdbCnt.Get())
+	ret = append(ret, SendToKafkaCnt.Get())
 	ret = append(ret, SendToGraphCnt.Get())
 
 	// drop cnt
 	ret = append(ret, SendToJudgeDropCnt.Get())
 	ret = append(ret, SendToTsdbDropCnt.Get())
+	ret = append(ret, SendToKafkaDropCnt.Get())
 	ret = append(ret, SendToGraphDropCnt.Get())
 
 	// send fail cnt
 	ret = append(ret, SendToJudgeFailCnt.Get())
 	ret = append(ret, SendToTsdbFailCnt.Get())
+	ret = append(ret, SendToKafkaFailCnt.Get())
 	ret = append(ret, SendToGraphFailCnt.Get())
 
 	// cache cnt
 	ret = append(ret, JudgeQueuesCnt.Get())
 	ret = append(ret, TsdbQueuesCnt.Get())
+	ret = append(ret, KafkaQueuesCnt.Get())
 	ret = append(ret, GraphQueuesCnt.Get())
 
 	// http request

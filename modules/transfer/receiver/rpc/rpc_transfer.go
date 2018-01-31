@@ -159,6 +159,9 @@ func RecvMetricValues(args []*cmodel.MetricValue, reply *cmodel.TransferResponse
 	if cfg.Tsdb.Enabled {
 		sender.Push2TsdbSendQueue(items)
 	}
+	if cfg.Kafka.Enabled {
+		sender.Push2KafkaSendQueue(items)
+	}
 
 	reply.Message = "ok"
 	reply.Total = len(args)
