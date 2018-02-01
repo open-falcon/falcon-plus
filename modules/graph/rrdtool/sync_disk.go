@@ -91,10 +91,10 @@ func writeFile(filename string, data []byte, perm os.FileMode) error {
 }
 
 func ioWorker() {
-	var err error
 	ioWorkerNum := g.Config().IOWorkerNum
 	for i := 0; i < ioWorkerNum; i++ {
 		go func(i int) {
+			var err error
 			for {
 				select {
 				case task := <-io_task_chans[i]:
