@@ -71,8 +71,8 @@ func startSendTasks() {
 
 	if cfg.Tsdb.Enabled {
 		go forward2TsdbTask(tsdbConcurrent)
-		}
-		if cfg.Kafka.Enabled {
+	}
+	if cfg.Kafka.Enabled {
 		go forward2KafkaTask(kafkaConcurrent)
 	}
 
@@ -211,6 +211,7 @@ func forward2KafkaTask(concurrent int) {
 
 	}
 }
+
 // Tsdb定时任务, 将数据通过api发送到tsdb
 func forward2TsdbTask(concurrent int) {
 	batch := g.Config().Tsdb.Batch // 一次发送,最多batch条数据

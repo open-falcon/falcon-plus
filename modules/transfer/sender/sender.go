@@ -44,7 +44,7 @@ var (
 // 发送缓存队列
 // node -> queue_of_data
 var (
-    KafkaQueue   *nlist.SafeListLimited
+	KafkaQueue  *nlist.SafeListLimited
 	TsdbQueue   *nlist.SafeListLimited
 	JudgeQueues = make(map[string]*nlist.SafeListLimited)
 	GraphQueues = make(map[string]*nlist.SafeListLimited)
@@ -53,10 +53,10 @@ var (
 // 连接池
 // node_address -> connection_pool
 var (
-	JudgeConnPools     *backend.SafeRpcConnPools
-	TsdbConnPoolHelper *backend.TsdbConnPoolHelper
+	JudgeConnPools      *backend.SafeRpcConnPools
+	TsdbConnPoolHelper  *backend.TsdbConnPoolHelper
 	KafkaConnPoolHelper *backend.KafkaConnPoolHelper
-	GraphConnPools     *backend.SafeRpcConnPools
+	GraphConnPools      *backend.SafeRpcConnPools
 )
 
 // 初始化数据发送服务, 在main函数中调用
@@ -207,6 +207,7 @@ func Push2KafkaSendQueue(items []*cmodel.MetaData) {
 		}
 	}
 }
+
 // 转化为tsdb格式
 func convert2TsdbItem(d *cmodel.MetaData) *cmodel.TsdbItem {
 	t := cmodel.TsdbItem{Tags: make(map[string]string)}

@@ -74,14 +74,14 @@ type TsdbConfig struct {
 }
 
 type KafkaConfig struct {
-	Enabled     bool   `json:"enabled"`
-	Batch       int    `json:"batch"`
-	ConnTimeout int    `json:"connTimeout"`
+	Enabled      bool   `json:"enabled"`
+	Batch        int    `json:"batch"`
+	ConnTimeout  int    `json:"connTimeout"`
 	WriteTimeout int    `json:"writeTimeout"`
-	MaxConns    int    `json:"maxConns"`
-	MaxRetry    int    `json:"retry"`
-	Address     string `json:"address"`
-	Topic     string `json:"topic"`
+	MaxConns     int    `json:"maxConns"`
+	MaxRetry     int    `json:"retry"`
+	Address      string `json:"address"`
+	Topic        string `json:"topic"`
 }
 type GlobalConfig struct {
 	Debug   bool          `json:"debug"`
@@ -92,7 +92,7 @@ type GlobalConfig struct {
 	Judge   *JudgeConfig  `json:"judge"`
 	Graph   *GraphConfig  `json:"graph"`
 	Tsdb    *TsdbConfig   `json:"tsdb"`
-	Kafka    *KafkaConfig   `json:"kafka"`
+	Kafka   *KafkaConfig  `json:"kafka"`
 }
 
 var (

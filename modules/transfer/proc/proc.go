@@ -39,23 +39,23 @@ var (
 
 	SendToJudgeCnt = nproc.NewSCounterQps("SendToJudgeCnt")
 	SendToTsdbCnt  = nproc.NewSCounterQps("SendToTsdbCnt")
-	SendToKafkaCnt  = nproc.NewSCounterQps("SendToKafkaCnt")
+	SendToKafkaCnt = nproc.NewSCounterQps("SendToKafkaCnt")
 	SendToGraphCnt = nproc.NewSCounterQps("SendToGraphCnt")
 
 	SendToJudgeDropCnt = nproc.NewSCounterQps("SendToJudgeDropCnt")
 	SendToTsdbDropCnt  = nproc.NewSCounterQps("SendToTsdbDropCnt")
-	SendToKafkaDropCnt  = nproc.NewSCounterQps("SendToKafkaDropCnt")
+	SendToKafkaDropCnt = nproc.NewSCounterQps("SendToKafkaDropCnt")
 	SendToGraphDropCnt = nproc.NewSCounterQps("SendToGraphDropCnt")
 
 	SendToJudgeFailCnt = nproc.NewSCounterQps("SendToJudgeFailCnt")
 	SendToTsdbFailCnt  = nproc.NewSCounterQps("SendToTsdbFailCnt")
-	SendToKafkaFailCnt  = nproc.NewSCounterQps("SendToKafkaFailCnt")
+	SendToKafkaFailCnt = nproc.NewSCounterQps("SendToKafkaFailCnt")
 	SendToGraphFailCnt = nproc.NewSCounterQps("SendToGraphFailCnt")
 
 	// 发送缓存大小
 	JudgeQueuesCnt = nproc.NewSCounterBase("JudgeSendCacheCnt")
 	TsdbQueuesCnt  = nproc.NewSCounterBase("TsdbSendCacheCnt")
-	KafkaQueuesCnt  = nproc.NewSCounterBase("KafkaSendCacheCnt")
+	KafkaQueuesCnt = nproc.NewSCounterBase("KafkaSendCacheCnt")
 	GraphQueuesCnt = nproc.NewSCounterBase("GraphSendCacheCnt")
 
 	// http请求次数

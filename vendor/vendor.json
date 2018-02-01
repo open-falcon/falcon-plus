@@ -13,6 +13,12 @@
 			"revisionTime": "2015-05-01T10:40:42Z"
 		},
 		{
+			"checksumSHA1": "FSV7EBu5vzmLEOAmeF0dW5P1ciA=",
+			"path": "github.com/Shopify/sarama",
+			"revision": "f0c32558d5e8d914b3de1a6f504e2ca88aaa40c4",
+			"revisionTime": "2018-01-04T13:56:01Z"
+		},
+		{
 			"checksumSHA1": "dGXnnR7ZhsrZNnEqFimk6q7YCqs=",
 			"path": "github.com/Sirupsen/logrus",
 			"revision": "61e43dc76f7ee59a82bdf3d71033dc12bea4c77d",
@@ -35,6 +41,30 @@
 			"path": "github.com/chyeh/viper",
 			"revision": "57390a15d63073c39afead641955b9aa63b3a163",
 			"revisionTime": "2016-06-21T06:25:18Z"
+		},
+		{
+			"checksumSHA1": "mrz/kicZiUaHxkyfvC/DyQcr8Do=",
+			"path": "github.com/davecgh/go-spew/spew",
+			"revision": "ecdeabc65495df2dec95d7c4a4c3e021903035e5",
+			"revisionTime": "2017-10-02T20:02:53Z"
+		},
+		{
+			"checksumSHA1": "y2Kh4iPlgCPXSGTCcFpzePYdzzg=",
+			"path": "github.com/eapache/go-resiliency/breaker",
+			"revision": "ef9aaa7ea8bd2448429af1a77cf41b2b3b34bdd6",
+			"revisionTime": "2018-01-01T20:33:13Z"
+		},
+		{
+			"checksumSHA1": "WHl96RVZlOOdF4Lb1OOadMpw8ls=",
+			"path": "github.com/eapache/go-xerial-snappy",
+			"revision": "bb955e01b9346ac19dc29eb16586c90ded99a98c",
+			"revisionTime": "2016-06-09T14:24:08Z"
+		},
+		{
+			"checksumSHA1": "oCCs6kDanizatplM5e/hX76busE=",
+			"path": "github.com/eapache/queue",
+			"revision": "44cc805cf13205b55f69e14bcb69867d1ae92f98",
+			"revisionTime": "2016-08-05T00:47:13Z"
 		},
 		{
 			"checksumSHA1": "+pJ/Bz81Y9SJsSZk5W2acx9IfnE=",
@@ -113,6 +143,12 @@
 			"path": "github.com/golang/protobuf/proto",
 			"revision": "18c9bb3261723cd5401db4d0c9fbc5c3b6c70fe8",
 			"revisionTime": "2017-04-27T21:32:20Z"
+		},
+		{
+			"checksumSHA1": "p/8vSviYF91gFflhrt5vkyksroo=",
+			"path": "github.com/golang/snappy",
+			"revision": "553a641470496b2327abcac10b36396bd98e45c9",
+			"revisionTime": "2017-02-15T23:32:05Z"
 		},
 		{
 			"checksumSHA1": "yIkYzW7bzAD81zHyuCNmEj4+oxQ=",
@@ -299,6 +335,24 @@
 			"path": "github.com/pelletier/go-toml",
 			"revision": "23f644976aa7c724adf4aec911dadf4af17840ab",
 			"revisionTime": "2017-05-08T00:14:13Z"
+		},
+		{
+			"checksumSHA1": "xKzx54LbkghuMauevGWevn5ip3w=",
+			"path": "github.com/pierrec/lz4",
+			"revision": "2fcda4cb7018ce05a25959d2fe08c83e3329f169",
+			"revisionTime": "2017-12-18T19:50:38Z"
+		},
+		{
+			"checksumSHA1": "zPWRjzsPeXCoqmidIcJtHbvrvRs=",
+			"path": "github.com/pierrec/xxHash/xxHash32",
+			"revision": "a0006b13c722f7f12368c00a3d3c2ae8a999a0c6",
+			"revisionTime": "2017-07-14T08:24:55Z"
+		},
+		{
+			"checksumSHA1": "6u6M+ydTkWgOlM+UK+wOYnHhpAU=",
+			"path": "github.com/rcrowley/go-metrics",
+			"revision": "e181e095bae94582363434144c61a9653aff6e50",
+			"revisionTime": "2017-11-28T17:04:26Z"
 		},
 		{
 			"checksumSHA1": "zmC8/3V4ls53DJlNTKDZwPSC/dA=",
