@@ -39,29 +39,29 @@ func init() {
 	}
 
 	BinOf = map[string]string{
-		"agent":      "./agent/bin/falcon-agent",
-		"aggregator": "./aggregator/bin/falcon-aggregator",
-		"graph":      "./graph/bin/falcon-graph",
-		"hbs":        "./hbs/bin/falcon-hbs",
-		"judge":      "./judge/bin/falcon-judge",
-		"nodata":     "./nodata/bin/falcon-nodata",
-		"transfer":   "./transfer/bin/falcon-transfer",
-		"gateway":    "./gateway/bin/falcon-gateway",
-		"api":        "./api/bin/falcon-api",
-		"alarm":      "./alarm/bin/falcon-alarm",
+		"agent":      "./bin/falcon-agent",
+		"aggregator": "./bin/falcon-aggregator",
+		"graph":      "./bin/falcon-graph",
+		"hbs":        "./bin/falcon-hbs",
+		"judge":      "./bin/falcon-judge",
+		"nodata":     "./bin/falcon-nodata",
+		"transfer":   "./bin/falcon-transfer",
+		"gateway":    "./bin/falcon-gateway",
+		"api":        "./bin/falcon-api",
+		"alarm":      "./bin/falcon-alarm",
 	}
 
 	cfgOf = map[string]string{
-		"agent":      "./agent/config/cfg.json",
-		"aggregator": "./aggregator/config/cfg.json",
-		"graph":      "./graph/config/cfg.json",
-		"hbs":        "./hbs/config/cfg.json",
-		"judge":      "./judge/config/cfg.json",
-		"nodata":     "./nodata/config/cfg.json",
-		"transfer":   "./transfer/config/cfg.json",
-		"gateway":    "./gateway/config/cfg.json",
-		"api":        "./api/config/cfg.json",
-		"alarm":      "./alarm/config/cfg.json",
+		"agent":      "./config/agent-cfg.json",
+		"aggregator": "./config/aggregator-cfg.json",
+		"graph":      "./config/graph-cfg.json",
+		"hbs":        "./config/hbs-cfg.json",
+		"judge":      "./config/judge-cfg.json",
+		"nodata":     "./config/nodata-cfg.json",
+		"transfer":   "./config/transfer-cfg.json",
+		"gateway":    "./config/gateway-cfg.json",
+		"api":        "./config/api-cfg.json",
+		"alarm":      "./config/alarm-cfg.json",
 	}
 
 	ModuleApps = map[string]string{
@@ -78,16 +78,16 @@ func init() {
 	}
 
 	logpathOf = map[string]string{
-		"agent":      "./agent/logs/agent.log",
-		"aggregator": "./aggregator/logs/aggregator.log",
-		"graph":      "./graph/logs/graph.log",
-		"hbs":        "./hbs/logs/hbs.log",
-		"judge":      "./judge/logs/judge.log",
-		"nodata":     "./nodata/logs/nodata.log",
-		"transfer":   "./transfer/logs/transfer.log",
-		"gateway":    "./gateway/logs/gateway.log",
-		"api":        "./api/logs/api.log",
-		"alarm":      "./alarm/logs/alarm.log",
+		"agent":      "./logs/agent.log",
+		"aggregator": "./logs/aggregator.log",
+		"graph":      "./logs/graph.log",
+		"hbs":        "./logs/hbs.log",
+		"judge":      "./logs/judge.log",
+		"nodata":     "./logs/nodata.log",
+		"transfer":   "./logs/transfer.log",
+		"gateway":    "./logs/gateway.log",
+		"api":        "./logs/api.log",
+		"alarm":      "./logs/alarm.log",
 	}
 
 	PidOf = map[string]string{
