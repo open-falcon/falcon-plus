@@ -39,7 +39,10 @@ func InitRedisConnPool() {
 		MaxIdle:     maxIdle,
 		IdleTimeout: idleTimeout,
 		Dial: func() (redis.Conn, error) {
-			c, err := redis.DialTimeout("tcp", dsn, connTimeout, readTimeout, writeTimeout)
+			c, err := redis.DialURL(dsn, 
+				redis.DialConnectTimeout(connTimeout),
+				redis.DialReadTimeout(readTimeout),
+				redis.DialWriteTimeout(writeTimeout))
 			if err != nil {
 				return nil, err
 			}

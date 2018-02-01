@@ -12,7 +12,7 @@ confs=(
     '%%NODATA_HTTP%%=0.0.0.0:6090'
     '%%TRANSFER_HTTP%%=0.0.0.0:6060'
     '%%TRANSFER_RPC%%=0.0.0.0:8433'
-    '%%REDIS%%=127.0.0.1:6379'
+    '%%REDIS%%=redis://127.0.0.1:6379'
     '%%MYSQL%%=root:@tcp(127.0.0.1:3306)'
     '%%PLUS_API_DEFAULT_TOKEN%%=default-token-used-in-server-side'
     '%%PLUS_API_HTTP%%=0.0.0.0:8080'
@@ -27,9 +27,9 @@ configurer() {
         uname=`uname`
         if [ "$uname" == "Darwin" ] ; then
             # Note the "" and -e  after -i, needed in OS X
-            find ./out/*/config/*.json -type f -exec sed -i .tpl -e "s/${search}/${replace}/g" {} \;
+            find ./out/*/config/*.json -type f -exec sed -i .tpl -e "s#${search}#${replace}#g" {} \;
         else
-            find ./out/*/config/*.json -type f -exec sed -i "s/${search}/${replace}/g" {} \;
+            find ./out/*/config/*.json -type f -exec sed -i "s#${search}#${replace}#g" {} \;
         fi
     done
 }

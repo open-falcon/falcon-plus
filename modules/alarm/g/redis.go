@@ -29,7 +29,7 @@ func InitRedisConnPool() {
 		MaxIdle:     redisConfig.MaxIdle,
 		IdleTimeout: 240 * time.Second,
 		Dial: func() (redis.Conn, error) {
-			c, err := redis.Dial("tcp", redisConfig.Addr)
+			c, err := redis.DialURL(redisConfig.Addr)
 			if err != nil {
 				return nil, err
 			}
