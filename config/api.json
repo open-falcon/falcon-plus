@@ -18,7 +18,7 @@
 		"call_timeout": 5000,
 		"numberOfReplicas": 500
 	},
-	"metric_list_file": "./api/data/metric",
+	"metric_list_file": "./data/api/metric",
 	"web_port": "%%PLUS_API_HTTP%%",
 	"access_control": true,
 	"signup_disable": false,

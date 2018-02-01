@@ -71,6 +71,16 @@ pack: checkbin
 	tar -C out -zcf open-falcon-v$(VERSION).tar.gz .
 	@rm -rf out
 
+pack-docker: checkbin
+	@if [ -e out ] ; then rm -rf out; fi
+	@bash  -c "mkdir -p out/{logs,bin,config,data/graph/6070}"
+	@$(foreach var,$(CMD),cp ./config/$(var).json ./out/config/$(var)-cfg.json;)
+	@$(foreach var,$(CMD),cp ./bin/$(var)/falcon-$(var) ./out/bin;)
+	@cp -r ./modules/agent/public ./out/public/
+	@cp -r ./modules/agent/plugins ./out/plugins/
+	@cp -r ./modules/api/data ./out/data/api
+	@cp $(TARGET) ./out/$(TARGET)
+
 clean:
 	@rm -rf ./bin
 	@rm -rf ./out
