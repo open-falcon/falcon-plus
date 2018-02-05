@@ -108,7 +108,7 @@ type ActionTmp struct {
 
 func (this APICreateExrpessionInput) CheckFormat() (err error) {
 	validOp := regexp.MustCompile(`^(>|=|<|!)(=)?$`)
-	validRightValue := regexp.MustCompile(`^\d+$`)
+	validRightValue := regexp.MustCompile(`^\-?\d+(\.\d+)?$`)
 	switch {
 	case !validOp.MatchString(this.Op):
 		err = errors.New("op's formating is not vaild")
