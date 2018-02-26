@@ -16,6 +16,7 @@ package funcs
 
 import (
 	"fmt"
+
 	log "github.com/Sirupsen/logrus"
 	"github.com/open-falcon/falcon-plus/common/model"
 	"github.com/open-falcon/falcon-plus/modules/agent/g"
@@ -58,6 +59,10 @@ func DeviceMetrics() (L []*model.MetricValue) {
 		}
 
 		if du.BlocksAll == 0 {
+			continue
+		}
+
+		if du.FsVfstype == "iso9660" {
 			continue
 		}
 
