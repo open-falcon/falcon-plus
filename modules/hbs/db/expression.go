@@ -22,7 +22,7 @@ import (
 )
 
 func QueryExpressions() (ret []*model.Expression, err error) {
-	sql := "select id, expression, func, op, right_value, max_step, priority, note, action_id from expression where action_id>0 and pause=0"
+	sql := "select * from expression where action_id>0 and pause=0"
 	rows, err := DB.Query(sql)
 	if err != nil {
 		log.Println("ERROR:", err)
@@ -43,6 +43,8 @@ func QueryExpressions() (ret []*model.Expression, err error) {
 			&e.Priority,
 			&e.Note,
 			&e.ActionId,
+			&e.CreateUser,
+			&e.Pause,
 		)
 
 		if err != nil {

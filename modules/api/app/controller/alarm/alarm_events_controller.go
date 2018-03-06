@@ -20,6 +20,7 @@ import (
 	"github.com/gin-gonic/gin"
 	h "github.com/open-falcon/falcon-plus/modules/api/app/helper"
 	alm "github.com/open-falcon/falcon-plus/modules/api/app/model/alarm"
+	config "github.com/open-falcon/falcon-plus/modules/api/config"
 	"strings"
 )
 
@@ -127,6 +128,14 @@ func AlarmLists(c *gin.Context) {
 		return
 	}
 	filterCollector := inputs.collectFilters()
+	if config.Exclusive {
+		user, _ := h.GetUser(c)
+		if filterCollector == "" {
+			filterCollector = fmt.Sprintf("WHERE tpl_creator = '%s'", user.Name)
+		} else {
+			filterCollector = fmt.Sprintf("%s And tpl_creator = '%s'", filterCollector, user.Name)
+		}
+	}
 	//for get correct table name
 	f := alm.EventCases{}
 	cevens := []alm.EventCases{}
@@ -169,17 +178,19 @@ type APIEventsGetInputs struct {
 func (s APIEventsGetInputs) collectFilters() string {
 	tmp := []string{}
 	filterStrTmp := ""
+	f := alm.Events{}
+	tableName := f.TableName()
 	if s.StartTime != 0 {
-		tmp = append(tmp, fmt.Sprintf("timestamp >= FROM_UNIXTIME(%v)", s.StartTime))
+		tmp = append(tmp, fmt.Sprintf("%s.timestamp >= FROM_UNIXTIME(%v)", tableName, s.StartTime))
 	}
 	if s.EndTime != 0 {
-		tmp = append(tmp, fmt.Sprintf("timestamp <= FROM_UNIXTIME(%v)", s.EndTime))
+		tmp = append(tmp, fmt.Sprintf("%s.timestamp <= FROM_UNIXTIME(%v)", s.EndTime))
 	}
 	if s.EventId != "" {
-		tmp = append(tmp, fmt.Sprintf("event_caseId = '%s'", s.EventId))
+		tmp = append(tmp, fmt.Sprintf("%s.event_caseId = '%s'", tableName, s.EventId))
 	}
 	if s.Status == 0 || s.Status == 1 {
-		tmp = append(tmp, fmt.Sprintf("status = %d", s.Status))
+		tmp = append(tmp, fmt.Sprintf("%s.status = %d", tableName, s.Status))
 	}
 	if len(tmp) != 0 {
 		filterStrTmp = strings.Join(tmp, " AND ")
@@ -198,11 +209,23 @@ func EventsGet(c *gin.Context) {
 	filterCollector := inputs.collectFilters()
 	//for get correct table name
 	f := alm.Events{}
+	tableName := f.TableName()
 	evens := []alm.Events{}
 	if inputs.Limit == 0 || inputs.Limit >= 50 {
 		inputs.Limit = 50
 	}
-	perparedSql := fmt.Sprintf("select id, event_caseId, cond, status, timestamp from %s %s order by timestamp DESC limit %d,%d", f.TableName(), filterCollector, inputs.Page, inputs.Limit)
+	if config.Exclusive {
+		user, _ := h.GetUser(c)
+		eventCasesTable := alm.EventCases{}
+		if filterCollector == "" {
+			filterCollector = "WHERE"
+		} else {
+			filterCollector = fmt.Sprintf("%s AND", filterCollector)
+		}
+		fmt.Sprintf("%s %s.event_caseId = %s.id %s.tpl_creator = '%s'", filterCollector, tableName, eventCasesTable.TableName(), tableName, user.Name)
+		tableName = fmt.Sprintf("%s, %s", tableName, eventCasesTable.TableName())
+	}
+	perparedSql := fmt.Sprintf("select id, event_caseId, cond, status, timestamp from %s %s order by timestamp DESC limit %d,%d", tableName, filterCollector, inputs.Page, inputs.Limit)
 	db.Alarm.Raw(perparedSql).Scan(&evens)
 	h.JSONR(c, evens)
 }

@@ -24,7 +24,17 @@ const (
 	VERSION = "0.0.1"
 )
 
+var Exclusive bool
+
 func init() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+}
+
+func setExclusive(val bool) {
+	Exclusive = val
+}
+
+func getExclusive() bool {
+	return Exclusive
 }

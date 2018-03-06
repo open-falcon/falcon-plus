@@ -31,11 +31,13 @@ type Expression struct {
 	Priority   int               `json:"priority"`
 	Note       string            `json:"note"`
 	ActionId   int               `json:"actionId"`
+	CreateUser string            `json:"createUser"`
+	Pause      int               `json:"pause"`
 }
 
 func (this *Expression) String() string {
 	return fmt.Sprintf(
-		"<Id:%d, Metric:%s, Tags:%v, %s%s%s MaxStep:%d, P%d %s ActionId:%d>",
+		"<Id:%d, Metric:%s, Tags:%v, %s%s%s MaxStep:%d, P%d %s ActionId:%d CreateUser:%s Pause:%d>",
 		this.Id,
 		this.Metric,
 		this.Tags,
@@ -46,6 +48,8 @@ func (this *Expression) String() string {
 		this.Priority,
 		this.Note,
 		this.ActionId,
+		this.CreateUser,
+		this.Pause,
 	)
 }
 

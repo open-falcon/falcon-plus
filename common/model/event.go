@@ -59,6 +59,14 @@ func (this *Event) ExpressionId() int {
 	return 0
 }
 
+func (this *Event) Exp() *Expression {
+	if this.Expression != nil {
+		return this.Expression
+	}
+
+	return nil
+}
+
 func (this *Event) StrategyId() int {
 	if this.Strategy != nil {
 		return this.Strategy.Id

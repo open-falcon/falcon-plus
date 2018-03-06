@@ -86,6 +86,7 @@ func main() {
 		routes.Use(yaag_gin.Document())
 	}
 	initGraph()
+	config.Exclusive = viper.GetBool("exclusive")
 	//start gin server
 	log.Debugf("will start with port:%v", viper.GetString("web_port"))
 	go controller.StartGin(viper.GetString("web_port"), routes)

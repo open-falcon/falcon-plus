@@ -66,6 +66,13 @@ func InsertEvent(eve *coommonModel.Event) {
 	var errRes error
 	log.Debugf("events: %v", eve)
 	log.Debugf("expression is null: %v", eve.Expression == nil)
+	tpl_creator := ""
+	if eve.Tpl() != nil {
+		tpl_creator = eve.Tpl().Creator
+	}
+	if eve.Exp() != nil {
+		tpl_creator = eve.Exp().CreateUser
+	}
 	if len(event) == 0 {
 		//create cases
 		sqltemplete := `INSERT INTO event_cases (
@@ -87,10 +94,6 @@ func InsertEvent(eve *coommonModel.Event) {
 					template_id
 					) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
 
-		tpl_creator := ""
-		if eve.Tpl() != nil {
-			tpl_creator = eve.Tpl().Creator
-		}
 		sqlLog, errRes = q.Raw(
 			sqltemplete,
 			eve.Id,
@@ -131,11 +134,6 @@ func InsertEvent(eve *coommonModel.Event) {
 		//reopen case
 		if event[0].ProcessStatus == "resolved" || event[0].ProcessStatus == "ignored" {
 			sqltemplete = fmt.Sprintf("%v ,process_status = '%s', process_note = %d", sqltemplete, "unresolved", 0)
-		}
-
-		tpl_creator := ""
-		if eve.Tpl() != nil {
-			tpl_creator = eve.Tpl().Creator
 		}
 		if eve.CurrentStep == 1 {
 			//update start time of cases
