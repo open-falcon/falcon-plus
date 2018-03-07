@@ -35,6 +35,10 @@ func initConnPools() {
 	if cfg.Tsdb.Enabled {
 		TsdbConnPoolHelper = backend.NewTsdbConnPoolHelper(cfg.Tsdb.Address, cfg.Tsdb.MaxConns, cfg.Tsdb.MaxIdle, cfg.Tsdb.ConnTimeout, cfg.Tsdb.CallTimeout)
 	}
+	// kafka
+	if cfg.Kafka.Enabled {
+		KafkaConnPoolHelper = backend.NewKafkaConnPoolHelper(cfg.Kafka.Address, cfg.Kafka.MaxConns, cfg.Kafka.ConnTimeout, cfg.Kafka.WriteTimeout)
+	}
 
 	// graph
 	graphInstances := nset.NewSafeSet()
@@ -52,4 +56,5 @@ func DestroyConnPools() {
 	JudgeConnPools.Destroy()
 	GraphConnPools.Destroy()
 	TsdbConnPoolHelper.Destroy()
+	//	KafkaConnPoolHelper.Destroy()
 }
