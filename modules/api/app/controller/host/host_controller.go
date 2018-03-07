@@ -133,3 +133,22 @@ func GetTplsRelatedHost(c *gin.Context) {
 	h.JSONR(c, tpls)
 	return
 }
+
+type APIGetHostByHostNameInput struct {
+	HostName []string `json:"hostname" binding:"required"`
+}
+
+func GetHostByHostName(c *gin.Context) {
+	var inputs APIGetHostByHostNameInput
+	if err := c.Bind(&inputs); err != nil {
+		h.JSONR(c, badstatus, err)
+		return
+	}
+	host := []f.Host{}
+	if dt := db.Falcon.Where("hostname in (?)", inputs.HostName).Find(&host); dt.Error != nil {
+		h.JSONR(c, expecstatus, dt.Error)
+		return
+	}
+	h.JSONR(c, host)
+	return
+}
