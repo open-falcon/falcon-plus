@@ -300,7 +300,7 @@ func fetch_rrd(client **rpc.Client, key string, addr string) error {
 
 		if err == nil {
 			done := make(chan error, 1)
-			io_task_chan <- &io_task_t{
+			io_task_chans[getIndex(md5)] <- &io_task_t{
 				method: IO_TASK_M_WRITE,
 				args: &g.File{
 					Filename: filename,
