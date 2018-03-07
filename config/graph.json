@@ -16,6 +16,7 @@
         "maxIdle": 4
     },
     "callTimeout": 5000,
+    "ioWorkerNum": 64,
     "migrate": {
             "enabled": false,
             "concurrency": 2,
