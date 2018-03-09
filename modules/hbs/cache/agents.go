@@ -19,10 +19,11 @@ package cache
 // 提供http接口查询机器信息，排查重名机器的时候比较有用
 
 import (
-	"github.com/open-falcon/falcon-plus/common/model"
-	"github.com/open-falcon/falcon-plus/modules/hbs/db"
 	"sync"
 	"time"
+
+	"github.com/open-falcon/falcon-plus/common/model"
+	"github.com/open-falcon/falcon-plus/modules/hbs/db"
 )
 
 type SafeAgents struct {
@@ -48,10 +49,12 @@ func (this *SafeAgents) Put(req *model.AgentReportRequest) {
 		agentInfo.ReportRequest.PluginVersion != req.PluginVersion {
 
 		db.UpdateAgent(val)
-		this.Lock()
-		this.M[req.Hostname] = val
-		this.Unlock()
 	}
+
+	// 更新hbs 时间
+	this.Lock()
+	this.M[req.Hostname] = val
+	this.Unlock()
 }
 
 func (this *SafeAgents) Get(hostname string) (*model.AgentUpdateInfo, bool) {
