@@ -281,6 +281,10 @@ func IsUserInTeams(c *gin.Context) {
 		h.JSONR(c, http.StatusExpectationFailed, dt.Error)
 		return
 	}
+	if len(teams) == 0 {
+		h.JSONR(c, http.StatusExpectationFailed, "query params team_names don't exist in falcon!!")
+		return
+	}
 
 	tids := []int64{}
 	for _, t := range teams {
@@ -291,6 +295,10 @@ func IsUserInTeams(c *gin.Context) {
 	dt = db.Uic.Table("rel_team_user").Where("uid = ? and tid in (?)", uid, tids).Find(&tus)
 	if dt.Error != nil {
 		h.JSONR(c, http.StatusExpectationFailed, dt.Error)
+		return
+	}
+	if len(tus) == 0 {
+		h.JSONR(c, http.StatusExpectationFailed, "false")
 		return
 	}
 
