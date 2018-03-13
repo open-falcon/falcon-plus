@@ -60,11 +60,7 @@ func (this *Event) ExpressionId() int {
 }
 
 func (this *Event) Exp() *Expression {
-	if this.Expression != nil {
-		return this.Expression
-	}
-
-	return nil
+	return this.Expression
 }
 
 func (this *Event) StrategyId() int {
