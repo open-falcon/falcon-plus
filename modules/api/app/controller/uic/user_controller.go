@@ -328,11 +328,13 @@ func GetUserTeams(c *gin.Context) {
 		tids = append(tids, ut.Tid)
 	}
 	teams := []uic.Team{}
-	tidsStr, _ := utils.ArrInt64ToString(tids)
-	dt = db.Uic.Table("team").Where(fmt.Sprintf("id in (%s)", tidsStr)).Find(&teams)
-	if dt.Error != nil {
-		h.JSONR(c, http.StatusExpectationFailed, dt.Error)
-		return
+	if len(tids) > 0 {
+		tidsStr, _ := utils.ArrInt64ToString(tids)
+		dt = db.Uic.Table("team").Where(fmt.Sprintf("id in (%s)", tidsStr)).Find(&teams)
+		if dt.Error != nil {
+			h.JSONR(c, http.StatusExpectationFailed, dt.Error)
+			return
+		}
 	}
 	h.JSONR(c, map[string]interface{}{
 		"teams": teams,
