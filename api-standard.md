@@ -83,7 +83,7 @@ OPTIONS：获取信息，关于资源的哪些属性是客户端可以改变的�
 ```json
 {
 	"id" : 1,
-	"name" : ZhangSan
+	"name" : "ZhangSan"
 }
 ```
 需要注意的是，JSON中key的命名规则同样需要遵循``snake_case``。 
