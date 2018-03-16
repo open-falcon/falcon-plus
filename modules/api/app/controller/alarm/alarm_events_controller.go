@@ -210,6 +210,7 @@ func EventsGet(c *gin.Context) {
 	//for get correct table name
 	f := alm.Events{}
 	tableName := f.TableName()
+	allTables := tableName
 	evens := []alm.Events{}
 	if inputs.Limit == 0 || inputs.Limit >= 50 {
 		inputs.Limit = 50
@@ -218,14 +219,21 @@ func EventsGet(c *gin.Context) {
 		user, _ := h.GetUser(c)
 		eventCasesTable := alm.EventCases{}
 		if filterCollector == "" {
-			filterCollector = "WHERE"
+			filterCollector = fmt.Sprintf("WHERE %s.event_caseId = %s.id AND %s.tpl_creator = '%s'",
+				tableName, eventCasesTable.TableName(), eventCasesTable.TableName(), user.Name)
 		} else {
-			filterCollector = fmt.Sprintf("%s AND", filterCollector)
+			filterCollector = fmt.Sprintf("%s AND %s.event_caseId = %s.id AND %s.tpl_creator = '%s'",
+				filterCollector, tableName, eventCasesTable.TableName(), eventCasesTable.TableName(),
+				user.Name)
 		}
-		fmt.Sprintf("%s %s.event_caseId = %s.id %s.tpl_creator = '%s'", filterCollector, tableName, eventCasesTable.TableName(), tableName, user.Name)
-		tableName = fmt.Sprintf("%s, %s", tableName, eventCasesTable.TableName())
+		fmt.Sprintf("%s %s.event_caseId = %s.id %s.tpl_creator = '%s'", filterCollector, tableName,
+			eventCasesTable.TableName(), tableName, user.Name)
+		allTables = fmt.Sprintf("%s, %s", tableName, eventCasesTable.TableName())
 	}
-	perparedSql := fmt.Sprintf("select id, event_caseId, cond, status, timestamp from %s %s order by timestamp DESC limit %d,%d", tableName, filterCollector, inputs.Page, inputs.Limit)
+	perparedSql := fmt.Sprintf(
+		"select %s.id, %s.event_caseId, %s.cond, %s.status, %s.timestamp from %s %s order by %s.timestamp DESC limit %d,%d",
+		tableName, tableName, tableName, tableName, tableName,
+		allTables, filterCollector, tableName, inputs.Page, inputs.Limit)
 	db.Alarm.Raw(perparedSql).Scan(&evens)
 	h.JSONR(c, evens)
 }

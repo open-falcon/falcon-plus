@@ -27,5 +27,5 @@
 	"default_token": "default-token-used-in-server-side",
 	"gen_doc": false,
 	"gen_doc_path": "doc/module.html",
-	"exclusive": false,
+	"exclusive": false
 }
