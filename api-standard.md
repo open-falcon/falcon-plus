@@ -14,7 +14,6 @@ http://api.open-falcon.org
 
 ## 版本(Versioning)
 应将API版本号放入URL。
-TODO：此处v1高亮
 ```
 http://api.open-falcon.org/v1/
 ```
@@ -80,7 +79,7 @@ OPTIONS：获取信息，关于资源的哪些属性是客户端可以改变的�
 另外，参考HTTP协议(1.0版和1.1版)的主要设计者Roy Thomas Fielding所言，任何HTTP请求都允许包含请求体，但发送一个请求体非空的GET请求是没有意义的。因此GET请求请求体应该为``空``。
 
 对于POST、PUT、DELETE请求，若请求体不为空，则请求体格式应该为JSON，如: 
-```json
+```
 {
 	"id" : 1,
 	"name" : "ZhangSan"
