@@ -24,6 +24,9 @@ import (
 // 2.0.2: clean stale data
 const (
 	VERSION = "2.0.2"
+	GAUGE   = "GAUGE"
+	COUNTER = "COUNTER"
+	DERIVE  = "DERIVE"
 )
 
 func init() {

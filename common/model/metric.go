@@ -65,13 +65,14 @@ type MetaData struct {
 	Timestamp   int64             `json:"timestamp"`
 	Step        int64             `json:"step"`
 	Value       float64           `json:"value"`
+	ValueRaw    string            `json:"value"`
 	CounterType string            `json:"counterType"`
 	Tags        map[string]string `json:"tags"`
 }
 
 func (t *MetaData) String() string {
-	return fmt.Sprintf("<MetaData Endpoint:%s, Metric:%s, Timestamp:%d, Step:%d, Value:%f, Tags:%v>",
-		t.Endpoint, t.Metric, t.Timestamp, t.Step, t.Value, t.Tags)
+	return fmt.Sprintf("<MetaData Endpoint:%s, Metric:%s, Timestamp:%d, Step:%d, ValueRaw:%v, Tags:%v>",
+		t.Endpoint, t.Metric, t.Timestamp, t.Step, t.ValueRaw, t.Tags)
 }
 
 func (t *MetaData) PK() string {

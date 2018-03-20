@@ -17,12 +17,14 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
+
 	"github.com/open-falcon/falcon-plus/modules/judge/cron"
 	"github.com/open-falcon/falcon-plus/modules/judge/g"
 	"github.com/open-falcon/falcon-plus/modules/judge/http"
 	"github.com/open-falcon/falcon-plus/modules/judge/rpc"
 	"github.com/open-falcon/falcon-plus/modules/judge/store"
-	"os"
+	"github.com/open-falcon/falcon-plus/modules/judge/string_matcher"
 )
 
 func main() {
@@ -39,6 +41,15 @@ func main() {
 
 	g.InitRedisConnPool()
 	g.InitHbsClient()
+
+	_cfg := g.Config()
+	if _cfg.StringMatcher.Enabled {
+		string_matcher.InitStringMatcher()
+
+		batch := _cfg.StringMatcher.Batch
+		retry := _cfg.StringMatcher.MaxRetry
+		go string_matcher.Consumer.Start(batch, retry)
+	}
 
 	store.InitHistoryBigMap()
 

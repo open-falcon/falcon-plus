@@ -16,13 +16,14 @@ package sender
 
 import (
 	"fmt"
+	"log"
+
 	backend "github.com/open-falcon/falcon-plus/common/backend_pool"
 	cmodel "github.com/open-falcon/falcon-plus/common/model"
 	"github.com/open-falcon/falcon-plus/modules/transfer/g"
 	"github.com/open-falcon/falcon-plus/modules/transfer/proc"
 	rings "github.com/toolkits/consistent/rings"
 	nlist "github.com/toolkits/container/list"
-	"log"
 )
 
 const (
@@ -95,6 +96,7 @@ func Push2JudgeSendQueue(items []*cmodel.MetaData) {
 			Endpoint:  item.Endpoint,
 			Metric:    item.Metric,
 			Value:     item.Value,
+			ValueRaw:  item.ValueRaw,
 			Timestamp: ts,
 			JudgeType: item.CounterType,
 			Tags:      item.Tags,

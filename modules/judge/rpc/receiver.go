@@ -15,11 +15,13 @@
 package rpc
 
 import (
+	"log"
 	"time"
 
 	"github.com/open-falcon/falcon-plus/common/model"
 	"github.com/open-falcon/falcon-plus/modules/judge/g"
 	"github.com/open-falcon/falcon-plus/modules/judge/store"
+	"github.com/open-falcon/falcon-plus/modules/judge/string_matcher"
 )
 
 type Judge int
@@ -29,16 +31,29 @@ func (this *Judge) Ping(req model.NullRpcRequest, resp *model.SimpleRpcResponse)
 }
 
 func (this *Judge) Send(items []*model.JudgeItem, resp *model.SimpleRpcResponse) error {
-	remain := g.Config().Remain
+	cfg := g.Config()
+	remain := cfg.Remain
 	// 把当前时间的计算放在最外层，是为了减少获取时间时的系统调用开销
 	now := time.Now().Unix()
+
 	for _, item := range items {
 		exists := g.FilterMap.Exists(item.Metric)
 		if !exists {
 			continue
 		}
+
 		pk := item.PrimaryKey()
 		store.HistoryBigMap[pk[0:2]].PushFrontAndMaintain(pk, item, remain, now)
+
+		if cfg.StringMatcher.Enabled {
+			if item.JudgeType != g.GAUGE || item.ValueRaw == "" {
+				continue
+			}
+			success := string_matcher.Producer.Append(item)
+			if !success {
+				log.Println("string_matcher.Producer failed")
+			}
+		}
 	}
 	return nil
 }

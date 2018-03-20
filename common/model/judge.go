@@ -24,16 +24,18 @@ type JudgeItem struct {
 	Endpoint  string            `json:"endpoint"`
 	Metric    string            `json:"metric"`
 	Value     float64           `json:"value"`
+	ValueRaw  string            `json:"valueRaw"`
 	Timestamp int64             `json:"timestamp"`
 	JudgeType string            `json:"judgeType"`
 	Tags      map[string]string `json:"tags"`
 }
 
 func (this *JudgeItem) String() string {
-	return fmt.Sprintf("<Endpoint:%s, Metric:%s, Value:%f, Timestamp:%d, JudgeType:%s Tags:%v>",
+	return fmt.Sprintf("<Endpoint:%s, Metric:%s, Value:%.2f ValueRaw:%s, Timestamp:%d, JudgeType:%s Tags:%v>",
 		this.Endpoint,
 		this.Metric,
 		this.Value,
+		this.ValueRaw,
 		this.Timestamp,
 		this.JudgeType,
 		this.Tags)
@@ -46,4 +48,5 @@ func (this *JudgeItem) PrimaryKey() string {
 type HistoryData struct {
 	Timestamp int64   `json:"timestamp"`
 	Value     float64 `json:"value"`
+	ValueRaw  string  `json:"valueRaw"`
 }

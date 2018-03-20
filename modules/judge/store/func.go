@@ -17,6 +17,7 @@ package store
 import (
 	"fmt"
 	"github.com/open-falcon/falcon-plus/common/model"
+	"log"
 	"math"
 	"strconv"
 	"strings"
@@ -128,6 +129,31 @@ func (this LookupFunction) Compute(L *SafeLinkedList) (vs []*model.HistoryData, 
 	}
 
 	return
+}
+
+type MatchFunction struct {
+	Function
+	Pattern string
+	// There are matched records where history.timesatmp > (UNIX_NOW - period) limit n.
+	Period     int
+	Operator   string
+	RightValue float64
+}
+
+func (this MatchFunction) Compute(L *SafeLinkedList) (vs []*model.HistoryData, leftValue float64, isTriggered bool, isEnough bool) {
+	vs, isEnough = L.HistoryDataString(this.Pattern, this.Period)
+	log.Println("isEnough", isEnough)
+	if !isEnough {
+		return
+	}
+	leftValue = float64(len(vs))
+	isTriggered = checkIsTriggered(leftValue, this.Operator, this.RightValue)
+	log.Println("isTriggered", isTriggered)
+	log.Println("leftValue", leftValue)
+	log.Println(this)
+
+	return
+
 }
 
 type SumFunction struct {
@@ -261,15 +287,38 @@ func atois(s string) (ret []int, err error) {
 	return
 }
 
-// @str: e.g. all(#3) sum(#3) avg(#10) diff(#10)
+// @str: e.g. all(#3) sum(#3) avg(#10) diff(#10), match(^error|^warn,60)
 func ParseFuncFromString(str string, operator string, rightValue float64) (fn Function, err error) {
 	if str == "" {
 		return nil, fmt.Errorf("func can not be null!")
 	}
-	idx := strings.Index(str, "#")
-	args, err := atois(str[idx+1 : len(str)-1])
-	if err != nil {
-		return nil, err
+
+	NOT_FOUND := -1
+
+	idxMatchBracket := strings.Index(str, "match(")
+	idxComma := strings.LastIndex(str, ",")
+
+	var pattern string
+	var period int
+	var idx int
+	var args []int
+
+	if idxMatchBracket == NOT_FOUND {
+		idx = strings.Index(str, "#")
+		args, err = atois(str[idx+1 : len(str)-1])
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		pattern = str[len("match("):idxComma]
+		period, err = strconv.Atoi(strings.TrimSpace(str[idxComma+1 : len(str)-1]))
+		if err != nil {
+			return nil, err
+		}
+		idx = strings.Index(str, "(") + 1
+		log.Println("pattern", pattern)
+		log.Println("period", period)
+		log.Println("func", str[:idx-1])
 	}
 
 	switch str[:idx-1] {
@@ -289,6 +338,8 @@ func ParseFuncFromString(str string, operator string, rightValue float64) (fn Fu
 		fn = &PDiffFunction{Limit: args[0], Operator: operator, RightValue: rightValue}
 	case "lookup":
 		fn = &LookupFunction{Num: args[0], Limit: args[1], Operator: operator, RightValue: rightValue}
+	case "match":
+		fn = &MatchFunction{Pattern: pattern, Period: period, Operator: operator, RightValue: rightValue}
 	default:
 		err = fmt.Errorf("not_supported_method")
 	}
