@@ -17,11 +17,12 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/gin-gonic/gin"
 
 	"github.com/open-falcon/falcon-plus/modules/graph/api"
 	"github.com/open-falcon/falcon-plus/modules/graph/cron"
@@ -92,6 +93,8 @@ func main() {
 
 	// init db
 	g.InitDB()
+	// rrdtool init
+	rrdtool.InitChannel()
 	// rrdtool before api for disable loopback connection
 	rrdtool.Start()
 	// start api
