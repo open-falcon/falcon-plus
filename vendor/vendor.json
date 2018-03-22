@@ -193,6 +193,12 @@
 			"revisionTime": "2017-01-02T12:52:26Z"
 		},
 		{
+			"checksumSHA1": "htwRqmZAo4/R9oNE1TGIECyTj4w=",
+			"path": "github.com/jmoiron/sqlx",
+			"revision": "cf35089a197953c69420c8d0cecda90809764b1d",
+			"revisionTime": "2018-02-28T18:46:24Z"
+		},
+		{
 			"checksumSHA1": "Js/yx9fZ3+wH1wZpHNIxSTMIaCg=",
 			"path": "github.com/jtolds/gls",
 			"revision": "77f18212c9c7edc9bd6a33d383a7b545ce62f064",
