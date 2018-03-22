@@ -18,6 +18,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"regexp"
+	"strings"
 	"time"
 
 	"github.com/open-falcon/falcon-plus/common/model"
@@ -30,6 +32,8 @@ func SyncStrategies() {
 		syncStrategies()
 		syncExpression()
 		syncFilter()
+		rebuildStrMatcherMap()
+		rebuildStrMatcherExpMap()
 		time.Sleep(duration)
 	}
 }
@@ -51,7 +55,6 @@ func rebuildStrategyMap(strategiesResponse *model.StrategiesResponse) {
 	for _, hs := range strategiesResponse.HostStrategies {
 		hostname := hs.Hostname
 		if g.Config().Debug && hostname == g.Config().DebugHost {
-			log.Println(hostname, "strategies:")
 			bs, _ := json.Marshal(hs.Strategies)
 			fmt.Println(string(bs))
 		}
@@ -115,4 +118,108 @@ func syncFilter() {
 	}
 
 	g.FilterMap.ReInit(m)
+}
+
+func parsePatternFromFunc(s string) (pattern string) {
+	NOT_FOUND := -1
+	idxMatchBracket := strings.Index(s, "match(")
+	idxComma := strings.LastIndex(s, ",")
+	if idxMatchBracket != NOT_FOUND && idxComma != NOT_FOUND {
+		pattern = s[len("match("):idxComma]
+	}
+	return pattern
+}
+
+func rebuildStrMatcherMap() {
+	m := make(map[string]map[string]*regexp.Regexp)
+
+	strategyMap := g.StrategyMap.Get()
+	for endpointSlashMetric, strategies := range strategyMap {
+		parts := strings.Split(endpointSlashMetric, "/")
+		if len(parts) < 1 {
+			continue
+		}
+		endpoint := parts[0]
+
+		for _, strategy := range strategies {
+			if strategy.Metric != "str.match" {
+				continue
+			}
+
+			if strategy.Func == "" {
+				log.Println(`WARN: strategy.Func are empty`, strategy)
+				continue
+			}
+
+			pattern := parsePatternFromFunc(strategy.Func)
+			if pattern == "" {
+				log.Println(`WARN: pattern is empty or parse pattern failed`, strategy.Func)
+				continue
+			}
+
+			// auto append prefix to ignore case
+			re, err := regexp.Compile(`(?i)` + pattern)
+			if err != nil {
+				log.Println(`WARN: compiling pattern failed`, pattern)
+				continue
+			}
+
+			if _, ok := m[endpoint]; !ok {
+				subM := make(map[string]*regexp.Regexp)
+				m[endpoint] = subM
+
+			}
+			m[endpoint][pattern] = re
+		}
+	}
+
+	g.StrMatcherMap.ReInit(m)
+}
+
+func rebuildStrMatcherExpMap() {
+	m := make(map[string]map[string]*regexp.Regexp)
+
+	exps := g.ExpressionMap.Get()
+
+	for metricSlashTag, exps := range exps {
+		parts := strings.Split(metricSlashTag, "/")
+		if len(parts) != 2 {
+			log.Println("WARN: parse metric from g.ExpressionMap failed", metricSlashTag)
+			continue
+		}
+		metric := parts[0]
+		if metric != "str.match" {
+			continue
+		}
+
+		tag := parts[1]
+
+		for _, exp := range exps {
+			if exp.Func == "" {
+				log.Println(`WARN: expression.Func are empty`, exp)
+				continue
+			}
+
+			pattern := parsePatternFromFunc(exp.Func)
+			if pattern == "" {
+				log.Println(`WARN: pattern is empty or parse pattern failed`, exp.Func)
+				continue
+			}
+
+			// auto append prefix to ignore case
+			re, err := regexp.Compile(`(?i)` + pattern)
+			if err != nil {
+				log.Println(`WARN: compiling pattern failed`, pattern)
+				continue
+			}
+
+			if _, ok := m[tag]; !ok {
+				subM := make(map[string]*regexp.Regexp)
+				m[tag] = subM
+			}
+			m[tag][pattern] = re
+		}
+	}
+
+	g.StrMatcherExpMap.ReInit(m)
 }

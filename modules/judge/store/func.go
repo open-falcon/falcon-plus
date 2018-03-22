@@ -17,7 +17,6 @@ package store
 import (
 	"fmt"
 	"github.com/open-falcon/falcon-plus/common/model"
-	"log"
 	"math"
 	"strconv"
 	"strings"
@@ -142,16 +141,12 @@ type MatchFunction struct {
 
 func (this MatchFunction) Compute(L *SafeLinkedList) (vs []*model.HistoryData, leftValue float64, isTriggered bool, isEnough bool) {
 	vs, isEnough = L.HistoryDataString(this.Pattern, this.Period)
-	log.Println("isEnough", isEnough)
 	if !isEnough {
 		return
 	}
+
 	leftValue = float64(len(vs))
 	isTriggered = checkIsTriggered(leftValue, this.Operator, this.RightValue)
-	log.Println("isTriggered", isTriggered)
-	log.Println("leftValue", leftValue)
-	log.Println(this)
-
 	return
 
 }
@@ -309,16 +304,13 @@ func ParseFuncFromString(str string, operator string, rightValue float64) (fn Fu
 		if err != nil {
 			return nil, err
 		}
-	} else {
+	} else if idxMatchBracket != NOT_FOUND && idxComma != NOT_FOUND {
 		pattern = str[len("match("):idxComma]
 		period, err = strconv.Atoi(strings.TrimSpace(str[idxComma+1 : len(str)-1]))
 		if err != nil {
 			return nil, err
 		}
 		idx = strings.Index(str, "(") + 1
-		log.Println("pattern", pattern)
-		log.Println("period", period)
-		log.Println("func", str[:idx-1])
 	}
 
 	switch str[:idx-1] {

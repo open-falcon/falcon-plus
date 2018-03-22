@@ -127,6 +127,26 @@ func InitStringMatcher() {
 	Consumer.Mgr = mgr
 }
 
+func (c *HistoryConsumer) BatchDeleteHistory(before int64) error {
+	conn, ok := c.Mgr.dbConnPool["history"]
+	if !ok {
+		return errors.New("get Sql Connection failed")
+	}
+
+	err := conn.Ping()
+	if err != nil {
+		return err
+	}
+
+	s := "DELETE FROM history where Timestamp < ?"
+	_, err = conn.Exec(s, before)
+	if err != nil {
+		return err
+	}
+	return nil
+
+}
+
 func (c *HistoryConsumer) Start(batch, retry int) {
 	sema := nsema.NewSemaphore(c.Mgr.dbConcurrent)
 

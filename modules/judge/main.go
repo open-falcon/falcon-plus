@@ -43,9 +43,9 @@ func main() {
 	g.InitHbsClient()
 
 	_cfg := g.Config()
+	// string matcher history persistence
 	if _cfg.StringMatcher.Enabled {
 		string_matcher.InitStringMatcher()
-
 		batch := _cfg.StringMatcher.Batch
 		retry := _cfg.StringMatcher.MaxRetry
 		go string_matcher.Consumer.Start(batch, retry)
@@ -58,6 +58,10 @@ func main() {
 
 	go cron.SyncStrategies()
 	go cron.CleanStale()
+
+	if _cfg.StringMatcher.Enabled {
+		go cron.CleanStringMatcherHistory()
+	}
 
 	select {}
 }

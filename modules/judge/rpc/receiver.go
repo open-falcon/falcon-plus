@@ -42,18 +42,28 @@ func (this *Judge) Send(items []*model.JudgeItem, resp *model.SimpleRpcResponse)
 			continue
 		}
 
-		pk := item.PrimaryKey()
-		store.HistoryBigMap[pk[0:2]].PushFrontAndMaintain(pk, item, remain, now)
+		if item.Metric != "str.match" {
+			pk := item.PrimaryKey()
+			store.HistoryBigMap[pk[0:2]].PushFrontAndMaintain(pk, item, remain, now)
 
-		if cfg.StringMatcher.Enabled {
-			if item.JudgeType != g.GAUGE || item.ValueRaw == "" {
-				continue
-			}
-			success := string_matcher.Producer.Append(item)
-			if !success {
-				log.Println("string_matcher.Producer failed")
+		} else if item.Metric == "str.match" && item.JudgeType == g.GAUGE && item.ValueRaw != "" {
+			yesEndpoint := g.StrMatcherMap.Match(item.Endpoint, item.ValueRaw)
+			yesTag := g.StrMatcherExpMap.Match(item.Tags, item.ValueRaw)
+
+			if yesEndpoint || yesTag {
+				pk := item.PrimaryKey()
+				store.HistoryBigMap[pk[0:2]].PushFrontAndMaintain(pk, item, remain, now)
+
+				// save matched string into SQL DB
+				if cfg.StringMatcher.Enabled {
+					success := string_matcher.Producer.Append(item)
+					if !success {
+						log.Println("string_matcher.Producer failed")
+					}
+				}
 			}
 		}
+
 	}
 	return nil
 }

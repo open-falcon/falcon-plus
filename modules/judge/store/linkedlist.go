@@ -17,10 +17,7 @@ package store
 import (
 	"container/list"
 	"github.com/open-falcon/falcon-plus/common/model"
-	"github.com/open-falcon/falcon-plus/modules/judge/g"
 
-	"log"
-	"regexp"
 	"sync"
 	"time"
 )
@@ -122,24 +119,14 @@ func (this *SafeLinkedList) HistoryDataString(pattern string, period int) ([]*mo
 	now := time.Now().Unix()
 	then := now - int64(period)
 
-	re, err := regexp.Compile(pattern)
-	if err != nil {
-		log.Println("regexp.Compile failed", pattern)
-		return []*model.HistoryData{}, false
-	}
-
 	maxItems := 512
 	var vs []*model.HistoryData
 	hits := 0
 
 	for e := this.Front(); e != nil && hits < maxItems; e = e.Next() {
 		item := e.Value.(*model.JudgeItem)
-		log.Println(item)
 
-		if item.JudgeType != g.GAUGE || item.ValueRaw == "" {
-			continue
-		}
-		if item.Timestamp > then && re.MatchString(item.ValueRaw) {
+		if item.Timestamp >= then {
 			vs = append(vs, &model.HistoryData{Timestamp: item.Timestamp, Value: item.Value, ValueRaw: item.ValueRaw})
 			hits += 1
 		}
