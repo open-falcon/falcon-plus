@@ -65,7 +65,7 @@ type MetaData struct {
 	Timestamp   int64             `json:"timestamp"`
 	Step        int64             `json:"step"`
 	Value       float64           `json:"value"`
-	ValueRaw    string            `json:"value"`
+	ValueRaw    string            `json:"valueRaw"`
 	CounterType string            `json:"counterType"`
 	Tags        map[string]string `json:"tags"`
 }
