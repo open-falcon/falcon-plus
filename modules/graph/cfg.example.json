@@ -12,7 +12,7 @@
 		"storage": "./data/6070"
 	},
 	"db": {
-		"dsn": "root:@tcp(127.0.0.1:3306)/graph?loc=Local&parseTime=true",
+		"dsn": "falcon:falcno@tcp(127.0.0.1:3306)/graph?loc=Local&parseTime=true",
 		"maxIdle": 4
 	},
 	"callTimeout": 5000,
