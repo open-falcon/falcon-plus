@@ -122,9 +122,9 @@ func RecvMetricValues(args []*cmodel.MetricValue, reply *cmodel.TransferResponse
 		case string:
 			vv, err = strconv.ParseFloat(cv, 64)
 			if v.Type == g.GAUGE {
-				// NOTICE: function egrep() requires metric CounterType="GAUGE".
+				// NOTICE: function match() requires metric CounterType="GAUGE".
 
-				// keep original value in string for function egrep()
+				// keep original value in string for function match()
 				fv.ValueRaw = v.Value.(string)
 
 				// hard-coded to 1.0 for couting

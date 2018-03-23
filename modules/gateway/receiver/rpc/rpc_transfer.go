@@ -86,7 +86,6 @@ func RecvMetricValues(args []*cmodel.MetricValue, reply *cmodel.TransferResponse
 			continue
 		}
 
-		// TODO 呵呵,这里需要再优雅一点
 		now := start.Unix()
 		if v.Timestamp <= 0 || v.Timestamp > now*2 {
 			v.Timestamp = now
@@ -108,8 +107,16 @@ func RecvMetricValues(args []*cmodel.MetricValue, reply *cmodel.TransferResponse
 		switch cv := v.Value.(type) {
 		case string:
 			vv, err = strconv.ParseFloat(cv, 64)
-			if err != nil {
-				valid = false
+			if v.Type == g.GAUGE {
+				// NOTICE: function match() requires metric CounterType="GAUGE".
+				// keep original value in string for function match()
+				fv.ValueRaw = v.Value.(string)
+				// hard-coded to 1.0 for couting
+				vv = float64(1.0)
+			} else {
+				if err != nil {
+					valid = false
+				}
 			}
 		case float64:
 			vv = cv
