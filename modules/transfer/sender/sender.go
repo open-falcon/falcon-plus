@@ -176,6 +176,11 @@ func convert2GraphItem(d *cmodel.MetaData) (*cmodel.GraphItem, error) {
 		item.DsType = g.DERIVE
 		item.Min = "0"
 		item.Max = "U"
+	} else if d.CounterType == g.STRMATCH {
+		item.DsType = g.GAUGE
+		item.Min = "U"
+		item.Max = "U"
+
 	} else {
 		return item, fmt.Errorf("not_supported_counter_type")
 	}
