@@ -14,9 +14,8 @@ func CleanStringMatcherHistory() {
 }
 
 func cleanStringMatcherHistory() {
-	//aMonthAgo := time.Now().Unix() - 3600*24*7*31
-	aMonthAgo := time.Now().Unix() - 300
-	err := string_matcher.Consumer.BatchDeleteHistory(aMonthAgo)
+	ago := time.Now().Unix() - 3600*24*7
+	err := string_matcher.Consumer.BatchDeleteHistory(ago)
 	if err != nil {
 		log.Println("ERROR: BatchDeleteHistory failed", err)
 	}

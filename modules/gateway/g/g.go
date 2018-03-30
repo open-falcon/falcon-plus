@@ -36,6 +36,7 @@ const (
 	GAUGE        = "GAUGE"
 	COUNTER      = "COUNTER"
 	DERIVE       = "DERIVE"
+	STRMATCH     = "STRMATCH"
 	DEFAULT_STEP = 60
 	MIN_STEP     = 30
 )

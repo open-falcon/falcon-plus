@@ -183,7 +183,7 @@ func rebuildStrMatcherExpMap() {
 
 	for metricSlashTag, exps := range exps {
 		parts := strings.Split(metricSlashTag, "/")
-		if len(parts) != 2 {
+		if len(parts) < 2 {
 			log.Println("WARN: parse metric from g.ExpressionMap failed", metricSlashTag)
 			continue
 		}
