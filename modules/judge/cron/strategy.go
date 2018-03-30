@@ -142,12 +142,7 @@ func rebuildStrMatcherMap() {
 		endpoint := parts[0]
 
 		for _, strategy := range strategies {
-			if strategy.Metric != "str.match" {
-				continue
-			}
-
-			if strategy.Func == "" {
-				log.Println(`WARN: strategy.Func are empty`, strategy)
+			if strategy.Func == "" || strategy.Func[0:1] != "m" {
 				continue
 			}
 
@@ -187,16 +182,11 @@ func rebuildStrMatcherExpMap() {
 			log.Println("WARN: parse metric from g.ExpressionMap failed", metricSlashTag)
 			continue
 		}
-		metric := parts[0]
-		if metric != "str.match" {
-			continue
-		}
-
+		//metric := parts[0]
 		tag := parts[1]
 
 		for _, exp := range exps {
-			if exp.Func == "" {
-				log.Println(`WARN: expression.Func are empty`, exp)
+			if exp.Func == "" || exp.Func[0:1] != "m" {
 				continue
 			}
 
