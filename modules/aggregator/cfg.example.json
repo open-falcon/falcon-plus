@@ -5,7 +5,7 @@
         "listen": "0.0.0.0:6055"
     },
     "database": {
-        "addr": "falcon:falcno@tcp(127.0.0.1:3306)/falcon_portal?loc=Local&parseTime=true",
+        "addr": "falcon:falcon@tcp(127.0.0.1:3306)/falcon_portal?loc=Local&parseTime=true",
         "idle": 10,
         "ids": [1, -1],
         "interval": 55
