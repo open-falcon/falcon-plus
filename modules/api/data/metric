@@ -74,3 +74,4 @@ net.if.total.errors
 net.if.total.packets
 net.port.listen
 proc.num
+str.match

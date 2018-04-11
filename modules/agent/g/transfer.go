@@ -45,9 +45,12 @@ func SendMetrics(metrics []*model.MetricValue, resp *model.TransferResponse) {
 }
 
 func initTransferClient(addr string) *SingleConnRpcClient {
+	addrs := []string{
+		addr,
+	}
 	var c *SingleConnRpcClient = &SingleConnRpcClient{
-		RpcServer: addr,
-		Timeout:   time.Duration(Config().Transfer.Timeout) * time.Millisecond,
+		RpcServers: addrs,
+		Timeout:    time.Duration(Config().Transfer.Timeout) * time.Millisecond,
 	}
 	TransferClientsLock.Lock()
 	defer TransferClientsLock.Unlock()

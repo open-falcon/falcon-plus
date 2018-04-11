@@ -1,30 +1,44 @@
 {
-    "debug": true,
-    "debugHost": "nil",
-    "remain": 11, 
-    "http": {
-        "enabled": true,
-        "listen": "0.0.0.0:6081"
-    },
-    "rpc": {
-        "enabled": true,
-        "listen": "0.0.0.0:6080"
-    },
-    "hbs": {
-        "servers": ["127.0.0.1:6030"],
-        "timeout": 300,
-        "interval": 60
-    },
     "alarm": {
         "enabled": true,
         "minInterval": 300,
         "queuePattern": "event:p%v",
         "redis": {
+            "connTimeout": 5000,
             "dsn": "127.0.0.1:6379",
             "maxIdle": 5,
-            "connTimeout": 5000,
             "readTimeout": 5000,
             "writeTimeout": 5000
         }
+    },
+    "debug": true,
+    "debugHost": "nil",
+    "hbs": {
+        "interval": 60,
+        "servers": [
+            "127.0.0.1:6030"
+        ],
+        "timeout": 300
+    },
+    "http": {
+        "enabled": true,
+        "listen": "0.0.0.0:6081"
+    },
+    "remain": 11,
+    "rpc": {
+        "enabled": true,
+        "listen": "0.0.0.0:6080"
+    },
+    "stringMatcher": {
+        "batch": 200,
+        "callTimeout": 5000,
+        "connTimeout": 1000,
+        "dsn": {
+            "history": "falcon:falcon@tcp(127.0.0.1:3306)/falcon_history?loc=Local&parseTime=true"
+        },
+        "enabled": true,
+        "maxConns": 32,
+        "maxIdle": 32,
+        "retry": 3
     }
 }

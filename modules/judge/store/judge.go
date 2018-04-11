@@ -39,6 +39,8 @@ func CheckStrategy(L *SafeLinkedList, firstItem *model.JudgeItem, now int64) {
 		// 因为key仅仅是endpoint和metric，所以得到的strategies并不一定是与当前judgeItem相关的
 		// 比如lg-dinp-docker01.bj配置了两个proc.num的策略，一个name=docker，一个name=agent
 		// 所以此处要排除掉一部分
+
+		// NOTICE:  这个逻辑以为着，strategies 里面的 tag 如果多余一个，则全部匹配才会触发调用 judgeItemWithStrategy. feature 还是 bugs?
 		related := true
 		for tagKey, tagVal := range s.Tags {
 			if myVal, exists := firstItem.Tags[tagKey]; !exists || myVal != tagVal {
@@ -46,7 +48,6 @@ func CheckStrategy(L *SafeLinkedList, firstItem *model.JudgeItem, now int64) {
 				break
 			}
 		}
-
 		if !related {
 			continue
 		}
@@ -63,6 +64,7 @@ func judgeItemWithStrategy(L *SafeLinkedList, strategy model.Strategy, firstItem
 	}
 
 	historyData, leftValue, isTriggered, isEnough := fn.Compute(L)
+
 	if !isEnough {
 		return
 	}

@@ -24,6 +24,11 @@ import (
 )
 
 func configInfoRoutes() {
+	http.HandleFunc("/strategies/", func(w http.ResponseWriter, r *http.Request) {
+		m := g.StrategyMap.Get()
+		RenderDataJson(w, m)
+	})
+
 	// e.g. /strategy/lg-dinp-docker01.bj/cpu.idle
 	http.HandleFunc("/strategy/", func(w http.ResponseWriter, r *http.Request) {
 		urlParam := r.URL.Path[len("/strategy/"):]
@@ -31,11 +36,26 @@ func configInfoRoutes() {
 		RenderDataJson(w, m[urlParam])
 	})
 
+	http.HandleFunc("/expressions/", func(w http.ResponseWriter, r *http.Request) {
+		m := g.ExpressionMap.Get()
+		RenderDataJson(w, m)
+	})
+
 	// e.g. /expression/net.port.listen/port=22
 	http.HandleFunc("/expression/", func(w http.ResponseWriter, r *http.Request) {
 		urlParam := r.URL.Path[len("/expression/"):]
 		m := g.ExpressionMap.Get()
 		RenderDataJson(w, m[urlParam])
+	})
+
+	http.HandleFunc("/str_matchers/", func(w http.ResponseWriter, r *http.Request) {
+		m := g.StrMatcherMap.GetAll()
+		RenderDataJson(w, m)
+	})
+
+	http.HandleFunc("/str_matcher_exps/", func(w http.ResponseWriter, r *http.Request) {
+		m := g.StrMatcherExpMap.GetAll()
+		RenderDataJson(w, m)
 	})
 
 	http.HandleFunc("/count", func(w http.ResponseWriter, r *http.Request) {

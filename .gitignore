@@ -4,3 +4,4 @@ out/
 *.swo
 *.tar.gz
 docs/_site
+vendor/

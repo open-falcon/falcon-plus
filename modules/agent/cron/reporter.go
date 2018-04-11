@@ -16,14 +16,15 @@ package cron
 
 import (
 	"fmt"
-	"github.com/open-falcon/falcon-plus/common/model"
-	"github.com/open-falcon/falcon-plus/modules/agent/g"
 	"log"
 	"time"
+
+	"github.com/open-falcon/falcon-plus/common/model"
+	"github.com/open-falcon/falcon-plus/modules/agent/g"
 )
 
 func ReportAgentStatus() {
-	if g.Config().Heartbeat.Enabled && g.Config().Heartbeat.Addr != "" {
+	if g.Config().Heartbeat.Enabled && len(g.Config().Heartbeat.Addrs) != 0 {
 		go reportAgentStatus(time.Duration(g.Config().Heartbeat.Interval) * time.Second)
 	}
 }

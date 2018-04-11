@@ -15,6 +15,8 @@
 package g
 
 import (
+	"fmt"
+	"regexp"
 	"sync"
 	"time"
 
@@ -44,12 +46,29 @@ type SafeFilterMap struct {
 	M map[string]string
 }
 
+// SafeStrMatcherMap Generate this map from strategies
+type SafeStrMatcherMap struct {
+	sync.RWMutex
+	// endpoint1 => map[pattern => RegexpObject, ...]
+	// endpoint2 => map[pattern => RegexpObject, ...]
+	M map[string]map[string]*regexp.Regexp
+}
+
+// SafeStrMatcherExpMap Generate this map from expressions
+// tag1 => map[pattern => RegexpObject, ...]
+// tag2 => map[pattern => RegexpObject, ...]
+type SafeStrMatcherExpMap struct {
+	SafeStrMatcherMap
+}
+
 var (
-	HbsClient     *SingleConnRpcClient
-	StrategyMap   = &SafeStrategyMap{M: make(map[string][]model.Strategy)}
-	ExpressionMap = &SafeExpressionMap{M: make(map[string][]*model.Expression)}
-	LastEvents    = &SafeEventMap{M: make(map[string]*model.Event)}
-	FilterMap     = &SafeFilterMap{M: make(map[string]string)}
+	HbsClient        *SingleConnRpcClient
+	StrategyMap      = &SafeStrategyMap{M: make(map[string][]model.Strategy)}
+	ExpressionMap    = &SafeExpressionMap{M: make(map[string][]*model.Expression)}
+	LastEvents       = &SafeEventMap{M: make(map[string]*model.Event)}
+	FilterMap        = &SafeFilterMap{M: make(map[string]string)}
+	StrMatcherMap    = &SafeStrMatcherMap{M: make(map[string]map[string]*regexp.Regexp)}
+	StrMatcherExpMap = &SafeStrMatcherExpMap{SafeStrMatcherMap{M: make(map[string]map[string]*regexp.Regexp)}}
 )
 
 func InitHbsClient() {
@@ -107,6 +126,81 @@ func (this *SafeFilterMap) Exists(key string) bool {
 	defer this.RUnlock()
 	if _, ok := this.M[key]; ok {
 		return true
+	}
+	return false
+}
+
+func (t *SafeStrMatcherMap) ReInit(m map[string]map[string]*regexp.Regexp) {
+	t.Lock()
+	defer t.Unlock()
+	t.M = m
+}
+
+func (t *SafeStrMatcherMap) Get(key string) (map[string]*regexp.Regexp, bool) {
+	t.Lock()
+	defer t.Unlock()
+	m, ok := t.M[key]
+	return m, ok
+}
+
+func (t *SafeStrMatcherMap) GetAll() map[string]map[string]*regexp.Regexp {
+	t.Lock()
+	defer t.Unlock()
+	return t.M
+}
+
+func (t *SafeStrMatcherMap) Append(key string, pattern string, re *regexp.Regexp) {
+	t.Lock()
+	defer t.Unlock()
+	_, ok := t.M[key]
+	if !ok {
+		m := map[string]*regexp.Regexp{}
+		t.M[key] = m
+	}
+	t.M[key][pattern] = re
+}
+
+func (t *SafeStrMatcherMap) Exists(key string) bool {
+	t.Lock()
+	defer t.Unlock()
+
+	if _, ok := t.M[key]; ok {
+		return true
+	}
+
+	return false
+}
+
+func (t *SafeStrMatcherMap) Match(key string, value string) bool {
+	t.Lock()
+	defer t.Unlock()
+
+	m, ok := t.M[key]
+	if ok {
+		for _, re := range m {
+			if re.MatchString(value) {
+				return true
+			}
+
+		}
+	}
+	return false
+}
+
+func (t *SafeStrMatcherExpMap) Match(m map[string]string, value string) bool {
+	t.Lock()
+	defer t.Unlock()
+
+	for k, v := range m {
+		key := fmt.Sprintf("%s=%s", k, v)
+		subM, ok := t.M[key]
+		if ok {
+			for _, re := range subM {
+				if re.MatchString(value) {
+					return true
+				}
+			}
+		}
 	}
 	return false
 }

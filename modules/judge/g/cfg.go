@@ -16,9 +16,10 @@ package g
 
 import (
 	"encoding/json"
-	"github.com/toolkits/file"
 	"log"
 	"sync"
+
+	"github.com/toolkits/file"
 )
 
 type HttpConfig struct {
@@ -52,14 +53,26 @@ type AlarmConfig struct {
 	Redis        *RedisConfig `json:"redis"`
 }
 
+type StringMatcherConfig struct {
+	Enabled     bool              `json:"enabled"`
+	Batch       int               `json:"batch"`
+	ConnTimeout int               `json:"connTimeout"`
+	CallTimeout int               `json:"callTimeout"`
+	MaxConns    int               `json:"maxConns"`
+	MaxIdle     int               `json:"maxIdle"`
+	MaxRetry    int               `json:"retry"`
+	DSN         map[string]string `json:"dsn"`
+}
+
 type GlobalConfig struct {
-	Debug     bool         `json:"debug"`
-	DebugHost string       `json:"debugHost"`
-	Remain    int          `json:"remain"`
-	Http      *HttpConfig  `json:"http"`
-	Rpc       *RpcConfig   `json:"rpc"`
-	Hbs       *HbsConfig   `json:"hbs"`
-	Alarm     *AlarmConfig `json:"alarm"`
+	Debug         bool                 `json:"debug"`
+	DebugHost     string               `json:"debugHost"`
+	Remain        int                  `json:"remain"`
+	Http          *HttpConfig          `json:"http"`
+	Rpc           *RpcConfig           `json:"rpc"`
+	Hbs           *HbsConfig           `json:"hbs"`
+	Alarm         *AlarmConfig         `json:"alarm"`
+	StringMatcher *StringMatcherConfig `json:"stringMatcher"`
 }
 
 var (

@@ -15,14 +15,15 @@
 package cron
 
 import (
-	"github.com/open-falcon/falcon-plus/common/model"
-	"github.com/open-falcon/falcon-plus/modules/agent/g"
 	"log"
 	"time"
+
+	"github.com/open-falcon/falcon-plus/common/model"
+	"github.com/open-falcon/falcon-plus/modules/agent/g"
 )
 
 func SyncTrustableIps() {
-	if g.Config().Heartbeat.Enabled && g.Config().Heartbeat.Addr != "" {
+	if g.Config().Heartbeat.Enabled && len(g.Config().Heartbeat.Addrs) != 0 {
 		go syncTrustableIps()
 	}
 }

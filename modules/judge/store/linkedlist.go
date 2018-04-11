@@ -17,7 +17,10 @@ package store
 import (
 	"container/list"
 	"github.com/open-falcon/falcon-plus/common/model"
+	"github.com/open-falcon/falcon-plus/modules/judge/g"
+
 	"sync"
+	"time"
 )
 
 type SafeLinkedList struct {
@@ -106,6 +109,32 @@ func (this *SafeLinkedList) HistoryData(limit int) ([]*model.HistoryData, bool) 
 	return vs, isEnough
 }
 
+// @param limit 至多返回这些，如果不够，有多少返回多少
+// @return bool isEnough
+func (this *SafeLinkedList) HistoryDataString(pattern string, period int) ([]*model.HistoryData, bool) {
+	size := this.Len()
+	if size == 0 {
+		return []*model.HistoryData{}, false
+	}
+
+	now := time.Now().Unix()
+	then := now - int64(period)
+
+	maxItems := 512
+	var vs []*model.HistoryData
+	hits := 0
+
+	for e := this.Front(); e != nil && hits < maxItems; e = e.Next() {
+		item := e.Value.(*model.JudgeItem)
+
+		if item.Timestamp >= then {
+			vs = append(vs, &model.HistoryData{Timestamp: item.Timestamp, Value: item.Value, ValueRaw: item.ValueRaw})
+			hits += 1
+		}
+	}
+	return vs, hits > 0
+}
+
 func (this *SafeLinkedList) PushFront(v interface{}) *list.Element {
 	this.Lock()
 	defer this.Unlock()
@@ -120,7 +149,8 @@ func (this *SafeLinkedList) PushFrontAndMaintain(v *model.JudgeItem, maxCount in
 	sz := this.L.Len()
 	if sz > 0 {
 		// 新push上来的数据有可能重复了，或者timestamp不对，这种数据要丢掉
-		if v.Timestamp <= this.L.Front().Value.(*model.JudgeItem).Timestamp || v.Timestamp <= 0 {
+		// JudgeType=g.STRMATCH 没有这个限制，因为 数据来自 API PUSH 接口，让第三方应用自己实现重复过滤。
+		if v.JudgeType != g.STRMATCH && (v.Timestamp <= this.L.Front().Value.(*model.JudgeItem).Timestamp || v.Timestamp <= 0) {
 			return false
 		}
 	}

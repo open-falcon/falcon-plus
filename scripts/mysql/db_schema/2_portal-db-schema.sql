@@ -88,7 +88,7 @@ CREATE TABLE `strategy` (
   `tags`        VARCHAR(256)     NOT NULL DEFAULT '',
   `max_step`    INT(11)          NOT NULL DEFAULT '1',
   `priority`    TINYINT(4)       NOT NULL DEFAULT '0',
-  `func`        VARCHAR(16)      NOT NULL DEFAULT 'all(#1)',
+  `func`        VARCHAR(256)      NOT NULL DEFAULT 'all(#1)',
   `op`          VARCHAR(8)       NOT NULL DEFAULT '',
   `right_value` VARCHAR(64)      NOT NULL,
   `note`        VARCHAR(128)     NOT NULL DEFAULT '',
@@ -107,7 +107,7 @@ DROP TABLE IF EXISTS expression;
 CREATE TABLE `expression` (
   `id`          INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
   `expression`  VARCHAR(1024)    NOT NULL,
-  `func`        VARCHAR(16)      NOT NULL DEFAULT 'all(#1)',
+  `func`        VARCHAR(128)      NOT NULL DEFAULT 'all(#1)',
   `op`          VARCHAR(8)       NOT NULL DEFAULT '',
   `right_value` VARCHAR(16)      NOT NULL DEFAULT '',
   `max_step`    INT(11)          NOT NULL DEFAULT '1',
