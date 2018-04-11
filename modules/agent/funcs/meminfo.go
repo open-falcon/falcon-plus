@@ -15,9 +15,10 @@
 package funcs
 
 import (
+	"log"
+
 	"github.com/open-falcon/falcon-plus/common/model"
 	"github.com/toolkits/nux"
-	"log"
 )
 
 func MemMetrics() []*model.MetricValue {
@@ -27,7 +28,12 @@ func MemMetrics() []*model.MetricValue {
 		return nil
 	}
 
-	memFree := m.MemFree + m.Buffers + m.Cached
+	var memFree uint64
+	if m.MemAvaSupport {
+		memFree = m.MemAvailable
+	} else {
+		memFree = m.MemFree + m.Buffers + m.Cached
+	}
 	memUsed := m.MemTotal - memFree
 
 	pmemFree := 0.0
