@@ -47,13 +47,17 @@ func SendIM(im *model.IM) {
 	}()
 
 	url := g.Config().Api.IM
-	r := httplib.Post(url).SetTimeout(5*time.Second, 30*time.Second)
-	r.Param("tos", im.Tos)
-	r.Param("content", im.Content)
-	resp, err := r.String()
-	if err != nil {
-		log.Errorf("send im fail, tos:%s, cotent:%s, error:%v", im.Tos, im.Content, err)
-	}
+	if url != ""{
+		r := httplib.Post(url).SetTimeout(5*time.Second, 30*time.Second)
+		r.Param("tos", im.Tos)
+		r.Param("content", im.Content)
+		resp, err := r.String()
+		if err != nil {
+			log.Errorf("send im fail, tos:%s, cotent:%s, error:%v", im.Tos, im.Content, err)
+		}
 
-	log.Debugf("send im:%v, resp:%v, url:%s", im, resp, url)
+		log.Debugf("send im:%v, resp:%v, url:%s", im, resp, url)
+	} else {
+		log.Debugf("im url:%s is blank, SKIP", url)
+	}
 }
