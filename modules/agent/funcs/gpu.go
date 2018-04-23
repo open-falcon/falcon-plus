@@ -3,8 +3,8 @@ package funcs
 import (
 	"log"
 
-	"github.com/open-falcon/falcon-plus/common/model"
 	"github.com/mindprince/gonvml"
+	"github.com/open-falcon/falcon-plus/common/model"
 )
 
 // 需要load libnvidia-ml.so.1库
