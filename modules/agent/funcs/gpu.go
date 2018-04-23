@@ -23,6 +23,10 @@ func GpuMetrics() (L []*model.MetricValue) {
 		return
 	}
 
+	if count == 0 {
+		return
+	}
+
 	temperature := uint(0)
 	totalMemory := uint64(0)
 	usedMemory := uint64(0)
