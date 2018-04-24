@@ -51,7 +51,7 @@ func BuildCommonSMSContent(event *model.Event) string {
 		utils.SortedTags(event.PushedTags),
 		utils.ReadableFloat(event.LeftValue),
 		event.Operator(),
-		utils.ReadableFloat(event.RightValue())
+		utils.ReadableFloat(event.RightValue()),
 	)
 }
 
