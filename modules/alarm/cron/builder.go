@@ -22,21 +22,36 @@ import (
 	"github.com/open-falcon/falcon-plus/modules/alarm/g"
 )
 
+// func BuildCommonSMSContent(event *model.Event) string {
+// 	return fmt.Sprintf(
+// 		"[P%d][%s][%s][][%s %s %s %s %s%s%s][O%d %s]",
+// 		event.Priority(),
+// 		event.Status,
+// 		event.Endpoint,
+// 		event.Note(),
+// 		event.Func(),
+// 		event.Metric(),
+// 		utils.SortedTags(event.PushedTags),
+// 		utils.ReadableFloat(event.LeftValue),
+// 		event.Operator(),
+// 		utils.ReadableFloat(event.RightValue()),
+// 		event.CurrentStep,
+// 		event.FormattedTime(),
+// 	)
+// }
+
+
 func BuildCommonSMSContent(event *model.Event) string {
 	return fmt.Sprintf(
-		"[P%d][%s][%s][][%s %s %s %s %s%s%s][O%d %s]",
-		event.Priority(),
+		"[%s][%s][%s %s %s %s%s%s]",
 		event.Status,
 		event.Endpoint,
-		event.Note(),
 		event.Func(),
 		event.Metric(),
 		utils.SortedTags(event.PushedTags),
 		utils.ReadableFloat(event.LeftValue),
 		event.Operator(),
-		utils.ReadableFloat(event.RightValue()),
-		event.CurrentStep,
-		event.FormattedTime(),
+		utils.ReadableFloat(event.RightValue())
 	)
 }
 

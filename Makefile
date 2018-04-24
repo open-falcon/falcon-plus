@@ -1,3 +1,5 @@
+GOOS=linux
+GOARCH=amd64
 CMD = agent aggregator graph hbs judge nodata transfer gateway api alarm
 TARGET = open-falcon
 PACKAGES ?= $(shell go list ./... | grep -v /vendor/)
@@ -44,11 +46,11 @@ fmt-check:
 	fi;
 
 $(CMD):
-	go build -o bin/$@/falcon-$@ ./modules/$@
+	GOOS=linux GOARCH=amd64 go build -o bin/$@/falcon-$@ ./modules/$@
 
 .PHONY: $(TARGET)
 $(TARGET): $(GOFILES)
-	go build -ldflags "-X main.GitCommit=`git rev-parse --short HEAD` -X main.Version=$(VERSION)" -o open-falcon
+	GOOS=linux GOARCH=amd64 go build -ldflags "-X main.GitCommit=`git rev-parse --short HEAD` -X main.Version=$(VERSION)" -o open-falcon
 
 checkbin: bin/ config/ open-falcon
 
