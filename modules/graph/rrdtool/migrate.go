@@ -87,7 +87,7 @@ func init() {
 	clients = make(map[string][]*rpc.Client)
 }
 
-func GetCounterV2() (*MigrateCounter) {
+func GetCounterV2() *MigrateCounter {
 	return &MigrateCounter{
 		FetchSuccess:  atomic.LoadUint64(&stat_cnt[FETCH_S_SUCCESS]),
 		FetchErr:      atomic.LoadUint64(&stat_cnt[FETCH_S_ERR]),

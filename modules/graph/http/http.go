@@ -16,6 +16,7 @@ package http
 
 import (
 	"encoding/json"
+	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"net"
 	"net/http"
@@ -25,7 +26,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/open-falcon/falcon-plus/modules/graph/g"
 	"github.com/open-falcon/falcon-plus/modules/graph/rrdtool"
-	"fmt"
 )
 
 type Dto struct {
