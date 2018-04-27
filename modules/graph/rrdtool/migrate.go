@@ -69,10 +69,36 @@ var (
 	stat_cnt         [STAT_SIZE]uint64
 )
 
+type MigrateCounter struct {
+	FetchSuccess  uint64
+	FetchErr      uint64
+	FetchNotExist uint64
+	SendSuccess   uint64
+	SendErr       uint64
+	QuerySuccess  uint64
+	QueryErr      uint64
+	ConnErr       uint64
+	ConnDial      uint64
+}
+
 func init() {
 	Consistent = consistent.New()
 	Net_task_ch = make(map[string]chan *Net_task_t)
 	clients = make(map[string][]*rpc.Client)
+}
+
+func GetCounterV2() (*MigrateCounter) {
+	return &MigrateCounter{
+		FetchSuccess:  atomic.LoadUint64(&stat_cnt[FETCH_S_SUCCESS]),
+		FetchErr:      atomic.LoadUint64(&stat_cnt[FETCH_S_ERR]),
+		FetchNotExist: atomic.LoadUint64(&stat_cnt[FETCH_S_ISNOTEXIST]),
+		SendSuccess:   atomic.LoadUint64(&stat_cnt[SEND_S_SUCCESS]),
+		SendErr:       atomic.LoadUint64(&stat_cnt[SEND_S_ERR]),
+		QuerySuccess:  atomic.LoadUint64(&stat_cnt[QUERY_S_SUCCESS]),
+		QueryErr:      atomic.LoadUint64(&stat_cnt[QUERY_S_ERR]),
+		ConnErr:       atomic.LoadUint64(&stat_cnt[CONN_S_ERR]),
+		ConnDial:      atomic.LoadUint64(&stat_cnt[CONN_S_DIAL]),
+	}
 }
 
 func GetCounter() (ret string) {
