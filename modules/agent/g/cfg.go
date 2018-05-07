@@ -21,6 +21,8 @@ import (
 	"sync"
 
 	"github.com/toolkits/file"
+	"io/ioutil"
+	"strings"
 )
 
 type PluginConfig struct {
@@ -89,6 +91,29 @@ func Hostname() (string, error) {
 	if os.Getenv("FALCON_ENDPOINT") != "" {
 		hostname = os.Getenv("FALCON_ENDPOINT")
 		return hostname, nil
+	}
+
+	if os.Getenv("ENDPOINT") != "" {
+		hostname = os.Getenv("ENDPOINT")
+		return hostname, nil
+	}
+
+	// parse /etc/endpoint.env ( ENDPOINT=xxx_xxx_1.2.3.4 )
+	filePath := "/etc/endpoint.env"
+	if _, err := os.Stat(filePath); err == nil {
+		data, _ := ioutil.ReadFile(filePath)
+		str := string(data)
+		if !strings.ContainsAny(str, "ENDPOINT") {
+			log.Panic("ERROR: /etc/endpoint.env missing ENDPOINT")
+		}
+		if !strings.ContainsAny(str, "=") {
+			log.Panic("ERROR: /etc/endpoint.env missing =")
+		}
+		str = strings.Trim((strings.SplitAfter(str, "ENDPOINT"))[1], " ")
+		hostname = strings.Trim((strings.SplitAfter(str, "="))[1], " ")
+		if len(hostname) > 1 {
+			return hostname, nil
+		}
 	}
 
 	hostname, err := os.Hostname()

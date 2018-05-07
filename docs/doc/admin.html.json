@@ -1,106 +1,202 @@
 {
-  "ApiSpecs": [
-    {
-      "HttpVerb": "PUT",
-      "Path": "/api/v1/admin/change_user_role",
-      "Calls": [
+    "ApiSpecs": [
         {
-          "Id": 0,
-          "CurrentPath": "/api/v1/admin/change_user_role",
-          "MethodType": "PUT",
-          "PostForm": null,
-          "RequestHeader": {
-            "Content-Type": " application/json\r",
-            "Cookie": " name=root;sig=dd81ea033c2d11e6a95d0242ac11000c\r",
-            "X-Forwarded-For": " "
-          },
-          "CommonRequestHeaders": null,
-          "ResponseHeader": {
-            "Access-Control-Allow-Headers": "Content-Type,Token",
-            "Access-Control-Allow-Origin": "*",
-            "Content-Type": "application/json; charset=utf-8"
-          },
-          "RequestUrlParams": {},
-          "RequestBody": "{\"user_id\": 14, \"admin\": \"no\"}",
-          "ResponseBody": "{\"message\":\"user role update sccuessful, affect row: 1\"}",
-          "ResponseCode": 200
+            "HttpVerb": "POST",
+            "Path": "/api/v1/admin/login",
+            "Calls": [
+                {
+                    "Id": 0,
+                    "CurrentPath": "/api/v1/admin/login",
+                    "MethodType": "POST",
+                    "PostForm": {
+                        "name": "qfeng"
+                    },
+                    "RequestHeader": {
+                        "Apitoken": "{\"sig\": \"25ae3f6cdb1711e79997005056a6aba2\", \"name\": \"root\"}",
+                        "Content-Type": " application/x-www-form-urlencoded\r"
+                    },
+                    "CommonRequestHeaders": null,
+                    "ResponseHeader": {
+                        "Access-Control-Allow-Credentials": "true",
+                        "Access-Control-Allow-Headers": "Content-Type, Content-Length, Apitoken",
+                        "Access-Control-Allow-Methods": "POST, GET, OPTIONS, PUT, DELETE, UPDATE",
+                        "Access-Control-Allow-Origin": "*",
+                        "Access-Control-Expose-Headers": "Content-Length",
+                        "Access-Control-Max-Age": "86400",
+                        "Content-Type": "application/json; charset=utf-8"
+                    },
+                    "RequestUrlParams": {},
+                    "RequestBody": "",
+                    "ResponseBody": "{\"sig\":\"05434ff8db0311e7afde005056a6aba2\",\"name\":\"qfeng\",\"admin\":true}",
+                    "ResponseCode": 200
+                },
+                {
+                    "Id": 1,
+                    "CurrentPath": "/api/v1/admin/login",
+                    "MethodType": "POST",
+                    "PostForm": {
+                        "name": "daye"
+                    },
+                    "RequestHeader": {
+                        "Apitoken": "{\"sig\": \"25ae3f6cdb1711e79997005056a6aba2\", \"name\": \"root\"}",
+                        "Content-Type": " application/x-www-form-urlencoded\r"
+                    },
+                    "CommonRequestHeaders": null,
+                    "ResponseHeader": {
+                        "Access-Control-Allow-Credentials": "true",
+                        "Access-Control-Allow-Headers": "Content-Type, Content-Length, Apitoken",
+                        "Access-Control-Allow-Methods": "POST, GET, OPTIONS, PUT, DELETE, UPDATE",
+                        "Access-Control-Allow-Origin": "*",
+                        "Access-Control-Expose-Headers": "Content-Length",
+                        "Access-Control-Max-Age": "86400",
+                        "Content-Type": "application/json; charset=utf-8"
+                    },
+                    "RequestUrlParams": {},
+                    "RequestBody": "",
+                    "ResponseBody": "{\"error\":\"no such user\"}",
+                    "ResponseCode": 400
+                },
+                {
+                    "Id": 2,
+                    "CurrentPath": "/api/v1/admin/login",
+                    "MethodType": "POST",
+                    "PostForm": {
+                        "name": "qfeng"
+                    },
+                    "RequestHeader": {
+                        "Apitoken": "{\"sig\": \"05434ff8db0311e7afde005056a6aba2\", \"name\": \"qfeng\"}",
+                        "Content-Type": " application/x-www-form-urlencoded\r"
+                    },
+                    "CommonRequestHeaders": null,
+                    "ResponseHeader": {
+                        "Access-Control-Allow-Credentials": "true",
+                        "Access-Control-Allow-Headers": "Content-Type, Content-Length, Apitoken",
+                        "Access-Control-Allow-Methods": "POST, GET, OPTIONS, PUT, DELETE, UPDATE",
+                        "Access-Control-Allow-Origin": "*",
+                        "Access-Control-Expose-Headers": "Content-Length",
+                        "Access-Control-Max-Age": "86400",
+                        "Content-Type": "application/json; charset=utf-8"
+                    },
+                    "RequestUrlParams": {},
+                    "RequestBody": "",
+                    "ResponseBody": "{\"error\":\"API_USER not admin, no permissions can do this\"}",
+                    "ResponseCode": 400
+                }
+            ]
         },
         {
-          "Id": 0,
-          "CurrentPath": "/api/v1/admin/change_user_role",
-          "MethodType": "PUT",
-          "PostForm": null,
-          "RequestHeader": {
-            "Content-Type": " application/json\r",
-            "Cookie": " name=root;sig=dd81ea033c2d11e6a95d0242ac11000c\r",
-            "X-Forwarded-For": " "
-          },
-          "CommonRequestHeaders": null,
-          "ResponseHeader": {
-            "Access-Control-Allow-Headers": "Content-Type,Token",
-            "Access-Control-Allow-Origin": "*",
-            "Content-Type": "application/json; charset=utf-8"
-          },
-          "RequestUrlParams": {},
-          "RequestBody": "{\"user_id\": 14, \"admin\": \"yes\"}",
-          "ResponseBody": "{\"message\":\"user role update sccuessful, affect row: 1\"}",
-          "ResponseCode": 200
-        }
-      ]
-    },
-    {
-      "HttpVerb": "PUT",
-      "Path": "/api/v1/admin/change_user_passwd",
-      "Calls": [
+            "HttpVerb": "PUT",
+            "Path": "/api/v1/admin/change_user_role",
+            "Calls": [
+                {
+                    "Id": 3,
+                    "CurrentPath": "/api/v1/admin/change_user_role",
+                    "MethodType": "PUT",
+                    "PostForm": null,
+                    "RequestHeader": {
+                        "Apitoken": "{\"sig\": \"25ae3f6cdb1711e79997005056a6aba2\", \"name\": \"root\"}",
+                        "Content-Type": " application/json\r"
+                    },
+                    "CommonRequestHeaders": null,
+                    "ResponseHeader": {
+                        "Access-Control-Allow-Credentials": "true",
+                        "Access-Control-Allow-Headers": "Content-Type, Content-Length, Apitoken",
+                        "Access-Control-Allow-Methods": "POST, GET, OPTIONS, PUT, DELETE, UPDATE",
+                        "Access-Control-Allow-Origin": "*",
+                        "Access-Control-Expose-Headers": "Content-Length",
+                        "Access-Control-Max-Age": "86400",
+                        "Content-Type": "application/json; charset=utf-8"
+                    },
+                    "RequestUrlParams": {},
+                    "RequestBody": "{\"admin\": \"yes\", \"user_id\": 12}",
+                    "ResponseBody": "{\"message\":\"user role update sccuessful, affect row: 0\"}",
+                    "ResponseCode": 200
+                },
+                {
+                    "Id": 4,
+                    "CurrentPath": "/api/v1/admin/change_user_role",
+                    "MethodType": "PUT",
+                    "PostForm": null,
+                    "RequestHeader": {
+                        "Apitoken": "{\"sig\": \"25ae3f6cdb1711e79997005056a6aba2\", \"name\": \"root\"}",
+                        "Content-Type": " application/json\r"
+                    },
+                    "CommonRequestHeaders": null,
+                    "ResponseHeader": {
+                        "Access-Control-Allow-Credentials": "true",
+                        "Access-Control-Allow-Headers": "Content-Type, Content-Length, Apitoken",
+                        "Access-Control-Allow-Methods": "POST, GET, OPTIONS, PUT, DELETE, UPDATE",
+                        "Access-Control-Allow-Origin": "*",
+                        "Access-Control-Expose-Headers": "Content-Length",
+                        "Access-Control-Max-Age": "86400",
+                        "Content-Type": "application/json; charset=utf-8"
+                    },
+                    "RequestUrlParams": {},
+                    "RequestBody": "{\"admin\": \"no\", \"user_id\": 12}",
+                    "ResponseBody": "{\"message\":\"user role update sccuessful, affect row: 1\"}",
+                    "ResponseCode": 200
+                }
+            ]
+        },
         {
-          "Id": 0,
-          "CurrentPath": "/api/v1/admin/change_user_passwd",
-          "MethodType": "PUT",
-          "PostForm": null,
-          "RequestHeader": {
-            "Content-Type": " application/json\r",
-            "Cookie": " name=root;sig=dd81ea033c2d11e6a95d0242ac11000c\r",
-            "X-Forwarded-For": " "
-          },
-          "CommonRequestHeaders": null,
-          "ResponseHeader": {
-            "Access-Control-Allow-Headers": "Content-Type,Token",
-            "Access-Control-Allow-Origin": "*",
-            "Content-Type": "application/json; charset=utf-8"
-          },
-          "RequestUrlParams": {},
-          "RequestBody": "{\"user_id\": 14, \"password\": \"myhung\"}",
-          "ResponseBody": "{\"message\":\"password updated!\"}",
-          "ResponseCode": 200
-        }
-      ]
-    },
-    {
-      "HttpVerb": "DELETE",
-      "Path": "/api/v1/admin/delete_user",
-      "Calls": [
+            "HttpVerb": "PUT",
+            "Path": "/api/v1/admin/change_user_passwd",
+            "Calls": [
+                {
+                    "Id": 5,
+                    "CurrentPath": "/api/v1/admin/change_user_passwd",
+                    "MethodType": "PUT",
+                    "PostForm": null,
+                    "RequestHeader": {
+                        "Apitoken": "{\"sig\": \"25ae3f6cdb1711e79997005056a6aba2\", \"name\": \"root\"}",
+                        "Content-Type": " application/json\r"
+                    },
+                    "CommonRequestHeaders": null,
+                    "ResponseHeader": {
+                        "Access-Control-Allow-Credentials": "true",
+                        "Access-Control-Allow-Headers": "Content-Type, Content-Length, Apitoken",
+                        "Access-Control-Allow-Methods": "POST, GET, OPTIONS, PUT, DELETE, UPDATE",
+                        "Access-Control-Allow-Origin": "*",
+                        "Access-Control-Expose-Headers": "Content-Length",
+                        "Access-Control-Max-Age": "86400",
+                        "Content-Type": "application/json; charset=utf-8"
+                    },
+                    "RequestUrlParams": {},
+                    "RequestBody": "{\"password\": \"lalala\", \"user_id\": 12}",
+                    "ResponseBody": "{\"message\":\"password updated!\"}",
+                    "ResponseCode": 200
+                }
+            ]
+        },
         {
-          "Id": 1,
-          "CurrentPath": "/api/v1/admin/delete_user",
-          "MethodType": "DELETE",
-          "PostForm": null,
-          "RequestHeader": {
-            "Content-Type": " application/json\r",
-            "Cookie": " name=root;sig=dd81ea033c2d11e6a95d0242ac11000c\r",
-            "X-Forwarded-For": " "
-          },
-          "CommonRequestHeaders": null,
-          "ResponseHeader": {
-            "Access-Control-Allow-Headers": "Content-Type,Token",
-            "Access-Control-Allow-Origin": "*",
-            "Content-Type": "application/json; charset=utf-8"
-          },
-          "RequestUrlParams": {},
-          "RequestBody": "{\"user_id\": 31}",
-          "ResponseBody": "{\"message\":\"user 31 has been delete, affect row: 1\"}",
-          "ResponseCode": 200
+            "HttpVerb": "DELETE",
+            "Path": "/api/v1/admin/delete_user",
+            "Calls": [
+                {
+                    "Id": 6,
+                    "CurrentPath": "/api/v1/admin/delete_user",
+                    "MethodType": "DELETE",
+                    "PostForm": null,
+                    "RequestHeader": {
+                        "Apitoken": "{\"sig\": \"25ae3f6cdb1711e79997005056a6aba2\", \"name\": \"root\"}",
+                        "Content-Type": " application/json\r"
+                    },
+                    "CommonRequestHeaders": null,
+                    "ResponseHeader": {
+                        "Access-Control-Allow-Credentials": "true",
+                        "Access-Control-Allow-Headers": "Content-Type, Content-Length, Apitoken",
+                        "Access-Control-Allow-Methods": "POST, GET, OPTIONS, PUT, DELETE, UPDATE",
+                        "Access-Control-Allow-Origin": "*",
+                        "Access-Control-Expose-Headers": "Content-Length",
+                        "Access-Control-Max-Age": "86400",
+                        "Content-Type": "application/json; charset=utf-8"
+                    },
+                    "RequestUrlParams": {},
+                    "RequestBody": "{\"user_id\": 12}",
+                    "ResponseBody": "{\"message\":\"user 12 has been delete, affect row: 1\"}",
+                    "ResponseCode": 200
+                }
+            ]
         }
-      ]
-    }
-  ]
+    ]
 }
