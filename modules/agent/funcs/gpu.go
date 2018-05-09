@@ -5,13 +5,17 @@ import (
 
 	"github.com/mindprince/gonvml"
 	"github.com/open-falcon/falcon-plus/common/model"
+	"github.com/open-falcon/falcon-plus/modules/agent/g"
 )
 
 // 需要load libnvidia-ml.so.1库
 func GpuMetrics() (L []*model.MetricValue) {
 
 	if err := gonvml.Initialize(); err != nil {
-		log.Println("Initialize error: ", err)
+		debug := g.Config().Debug
+		if debug {
+			log.Println("Initialize error: ", err)
+		}
 		return
 	}
 
