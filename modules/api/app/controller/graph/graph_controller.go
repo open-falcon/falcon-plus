@@ -188,7 +188,14 @@ func EndpointCounterRegexpQuery(c *gin.Context) {
 			qs := strings.Split(metricQuery, " ")
 			if len(qs) > 0 {
 				for _, term := range qs {
-					dt = dt.Where("counter regexp ?", strings.TrimSpace(term))
+					t := strings.TrimSpace(term)
+					if t != "" {
+						if strings.HasPrefix(term, "!") {
+							dt = dt.Where("NOT counter regexp ?", term[1:])
+						} else {
+							dt = dt.Where("counter regexp ?", term)
+						}
+					}
 				}
 			}
 		}
