@@ -16,6 +16,7 @@ package http
 
 import (
 	"encoding/json"
+	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"net"
 	"net/http"
@@ -96,9 +97,9 @@ func Start() {
 	}
 
 	router.GET("/api/v2/counter/migrate", func(c *gin.Context) {
-		cnt := rrdtool.GetCounter()
-		log.Debug("migrating counter:", cnt)
-		c.JSON(200, gin.H{"msg": "ok", "counter": cnt})
+		counter := rrdtool.GetCounterV2()
+		log.Debug("migrating counter v2:", fmt.Sprintf("%+v", counter))
+		c.JSON(200, counter)
 	})
 
 	//compatible with open-falcon v0.1
