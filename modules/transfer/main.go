@@ -22,6 +22,7 @@ import (
 	"github.com/open-falcon/falcon-plus/modules/transfer/proc"
 	"github.com/open-falcon/falcon-plus/modules/transfer/receiver"
 	"github.com/open-falcon/falcon-plus/modules/transfer/sender"
+	"log"
 	"os"
 )
 
@@ -42,6 +43,11 @@ func main() {
 
 	// global config
 	g.ParseConfig(*cfg)
+
+	if g.Config().Debug {
+		log.SetFlags(log.Ldate | log.Ltime | log.Llongfile)
+	}
+
 	// proc
 	proc.Start()
 

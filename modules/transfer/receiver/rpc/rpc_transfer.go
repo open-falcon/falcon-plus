@@ -17,6 +17,7 @@ package rpc
 import (
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	cmodel "github.com/open-falcon/falcon-plus/common/model"
@@ -61,9 +62,12 @@ func RecvMetricValues(args []*cmodel.MetricValue, reply *cmodel.TransferResponse
 	start := time.Now()
 	reply.Invalid = 0
 
+	errmsg := []string{}
+
 	items := []*cmodel.MetaData{}
 	for _, v := range args {
 		if v == nil {
+			errmsg = append(errmsg, "metric empty")
 			reply.Invalid += 1
 			continue
 		}
@@ -71,37 +75,44 @@ func RecvMetricValues(args []*cmodel.MetricValue, reply *cmodel.TransferResponse
 		// 历史遗留问题.
 		// 老版本agent上报的metric=kernel.hostname的数据,其取值为string类型,现在已经不支持了;所以,这里硬编码过滤掉
 		if v.Metric == "kernel.hostname" {
+			errmsg = append(errmsg, "skip metric=kernel.hostname")
 			reply.Invalid += 1
 			continue
 		}
 
 		if v.Metric == "" || v.Endpoint == "" {
+			errmsg = append(errmsg, "metric or endpoint is empty")
 			reply.Invalid += 1
 			continue
 		}
 
 		if v.Type != g.COUNTER && v.Type != g.GAUGE && v.Type != g.DERIVE {
+			errmsg = append(errmsg, v.Metric+" got unexpected counterType:"+v.Type)
 			reply.Invalid += 1
 			continue
 		}
 
 		if v.Value == "" {
+			errmsg = append(errmsg, v.Metric+" value is empty")
 			reply.Invalid += 1
 			continue
 		}
 
 		if v.Step <= 0 {
+			errmsg = append(errmsg, v.Metric+" step <= 0")
 			reply.Invalid += 1
 			continue
 		}
 
 		if len(v.Metric)+len(v.Tags) > 510 {
+			errmsg = append(errmsg, v.Metric+" tags > 510 bytes")
 			reply.Invalid += 1
 			continue
 		}
 
 		now := start.Unix()
 		if v.Timestamp <= 0 || v.Timestamp > now*2 {
+			errmsg = append(errmsg, v.Metric+" Timestamp invalid")
 			v.Timestamp = now
 		}
 
@@ -144,6 +155,7 @@ func RecvMetricValues(args []*cmodel.MetricValue, reply *cmodel.TransferResponse
 		}
 
 		if !valid {
+			errmsg = append(errmsg, "parse value into float64/string failed")
 			reply.Invalid += 1
 			continue
 		}
@@ -175,8 +187,11 @@ func RecvMetricValues(args []*cmodel.MetricValue, reply *cmodel.TransferResponse
 	if cfg.Tsdb.Enabled {
 		sender.Push2TsdbSendQueue(items)
 	}
-
-	reply.Message = "ok"
+	if reply.Invalid == 0 {
+		reply.Message = "ok"
+	} else {
+		reply.Message = strings.Join(errmsg, ";\n")
+	}
 	reply.Total = len(args)
 	reply.Latency = (time.Now().UnixNano() - start.UnixNano()) / 1000000
 
