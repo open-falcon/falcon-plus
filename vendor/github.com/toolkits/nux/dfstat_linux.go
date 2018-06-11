@@ -3,11 +3,12 @@ package nux
 import (
 	"bufio"
 	"bytes"
-	"github.com/toolkits/file"
 	"io"
 	"io/ioutil"
 	"strings"
 	"syscall"
+
+	"github.com/toolkits/file"
 )
 
 // return: [][$fs_spec, $fs_file, $fs_vfstype]

@@ -4,11 +4,12 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"github.com/toolkits/file"
 	"io"
 	"io/ioutil"
 	"runtime"
 	"strings"
+
+	"github.com/toolkits/file"
 )
 
 func NumCpu() int {

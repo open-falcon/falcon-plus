@@ -3,10 +3,11 @@ package nux
 import (
 	"bufio"
 	"bytes"
-	"github.com/toolkits/file"
-	"github.com/toolkits/sys"
 	"strconv"
 	"strings"
+
+	"github.com/toolkits/file"
+	"github.com/toolkits/sys"
 )
 
 func SocketStatSummary() (m map[string]uint64, err error) {

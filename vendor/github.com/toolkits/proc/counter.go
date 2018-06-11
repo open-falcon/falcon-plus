@@ -1,9 +1,10 @@
 package proc
 
 import (
-	ntime "github.com/toolkits/time"
 	"sync"
 	"time"
+
+	ntime "github.com/toolkits/time"
 )
 
 const (

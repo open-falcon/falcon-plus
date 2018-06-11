@@ -2,9 +2,10 @@ package nux
 
 import (
 	"fmt"
-	"github.com/toolkits/file"
 	"strconv"
 	"strings"
+
+	"github.com/toolkits/file"
 )
 
 func SystemUptime() (days, hours, mins int64, err error) {

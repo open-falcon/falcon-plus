@@ -78,8 +78,8 @@ const ( // type checking
 	shouldCompareWithInterfacePointer = "The expected value must be a pointer to an interface type (eg. *fmt.Stringer)"
 	shouldNotBeNilActual              = "The actual value was 'nil' and should be a value or a pointer to a value!"
 
-	shouldBeError                   = "Expected error to occur!"
-	shouldBeErrorExpectedMessage    = "Expected error '%v' to occur (but got error: '%v')!"
+	shouldBeError                = "Expected error to occur!"
+	shouldBeErrorExpectedMessage = "Expected error '%v' to occur (but got error: '%v')!"
 )
 
 const ( // time comparisons

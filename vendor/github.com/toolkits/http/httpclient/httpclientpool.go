@@ -1,9 +1,10 @@
 package httpclient
 
 import (
-	"github.com/toolkits/container/nmap"
 	"net/http"
 	"time"
+
+	"github.com/toolkits/container/nmap"
 )
 
 //

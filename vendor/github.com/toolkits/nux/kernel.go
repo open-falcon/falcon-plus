@@ -2,10 +2,11 @@ package nux
 
 import (
 	"fmt"
-	"github.com/toolkits/file"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/toolkits/file"
 )
 
 func KernelMaxFiles() (uint64, error) {

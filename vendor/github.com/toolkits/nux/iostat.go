@@ -4,12 +4,13 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"github.com/toolkits/file"
 	"io"
 	"io/ioutil"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/toolkits/file"
 )
 
 type DiskStats struct {
