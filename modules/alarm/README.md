@@ -25,3 +25,12 @@ go get ./...
 - api: 其他各个组件的地址, 注意plus_api_token要和falcon-plus api组件配置文件中的default_token一致 
 - api im: 增加针对im的支持，如果采用wechat企业号，配置可参考 https://github.com/yanjunhui/chat
 
+## Upgrade
+
+Support Multiple-Metrics Extend Expression version
+
+Change `event_cases.metric` column from 200 to 1024 in MySQL table schema:
+ 
+    use alarms;
+    alter table event_cases change column metric metric VARCHAR(1024) NOT NULL;
+
