@@ -38,22 +38,25 @@ var (
 // 服务节点的一致性哈希环
 // pk -> node
 var (
-	JudgeNodeRing *rings.ConsistentHashNodeRing
-	GraphNodeRing *rings.ConsistentHashNodeRing
+	JudgeNodeRing  *rings.ConsistentHashNodeRing
+	EJudgeNodeRing *rings.ConsistentHashNodeRing
+	GraphNodeRing  *rings.ConsistentHashNodeRing
 )
 
 // 发送缓存队列
 // node -> queue_of_data
 var (
-	TsdbQueue   *nlist.SafeListLimited
-	JudgeQueues = make(map[string]*nlist.SafeListLimited)
-	GraphQueues = make(map[string]*nlist.SafeListLimited)
+	TsdbQueue    *nlist.SafeListLimited
+	JudgeQueues  = make(map[string]*nlist.SafeListLimited)
+	EJudgeQueues = make(map[string]*nlist.SafeListLimited)
+	GraphQueues  = make(map[string]*nlist.SafeListLimited)
 )
 
 // 连接池
 // node_address -> connection_pool
 var (
 	JudgeConnPools     *backend.SafeRpcConnPools
+	EJudgeConnPools    *backend.SafeRpcConnPools
 	TsdbConnPoolHelper *backend.TsdbConnPoolHelper
 	GraphConnPools     *backend.SafeRpcConnPools
 )
@@ -86,11 +89,13 @@ func Push2JudgeSendQueue(items []*cmodel.MetaData) {
 		}
 
 		// align ts
-		step := int(item.Step)
-		if step < MinStep {
-			step = MinStep
-		}
-		ts := alignTs(item.Timestamp, int64(step))
+		//step := int(item.Step)
+		//if step < MinStep {
+		//	step = MinStep
+		//}
+		//ts := alignTs(item.Timestamp, int64(step))
+
+		ts := item.Timestamp
 
 		judgeItem := &cmodel.JudgeItem{
 			Endpoint:  item.Endpoint,
@@ -107,6 +112,26 @@ func Push2JudgeSendQueue(items []*cmodel.MetaData) {
 		// statistics
 		if !isSuccess {
 			proc.SendToJudgeDropCnt.Incr()
+		}
+	}
+}
+
+// 将数据 打入 某个Judge的发送缓存队列, 具体是哪一个Judge 由一致性哈希 决定
+func Push2EJudgeSendQueue(items []*cmodel.EMetric) {
+	for _, item := range items {
+		pk := item.PK()
+		node, err := EJudgeNodeRing.GetNode(pk)
+		if err != nil {
+			log.Println("EJudgeNodeRing.GetNode failed", err)
+			continue
+		}
+
+		Q := EJudgeQueues[node]
+		isSuccess := Q.PushFront(item)
+
+		// statistics
+		if !isSuccess {
+			proc.SendToEJudgeDropCnt.Incr()
 		}
 	}
 }
