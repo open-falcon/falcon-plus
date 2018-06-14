@@ -4,7 +4,7 @@
     "ip": "",
     "plugin": {
         "enabled": false,
-        "dir": "./plugin",
+        "dir": "./plugins",
         "git": "https://github.com/open-falcon/plugin.git",
         "logs": "./logs"
     },
