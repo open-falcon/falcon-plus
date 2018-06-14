@@ -31,6 +31,13 @@ func initConnPools() {
 	JudgeConnPools = backend.CreateSafeRpcConnPools(cfg.Judge.MaxConns, cfg.Judge.MaxIdle,
 		cfg.Judge.ConnTimeout, cfg.Judge.CallTimeout, judgeInstances.ToSlice())
 
+	ejudgeInstances := nset.NewStringSet()
+	for _, instance := range cfg.Judge.Cluster {
+		ejudgeInstances.Add(instance)
+	}
+	EJudgeConnPools = backend.CreateSafeRpcConnPools(cfg.Judge.MaxConns, cfg.Judge.MaxIdle,
+		cfg.Judge.ConnTimeout, cfg.Judge.CallTimeout, ejudgeInstances.ToSlice())
+
 	// tsdb
 	if cfg.Tsdb.Enabled {
 		TsdbConnPoolHelper = backend.NewTsdbConnPoolHelper(cfg.Tsdb.Address, cfg.Tsdb.MaxConns, cfg.Tsdb.MaxIdle, cfg.Tsdb.ConnTimeout, cfg.Tsdb.CallTimeout)

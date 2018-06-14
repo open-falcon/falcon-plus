@@ -26,6 +26,11 @@ func initSendQueues() {
 		JudgeQueues[node] = Q
 	}
 
+	for node := range cfg.Judge.Cluster {
+		Q := nlist.NewSafeListLimited(DefaultSendQueueMaxSize)
+		EJudgeQueues[node] = Q
+	}
+
 	for node, nitem := range cfg.Graph.ClusterList {
 		for _, addr := range nitem.Addrs {
 			Q := nlist.NewSafeListLimited(DefaultSendQueueMaxSize)
