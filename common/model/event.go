@@ -25,6 +25,7 @@ type Event struct {
 	Id          string            `json:"id"`
 	Strategy    *Strategy         `json:"strategy"`
 	Expression  *Expression       `json:"expression"`
+	EExpression *EExpression      `json:"eexp"`
 	Status      string            `json:"status"` // OK or PROBLEM
 	Endpoint    string            `json:"endpoint"`
 	LeftValue   float64           `json:"leftValue"`
@@ -39,11 +40,12 @@ func (this *Event) FormattedTime() string {
 
 func (this *Event) String() string {
 	return fmt.Sprintf(
-		"<Endpoint:%s, Status:%s, Strategy:%v, Expression:%v, LeftValue:%s, CurrentStep:%d, PushedTags:%v, TS:%s>",
+		"<Endpoint:%s, Status:%s, Strategy:%v, Expression:%v, EExpression:%v LeftValue:%s, CurrentStep:%d, PushedTags:%v, TS:%s>",
 		this.Endpoint,
 		this.Status,
 		this.Strategy,
 		this.Expression,
+		this.EExpression,
 		utils.ReadableFloat(this.LeftValue),
 		this.CurrentStep,
 		this.PushedTags,
@@ -56,6 +58,13 @@ func (this *Event) ExpressionId() int {
 		return this.Expression.Id
 	}
 
+	return 0
+}
+
+func (this *Event) EExpressionID() int {
+	if this.Expression != nil {
+		return this.EExpression.ID
+	}
 	return 0
 }
 
@@ -88,56 +97,105 @@ func (this *Event) ActionId() int {
 		return this.Expression.ActionId
 	}
 
-	return this.Strategy.Tpl.ActionId
+	if this.Strategy != nil {
+		return this.Strategy.Tpl.ActionId
+	}
+
+	return -1
+
 }
 
 func (this *Event) Priority() int {
 	if this.Strategy != nil {
 		return this.Strategy.Priority
 	}
-	return this.Expression.Priority
+	if this.Expression != nil {
+		return this.Expression.Priority
+	}
+
+	if this.EExpression != nil {
+		return this.EExpression.Priority
+	}
+	return -1
 }
 
 func (this *Event) Note() string {
 	if this.Strategy != nil {
 		return this.Strategy.Note
 	}
-	return this.Expression.Note
+
+	if this.Expression != nil {
+		return this.Expression.Note
+
+	}
+	if this.EExpression != nil {
+		return this.EExpression.Note
+	}
+	return ""
 }
 
 func (this *Event) Metric() string {
 	if this.Strategy != nil {
 		return this.Strategy.Metric
 	}
-	return this.Expression.Metric
+	if this.Expression != nil {
+		return this.Expression.Metric
+	}
+	if this.EExpression != nil {
+		return this.EExpression.Metric
+	}
+	return ""
 }
 
 func (this *Event) RightValue() float64 {
 	if this.Strategy != nil {
 		return this.Strategy.RightValue
 	}
-	return this.Expression.RightValue
+
+	if this.Expression != nil {
+		return this.Expression.RightValue
+	}
+	return 0.0
 }
 
 func (this *Event) Operator() string {
 	if this.Strategy != nil {
 		return this.Strategy.Operator
 	}
-	return this.Expression.Operator
+
+	if this.Expression != nil {
+		return this.Expression.Operator
+	}
+	return ""
 }
 
 func (this *Event) Func() string {
 	if this.Strategy != nil {
 		return this.Strategy.Func
 	}
-	return this.Expression.Func
+
+	if this.Expression != nil {
+		return this.Expression.Func
+	}
+
+	if this.EExpression != nil {
+		return this.EExpression.Func
+	}
+	return ""
 }
 
 func (this *Event) MaxStep() int {
 	if this.Strategy != nil {
 		return this.Strategy.MaxStep
 	}
-	return this.Expression.MaxStep
+
+	if this.Expression != nil {
+		return this.Expression.MaxStep
+	}
+	if this.EExpression != nil {
+		return this.EExpression.MaxStep
+	}
+	return 1
 }
 
 func (this *Event) Counter() string {

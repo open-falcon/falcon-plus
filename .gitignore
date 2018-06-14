@@ -5,3 +5,16 @@ out/
 *.tar.gz
 docs/_site
 vendor/
+
+# binary file
+falcon-agent  
+falcon-aggregator  
+falcon-alarm  
+falcon-api  
+falcon-gateway  
+falcon-graph  
+falcon-hbs  
+falcon-judge  
+falcon-nodata  
+falcon-transfer
+open-falcon

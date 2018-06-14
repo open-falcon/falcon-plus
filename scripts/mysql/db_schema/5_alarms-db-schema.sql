@@ -10,8 +10,8 @@ SET NAMES utf8;
 DROP TABLE IF EXISTS event_cases;
 CREATE TABLE IF NOT EXISTS event_cases(
                 id VARCHAR(50),
-                endpoint VARCHAR(100) NOT NULL,
-                metric VARCHAR(200) NOT NULL,
+                endpoint VARCHAR(512) NOT NULL,
+                metric VARCHAR(1024) NOT NULL,
                 func VARCHAR(50),
                 cond VARCHAR(200) NOT NULL,
                 note VARCHAR(500),
