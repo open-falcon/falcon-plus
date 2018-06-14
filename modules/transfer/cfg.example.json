@@ -1,6 +1,6 @@
 {
     "debug": true,
-    "minStep": 30,
+    "minStep": 2,
     "http": {
         "enabled": true,
         "listen": "0.0.0.0:6060"
@@ -27,7 +27,7 @@
         }
     },
     "graph": {
-        "enabled": true,
+        "enabled": false,
         "batch": 200,
         "connTimeout": 1000,
         "callTimeout": 5000,

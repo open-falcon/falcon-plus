@@ -60,7 +60,7 @@ func RecvMetricValues(args []*cmodel.MetricValue, reply *cmodel.TransferResponse
 			continue
 		}
 
-		if v.Type != g.COUNTER && v.Type != g.GAUGE && v.Type != g.DERIVE {
+		if v.Type != g.COUNTER && v.Type != g.GAUGE && v.Type != g.DERIVE && v.Type != g.STRMATCH {
 			reply.Invalid += 1
 			continue
 		}
@@ -104,26 +104,28 @@ func RecvMetricValues(args []*cmodel.MetricValue, reply *cmodel.TransferResponse
 		var vv float64
 		var err error
 
-		switch cv := v.Value.(type) {
-		case string:
-			vv, err = strconv.ParseFloat(cv, 64)
-			if v.Type == g.GAUGE {
-				// NOTICE: function match() requires metric CounterType="GAUGE".
-				// keep original value in string for function match()
-				fv.ValueRaw = v.Value.(string)
-				// hard-coded to 1.0 for couting
-				vv = float64(1.0)
-			} else {
+		if v.Type != g.STRMATCH {
+			switch cv := v.Value.(type) {
+			case string:
+				vv, err = strconv.ParseFloat(cv, 64)
 				if err != nil {
 					valid = false
 				}
+			case float64:
+				vv = cv
+			case int64:
+				vv = float64(cv)
+			default:
+				valid = false
 			}
-		case float64:
-			vv = cv
-		case int64:
-			vv = float64(cv)
-		default:
-			valid = false
+		} else {
+			switch v.Value.(type) {
+			case string:
+				fv.ValueRaw = v.Value.(string)
+				vv = float64(1.0)
+			default:
+				valid = false
+			}
 		}
 
 		if !valid {

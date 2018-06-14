@@ -44,11 +44,11 @@ func (this *Judge) Send(items []*cmodel.JudgeItem, resp *cmodel.SimpleRpcRespons
 			continue
 		}
 
-		if item.Metric != "str.match" {
+		if item.JudgeType != g.STRMATCH {
 			pk := item.PrimaryKey()
 			store.HistoryBigMap[pk[0:2]].PushFrontAndMaintain(pk, item, remain, now)
 
-		} else if item.Metric == "str.match" && item.JudgeType == g.GAUGE && item.ValueRaw != "" {
+		} else if item.JudgeType == g.STRMATCH && item.ValueRaw != "" {
 			yesEndpoint := g.StrMatcherMap.Match(item.Endpoint, item.ValueRaw)
 			yesTag := g.StrMatcherExpMap.Match(item.Tags, item.ValueRaw)
 

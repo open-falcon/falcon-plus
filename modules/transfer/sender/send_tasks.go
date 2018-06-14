@@ -76,8 +76,9 @@ func startSendTasks() {
 
 // Judge定时任务, 将 Judge发送缓存中的数据 通过rpc连接池 发送到Judge
 func forward2JudgeTask(Q *list.SafeListLimited, node string, concurrent int) {
-	batch := g.Config().Judge.Batch // 一次发送,最多batch条数据
-	addr := g.Config().Judge.Cluster[node]
+	cfg := g.Config()
+	batch := cfg.Judge.Batch // 一次发送,最多batch条数据
+	addr := cfg.Judge.Cluster[node]
 	sema := nsema.NewSemaphore(concurrent)
 
 	for {
