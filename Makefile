@@ -62,8 +62,7 @@ pack: checkbin
 	@$(foreach var,$(CMD),cp ./bin/$(var)/falcon-$(var) ./out/$(var)/bin;)
 	@cp -r ./modules/agent/public ./out/agent/
 	@(cd ./out && ln -s ./agent/public/ ./public)
-	@cp -r ./modules/agent/plugins ./out/agent/
-	@(cd ./out && ln -s ./agent/plugins/ ./plugins)
+	@(cd ./out && mkdir -p ./agent/plugin && ln -s ./agent/plugin/ ./plugin)
 	@cp -r ./modules/api/data ./out/api/
 	@mkdir out/graph/data
 	@bash ./config/confgen.sh
