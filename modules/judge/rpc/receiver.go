@@ -18,19 +18,21 @@ import (
 	"log"
 	"time"
 
-	"github.com/open-falcon/falcon-plus/common/model"
+	cmodel "github.com/open-falcon/falcon-plus/common/model"
+	"github.com/open-falcon/falcon-plus/common/utils"
 	"github.com/open-falcon/falcon-plus/modules/judge/g"
+	"github.com/open-falcon/falcon-plus/modules/judge/model"
 	"github.com/open-falcon/falcon-plus/modules/judge/store"
 	"github.com/open-falcon/falcon-plus/modules/judge/string_matcher"
 )
 
 type Judge int
 
-func (this *Judge) Ping(req model.NullRpcRequest, resp *model.SimpleRpcResponse) error {
+func (this *Judge) Ping(req cmodel.NullRpcRequest, resp *cmodel.SimpleRpcResponse) error {
 	return nil
 }
 
-func (this *Judge) Send(items []*model.JudgeItem, resp *model.SimpleRpcResponse) error {
+func (this *Judge) Send(items []*cmodel.JudgeItem, resp *cmodel.SimpleRpcResponse) error {
 	cfg := g.Config()
 	remain := cfg.Remain
 	// 把当前时间的计算放在最外层，是为了减少获取时间时的系统调用开销
@@ -63,6 +65,27 @@ func (this *Judge) Send(items []*model.JudgeItem, resp *model.SimpleRpcResponse)
 				}
 			}
 		}
+
+	}
+	return nil
+}
+
+func (this *Judge) SendE(items []*cmodel.EMetric, resp *cmodel.SimpleRpcResponse) error {
+	cfg := g.Config()
+
+	// remain default is 11, why?
+	remain := cfg.Remain
+	// 把当前时间的计算放在最外层，是为了减少获取时间时的系统调用开销
+	now := time.Now().Unix()
+
+	for _, item := range items {
+		exists := g.EFilterMap.Exists(item.Metric)
+		if !exists {
+			continue
+		}
+
+		pksum := utils.Md5(item.PK())
+		model.EHistoryBigMap[pksum[0:2]].PushFrontAndMaintain(pksum, item, remain, now)
 
 	}
 	return nil

@@ -17,11 +17,13 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/open-falcon/falcon-plus/modules/judge/cron"
 	"github.com/open-falcon/falcon-plus/modules/judge/g"
 	"github.com/open-falcon/falcon-plus/modules/judge/http"
+	"github.com/open-falcon/falcon-plus/modules/judge/model"
 	"github.com/open-falcon/falcon-plus/modules/judge/rpc"
 	"github.com/open-falcon/falcon-plus/modules/judge/store"
 	"github.com/open-falcon/falcon-plus/modules/judge/string_matcher"
@@ -38,13 +40,17 @@ func main() {
 	}
 
 	g.ParseConfig(*cfg)
+	_cfg := g.Config()
+
+	if _cfg.Debug {
+		log.SetFlags(log.Ldate | log.Ltime | log.Llongfile)
+	}
 
 	g.InitRedisConnPool()
 	g.InitHbsClient()
 
-	_cfg := g.Config()
 	// string matcher history persistence
-	if _cfg.StringMatcher.Enabled {
+	if _cfg.StringMatcher != nil && _cfg.StringMatcher.Enabled {
 		string_matcher.InitStringMatcher()
 		batch := _cfg.StringMatcher.Batch
 		retry := _cfg.StringMatcher.MaxRetry
@@ -52,14 +58,16 @@ func main() {
 	}
 
 	store.InitHistoryBigMap()
+	model.InitEHistoryBigMap()
 
 	go http.Start()
 	go rpc.Start()
 
 	go cron.SyncStrategies()
+	go cron.SyncEExpresions()
 	go cron.CleanStale()
 
-	if _cfg.StringMatcher.Enabled {
+	if _cfg.StringMatcher != nil && _cfg.StringMatcher.Enabled {
 		go cron.CleanStringMatcherHistory()
 	}
 

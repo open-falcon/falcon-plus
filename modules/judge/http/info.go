@@ -16,14 +16,20 @@ package http
 
 import (
 	"fmt"
+	"net/http"
+	"strings"
+
 	"github.com/open-falcon/falcon-plus/common/utils"
 	"github.com/open-falcon/falcon-plus/modules/judge/g"
 	"github.com/open-falcon/falcon-plus/modules/judge/store"
-	"net/http"
-	"strings"
 )
 
 func configInfoRoutes() {
+	http.HandleFunc("/eexps/", func(w http.ResponseWriter, r *http.Request) {
+		m := g.EExpressionMap.Get()
+		RenderDataJson(w, m)
+	})
+
 	http.HandleFunc("/strategies/", func(w http.ResponseWriter, r *http.Request) {
 		m := g.StrategyMap.Get()
 		RenderDataJson(w, m)
