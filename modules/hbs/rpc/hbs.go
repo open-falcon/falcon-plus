@@ -124,10 +124,11 @@ func CalcInheritStrategies(allTpls map[int]*model.Template, tids []int, tpl2Stra
 	 * |c |  |  |
 	 * |  |  |  |
 	 */
+	count := len(tpl_buckets)
 	uniq_tpl_buckets := [][]int{}
-	for i := 0; i < len(tpl_buckets); i++ {
+	for i := 0; i < count; i++ {
 		var valid bool = true
-		for j := 0; j < len(tpl_buckets); j++ {
+		for j := 0; j < count; j++ {
 			if i == j {
 				continue
 			}

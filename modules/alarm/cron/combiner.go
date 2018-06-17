@@ -216,7 +216,7 @@ func popAllSmsDto() []*SmsDto {
 		var smsDto SmsDto
 		err = json.Unmarshal([]byte(reply), &smsDto)
 		if err != nil {
-			log.Error("json unmarshal SmsDto: %s fail: %v", reply, err)
+			log.Errorf("json unmarshal SmsDto: %s fail: %v", reply, err)
 			continue
 		}
 
@@ -282,7 +282,7 @@ func popAllImDto() []*ImDto {
 		var imDto ImDto
 		err = json.Unmarshal([]byte(reply), &imDto)
 		if err != nil {
-			log.Error("json unmarshal imDto: %s fail: %v", reply, err)
+			log.Errorf("json unmarshal imDto: %s fail: %v", reply, err)
 			continue
 		}
 

@@ -115,7 +115,7 @@ func WorkerRun(item *g.Cluster) {
 		} else {
 			numerator, err = strconv.ParseFloat(numeratorStr, 64)
 			if err != nil {
-				log.Printf("[E] strconv.ParseFloat(%s) fail %v, id:%d", numeratorStr, item.Id)
+				log.Printf("[E] strconv.ParseFloat(%s) fail %v, id:%d", numeratorStr, err, item.Id)
 				return
 			}
 		}
@@ -127,7 +127,7 @@ func WorkerRun(item *g.Cluster) {
 		} else {
 			denominator, err = strconv.ParseFloat(denominatorStr, 64)
 			if err != nil {
-				log.Printf("[E] strconv.ParseFloat(%s) fail %v, id:%d", denominatorStr, item.Id)
+				log.Printf("[E] strconv.ParseFloat(%s) fail %v, id:%d", denominatorStr, err, item.Id)
 				return
 			}
 		}

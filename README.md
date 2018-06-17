@@ -142,6 +142,10 @@ Most depended packages are saved under `./vendor` dir. If you want to add or upd
 make clean all pack
 ```
 
+# API Standard
+- [API Standard](https://github.com/open-falcon/falcon-plus/blob/master/api-standard.md)
+
+
 # Q&A
 
 - Any issue or question is welcome, Please feel free to open [github issues](https://github.com/open-falcon/falcon-plus/issues) :)
