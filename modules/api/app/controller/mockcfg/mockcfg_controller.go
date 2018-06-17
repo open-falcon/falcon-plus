@@ -17,6 +17,7 @@ package mockcfg
 import (
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
@@ -93,6 +94,7 @@ func CreateNoData(c *gin.Context) {
 		Step:    inputs.Step,
 		Mock:    inputs.Mock,
 		Creator: user.Name,
+		TCreate: time.Now(),
 	}
 	if dt := db.Falcon.Save(&mockcfg); dt.Error != nil {
 		h.JSONR(c, expecstatus, dt.Error)
