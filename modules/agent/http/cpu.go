@@ -16,10 +16,11 @@ package http
 
 import (
 	"fmt"
-	"github.com/open-falcon/falcon-plus/modules/agent/funcs"
-	"github.com/toolkits/nux"
 	"net/http"
 	"runtime"
+
+	"github.com/open-falcon/falcon-plus/modules/agent/funcs"
+	"github.com/toolkits/nux"
 )
 
 func configCpuRoutes() {
@@ -33,50 +34,48 @@ func configCpuRoutes() {
 	})
 
 	http.HandleFunc("/page/cpu/usage", func(w http.ResponseWriter, r *http.Request) {
-		if !funcs.CpuPrepared() {
+		cpuUsages, _, prepared := funcs.CpuUsagesSummary()
+
+		if !prepared {
 			RenderMsgJson(w, "not prepared")
 			return
 		}
 
-		idle := funcs.CpuIdle()
-		busy := 100.0 - idle
-
 		item := [10]string{
-			fmt.Sprintf("%.1f%%", idle),
-			fmt.Sprintf("%.1f%%", busy),
-			fmt.Sprintf("%.1f%%", funcs.CpuUser()),
-			fmt.Sprintf("%.1f%%", funcs.CpuNice()),
-			fmt.Sprintf("%.1f%%", funcs.CpuSystem()),
-			fmt.Sprintf("%.1f%%", funcs.CpuIowait()),
-			fmt.Sprintf("%.1f%%", funcs.CpuIrq()),
-			fmt.Sprintf("%.1f%%", funcs.CpuSoftIrq()),
-			fmt.Sprintf("%.1f%%", funcs.CpuSteal()),
-			fmt.Sprintf("%.1f%%", funcs.CpuGuest()),
+			fmt.Sprintf("%.1f%%", cpuUsages[0]),
+			fmt.Sprintf("%.1f%%", cpuUsages[1]),
+			fmt.Sprintf("%.1f%%", cpuUsages[2]),
+			fmt.Sprintf("%.1f%%", cpuUsages[3]),
+			fmt.Sprintf("%.1f%%", cpuUsages[4]),
+			fmt.Sprintf("%.1f%%", cpuUsages[5]),
+			fmt.Sprintf("%.1f%%", cpuUsages[6]),
+			fmt.Sprintf("%.1f%%", cpuUsages[7]),
+			fmt.Sprintf("%.1f%%", cpuUsages[8]),
+			fmt.Sprintf("%.1f%%", cpuUsages[9]),
 		}
 
 		RenderDataJson(w, [][10]string{item})
 	})
 
 	http.HandleFunc("/proc/cpu/usage", func(w http.ResponseWriter, r *http.Request) {
-		if !funcs.CpuPrepared() {
+		cpuUsages, _, prepared := funcs.CpuUsagesSummary()
+
+		if !prepared {
 			RenderMsgJson(w, "not prepared")
 			return
 		}
 
-		idle := funcs.CpuIdle()
-		busy := 100.0 - idle
-
 		RenderDataJson(w, map[string]interface{}{
-			"idle":    idle,
-			"busy":    busy,
-			"user":    funcs.CpuUser(),
-			"nice":    funcs.CpuNice(),
-			"system":  funcs.CpuSystem(),
-			"iowait":  funcs.CpuIowait(),
-			"irq":     funcs.CpuIrq(),
-			"softirq": funcs.CpuSoftIrq(),
-			"steal":   funcs.CpuSteal(),
-			"guest":   funcs.CpuGuest(),
+			"idle":    cpuUsages[0],
+			"busy":    cpuUsages[1],
+			"user":    cpuUsages[2],
+			"nice":    cpuUsages[3],
+			"system":  cpuUsages[4],
+			"iowait":  cpuUsages[5],
+			"irq":     cpuUsages[6],
+			"softirq": cpuUsages[7],
+			"steal":   cpuUsages[8],
+			"guest":   cpuUsages[9],
 		})
 	})
 }

@@ -15,9 +15,10 @@
 package funcs
 
 import (
+	"sync"
+
 	"github.com/open-falcon/falcon-plus/common/model"
 	"github.com/toolkits/nux"
-	"sync"
 )
 
 const (
@@ -52,133 +53,76 @@ func deltaTotal() uint64 {
 	return procStatHistory[0].Cpu.Total - procStatHistory[1].Cpu.Total
 }
 
-func CpuIdle() float64 {
-	psLock.RLock()
-	defer psLock.RUnlock()
-	dt := deltaTotal()
-	if dt == 0 {
-		return 0.0
-	}
-	invQuotient := 100.00 / float64(dt)
-	return float64(procStatHistory[0].Cpu.Idle-procStatHistory[1].Cpu.Idle) * invQuotient
-}
-
-func CpuUser() float64 {
-	psLock.RLock()
-	defer psLock.RUnlock()
-	dt := deltaTotal()
-	if dt == 0 {
-		return 0.0
-	}
-	invQuotient := 100.00 / float64(dt)
-	return float64(procStatHistory[0].Cpu.User-procStatHistory[1].Cpu.User) * invQuotient
-}
-
-func CpuNice() float64 {
-	psLock.RLock()
-	defer psLock.RUnlock()
-	dt := deltaTotal()
-	if dt == 0 {
-		return 0.0
-	}
-	invQuotient := 100.00 / float64(dt)
-	return float64(procStatHistory[0].Cpu.Nice-procStatHistory[1].Cpu.Nice) * invQuotient
-}
-
-func CpuSystem() float64 {
-	psLock.RLock()
-	defer psLock.RUnlock()
-	dt := deltaTotal()
-	if dt == 0 {
-		return 0.0
-	}
-	invQuotient := 100.00 / float64(dt)
-	return float64(procStatHistory[0].Cpu.System-procStatHistory[1].Cpu.System) * invQuotient
-}
-
-func CpuIowait() float64 {
-	psLock.RLock()
-	defer psLock.RUnlock()
-	dt := deltaTotal()
-	if dt == 0 {
-		return 0.0
-	}
-	invQuotient := 100.00 / float64(dt)
-	return float64(procStatHistory[0].Cpu.Iowait-procStatHistory[1].Cpu.Iowait) * invQuotient
-}
-
-func CpuIrq() float64 {
-	psLock.RLock()
-	defer psLock.RUnlock()
-	dt := deltaTotal()
-	if dt == 0 {
-		return 0.0
-	}
-	invQuotient := 100.00 / float64(dt)
-	return float64(procStatHistory[0].Cpu.Irq-procStatHistory[1].Cpu.Irq) * invQuotient
-}
-
-func CpuSoftIrq() float64 {
-	psLock.RLock()
-	defer psLock.RUnlock()
-	dt := deltaTotal()
-	if dt == 0 {
-		return 0.0
-	}
-	invQuotient := 100.00 / float64(dt)
-	return float64(procStatHistory[0].Cpu.SoftIrq-procStatHistory[1].Cpu.SoftIrq) * invQuotient
-}
-
-func CpuSteal() float64 {
-	psLock.RLock()
-	defer psLock.RUnlock()
-	dt := deltaTotal()
-	if dt == 0 {
-		return 0.0
-	}
-	invQuotient := 100.00 / float64(dt)
-	return float64(procStatHistory[0].Cpu.Steal-procStatHistory[1].Cpu.Steal) * invQuotient
-}
-
-func CpuGuest() float64 {
-	psLock.RLock()
-	defer psLock.RUnlock()
-	dt := deltaTotal()
-	if dt == 0 {
-		return 0.0
-	}
-	invQuotient := 100.00 / float64(dt)
-	return float64(procStatHistory[0].Cpu.Guest-procStatHistory[1].Cpu.Guest) * invQuotient
-}
-
-func CurrentCpuSwitches() uint64 {
-	psLock.RLock()
-	defer psLock.RUnlock()
-	return procStatHistory[0].Ctxt
-}
-
-func CpuPrepared() bool {
-	psLock.RLock()
-	defer psLock.RUnlock()
+func historyPrepared() bool {
 	return procStatHistory[1] != nil
 }
 
+func CpuUsagesSummary() (cpuUsages []float64, switches uint64, prepared bool) {
+	psLock.RLock()
+	defer psLock.RUnlock()
+
+	cpuUsages = make([]float64, 0, 10)
+	switches = 0
+	prepared = historyPrepared()
+
+	if !prepared {
+		return
+	}
+
+	dt := deltaTotal()
+
+	if dt == 0 {
+		idle := 0.0
+		busy := 100.0 - idle
+		user := 0.0
+		nice := 0.0
+		system := 0.0
+		iowait := 0.0
+		irq := 0.0
+		softirq := 0.0
+		steal := 0.0
+		guest := 0.0
+
+		cpuUsages = append(cpuUsages, idle, busy, user, nice, system, iowait, irq, softirq, steal, guest)
+		switches = procStatHistory[0].Ctxt
+	} else {
+		invQuotient := 100.00 / float64(dt)
+
+		idle := float64(procStatHistory[0].Cpu.Idle-procStatHistory[1].Cpu.Idle) * invQuotient
+		busy := 100.0 - idle
+		user := float64(procStatHistory[0].Cpu.User-procStatHistory[1].Cpu.User) * invQuotient
+		nice := float64(procStatHistory[0].Cpu.Nice-procStatHistory[1].Cpu.Nice) * invQuotient
+		system := float64(procStatHistory[0].Cpu.System-procStatHistory[1].Cpu.System) * invQuotient
+		iowait := float64(procStatHistory[0].Cpu.Iowait-procStatHistory[1].Cpu.Iowait) * invQuotient
+		irq := float64(procStatHistory[0].Cpu.Irq-procStatHistory[1].Cpu.Irq) * invQuotient
+		softirq := float64(procStatHistory[0].Cpu.SoftIrq-procStatHistory[1].Cpu.SoftIrq) * invQuotient
+		steal := float64(procStatHistory[0].Cpu.Steal-procStatHistory[1].Cpu.Steal) * invQuotient
+		guest := float64(procStatHistory[0].Cpu.Guest-procStatHistory[1].Cpu.Guest) * invQuotient
+
+		cpuUsages = append(cpuUsages, idle, busy, user, nice, system, iowait, irq, softirq, steal, guest)
+		switches = procStatHistory[0].Ctxt
+	}
+
+	return
+}
+
 func CpuMetrics() []*model.MetricValue {
-	if !CpuPrepared() {
+	cpuUsages, currentCpuSwitches, prepared := CpuUsagesSummary()
+
+	if !prepared {
 		return []*model.MetricValue{}
 	}
 
-	cpuIdleVal := CpuIdle()
-	idle := GaugeValue("cpu.idle", cpuIdleVal)
-	busy := GaugeValue("cpu.busy", 100.0-cpuIdleVal)
-	user := GaugeValue("cpu.user", CpuUser())
-	nice := GaugeValue("cpu.nice", CpuNice())
-	system := GaugeValue("cpu.system", CpuSystem())
-	iowait := GaugeValue("cpu.iowait", CpuIowait())
-	irq := GaugeValue("cpu.irq", CpuIrq())
-	softirq := GaugeValue("cpu.softirq", CpuSoftIrq())
-	steal := GaugeValue("cpu.steal", CpuSteal())
-	guest := GaugeValue("cpu.guest", CpuGuest())
-	switches := CounterValue("cpu.switches", CurrentCpuSwitches())
+	idle := GaugeValue("cpu.idle", cpuUsages[0])
+	busy := GaugeValue("cpu.busy", cpuUsages[1])
+	user := GaugeValue("cpu.user", cpuUsages[2])
+	nice := GaugeValue("cpu.nice", cpuUsages[3])
+	system := GaugeValue("cpu.system", cpuUsages[4])
+	iowait := GaugeValue("cpu.iowait", cpuUsages[5])
+	irq := GaugeValue("cpu.irq", cpuUsages[6])
+	softirq := GaugeValue("cpu.softirq", cpuUsages[7])
+	steal := GaugeValue("cpu.steal", cpuUsages[8])
+	guest := GaugeValue("cpu.guest", cpuUsages[9])
+	switches := CounterValue("cpu.switches", currentCpuSwitches)
 	return []*model.MetricValue{idle, busy, user, nice, system, iowait, irq, softirq, steal, guest, switches}
 }
