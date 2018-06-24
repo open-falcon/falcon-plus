@@ -19,7 +19,7 @@ import (
 	"github.com/open-falcon/falcon-plus/modules/hbs/cache"
 )
 
-func (j *Judge) GetEExpressions(req model.NullRpcRequest, reply *model.EExpressionResponse) error {
-	reply.EExpressions = cache.EExpressionCache.Get()
+func (j *Judge) GetEExps(req model.NullRpcRequest, reply *model.EExpResponse) error {
+	reply.EExps = cache.EExpCache.Get()
 	return nil
 }

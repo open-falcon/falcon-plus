@@ -10,7 +10,7 @@ import (
 )
 
 func EJudge(L *SafeELinkedList, firstItem *cmodel.EMetric, now int64) {
-	CheckEExpression(L, firstItem, now)
+	CheckEExp(L, firstItem, now)
 }
 
 func sendEvent(event *cmodel.Event) {
@@ -36,11 +36,11 @@ func sendEvent(event *cmodel.Event) {
 	rc.Do("LPUSH", redisKey, string(bs))
 }
 
-func CheckEExpression(L *SafeELinkedList, firstItem *cmodel.EMetric, now int64) {
+func CheckEExp(L *SafeELinkedList, firstItem *cmodel.EMetric, now int64) {
 	// expression可能会被多次重复处理，用此数据结构保证只被处理一次
 	handledExpression := make(map[int]bool)
 
-	m := g.EExpressionMap.Get()
+	m := g.EExpMap.Get()
 
 	for _, eexps := range m {
 		for _, eexp := range eexps {
@@ -56,7 +56,7 @@ func CheckEExpression(L *SafeELinkedList, firstItem *cmodel.EMetric, now int64) 
 
 }
 
-func HitFilters(eexp *cmodel.EExpression, m *cmodel.EMetric) bool {
+func HitFilters(eexp *cmodel.EExp, m *cmodel.EMetric) bool {
 	for k, v := range eexp.Filters {
 		vGot, ok := (*m).Filters[k]
 		if !ok || v != vGot {
@@ -66,7 +66,7 @@ func HitFilters(eexp *cmodel.EExpression, m *cmodel.EMetric) bool {
 	return true
 }
 
-func judgeItemWithExpression(L *SafeELinkedList, eexp *cmodel.EExpression, firstItem *cmodel.EMetric, now int64) (hit bool) {
+func judgeItemWithExpression(L *SafeELinkedList, eexp *cmodel.EExp, firstItem *cmodel.EMetric, now int64) (hit bool) {
 	if !HitFilters(eexp, firstItem) {
 		return false
 	}
@@ -105,7 +105,7 @@ func judgeItemWithExpression(L *SafeELinkedList, eexp *cmodel.EExpression, first
 
 	event := &cmodel.Event{
 		Id:          fmt.Sprintf("e_%d_%s", eexp.ID, firstItem.PK()),
-		EExpression: eexp,
+		EExp: eexp,
 		Endpoint:    firstItem.Endpoint,
 		LeftValue:   leftValue,
 		EventTime:   firstItem.Timestamp,

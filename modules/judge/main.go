@@ -64,7 +64,7 @@ func main() {
 	go rpc.Start()
 
 	go cron.SyncStrategies()
-	go cron.SyncEExpresions()
+	go cron.SyncEExps()
 	go cron.CleanStale()
 
 	if _cfg.StringMatcher != nil && _cfg.StringMatcher.Enabled {

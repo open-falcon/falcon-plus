@@ -12,7 +12,7 @@ import (
 	"github.com/open-falcon/falcon-plus/common/model"
 )
 
-func QueryEExpressions() (ret []*model.EExpression, err error) {
+func QueryEExps() (ret []*model.EExp, err error) {
 	sql := "select id, filters, conditions, priority, max_step, note from eexp where pause=0"
 	rows, err := DB.Query(sql)
 	if err != nil {
@@ -43,9 +43,9 @@ func QueryEExpressions() (ret []*model.EExpression, err error) {
 			continue
 		}
 
-		ee, err := parseEExpression(filters, conditions)
+		ee, err := parseEExp(filters, conditions)
 		if err != nil {
-			log.Println("parseEExpression failed", err)
+			log.Println("parseEExp failed", err)
 			continue
 		}
 		ee.ID = ID
@@ -142,9 +142,9 @@ func parseCond(s string) (*model.Condition, error) {
 	return &c, nil
 }
 
-func parseEExpression(filter string, conds string) (*model.EExpression, error) {
+func parseEExp(filter string, conds string) (*model.EExp, error) {
 	var err error
-	ee := model.EExpression{}
+	ee := model.EExp{}
 	ee.Filters = map[string]string{}
 
 	filter = strings.TrimSpace(filter)

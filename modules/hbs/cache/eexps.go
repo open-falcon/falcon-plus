@@ -7,21 +7,21 @@ import (
 	"github.com/open-falcon/falcon-plus/modules/hbs/db"
 )
 
-type SafeEExpressionCache struct {
+type SafeEExpCache struct {
 	sync.RWMutex
-	L []*model.EExpression
+	L []*model.EExp
 }
 
-var EExpressionCache = &SafeEExpressionCache{}
+var EExpCache = &SafeEExpCache{}
 
-func (this *SafeEExpressionCache) Get() []*model.EExpression {
+func (this *SafeEExpCache) Get() []*model.EExp {
 	this.RLock()
 	defer this.RUnlock()
 	return this.L
 }
 
-func (this *SafeEExpressionCache) Init() {
-	es, err := db.QueryEExpressions()
+func (this *SafeEExpCache) Init() {
+	es, err := db.QueryEExps()
 	if err != nil {
 		return
 	}

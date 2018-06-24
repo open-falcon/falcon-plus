@@ -26,7 +26,7 @@ import (
 
 func configInfoRoutes() {
 	http.HandleFunc("/eexps/", func(w http.ResponseWriter, r *http.Request) {
-		m := g.EExpressionMap.Get()
+		m := g.EExpMap.Get()
 		RenderDataJson(w, m)
 	})
 

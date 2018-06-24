@@ -25,7 +25,7 @@ type Event struct {
 	Id          string            `json:"id"`
 	Strategy    *Strategy         `json:"strategy"`
 	Expression  *Expression       `json:"expression"`
-	EExpression *EExpression      `json:"eexp"`
+	EExp *EExp      `json:"eexp"`
 	Status      string            `json:"status"` // OK or PROBLEM
 	Endpoint    string            `json:"endpoint"`
 	LeftValue   float64           `json:"leftValue"`
@@ -40,12 +40,12 @@ func (this *Event) FormattedTime() string {
 
 func (this *Event) String() string {
 	return fmt.Sprintf(
-		"<Endpoint:%s, Status:%s, Strategy:%v, Expression:%v, EExpression:%v LeftValue:%s, CurrentStep:%d, PushedTags:%v, TS:%s>",
+		"<Endpoint:%s, Status:%s, Strategy:%v, Expression:%v, EExp:%v LeftValue:%s, CurrentStep:%d, PushedTags:%v, TS:%s>",
 		this.Endpoint,
 		this.Status,
 		this.Strategy,
 		this.Expression,
-		this.EExpression,
+		this.EExp,
 		utils.ReadableFloat(this.LeftValue),
 		this.CurrentStep,
 		this.PushedTags,
@@ -61,9 +61,9 @@ func (this *Event) ExpressionId() int {
 	return 0
 }
 
-func (this *Event) EExpressionID() int {
+func (this *Event) EExpID() int {
 	if this.Expression != nil {
-		return this.EExpression.ID
+		return this.EExp.ID
 	}
 	return 0
 }
@@ -113,8 +113,8 @@ func (this *Event) Priority() int {
 		return this.Expression.Priority
 	}
 
-	if this.EExpression != nil {
-		return this.EExpression.Priority
+	if this.EExp != nil {
+		return this.EExp.Priority
 	}
 	return -1
 }
@@ -128,8 +128,8 @@ func (this *Event) Note() string {
 		return this.Expression.Note
 
 	}
-	if this.EExpression != nil {
-		return this.EExpression.Note
+	if this.EExp != nil {
+		return this.EExp.Note
 	}
 	return ""
 }
@@ -141,8 +141,8 @@ func (this *Event) Metric() string {
 	if this.Expression != nil {
 		return this.Expression.Metric
 	}
-	if this.EExpression != nil {
-		return this.EExpression.Metric
+	if this.EExp != nil {
+		return this.EExp.Metric
 	}
 	return ""
 }
@@ -178,8 +178,8 @@ func (this *Event) Func() string {
 		return this.Expression.Func
 	}
 
-	if this.EExpression != nil {
-		return this.EExpression.Func
+	if this.EExp != nil {
+		return this.EExp.Func
 	}
 	return ""
 }
@@ -192,8 +192,8 @@ func (this *Event) MaxStep() int {
 	if this.Expression != nil {
 		return this.Expression.MaxStep
 	}
-	if this.EExpression != nil {
-		return this.EExpression.MaxStep
+	if this.EExp != nil {
+		return this.EExp.MaxStep
 	}
 	return 1
 }

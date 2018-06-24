@@ -8,44 +8,44 @@ import (
 	"github.com/open-falcon/falcon-plus/modules/judge/g"
 )
 
-func SyncEExpresions() {
+func SyncEExps() {
 	duration := time.Duration(g.Config().Hbs.Interval) * time.Second
 	for {
-		syncEExpressions()
+		syncEExps()
 		syncEFilter()
 		time.Sleep(duration)
 	}
 }
 
-func syncEExpressions() {
-	var eeResp model.EExpressionResponse
-	err := g.HbsClient.Call("Judge.GetEExpressions", model.NullRpcRequest{}, &eeResp)
+func syncEExps() {
+	var eeResp model.EExpResponse
+	err := g.HbsClient.Call("Judge.GetEExps", model.NullRpcRequest{}, &eeResp)
 	if err != nil {
-		log.Println("[ERROR] Judge.GetEExpressions:", err)
+		log.Println("[ERROR] Judge.GetEExps:", err)
 		return
 	}
 
-	rebuildEExpressionMap(&eeResp)
+	rebuildEExpMap(&eeResp)
 }
 
-func rebuildEExpressionMap(eeResp *model.EExpressionResponse) {
-	m := make(map[string][]*model.EExpression)
-	for _, exp := range eeResp.EExpressions {
+func rebuildEExpMap(eeResp *model.EExpResponse) {
+	m := make(map[string][]*model.EExp)
+	for _, exp := range eeResp.EExps {
 		if _, exists := m[exp.Metric]; exists {
 			m[exp.Metric] = append(m[exp.Metric], exp)
 		} else {
-			m[exp.Metric] = []*model.EExpression{exp}
+			m[exp.Metric] = []*model.EExp{exp}
 		}
 	}
 
-	g.EExpressionMap.ReInit(m)
+	g.EExpMap.ReInit(m)
 }
 
 func syncEFilter() {
 	m := make(map[string]string)
 
-	//M map[string][]*model.EExpression
-	eeMap := g.EExpressionMap.Get()
+	//M map[string][]*model.EExp
+	eeMap := g.EExpMap.Get()
 	for _, ees := range eeMap {
 		for _, eexp := range ees {
 			m[eexp.Metric] = eexp.Metric

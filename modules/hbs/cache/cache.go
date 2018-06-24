@@ -49,8 +49,8 @@ func Init() {
 	log.Println("#9 MonitoredHosts...")
 	MonitoredHosts.Init()
 
-	log.Println("#10 EExpressionCache...")
-	EExpressionCache.Init()
+	log.Println("#10 EExpCache...")
+	EExpCache.Init()
 
 	log.Println("cache done")
 
@@ -70,6 +70,6 @@ func LoopInit() {
 		HostTemplateIds.Init()
 		ExpressionCache.Init()
 		MonitoredHosts.Init()
-		EExpressionCache.Init()
+		EExpCache.Init()
 	}
 }

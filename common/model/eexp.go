@@ -15,11 +15,11 @@ type Condition struct {
 	RightValue float64
 }
 
-type EExpressionResponse struct {
-	EExpressions []*EExpression `json:"eexpressions"`
+type EExpResponse struct {
+	EExps []*EExp `json:"eexpressions"`
 }
 
-type EExpression struct {
+type EExp struct {
 	ID         int
 	Func       string
 	Metric     string // join(sorted(conditionMetrics), ",")
@@ -71,13 +71,13 @@ func (c *Condition) Hit(m *EMetric) bool {
 	return true
 }
 
-func (ee *EExpression) String() string {
+func (ee *EExp) String() string {
 	outF, _ := json.Marshal(ee.Filters)
 	outC, _ := json.Marshal(ee.Conditions)
 	return fmt.Sprintf("func:%s filters:%s conditions:%s", ee.Func, outF, outC)
 }
 
-func (ee *EExpression) Hit(m *EMetric) bool {
+func (ee *EExp) Hit(m *EMetric) bool {
 	for k, v := range ee.Filters {
 		if k == "metric" {
 			continue
@@ -103,7 +103,7 @@ func (ee *EExpression) Hit(m *EMetric) bool {
 	return true
 }
 
-func (ee *EExpression) HitFilters(m *map[string]interface{}) bool {
+func (ee *EExp) HitFilters(m *map[string]interface{}) bool {
 	for k, v := range ee.Filters {
 		vGot, ok := (*m)[k].(string)
 		if !ok || v != vGot {
