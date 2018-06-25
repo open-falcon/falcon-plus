@@ -9,12 +9,12 @@ import (
 
 type SafeEExpCache struct {
 	sync.RWMutex
-	L []*model.EExp
+	L []model.EExp
 }
 
 var EExpCache = &SafeEExpCache{}
 
-func (this *SafeEExpCache) Get() []*model.EExp {
+func (this *SafeEExpCache) Get() []model.EExp {
 	this.RLock()
 	defer this.RUnlock()
 	return this.L
