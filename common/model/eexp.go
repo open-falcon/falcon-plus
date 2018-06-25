@@ -4,111 +4,110 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"math"
 )
 
-type Condition struct {
-	Func       string
-	Metric     string
-	Parameter  string
-	Limit      int
-	Operator   string
-	RightValue float64
+type Filter struct {
+	Func       string      `json:"func"`
+	Key        string      `json:"key"`
+	Ago        uint64      `json:"ago"`   // for func count
+	Hits       uint64      `json:"hits"`  // for func count
+	Limit      uint64      `json:"limit"` // for func all
+	Operator   string      `json:"operator"`
+	RightValue interface{} `json:"rightValue"`
 }
 
 type EExpResponse struct {
-	EExps []*EExp `json:"eexpressions"`
+	EExps []EExp `json:"eexps"`
 }
 
 type EExp struct {
-	ID         int
-	Func       string
-	Metric     string // join(sorted(conditionMetrics), ",")
-	Filters    map[string]string
-	Conditions []Condition
-	Priority   int
-	MaxStep    int
-	Note       string
+	ID       int               `json:"id"`
+	Key      string            `json:"key"` // join(sorted(conditionKeys), ",")
+	Filters  map[string]Filter `json:"filters"`
+	Priority int               `json:"priority"`
+	MaxStep  int               `json:"maxStep"`
+	Note     string            `json:"note"`
 }
 
-func (c *Condition) String() string {
-	return fmt.Sprintf("func:%s metric:%s parameter:%s operator:%s rightValue:%s", c.Func, c.Metric, c.Parameter, c.Operator, c.RightValue)
-}
-
-func (c *Condition) Hit(m *EMetric) bool {
-	v, ok := (*m).Values[c.Metric]
-	if !ok {
-		log.Println("metric matched condition not found")
-		return false
-	}
-
-	switch c.Operator {
-	case "<":
-		{
-			return v < c.RightValue
-		}
-	case "<=":
-		{
-			return v <= c.RightValue
-		}
-	case "==":
-		{
-			return v == c.RightValue
-		}
-	case ">":
-		{
-			return v <= c.RightValue
-		}
-	case ">=":
-		{
-			return v <= c.RightValue
-		}
-	case "<>":
-		{
-			return v != c.RightValue
-		}
-	}
-
-	return true
+func (c *Filter) String() string {
+	out, _ := json.Marshal(c)
+	return string(out)
 }
 
 func (ee *EExp) String() string {
-	outF, _ := json.Marshal(ee.Filters)
-	outC, _ := json.Marshal(ee.Conditions)
-	return fmt.Sprintf("func:%s filters:%s conditions:%s", ee.Func, outF, outC)
+	out, _ := json.Marshal(ee)
+	return string(out)
 }
 
-func (ee *EExp) Hit(m *EMetric) bool {
-	for k, v := range ee.Filters {
-		if k == "metric" {
-			continue
-		}
-		vGot, ok := m.Filters[k]
-		if !ok {
-			log.Println("filter not matched", k)
-			return false
-		}
-		if vGot != v {
-			log.Println("filter value not matched")
-			return false
-		}
+func opResultFloat64(leftValue float64, operator string, rightValue float64) (isTriggered bool) {
+	switch operator {
+	case "=", "==":
+		isTriggered = math.Abs(leftValue-rightValue) < 0.0001
+	case "!=":
+		isTriggered = math.Abs(leftValue-rightValue) > 0.0001
+	case "<":
+		isTriggered = leftValue < rightValue
+	case "<=":
+		isTriggered = leftValue <= rightValue
+	case ">":
+		isTriggered = leftValue > rightValue
+	case ">=":
+		isTriggered = leftValue >= rightValue
 	}
+	return
+}
 
-	for _, cond := range ee.Conditions {
-		if !cond.Hit(m) {
-			//log.Println("condition not hit", cond, m)
-			return false
-		}
+func opResultString(leftValue string, operator string, rightValue string) (isTriggered bool) {
+	switch operator {
+	case "=", "==":
+		isTriggered = leftValue == rightValue
+	case "!=":
+		isTriggered = leftValue != rightValue
 	}
-
-	return true
+	return
 }
 
 func (ee *EExp) HitFilters(m *map[string]interface{}) bool {
-	for k, v := range ee.Filters {
-		vGot, ok := (*m)[k].(string)
-		if !ok || v != vGot {
+	for k, filter := range ee.Filters {
+		valueI, ok := (*m)[k]
+		if !ok {
 			return false
 		}
+
+		switch filter.RightValue.(type) {
+		case float64:
+			{
+				leftValue, ok := valueI.(float64)
+				if !ok {
+					return false
+				}
+
+				rightValue := filter.RightValue.(float64)
+
+				if !opResultFloat64(leftValue, filter.Operator, rightValue) {
+					log.Println(fmt.Sprintf("l:%v o:%v r:%v", leftValue, filter.Operator, rightValue))
+					return false
+				}
+
+			}
+		case string:
+			{
+				leftValue, ok := valueI.(string)
+				if !ok {
+					return false
+				}
+
+				rightValue := filter.RightValue.(string)
+
+				if !opResultString(leftValue, filter.Operator, rightValue) {
+					log.Println(fmt.Sprintf("l:%v o:%v r:%v", leftValue, filter.Operator, rightValue))
+					return false
+				}
+
+			}
+		}
+
 	}
 	return true
 }

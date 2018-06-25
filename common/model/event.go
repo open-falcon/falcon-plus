@@ -15,6 +15,7 @@
 package model
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/open-falcon/falcon-plus/common/utils"
@@ -25,10 +26,10 @@ type Event struct {
 	Id          string            `json:"id"`
 	Strategy    *Strategy         `json:"strategy"`
 	Expression  *Expression       `json:"expression"`
-	EExp *EExp      `json:"eexp"`
+	EExp        *EExp             `json:"eexp"`
 	Status      string            `json:"status"` // OK or PROBLEM
 	Endpoint    string            `json:"endpoint"`
-	LeftValue   float64           `json:"leftValue"`
+	LeftValue   interface{}       `json:"leftValue"`
 	CurrentStep int               `json:"currentStep"`
 	EventTime   int64             `json:"eventTime"`
 	PushedTags  map[string]string `json:"pushedTags"`
@@ -39,14 +40,23 @@ func (this *Event) FormattedTime() string {
 }
 
 func (this *Event) String() string {
+	var leftValue interface{}
+	switch this.LeftValue.(type) {
+	case float64:
+		leftValue = utils.ReadableFloat(this.LeftValue.(float64))
+	default:
+		leftValue = this.LeftValue
+
+	}
+
 	return fmt.Sprintf(
-		"<Endpoint:%s, Status:%s, Strategy:%v, Expression:%v, EExp:%v LeftValue:%s, CurrentStep:%d, PushedTags:%v, TS:%s>",
+		"<Endpoint:%s, Status:%s, Strategy:%v, Expression:%v, EExp:%v LeftValue:%v, CurrentStep:%d, PushedTags:%v, TS:%s>",
 		this.Endpoint,
 		this.Status,
 		this.Strategy,
 		this.Expression,
 		this.EExp,
-		utils.ReadableFloat(this.LeftValue),
+		leftValue,
 		this.CurrentStep,
 		this.PushedTags,
 		this.FormattedTime(),
@@ -142,7 +152,7 @@ func (this *Event) Metric() string {
 		return this.Expression.Metric
 	}
 	if this.EExp != nil {
-		return this.EExp.Metric
+		return this.EExp.Key
 	}
 	return ""
 }
@@ -155,6 +165,7 @@ func (this *Event) RightValue() float64 {
 	if this.Expression != nil {
 		return this.Expression.RightValue
 	}
+
 	return 0.0
 }
 
@@ -179,7 +190,8 @@ func (this *Event) Func() string {
 	}
 
 	if this.EExp != nil {
-		return this.EExp.Func
+		out, _ := json.Marshal(this.EExp.Filters)
+		return string(out)
 	}
 	return ""
 }
