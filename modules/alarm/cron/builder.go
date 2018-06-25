@@ -23,24 +23,69 @@ import (
 )
 
 func BuildCommonSMSContent(event *model.Event) string {
+	var leftValue string
+	var rightValue string
+	pushedTags := map[string]string{}
+
+	for k, v := range event.PushedTags {
+		pushedTags[k] = fmt.Sprintf("%v", v)
+	}
+
+	switch event.LeftValue.(type) {
+	case float64:
+		{
+			leftValue = utils.ReadableFloat(event.LeftValue.(float64))
+			rightValue = utils.ReadableFloat(event.RightValue())
+		}
+	case string:
+		{
+			leftValue = event.LeftValue.(string)
+			rightValue = fmt.Sprintf("%v", event.RightValue())
+
+		}
+
+	}
 	return fmt.Sprintf(
-		"[P%d][%s][%s][][%s %s %s %s %s%s%s][O%d %s]",
+		"[P%d][%s][%s][][%s %s %s %s %v%s%v][O%d %s]",
 		event.Priority(),
 		event.Status,
 		event.Endpoint,
 		event.Note(),
 		event.Func(),
 		event.Metric(),
-		utils.SortedTags(event.PushedTags),
-		utils.ReadableFloat(event.LeftValue),
+		pushedTags,
+		leftValue,
 		event.Operator(),
-		utils.ReadableFloat(event.RightValue()),
+		rightValue,
 		event.CurrentStep,
 		event.FormattedTime(),
 	)
 }
 
 func BuildCommonIMContent(event *model.Event) string {
+	var leftValue string
+	var rightValue string
+	pushedTags := map[string]string{}
+
+	for k, v := range event.PushedTags {
+		pushedTags[k] = fmt.Sprintf("%v", v)
+	}
+
+	switch event.LeftValue.(type) {
+	case float64:
+		{
+			leftValue = utils.ReadableFloat(event.LeftValue.(float64))
+			rightValue = utils.ReadableFloat(event.RightValue())
+		}
+	case string:
+		{
+			leftValue = event.LeftValue.(string)
+			rightValue = fmt.Sprintf("%v", event.RightValue())
+
+		}
+
+	}
+
 	return fmt.Sprintf(
 		"[P%d][%s][%s][][%s %s %s %s %s%s%s][O%d %s]",
 		event.Priority(),
@@ -49,16 +94,39 @@ func BuildCommonIMContent(event *model.Event) string {
 		event.Note(),
 		event.Func(),
 		event.Metric(),
-		utils.SortedTags(event.PushedTags),
-		utils.ReadableFloat(event.LeftValue),
+		pushedTags,
+		leftValue,
 		event.Operator(),
-		utils.ReadableFloat(event.RightValue()),
+		rightValue,
 		event.CurrentStep,
 		event.FormattedTime(),
 	)
 }
 
 func BuildCommonMailContent(event *model.Event) string {
+	var leftValue string
+	var rightValue string
+	pushedTags := map[string]string{}
+
+	for k, v := range event.PushedTags {
+		pushedTags[k] = fmt.Sprintf("%v", v)
+	}
+
+	switch event.LeftValue.(type) {
+	case float64:
+		{
+			leftValue = utils.ReadableFloat(event.LeftValue.(float64))
+			rightValue = utils.ReadableFloat(event.RightValue())
+		}
+	case string:
+		{
+			leftValue = event.LeftValue.(string)
+			rightValue = fmt.Sprintf("%v", event.RightValue())
+
+		}
+
+	}
+
 	link := g.Link(event)
 	return fmt.Sprintf(
 		"%s\r\nP%d\r\nEndpoint:%s\r\nMetric:%s\r\nTags:%s\r\n%s: %s%s%s\r\nNote:%s\r\nMax:%d, Current:%d\r\nTimestamp:%s\r\n%s\r\n",
@@ -66,11 +134,11 @@ func BuildCommonMailContent(event *model.Event) string {
 		event.Priority(),
 		event.Endpoint,
 		event.Metric(),
-		utils.SortedTags(event.PushedTags),
+		pushedTags,
 		event.Func(),
-		utils.ReadableFloat(event.LeftValue),
+		leftValue,
 		event.Operator(),
-		utils.ReadableFloat(event.RightValue()),
+		rightValue,
 		event.Note(),
 		event.MaxStep(),
 		event.CurrentStep,

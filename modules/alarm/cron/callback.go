@@ -93,7 +93,21 @@ func Callback(event *model.Event, action *api.Action) string {
 	req.Param("tpl_id", fmt.Sprintf("%d", event.TplId()))
 	req.Param("exp_id", fmt.Sprintf("%d", event.ExpressionId()))
 	req.Param("stra_id", fmt.Sprintf("%d", event.StrategyId()))
-	req.Param("left_value", utils.ReadableFloat(event.LeftValue))
+
+	var leftValue string
+	switch event.LeftValue.(type) {
+	case float64:
+		{
+			leftValue = utils.ReadableFloat(event.LeftValue.(float64))
+		}
+	case string:
+		{
+			leftValue = event.LeftValue.(string)
+
+		}
+	}
+
+	req.Param("left_value", leftValue)
 	req.Param("tags", tags)
 
 	resp, e := req.String()
