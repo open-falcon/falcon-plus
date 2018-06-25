@@ -2,10 +2,9 @@ package model
 
 import (
 	"container/list"
-	cmodel "github.com/open-falcon/falcon-plus/common/model"
-
 	"sync"
-	"time"
+
+	cmodel "github.com/open-falcon/falcon-plus/common/model"
 )
 
 type SafeELinkedList struct {
@@ -30,14 +29,14 @@ func (this *SafeELinkedList) ToSlice() []*cmodel.EMetric {
 
 // @param limit 至多返回这些，如果不够，有多少返回多少
 // @return bool isEnough
-func (this *SafeELinkedList) HistoryData(limit int) ([]*cmodel.EHistoryData, bool) {
+func (this *SafeELinkedList) HistoryData(limit uint64) ([]*cmodel.EHistoryData, bool) {
 	if limit < 1 {
 		// 其实limit不合法，此处也返回false吧，上层代码要注意
 		// 因为false通常使上层代码进入异常分支，这样就统一了
 		return []*cmodel.EHistoryData{}, false
 	}
 
-	size := this.Len()
+	size := uint64(this.Len())
 	if size == 0 {
 		return []*cmodel.EHistoryData{}, false
 	}
@@ -54,14 +53,14 @@ func (this *SafeELinkedList) HistoryData(limit int) ([]*cmodel.EHistoryData, boo
 		isEnough = false
 	}
 	vs = make([]*cmodel.EHistoryData, limit)
-	vs[0] = &cmodel.EHistoryData{Timestamp: firstItem.Timestamp, Values: firstItem.Values}
-	i := 1
+	vs[0] = &cmodel.EHistoryData{Timestamp: firstItem.Timestamp, Filters: firstItem.Filters}
+	var i uint64
 	currentElement := firstElement
-	for i < limit {
+	for i = 1; i < limit; {
 		nextElement := currentElement.Next()
 		vs[i] = &cmodel.EHistoryData{
 			Timestamp: nextElement.Value.(*cmodel.EMetric).Timestamp,
-			Values:    nextElement.Value.(*cmodel.EMetric).Values,
+			Filters:   nextElement.Value.(*cmodel.EMetric).Filters,
 		}
 		i++
 		currentElement = nextElement
@@ -72,28 +71,40 @@ func (this *SafeELinkedList) HistoryData(limit int) ([]*cmodel.EHistoryData, boo
 
 // @param limit 至多返回这些，如果不够，有多少返回多少
 // @return bool isEnough
-func (this *SafeELinkedList) HistoryDataString(pattern string, period int) ([]*cmodel.EHistoryData, bool) {
-	size := this.Len()
-	if size == 0 {
-		return []*cmodel.EHistoryData{}, false
+func (this *SafeELinkedList) HistoryDataByTime(ago uint64, hits uint64, now uint64) ([]*cmodel.EHistoryData, bool) {
+	var isEnough bool
+	var vs []*cmodel.EHistoryData
+
+	if hits < 1 {
+		// 其实limit不合法，此处也返回false吧，上层代码要注意
+		// 因为false通常使上层代码进入异常分支，这样就统一了
+		return vs, isEnough
 	}
 
-	now := time.Now().Unix()
-	then := now - int64(period)
+	size := uint64(this.Len())
+	if size == 0 {
+		return vs, isEnough
+	}
 
-	maxItems := 512
-	var vs []*cmodel.EHistoryData
-	hits := 0
+	if size < hits {
+		return vs, isEnough
+	}
 
-	for e := this.Front(); e != nil && hits < maxItems; e = e.Next() {
+	t := int64(now - ago)
+
+	matched := uint64(0)
+	for e := this.Front(); e != nil && matched < hits; e = e.Next() {
 		item := e.Value.(*cmodel.EMetric)
-
-		if item.Timestamp >= then {
-			vs = append(vs, &cmodel.EHistoryData{Timestamp: item.Timestamp, Values: item.Values})
-			hits += 1
+		if item.Timestamp >= t {
+			item := &cmodel.EHistoryData{Timestamp: item.Timestamp, Filters: item.Filters}
+			vs = append(vs, item)
+			matched++
 		}
 	}
-	return vs, hits > 0
+
+	isEnough = matched >= hits
+
+	return vs, isEnough
 }
 
 func (this *SafeELinkedList) PushFront(v interface{}) *list.Element {
@@ -103,11 +114,11 @@ func (this *SafeELinkedList) PushFront(v interface{}) *list.Element {
 }
 
 // @return needJudge 如果是false不需要做judge，因为新上来的数据不合法
-func (this *SafeELinkedList) PushFrontAndMaintain(v *cmodel.EMetric, maxCount int) bool {
+func (this *SafeELinkedList) PushFrontAndMaintain(v *cmodel.EMetric, maxCount uint32) bool {
 	this.Lock()
 	defer this.Unlock()
 
-	sz := this.L.Len()
+	sz := uint32(this.L.Len())
 	this.L.PushFront(v)
 
 	sz++
@@ -116,7 +127,8 @@ func (this *SafeELinkedList) PushFrontAndMaintain(v *cmodel.EMetric, maxCount in
 	}
 
 	del := sz - maxCount
-	for i := 0; i < del; i++ {
+	var i uint32
+	for i = 0; i < del; i++ {
 		this.L.Remove(this.L.Back())
 	}
 

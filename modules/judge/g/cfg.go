@@ -68,6 +68,7 @@ type GlobalConfig struct {
 	Debug         bool                 `json:"debug"`
 	DebugHost     string               `json:"debugHost"`
 	Remain        int                  `json:"remain"`
+	ListMaxLen    uint32               `json:"listMaxLen"`
 	Http          *HttpConfig          `json:"http"`
 	Rpc           *RpcConfig           `json:"rpc"`
 	Hbs           *HbsConfig           `json:"hbs"`

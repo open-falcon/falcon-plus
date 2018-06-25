@@ -44,11 +44,11 @@ func CheckEExp(L *SafeELinkedList, firstItem *cmodel.EMetric, now int64) {
 
 	for _, eexps := range m {
 		for _, eexp := range eexps {
-			_, ok := handledExpression[(*eexp).ID]
+			_, ok := handledExpression[eexp.ID]
 
-			if (*eexp).Metric == firstItem.Metric && !ok {
-				if judgeItemWithExpression(L, eexp, firstItem, now) {
-					handledExpression[(*eexp).ID] = true
+			if eexp.Key == firstItem.Key && !ok {
+				if judgeItemWithExpression(L, &eexp, firstItem, now) {
+					handledExpression[eexp.ID] = true
 				}
 			}
 		}
@@ -56,33 +56,21 @@ func CheckEExp(L *SafeELinkedList, firstItem *cmodel.EMetric, now int64) {
 
 }
 
-func HitFilters(eexp *cmodel.EExp, m *cmodel.EMetric) bool {
-	for k, v := range eexp.Filters {
-		vGot, ok := (*m).Filters[k]
-		if !ok || v != vGot {
-			return false
-		}
-	}
-	return true
-}
-
 func judgeItemWithExpression(L *SafeELinkedList, eexp *cmodel.EExp, firstItem *cmodel.EMetric, now int64) (hit bool) {
-	if !HitFilters(eexp, firstItem) {
-		return false
-	}
-
 	var fn Function
 	var historyData []*cmodel.EHistoryData
-	var leftValue float64
+	var leftValue interface{}
 	var isTriggered bool
 	var isEnough bool
-	for _, cond := range eexp.Conditions {
-		switch cond.Func {
+	for _, filter := range eexp.Filters {
+		switch filter.Func {
 		case "all":
-			fn = &AllFunction{Limit: cond.Limit, Operator: cond.Operator, Metric: cond.Metric, RightValue: cond.RightValue}
+			fn = &AllFunction{Limit: filter.Limit, Operator: filter.Operator, Key: filter.Key, RightValue: filter.RightValue}
+		case "count":
+			fn = &CountFunction{Ago: filter.Ago, Hits: filter.Hits, Operator: filter.Operator, Key: filter.Key, RightValue: filter.RightValue, Now: now}
 		default:
 			{
-				log.Println(fmt.Sprintf("not support function -%#v-", cond.Func))
+				log.Println(fmt.Sprintf("not support function -%#v-", filter.Func))
 				return false
 			}
 		}
@@ -103,13 +91,18 @@ func judgeItemWithExpression(L *SafeELinkedList, eexp *cmodel.EExp, firstItem *c
 		return false
 	}
 
+	pushTags := map[string]string{}
+	for k, v := range firstItem.Filters {
+		pushTags[k] = fmt.Sprintf("%v", v)
+	}
+
 	event := &cmodel.Event{
-		Id:          fmt.Sprintf("e_%d_%s", eexp.ID, firstItem.PK()),
-		EExp: eexp,
-		Endpoint:    firstItem.Endpoint,
-		LeftValue:   leftValue,
-		EventTime:   firstItem.Timestamp,
-		PushedTags:  firstItem.Filters,
+		Id:         fmt.Sprintf("e_%d_%s", eexp.ID, firstItem.PK()),
+		EExp:       eexp,
+		Endpoint:   firstItem.Endpoint,
+		LeftValue:  leftValue,
+		EventTime:  firstItem.Timestamp,
+		PushedTags: pushTags,
 	}
 
 	sendEventIfNeed(historyData, isTriggered, now, event, eexp.MaxStep)

@@ -73,19 +73,18 @@ func (this *Judge) Send(items []*cmodel.JudgeItem, resp *cmodel.SimpleRpcRespons
 func (this *Judge) SendE(items []*cmodel.EMetric, resp *cmodel.SimpleRpcResponse) error {
 	cfg := g.Config()
 
-	// remain default is 11, why?
-	remain := cfg.Remain
+	listMaxLen := cfg.ListMaxLen
 	// 把当前时间的计算放在最外层，是为了减少获取时间时的系统调用开销
 	now := time.Now().Unix()
 
 	for _, item := range items {
-		exists := g.EFilterMap.Exists(item.Metric)
+		exists := g.EFilterMap.Exists(item.Key)
 		if !exists {
 			continue
 		}
 
 		pksum := utils.Md5(item.PK())
-		model.EHistoryBigMap[pksum[0:2]].PushFrontAndMaintain(pksum, item, remain, now)
+		model.EHistoryBigMap[pksum[0:2]].PushFrontAndMaintain(pksum, item, listMaxLen, now)
 
 	}
 	return nil

@@ -8,9 +8,7 @@ import (
 
 type SafeEExpMap struct {
 	sync.RWMutex
-	// join(filtersK=V1,",") => [exp1, exp2 ...]
-	// join(filtersK=V2,",") => [exp1, exp2 ...]
-	M map[string][]*model.EExp
+	M map[string][]model.EExp
 }
 
 type SafeEFilterMap struct {
@@ -19,17 +17,17 @@ type SafeEFilterMap struct {
 }
 
 var (
-	EExpMap = &SafeEExpMap{M: make(map[string][]*model.EExp)}
-	EFilterMap     = &SafeEFilterMap{M: make(map[string]string)}
+	EExpMap    = &SafeEExpMap{M: make(map[string][]model.EExp)}
+	EFilterMap = &SafeEFilterMap{M: make(map[string]string)}
 )
 
-func (this *SafeEExpMap) ReInit(m map[string][]*model.EExp) {
+func (this *SafeEExpMap) ReInit(m map[string][]model.EExp) {
 	this.Lock()
 	defer this.Unlock()
 	this.M = m
 }
 
-func (this *SafeEExpMap) Get() map[string][]*model.EExp {
+func (this *SafeEExpMap) Get() map[string][]model.EExp {
 	this.RLock()
 	defer this.RUnlock()
 	return this.M

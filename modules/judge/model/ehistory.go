@@ -73,7 +73,7 @@ func (this *EJudgeItemMap) CleanStale(before int64) {
 	this.BatchDelete(keys)
 }
 
-func (this *EJudgeItemMap) PushFrontAndMaintain(key string, val *cmodel.EMetric, maxCount int, now int64) {
+func (this *EJudgeItemMap) PushFrontAndMaintain(key string, val *cmodel.EMetric, maxCount uint32, now int64) {
 	if linkedList, exists := this.Get(key); exists {
 		needJudge := linkedList.PushFrontAndMaintain(val, maxCount)
 		if needJudge {

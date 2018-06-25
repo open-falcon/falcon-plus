@@ -25,6 +25,7 @@
         "listen": "0.0.0.0:6081"
     },
     "remain": 11,
+    "listMaxLen": 10240,
     "rpc": {
         "enabled": true,
         "listen": "0.0.0.0:6080"

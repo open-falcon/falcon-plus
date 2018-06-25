@@ -18,23 +18,23 @@ func SyncEExps() {
 }
 
 func syncEExps() {
-	var eeResp model.EExpResponse
-	err := g.HbsClient.Call("Judge.GetEExps", model.NullRpcRequest{}, &eeResp)
+	var resp model.EExpResponse
+	err := g.HbsClient.Call("Judge.GetEExps", model.NullRpcRequest{}, &resp)
 	if err != nil {
 		log.Println("[ERROR] Judge.GetEExps:", err)
 		return
 	}
 
-	rebuildEExpMap(&eeResp)
+	rebuildEExpMap(&resp)
 }
 
-func rebuildEExpMap(eeResp *model.EExpResponse) {
-	m := make(map[string][]*model.EExp)
-	for _, exp := range eeResp.EExps {
-		if _, exists := m[exp.Metric]; exists {
-			m[exp.Metric] = append(m[exp.Metric], exp)
+func rebuildEExpMap(resp *model.EExpResponse) {
+	m := make(map[string][]model.EExp)
+	for _, exp := range resp.EExps {
+		if _, exists := m[exp.Key]; exists {
+			m[exp.Key] = append(m[exp.Key], exp)
 		} else {
-			m[exp.Metric] = []*model.EExp{exp}
+			m[exp.Key] = []model.EExp{exp}
 		}
 	}
 
@@ -48,7 +48,7 @@ func syncEFilter() {
 	eeMap := g.EExpMap.Get()
 	for _, ees := range eeMap {
 		for _, eexp := range ees {
-			m[eexp.Metric] = eexp.Metric
+			m[eexp.Key] = eexp.Key
 		}
 	}
 

@@ -7,26 +7,27 @@ import (
 )
 
 type Function interface {
-	Compute(L *SafeELinkedList) (vs []*model.EHistoryData, leftValue float64, isTriggered bool, isEnough bool)
+	Compute(L *SafeELinkedList) (vs []*model.EHistoryData, leftValue interface{}, isTriggered bool, isEnough bool)
 }
 
 type AllFunction struct {
 	Function
-	Metric     string
-	Limit      int
+	Key        string
+	Limit      uint64
 	Operator   string
-	RightValue float64
+	RightValue interface{}
 }
 
-func (this AllFunction) Compute(L *SafeELinkedList) (vs []*model.EHistoryData, leftValue float64, isTriggered bool, isEnough bool) {
+func (this AllFunction) Compute(L *SafeELinkedList) (vs []*model.EHistoryData, leftValue interface{}, isTriggered bool, isEnough bool) {
 	vs, isEnough = L.HistoryData(this.Limit)
 	if !isEnough {
 		return
 	}
 
 	isTriggered = true
-	for i := 0; i < this.Limit; i++ {
-		value, ok := vs[i].Values[this.Metric]
+	var i uint64
+	for i = 0; i < this.Limit; i++ {
+		value, ok := vs[i].Filters[this.Key]
 		if !ok {
 			break
 		}
@@ -36,24 +37,76 @@ func (this AllFunction) Compute(L *SafeELinkedList) (vs []*model.EHistoryData, l
 		}
 	}
 
-	leftValue = vs[0].Values[this.Metric]
+	leftValue = vs[0].Filters[this.Key]
 	return
 }
 
-func checkIsTriggered(leftValue float64, operator string, rightValue float64) (isTriggered bool) {
-	switch operator {
-	case "=", "==":
-		isTriggered = math.Abs(leftValue-rightValue) < 0.0001
-	case "!=":
-		isTriggered = math.Abs(leftValue-rightValue) > 0.0001
-	case "<":
-		isTriggered = leftValue < rightValue
-	case "<=":
-		isTriggered = leftValue <= rightValue
-	case ">":
-		isTriggered = leftValue > rightValue
-	case ">=":
-		isTriggered = leftValue >= rightValue
+type CountFunction struct {
+	Function
+	Key        string
+	Ago        uint64
+	Hits       uint64
+	Operator   string
+	RightValue interface{}
+	Now        int64
+}
+
+func (this CountFunction) Compute(L *SafeELinkedList) (vs []*model.EHistoryData, leftValue interface{}, isTriggered bool, isEnough bool) {
+	vs, isEnough = L.HistoryDataByTime(this.Ago, this.Hits, uint64(this.Now))
+	if !isEnough {
+		return
+	}
+
+	isTriggered = true
+	var i uint64
+	for i = 0; i < this.Hits; i++ {
+		value, ok := vs[i].Filters[this.Key]
+		if !ok {
+			break
+		}
+		isTriggered = checkIsTriggered(value, this.Operator, this.RightValue)
+		if !isTriggered {
+			break
+		}
+	}
+
+	leftValue = vs[0].Filters[this.Key]
+	return
+}
+
+func checkIsTriggered(leftValueI interface{}, operator string, rightValueI interface{}) (isTriggered bool) {
+	switch rightValueI.(type) {
+	case string:
+		{
+			leftValue := leftValueI.(string)
+			rightValue := rightValueI.(string)
+			switch operator {
+			case "=", "==":
+				isTriggered = leftValue == rightValue
+			case "!=":
+				isTriggered = leftValue != rightValue
+			}
+
+		}
+	case float64:
+		{
+			leftValue := leftValueI.(float64)
+			rightValue := rightValueI.(float64)
+			switch operator {
+			case "=", "==":
+				isTriggered = math.Abs(leftValue-rightValue) < 0.0001
+			case "!=":
+				isTriggered = math.Abs(leftValue-rightValue) > 0.0001
+			case "<":
+				isTriggered = leftValue < rightValue
+			case "<=":
+				isTriggered = leftValue <= rightValue
+			case ">":
+				isTriggered = leftValue > rightValue
+			case ">=":
+				isTriggered = leftValue >= rightValue
+			}
+		}
 	}
 
 	return
