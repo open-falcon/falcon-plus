@@ -2,8 +2,6 @@ package model
 
 import (
 	"encoding/json"
-	"fmt"
-	"log"
 	"math"
 )
 
@@ -86,7 +84,6 @@ func (ee *EExp) HitFilters(m *map[string]interface{}) bool {
 				rightValue := filter.RightValue.(float64)
 
 				if !opResultFloat64(leftValue, filter.Operator, rightValue) {
-					log.Println(fmt.Sprintf("l:%v o:%v r:%v", leftValue, filter.Operator, rightValue))
 					return false
 				}
 
@@ -101,7 +98,6 @@ func (ee *EExp) HitFilters(m *map[string]interface{}) bool {
 				rightValue := filter.RightValue.(string)
 
 				if !opResultString(leftValue, filter.Operator, rightValue) {
-					log.Println(fmt.Sprintf("l:%v o:%v r:%v", leftValue, filter.Operator, rightValue))
 					return false
 				}
 
