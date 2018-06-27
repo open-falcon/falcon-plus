@@ -50,6 +50,7 @@ go get ./...
             "maxIdle": 4  //MySQL连接池配置，连接池允许的最大连接数，保持默认即可
         },
         "callTimeout": 5000,  //RPC调用超时时间，单位ms
+        "ioWorkerNum": 64, //底层io.Worker的数量, 注意: 这个功能是v0.2.1版本之后引入的，v0.2.1版本之前的配置文件不需要该参数
         "migrate": {  //扩容graph时历史数据自动迁移
             "enabled": false,  //true or false, 表示graph是否处于数据迁移状态
             "concurrency": 2, //数据迁移时的并发连接数，建议保持默认
