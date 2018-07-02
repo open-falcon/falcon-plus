@@ -53,7 +53,7 @@ If a community member engages in unacceptable behavior, the community organizers
 
 ## 6. Reporting Guidelines
 
-If you are subject to or witness unacceptable behavior, or have any other concerns, please notify a community organizer as soon as possible. root@open-falcon.org.
+If you are subject to or witness unacceptable behavior, or have any other concerns, please notify a community organizer as soon as possible. root@open-falcon.com.
 
 
 
@@ -73,7 +73,7 @@ This code of conduct and its related procedures also applies to unacceptable beh
 
 ## 9. Contact info
 
-root@open-falcon.org
+root@open-falcon.com
 
 ## 10. License and attribution
 

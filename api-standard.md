@@ -9,13 +9,13 @@
 ## 域名
 应尽量将API模块部署在专用域名之下。
 ```
-http://api.open-falcon.org
+http://api.open-falcon.com
 ```
 
 ## 版本(Versioning)
 应将API版本号放入URL。
 ```
-http://api.open-falcon.org/v1/
+http://api.open-falcon.com/v1/
 ```
 
 ## 路径(Endpoint)
@@ -28,9 +28,9 @@ http://api.open-falcon.org/v1/
 
 以Open-Falcon举例，API模块提供各种关于监控系统的信息，包括数据及报警：
 ```
-· http://api.open-falcon.org/v1/counters
-· http://api.open-falcon.org/v1/strategies
-· http://api.open-falcon.org/v1/points
+· http://api.open-falcon.com/v1/counters
+· http://api.open-falcon.com/v1/strategies
+· http://api.open-falcon.com/v1/points
 ```
 
 ## HTTP动词

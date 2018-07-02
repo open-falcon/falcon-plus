@@ -11,8 +11,8 @@
 
 # Documentations
 
-- [Usage](http://book.open-falcon.org)
-- [Open-Falcon API](http://open-falcon.org/falcon-plus)
+- [Usage](http://book.open-falcon.com)
+- [Open-Falcon API](http://open-falcon.com/falcon-plus)
 
 # Prerequisite
 
@@ -149,5 +149,5 @@ make clean all pack
 # Q&A
 
 - Any issue or question is welcome, Please feel free to open [github issues](https://github.com/open-falcon/falcon-plus/issues) :)
-- [FAQ](https://book.open-falcon.org/zh_0_2/faq/)
+- [FAQ](http://book.open-falcon.com/zh_0_2/faq/)
 
