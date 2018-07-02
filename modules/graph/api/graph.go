@@ -213,9 +213,12 @@ func (this *Graph) Query(param cmodel.GraphQueryParam, resp *cmodel.GraphQueryRe
 		itemIdx := 0
 		if dsType == g.DERIVE || dsType == g.COUNTER {
 			for ts < itemEndTs {
-				if itemIdx < items_size-1 && ts == items[itemIdx].Timestamp &&
-					ts == items[itemIdx+1].Timestamp-int64(step) {
-					val = cmodel.JsonFloat(items[itemIdx+1].Value-items[itemIdx].Value) / cmodel.JsonFloat(step)
+				if itemIdx < items_size-1 && ts == items[itemIdx].Timestamp {
+					if ts == items[itemIdx+1].Timestamp-int64(step) {
+						val = cmodel.JsonFloat(items[itemIdx+1].Value-items[itemIdx].Value) / cmodel.JsonFloat(step)
+					} else {
+						val = cmodel.JsonFloat(math.NaN())
+					}
 					if val < 0 {
 						val = cmodel.JsonFloat(math.NaN())
 					}
