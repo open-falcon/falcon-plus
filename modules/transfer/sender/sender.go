@@ -16,13 +16,14 @@ package sender
 
 import (
 	"fmt"
+	"log"
+
 	backend "github.com/open-falcon/falcon-plus/common/backend_pool"
 	cmodel "github.com/open-falcon/falcon-plus/common/model"
 	"github.com/open-falcon/falcon-plus/modules/transfer/g"
 	"github.com/open-falcon/falcon-plus/modules/transfer/proc"
 	rings "github.com/toolkits/consistent/rings"
 	nlist "github.com/toolkits/container/list"
-	"log"
 )
 
 const (
@@ -44,17 +45,19 @@ var (
 // 发送缓存队列
 // node -> queue_of_data
 var (
-	TsdbQueue   *nlist.SafeListLimited
-	JudgeQueues = make(map[string]*nlist.SafeListLimited)
-	GraphQueues = make(map[string]*nlist.SafeListLimited)
+	TsdbQueue     *nlist.SafeListLimited
+	JudgeQueues   = make(map[string]*nlist.SafeListLimited)
+	GraphQueues   = make(map[string]*nlist.SafeListLimited)
+	InfluxdbQueue *nlist.SafeListLimited
 )
 
 // 连接池
 // node_address -> connection_pool
 var (
-	JudgeConnPools     *backend.SafeRpcConnPools
-	TsdbConnPoolHelper *backend.TsdbConnPoolHelper
-	GraphConnPools     *backend.SafeRpcConnPools
+	JudgeConnPools         *backend.SafeRpcConnPools
+	TsdbConnPoolHelper     *backend.TsdbConnPoolHelper
+	GraphConnPools         *backend.SafeRpcConnPools
+	InfluxdbConnPoolHelper *backend.TsdbConnPoolHelper
 )
 
 // 初始化数据发送服务, 在main函数中调用
@@ -207,6 +210,18 @@ func convert2TsdbItem(d *cmodel.MetaData) *cmodel.TsdbItem {
 	t.Timestamp = d.Timestamp
 	t.Value = d.Value
 	return &t
+}
+
+// 将原始数据入到influxdb发送缓存队列, 实际上是将数据通过tsdb格式传输给influxdb的
+func Push2InfluxdbSendQueue(items []*cmodel.MetaData) {
+	for _, item := range items {
+		influxdbItem := convert2TsdbItem(item)
+		isSuccess := InfluxdbQueue.PushFront(influxdbItem)
+
+		if !isSuccess {
+			proc.SendToInfluxdbDropCnt.Incr()
+		}
+	}
 }
 
 func alignTs(ts int64, period int64) int64 {

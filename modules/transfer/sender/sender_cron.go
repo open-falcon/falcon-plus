@@ -15,11 +15,13 @@
 package sender
 
 import (
-	"github.com/open-falcon/falcon-plus/modules/transfer/proc"
-	"github.com/toolkits/container/list"
 	"log"
 	"strings"
 	"time"
+
+	"github.com/open-falcon/falcon-plus/modules/transfer/g"
+	"github.com/open-falcon/falcon-plus/modules/transfer/proc"
+	"github.com/toolkits/container/list"
 )
 
 const (
@@ -50,6 +52,15 @@ func startLogCron() {
 func refreshSendingCacheSize() {
 	proc.JudgeQueuesCnt.SetCnt(calcSendCacheSize(JudgeQueues))
 	proc.GraphQueuesCnt.SetCnt(calcSendCacheSize(GraphQueues))
+
+	cfg := g.Config()
+	if cfg.Tsdb.Enabled && TsdbQueue != nil {
+		proc.TsdbQueuesCnt.SetCnt(int64(TsdbQueue.Len()))
+	}
+
+	if cfg.Influxdb.Enabled && InfluxdbQueue != nil {
+		proc.InfluxdbQueuesCnt.SetCnt(int64(InfluxdbQueue.Len()))
+	}
 }
 func calcSendCacheSize(mapList map[string]*list.SafeListLimited) int64 {
 	var cnt int64 = 0

@@ -46,10 +46,15 @@ func initConnPools() {
 	GraphConnPools = backend.CreateSafeRpcConnPools(cfg.Graph.MaxConns, cfg.Graph.MaxIdle,
 		cfg.Graph.ConnTimeout, cfg.Graph.CallTimeout, graphInstances.ToSlice())
 
+	// influxdb
+	if cfg.Influxdb.Enabled {
+		InfluxdbConnPoolHelper = backend.NewTsdbConnPoolHelper(cfg.Influxdb.Address, cfg.Influxdb.MaxConns, cfg.Influxdb.MaxIdle, cfg.Influxdb.ConnTimeout, cfg.Influxdb.CallTimeout)
+	}
 }
 
 func DestroyConnPools() {
 	JudgeConnPools.Destroy()
 	GraphConnPools.Destroy()
 	TsdbConnPoolHelper.Destroy()
+	InfluxdbConnPoolHelper.Destroy()
 }

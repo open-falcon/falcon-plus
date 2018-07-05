@@ -16,13 +16,16 @@ package sender
 
 import (
 	"bytes"
+	"log"
+	"time"
+
+	backend "github.com/open-falcon/falcon-plus/common/backend_pool"
 	cmodel "github.com/open-falcon/falcon-plus/common/model"
 	"github.com/open-falcon/falcon-plus/modules/transfer/g"
 	"github.com/open-falcon/falcon-plus/modules/transfer/proc"
 	nsema "github.com/toolkits/concurrent/semaphore"
 	"github.com/toolkits/container/list"
-	"log"
-	"time"
+	nproc "github.com/toolkits/proc"
 )
 
 // send
@@ -37,6 +40,7 @@ func startSendTasks() {
 	judgeConcurrent := cfg.Judge.MaxConns
 	graphConcurrent := cfg.Graph.MaxConns
 	tsdbConcurrent := cfg.Tsdb.MaxConns
+	influxdbConcurrent := cfg.Influxdb.MaxConns
 
 	if tsdbConcurrent < 1 {
 		tsdbConcurrent = 1
@@ -48,6 +52,10 @@ func startSendTasks() {
 
 	if graphConcurrent < 1 {
 		graphConcurrent = 1
+	}
+
+	if influxdbConcurrent < 1 {
+		influxdbConcurrent = 1
 	}
 
 	// init send go-routines
@@ -64,7 +72,13 @@ func startSendTasks() {
 	}
 
 	if cfg.Tsdb.Enabled {
-		go forward2TsdbTask(tsdbConcurrent)
+		go forward2TsdbTask(tsdbConcurrent, cfg.Tsdb.Batch, cfg.Tsdb.MaxRetry,
+			TsdbConnPoolHelper, TsdbQueue, proc.SendToTsdbCnt, proc.SendToTsdbFailCnt)
+	}
+
+	if cfg.Influxdb.Enabled {
+		go forward2TsdbTask(influxdbConcurrent, cfg.Influxdb.Batch, cfg.Influxdb.MaxRetry,
+			InfluxdbConnPoolHelper, InfluxdbQueue, proc.SendToInfluxdbCnt, proc.SendToInfluxdbFailCnt)
 	}
 }
 
@@ -161,13 +175,25 @@ func forward2GraphTask(Q *list.SafeListLimited, node string, addr string, concur
 }
 
 // Tsdb定时任务, 将数据通过api发送到tsdb
-func forward2TsdbTask(concurrent int) {
-	batch := g.Config().Tsdb.Batch // 一次发送,最多batch条数据
-	retry := g.Config().Tsdb.MaxRetry
+func forward2TsdbTask(concurrent int, batch int, retry int, tsdbConnPoolHelper *backend.TsdbConnPoolHelper,
+	tsdbQueue *list.SafeListLimited, sendSuccessCnt *nproc.SCounterQps, sendFailCnt *nproc.SCounterQps) {
+
+	if concurrent < 1 {
+		concurrent = 1
+	}
+
+	if batch < 1 { // 一次发送,最多batch条数据,默认200条
+		batch = 200
+	}
+
+	if retry < 1 { // 发送失败时重试次数，默认3次
+		retry = 3
+	}
+
 	sema := nsema.NewSemaphore(concurrent)
 
 	for {
-		items := TsdbQueue.PopBackBy(batch)
+		items := tsdbQueue.PopBackBy(batch)
 		if len(items) == 0 {
 			time.Sleep(DefaultSendTaskSleepInterval)
 			continue
@@ -186,16 +212,16 @@ func forward2TsdbTask(concurrent int) {
 
 			var err error
 			for i := 0; i < retry; i++ {
-				err = TsdbConnPoolHelper.Send(tsdbBuffer.Bytes())
+				err = tsdbConnPoolHelper.Send(tsdbBuffer.Bytes())
 				if err == nil {
-					proc.SendToTsdbCnt.IncrBy(int64(len(itemList)))
+					sendSuccessCnt.IncrBy(int64(len(itemList)))
 					break
 				}
 				time.Sleep(100 * time.Millisecond)
 			}
 
 			if err != nil {
-				proc.SendToTsdbFailCnt.IncrBy(int64(len(itemList)))
+				sendFailCnt.IncrBy(int64(len(itemList)))
 				log.Println(err)
 				return
 			}
