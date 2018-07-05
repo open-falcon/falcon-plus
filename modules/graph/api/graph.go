@@ -17,6 +17,7 @@ package api
 import (
 	"fmt"
 	"math"
+	"strings"
 	"time"
 
 	log "github.com/Sirupsen/logrus"
@@ -130,40 +131,45 @@ func handleItems(items []*cmodel.GraphItem) {
 
 func (this *Graph) Query(param cmodel.GraphQueryParam, resp *cmodel.GraphQueryResponse) error {
 	var (
-		datas      []*cmodel.RRDData
-		datas_size int
+		rrdDatas    []*cmodel.RRDData
+		rrdDataSize int
+		sample      int
+		err         error
 	)
 
 	// statistics
 	proc.GraphQueryCnt.Incr()
 
-	cfg := g.Config()
-
 	// form empty response
 	resp.Values = []*cmodel.RRDData{}
 	resp.Endpoint = param.Endpoint
 	resp.Counter = param.Counter
-	dsType, step, exists := index.GetTypeAndStep(param.Endpoint, param.Counter) // complete dsType and step
+	dsType, step, exists := index.GetTypeAndStep(param.Endpoint, param.Counter)
 	if !exists {
 		return nil
 	}
 	resp.DsType = dsType
 	resp.Step = step
 
-	start_ts := param.Start - param.Start%int64(step)
-	end_ts := param.End - param.End%int64(step) + int64(step)
-	if end_ts-start_ts-int64(step) < 1 {
-		return nil
+	now := time.Now().Unix() - time.Now().Unix()%int64(step)
+	start := param.Start - param.Start%int64(step)
+	end := param.End - param.End%int64(step) + int64(step)
+	if end > now {
+		end = now
+	}
+	if end-start-int64(step) < 1 {
+		return fmt.Errorf("start ts and end ts is invalid")
 	}
 
+	// compute and check cache
 	md5 := cutils.Md5(param.Endpoint + "/" + param.Counter)
-	key := g.FormRrdCacheKey(md5, dsType, step)
-	filename := g.RrdFileName(cfg.RRD.Storage, md5, dsType, step)
+	ckey := g.FormRrdCacheKey(md5, dsType, step)
+	items, flag := store.GraphItems.FetchAll(ckey)
+	cache := checkCacheItem(items, start, end, step, dsType)
+	cacheSize := len(cache)
 
-	// read cached items
-	items, flag := store.GraphItems.FetchAll(key)
-	items_size := len(items)
-
+	//fetch rrd data
+	cfg := g.Config()
 	if cfg.Migrate.Enabled && flag&g.GRAPH_F_MISS != 0 {
 		node, _ := rrdtool.Consistent.Get(param.Endpoint + "/" + param.Counter)
 		done := make(chan error, 1)
@@ -175,149 +181,222 @@ func (this *Graph) Query(param cmodel.GraphQueryParam, resp *cmodel.GraphQueryRe
 			Reply:  res,
 		}
 		<-done
-		// fetch data from remote
-		datas = res.Values
-		datas_size = len(datas)
+		rrdDatas = res.Values
+		sample, rrdDataSize = getSampleAndSize(rrdDatas, step)
 	} else {
-		// read data from rrd file
-		// 从RRD中获取数据不包含起始时间点
-		// 例: start_ts=1484651400,step=60,则第一个数据时间为1484651460)
-		datas, _ = rrdtool.Fetch(filename, md5, param.ConsolFun, start_ts-int64(step), end_ts, step)
-		datas_size = len(datas)
+		rrdDatas, err = getRrdData(param, start, end, now, step, dsType)
+		if err != nil {
+			if cfg.Debug {
+				log.Printf("request %s:%s:%d", resp.Endpoint, resp.Counter, len(resp.Values))
+			}
+			proc.GraphQueryItemCnt.IncrBy(int64(len(resp.Values)))
+			return err
+		}
+		sample, rrdDataSize = getSampleAndSize(rrdDatas, step)
 	}
 
-	nowTs := time.Now().Unix()
-	lastUpTs := nowTs - nowTs%int64(step)
-	rra1StartTs := lastUpTs - int64(rrdtool.RRA1PointCnt*step)
-
-	// consolidated, do not merge
-	if start_ts < rra1StartTs {
-		resp.Values = datas
-		goto _RETURN_OK
+	if cacheSize == 0 {
+		resp.Values = rrdDatas
+		if cfg.Debug {
+			log.Printf("request %s:%s:%d", resp.Endpoint, resp.Counter, len(resp.Values))
+		}
+		proc.GraphQueryItemCnt.IncrBy(int64(len(resp.Values)))
+		return nil
 	}
 
-	// no cached items, do not merge
-	if items_size < 1 {
-		resp.Values = datas
-		goto _RETURN_OK
+	//complement and consolidate cache
+	lastTs := cache[0].Timestamp
+	rrdDataIdx := rrdDataSize - 1
+	for ; rrdDataIdx >= 0; rrdDataIdx-- {
+		if rrdDatas[rrdDataIdx].Timestamp < cache[0].Timestamp {
+			lastTs = rrdDatas[rrdDataIdx].Timestamp
+			break
+		}
 	}
-
-	// merge
-	{
-		// fmt cached items
-		var val cmodel.JsonFloat
-		cache := make([]*cmodel.RRDData, 0)
-
-		ts := items[0].Timestamp
-		itemEndTs := items[items_size-1].Timestamp
-		itemIdx := 0
-		if dsType == g.DERIVE || dsType == g.COUNTER {
-			for ts < itemEndTs {
-				if itemIdx < items_size-1 && ts == items[itemIdx].Timestamp {
-					if ts == items[itemIdx+1].Timestamp-int64(step) {
-						val = cmodel.JsonFloat(items[itemIdx+1].Value-items[itemIdx].Value) / cmodel.JsonFloat(step)
-					} else {
-						val = cmodel.JsonFloat(math.NaN())
-					}
-					if val < 0 {
-						val = cmodel.JsonFloat(math.NaN())
-					}
-					itemIdx++
-				} else {
-					// missing
-					val = cmodel.JsonFloat(math.NaN())
-				}
-
-				if ts >= start_ts && ts <= end_ts {
-					cache = append(cache, &cmodel.RRDData{Timestamp: ts, Value: val})
-				}
-				ts = ts + int64(step)
-			}
-		} else if dsType == g.GAUGE {
-			for ts <= itemEndTs {
-				if itemIdx < items_size && ts == items[itemIdx].Timestamp {
-					val = cmodel.JsonFloat(items[itemIdx].Value)
-					itemIdx++
-				} else {
-					// missing
-					val = cmodel.JsonFloat(math.NaN())
-				}
-
-				if ts >= start_ts && ts <= end_ts {
-					cache = append(cache, &cmodel.RRDData{Timestamp: ts, Value: val})
-				}
-				ts = ts + int64(step)
-			}
-		}
-		cache_size := len(cache)
-
-		// do merging
-		merged := make([]*cmodel.RRDData, 0)
-		if datas_size > 0 {
-			for _, val := range datas {
-				if val.Timestamp >= start_ts && val.Timestamp <= end_ts {
-					merged = append(merged, val) //rrdtool返回的数据,时间戳是连续的、不会有跳点的情况
-				}
-			}
-		}
-
-		if cache_size > 0 {
-			rrdDataSize := len(merged)
-			lastTs := cache[0].Timestamp
-
-			// find junction
-			rrdDataIdx := 0
-			for rrdDataIdx = rrdDataSize - 1; rrdDataIdx >= 0; rrdDataIdx-- {
-				if merged[rrdDataIdx].Timestamp < cache[0].Timestamp {
-					lastTs = merged[rrdDataIdx].Timestamp
-					break
-				}
-			}
-
-			// fix missing
-			for ts := lastTs + int64(step); ts < cache[0].Timestamp; ts += int64(step) {
-				merged = append(merged, &cmodel.RRDData{Timestamp: ts, Value: cmodel.JsonFloat(math.NaN())})
-			}
-
-			// merge cached items to result
-			rrdDataIdx += 1
-			for cacheIdx := 0; cacheIdx < cache_size; cacheIdx++ {
-				if rrdDataIdx < rrdDataSize {
-					if !math.IsNaN(float64(cache[cacheIdx].Value)) {
-						merged[rrdDataIdx] = cache[cacheIdx]
-					}
-				} else {
-					merged = append(merged, cache[cacheIdx])
-				}
-				rrdDataIdx++
-			}
-		}
-		mergedSize := len(merged)
-
-		// fmt result
-		ret_size := int((end_ts - start_ts) / int64(step))
-		if dsType == g.GAUGE {
-			ret_size += 1
-		}
-		ret := make([]*cmodel.RRDData, ret_size, ret_size)
-		mergedIdx := 0
-		ts = start_ts
-		for i := 0; i < ret_size; i++ {
-			if mergedIdx < mergedSize && ts == merged[mergedIdx].Timestamp {
-				ret[i] = merged[mergedIdx]
-				mergedIdx++
-			} else {
-				ret[i] = &cmodel.RRDData{Timestamp: ts, Value: cmodel.JsonFloat(math.NaN())}
-			}
-			ts += int64(step)
-		}
-		resp.Values = ret
+	fullCache := make([]*cmodel.RRDData, 0)
+	for ts := lastTs + int64(step); ts < cache[0].Timestamp; ts += int64(step) {
+		fullCache = append(fullCache, &cmodel.RRDData{Timestamp: ts, Value: cmodel.JsonFloat(math.NaN())})
 	}
+	fullCache = append(fullCache, cache...)
+	for ts := cache[cacheSize-1].Timestamp + int64(step); ts <= end; ts = ts + int64(step) {
+		fullCache = append(fullCache, &cmodel.RRDData{Timestamp: ts, Value: cmodel.JsonFloat(math.NaN())})
+	}
+	xff := 0.5
+	sampleCache := consolidate(fullCache, xff, param.ConsolFun, sample)
 
-_RETURN_OK:
-	// statistics
-	proc.GraphQueryItemCnt.IncrBy(int64(len(resp.Values)))
+	//combine rrd data with conslidated cache
+	result := make([]*cmodel.RRDData, 0)
+	result = append(result, rrdDatas[:rrdDataIdx+1]...)
+	result = append(result, sampleCache...)
+
+	resp.Values = result
 	return nil
+}
+
+func getSampleAndSize(rrdDatas []*cmodel.RRDData, step int) (int, int) {
+	var rrdDataSize, sample int
+	rrdDataSize = len(rrdDatas)
+	if rrdDataSize >= 2 {
+		sample = int(rrdDatas[1].Timestamp-rrdDatas[0].Timestamp) / step
+	} else {
+		sample = 1
+	}
+	return sample, rrdDataSize
+}
+
+func getRrdData(param cmodel.GraphQueryParam, start int64, end int64, now int64, step int, dsType string) ([]*cmodel.RRDData, error) {
+	md5 := cutils.Md5(param.Endpoint + "/" + param.Counter)
+	filename := g.RrdFileName(g.Config().RRD.Storage, md5, dsType, step)
+
+	datas := make([]*cmodel.RRDData, 0)
+	rrdDatas := make([]*cmodel.RRDData, 0)
+	rra1StartTs := now - int64(rrdtool.RRA1PointCnt*step)
+
+	if start < rra1StartTs {
+		datas, _ = rrdtool.Fetch(filename, md5, param.ConsolFun, start-int64(step), end, step)
+		if len(datas) >= 2 && datas[1].Timestamp-datas[0].Timestamp <= int64(step) {
+			return rrdDatas, fmt.Errorf("Fetching data from rrd fails")
+		}
+	} else {
+		//注意:获取12个小时以内的数据时,必须使用AVERAGE方法
+		datas, _ = rrdtool.Fetch(filename, md5, "AVERAGE", start-int64(step), end, step)
+	}
+
+	for _, val := range datas {
+		if val.Timestamp >= start && val.Timestamp <= end {
+			rrdDatas = append(rrdDatas, val)
+		}
+	}
+
+	return rrdDatas, nil
+}
+
+func checkCacheItem(items []*cmodel.GraphItem, start int64, end int64, step int, dsType string) []*cmodel.RRDData {
+	cache := make([]*cmodel.RRDData, 0)
+	if len(items) == 0 {
+		return cache
+	}
+
+	var val cmodel.JsonFloat
+	ts := items[0].Timestamp
+	itemsSize := len(items)
+	itemEndTs := items[itemsSize-1].Timestamp
+	itemIdx := 0
+	if dsType == g.DERIVE || dsType == g.COUNTER {
+		for ts <= itemEndTs-int64(step) {
+			val = cmodel.JsonFloat(math.NaN())
+			if itemIdx < itemsSize-1 && ts == items[itemIdx].Timestamp {
+				if ts+int64(step) == items[itemIdx+1].Timestamp {
+					dt := items[itemIdx+1].Timestamp - ts
+					val = cmodel.JsonFloat(items[itemIdx+1].Value-items[itemIdx].Value) / cmodel.JsonFloat(dt)
+				}
+				if val < 0 {
+					val = cmodel.JsonFloat(math.NaN())
+				}
+				itemIdx++
+			}
+			if ts+int64(step) >= start && ts+int64(step) <= end {
+				cache = append(cache, &cmodel.RRDData{Timestamp: ts + int64(step), Value: val})
+			}
+			ts = ts + int64(step)
+		}
+	} else if dsType == g.GAUGE {
+		for ts <= itemEndTs {
+			if itemIdx < itemsSize && ts == items[itemIdx].Timestamp {
+				val = cmodel.JsonFloat(items[itemIdx].Value)
+				itemIdx++
+			} else {
+				val = cmodel.JsonFloat(math.NaN())
+			}
+
+			if ts >= start && ts <= end {
+				cache = append(cache, &cmodel.RRDData{Timestamp: ts, Value: val})
+			}
+			ts = ts + int64(step)
+		}
+	}
+	return cache
+}
+
+func consolidate(fullCache []*cmodel.RRDData, xff float64, cf string, sample int) []*cmodel.RRDData {
+	var val cmodel.JsonFloat
+	result := make([]*cmodel.RRDData, 0)
+	for i := 0; i < len(fullCache); i = i + sample {
+		res := make([]*cmodel.RRDData, 0)
+		num := 0
+		for j := i; j < i+sample && j < len(fullCache); j++ {
+			if !isNaN(fullCache[i].Value) {
+				num++
+			}
+			res = append(res, fullCache[j])
+		}
+		if len(res) == sample {
+			ts := fullCache[i+sample-1].Timestamp
+			if float64(num) >= xff*float64(sample) {
+				val = math2(res, cf)
+				result = append(result, &cmodel.RRDData{Timestamp: ts, Value: val})
+			} else {
+				result = append(result, &cmodel.RRDData{Timestamp: ts, Value: cmodel.JsonFloat(math.NaN())})
+			}
+		}
+	}
+	return result
+}
+
+func math2(res []*cmodel.RRDData, cf string) cmodel.JsonFloat {
+	upperCf := strings.ToUpper(cf)
+	var result cmodel.JsonFloat
+	switch upperCf {
+	case "AVERAGE":
+		result = Average(res)
+	case "MAX":
+		result = Max(res)
+	case "MIN":
+		result = Min(res)
+	}
+	return result
+}
+
+func Average(res []*cmodel.RRDData) cmodel.JsonFloat {
+	var sum cmodel.JsonFloat
+	var num int64
+	for _, v := range res {
+		if !isNaN(v.Value) {
+			sum = sum + v.Value
+			num++
+		}
+	}
+	return sum / cmodel.JsonFloat(num)
+}
+
+func Min(res []*cmodel.RRDData) cmodel.JsonFloat {
+	min := cmodel.JsonFloat(math.NaN())
+	for _, v := range res {
+		if isNaN(min) && !isNaN(v.Value) {
+			min = v.Value
+		}
+		if !isNaN(min) && !isNaN(v.Value) && min > v.Value {
+			min = v.Value
+		}
+	}
+	return min
+}
+
+func Max(res []*cmodel.RRDData) cmodel.JsonFloat {
+	max := cmodel.JsonFloat(math.NaN())
+	for _, v := range res {
+		if isNaN(max) && !isNaN(v.Value) {
+			max = v.Value
+		}
+		if !isNaN(max) && !isNaN(v.Value) && max < v.Value {
+			max = v.Value
+		}
+	}
+	return max
+}
+
+func isNaN(v cmodel.JsonFloat) bool {
+	return math.IsNaN(float64(v))
 }
 
 //从内存索引、MySQL中删除counter，并从磁盘上删除对应rrd文件
