@@ -27,6 +27,7 @@
         "sms": "http://127.0.0.1:10086/sms",
         "mail": "http://127.0.0.1:10086/mail",
         "dashboard": "http://127.0.0.1:8081",
+        "dashboard_display_uri": "http://display.example.com",
         "plus_api":"http://127.0.0.1:8080",
         "plus_api_token": "default-token-used-in-server-side"
     },
