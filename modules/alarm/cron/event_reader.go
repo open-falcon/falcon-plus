@@ -37,7 +37,8 @@ func ReadHighEvent() {
 			time.Sleep(time.Second)
 			continue
 		}
-		consume(event, true)
+		//consume should by async
+		go consume(event, true)
 	}
 }
 
@@ -53,7 +54,8 @@ func ReadLowEvent() {
 			time.Sleep(time.Second)
 			continue
 		}
-		consume(event, false)
+		//consume should by async
+		go consume(event, false)
 	}
 }
 
@@ -87,7 +89,8 @@ func popEvent(queues []string) (*cmodel.Event, error) {
 	log.Debugf("pop event: %s", event.String())
 
 	//insert event into database
-	eventmodel.InsertEvent(&event)
+	// insert todb should by async
+	go eventmodel.InsertEvent(&event)
 	// events no longer saved in memory
 
 	return &event, nil
