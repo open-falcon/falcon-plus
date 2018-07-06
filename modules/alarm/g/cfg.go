@@ -41,6 +41,7 @@ type ApiConfig struct {
 	Sms          string `json:"sms"`
 	Mail         string `json:"mail"`
 	Dashboard    string `json:"dashboard"`
+	DashboardDisplayURI string `json:"dashboard_display_uri"`
 	PlusApi      string `json:"plus_api"`
 	PlusApiToken string `json:"plus_api_token"`
 	IM           string `json:"im"`
