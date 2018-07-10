@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS event_cases(
 */
 DROP TABLE IF EXISTS events;
 CREATE TABLE IF NOT EXISTS events (
-                id MEDIUMINT NOT NULL AUTO_INCREMENT,
+                id int(10) NOT NULL AUTO_INCREMENT,
                 event_caseId VARCHAR(50),
                 step int(10) unsigned,
                 cond VARCHAR(200) NOT NULL,

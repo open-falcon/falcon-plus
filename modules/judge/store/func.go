@@ -263,6 +263,9 @@ func atois(s string) (ret []int, err error) {
 
 // @str: e.g. all(#3) sum(#3) avg(#10) diff(#10)
 func ParseFuncFromString(str string, operator string, rightValue float64) (fn Function, err error) {
+	if str == "" {
+		return nil, fmt.Errorf("func can not be null!")
+	}
 	idx := strings.Index(str, "#")
 	args, err := atois(str[idx+1 : len(str)-1])
 	if err != nil {

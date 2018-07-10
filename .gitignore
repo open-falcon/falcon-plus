@@ -5,3 +5,4 @@ out/
 *.tar.gz
 docs/_site
 *idea*
+.idea

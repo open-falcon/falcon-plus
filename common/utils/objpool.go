@@ -15,11 +15,8 @@
 package utils
 
 import (
-	"crypto/md5"
-	"encoding/hex"
+	"bytes"
+	"sync"
 )
 
-func Md5(raw string) string {
-	h := md5.Sum([]byte(raw))
-	return hex.EncodeToString(h[:])
-}
+var bufferPool = sync.Pool{New: func() interface{} { return new(bytes.Buffer) }}

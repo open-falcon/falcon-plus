@@ -15,9 +15,10 @@
 package g
 
 import (
-	"github.com/open-falcon/falcon-plus/common/model"
 	"sync"
 	"time"
+
+	"github.com/open-falcon/falcon-plus/common/model"
 )
 
 type SafeStrategyMap struct {
@@ -38,11 +39,17 @@ type SafeEventMap struct {
 	M map[string]*model.Event
 }
 
+type SafeFilterMap struct {
+	sync.RWMutex
+	M map[string]string
+}
+
 var (
 	HbsClient     *SingleConnRpcClient
 	StrategyMap   = &SafeStrategyMap{M: make(map[string][]model.Strategy)}
 	ExpressionMap = &SafeExpressionMap{M: make(map[string][]*model.Expression)}
 	LastEvents    = &SafeEventMap{M: make(map[string]*model.Event)}
+	FilterMap     = &SafeFilterMap{M: make(map[string]string)}
 )
 
 func InitHbsClient() {
@@ -87,4 +94,19 @@ func (this *SafeEventMap) Set(key string, event *model.Event) {
 	this.Lock()
 	defer this.Unlock()
 	this.M[key] = event
+}
+
+func (this *SafeFilterMap) ReInit(m map[string]string) {
+	this.Lock()
+	defer this.Unlock()
+	this.M = m
+}
+
+func (this *SafeFilterMap) Exists(key string) bool {
+	this.RLock()
+	defer this.RUnlock()
+	if _, ok := this.M[key]; ok {
+		return true
+	}
+	return false
 }

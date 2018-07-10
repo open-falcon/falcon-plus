@@ -42,12 +42,16 @@ type io_task_t struct {
 
 var (
 	Out_done_chan chan int
-	io_task_chan  chan *io_task_t
+	io_task_chans []chan *io_task_t
 )
 
-func init() {
+func InitChannel() {
 	Out_done_chan = make(chan int, 1)
-	io_task_chan = make(chan *io_task_t, 16)
+	ioWorkerNum := g.Config().IOWorkerNum
+	io_task_chans = make([]chan *io_task_t, ioWorkerNum)
+	for i := 0; i < ioWorkerNum; i++ {
+		io_task_chans[i] = make(chan *io_task_t, 16)
+	}
 }
 
 func syncDisk() {
@@ -87,34 +91,39 @@ func writeFile(filename string, data []byte, perm os.FileMode) error {
 }
 
 func ioWorker() {
-	var err error
-	for {
-		select {
-		case task := <-io_task_chan:
-			if task.method == IO_TASK_M_READ {
-				if args, ok := task.args.(*readfile_t); ok {
-					args.data, err = ioutil.ReadFile(args.filename)
-					task.done <- err
-				}
-			} else if task.method == IO_TASK_M_WRITE {
-				//filename must not exist
-				if args, ok := task.args.(*g.File); ok {
-					baseDir := file.Dir(args.Filename)
-					if err = file.InsureDir(baseDir); err != nil {
-						task.done <- err
+	ioWorkerNum := g.Config().IOWorkerNum
+	for i := 0; i < ioWorkerNum; i++ {
+		go func(i int) {
+			var err error
+			for {
+				select {
+				case task := <-io_task_chans[i]:
+					if task.method == IO_TASK_M_READ {
+						if args, ok := task.args.(*readfile_t); ok {
+							args.data, err = ioutil.ReadFile(args.filename)
+							task.done <- err
+						}
+					} else if task.method == IO_TASK_M_WRITE {
+						//filename must not exist
+						if args, ok := task.args.(*g.File); ok {
+							baseDir := file.Dir(args.Filename)
+							if err = file.InsureDir(baseDir); err != nil {
+								task.done <- err
+							}
+							task.done <- writeFile(args.Filename, args.Body, 0644)
+						}
+					} else if task.method == IO_TASK_M_FLUSH {
+						if args, ok := task.args.(*flushfile_t); ok {
+							task.done <- flushrrd(args.filename, args.items)
+						}
+					} else if task.method == IO_TASK_M_FETCH {
+						if args, ok := task.args.(*fetch_t); ok {
+							args.data, err = fetch(args.filename, args.cf, args.start, args.end, args.step)
+							task.done <- err
+						}
 					}
-					task.done <- writeFile(args.Filename, args.Body, 0644)
-				}
-			} else if task.method == IO_TASK_M_FLUSH {
-				if args, ok := task.args.(*flushfile_t); ok {
-					task.done <- flushrrd(args.filename, args.items)
-				}
-			} else if task.method == IO_TASK_M_FETCH {
-				if args, ok := task.args.(*fetch_t); ok {
-					args.data, err = fetch(args.filename, args.cf, args.start, args.end, args.step)
-					task.done <- err
 				}
 			}
-		}
+		}(i)
 	}
 }

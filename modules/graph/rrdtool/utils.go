@@ -12,24 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package test
+package rrdtool
 
 import (
-	"testing"
+	"strconv"
 
-	log "github.com/Sirupsen/logrus"
-	"github.com/open-falcon/falcon-plus/modules/api/app/utils"
-	. "github.com/smartystreets/goconvey/convey"
-	"github.com/spf13/viper"
+	"github.com/open-falcon/falcon-plus/modules/graph/g"
 )
 
-func TestHash(t *testing.T) {
-	viper.AddConfigPath("../../")
-	viper.SetConfigName("cfg_test")
-	viper.ReadInConfig()
-	log.SetLevel(log.DebugLevel)
-	Convey("Test Hash method", t, func() {
-		val := utils.HashIt("test2")
-		So(val, ShouldEqual, "c0fc7c3e09f7efc71567b453ec5b9cd2")
-	})
+// getIndex
+// 输入: md5
+// 输出: slice的index
+func getIndex(md5 string) (index int) {
+	batchNum := g.Config().IOWorkerNum
+	firstBytesSize := g.Config().FirstBytesSize
+
+	if batchNum <= 1 || len(md5) < firstBytesSize || firstBytesSize == 0 {
+		return 0
+	}
+
+	m, err := strconv.ParseInt(md5[0:firstBytesSize], 16, 64)
+	if err != nil {
+		return 0
+	}
+
+	return int(m) % int(batchNum)
 }

@@ -17,10 +17,11 @@ package cron
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/open-falcon/falcon-plus/common/model"
-	"github.com/open-falcon/falcon-plus/modules/judge/g"
 	"log"
 	"time"
+
+	"github.com/open-falcon/falcon-plus/common/model"
+	"github.com/open-falcon/falcon-plus/modules/judge/g"
 )
 
 func SyncStrategies() {
@@ -28,6 +29,7 @@ func SyncStrategies() {
 	for {
 		syncStrategies()
 		syncExpression()
+		syncFilter()
 		time.Sleep(duration)
 	}
 }
@@ -91,4 +93,26 @@ func rebuildExpressionMap(expressionResponse *model.ExpressionResponse) {
 	}
 
 	g.ExpressionMap.ReInit(m)
+}
+
+func syncFilter() {
+	m := make(map[string]string)
+
+	//M map[string][]model.Strategy
+	strategyMap := g.StrategyMap.Get()
+	for _, strategies := range strategyMap {
+		for _, strategy := range strategies {
+			m[strategy.Metric] = strategy.Metric
+		}
+	}
+
+	//M map[string][]*model.Expression
+	expressionMap := g.ExpressionMap.Get()
+	for _, expressions := range expressionMap {
+		for _, expression := range expressions {
+			m[expression.Metric] = expression.Metric
+		}
+	}
+
+	g.FilterMap.ReInit(m)
 }
