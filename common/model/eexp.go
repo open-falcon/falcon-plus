@@ -2,7 +2,9 @@ package model
 
 import (
 	"encoding/json"
+	"log"
 	"math"
+	"strconv"
 )
 
 type Filter struct {
@@ -67,6 +69,7 @@ func opResultString(leftValue string, operator string, rightValue string) (isTri
 }
 
 func (ee *EExp) HitFilters(m *map[string]interface{}) bool {
+	var err error
 	for k, filter := range ee.Filters {
 		valueI, ok := (*m)[k]
 		if !ok {
@@ -76,9 +79,21 @@ func (ee *EExp) HitFilters(m *map[string]interface{}) bool {
 		switch filter.RightValue.(type) {
 		case float64:
 			{
-				leftValue, ok := valueI.(float64)
-				if !ok {
-					return false
+
+				var leftValue float64
+				leftValueStr, ok := valueI.(string)
+				if ok {
+					leftValue, err = strconv.ParseFloat(leftValueStr, 64)
+					if err != nil {
+						log.Println("strconv.ParseFloat failed", err)
+						return false
+					}
+				} else {
+					leftValue, ok = valueI.(float64)
+					if !ok {
+						log.Println("parse in float64 failed")
+						return false
+					}
 				}
 
 				rightValue := filter.RightValue.(float64)
@@ -92,6 +107,7 @@ func (ee *EExp) HitFilters(m *map[string]interface{}) bool {
 			{
 				leftValue, ok := valueI.(string)
 				if !ok {
+					log.Println("parse in string failed")
 					return false
 				}
 
