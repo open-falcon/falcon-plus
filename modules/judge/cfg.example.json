@@ -35,7 +35,7 @@
         "callTimeout": 5000,
         "connTimeout": 1000,
         "dsn": {
-            "history": "falcon:falcon@tcp(127.0.0.1:3306)/falcon_history?loc=Local&parseTime=true"
+            "history": "falcon:falcon@tcp(127.0.0.1:3306)/falcon?loc=Local&parseTime=true"
         },
         "enabled": true,
         "maxConns": 32,
