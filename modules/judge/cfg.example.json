@@ -37,7 +37,7 @@
         "dsn": {
             "history": "falcon:falcon@tcp(127.0.0.1:3306)/falcon?loc=Local&parseTime=true"
         },
-        "enabled": true,
+        "enabled": false,
         "maxConns": 32,
         "maxIdle": 32,
         "retry": 3
