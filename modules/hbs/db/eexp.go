@@ -189,6 +189,7 @@ func parseEExp(s string) (*model.EExp, error) {
 	ee := model.EExp{}
 	ee.Filters = map[string]model.Filter{}
 
+	s = strings.Trim(s, ";")
 	s = strings.TrimSpace(s)
 	if s == "" {
 		err = errors.New("eexp is empty")
