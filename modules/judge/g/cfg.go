@@ -40,6 +40,7 @@ type HbsConfig struct {
 
 type RedisConfig struct {
 	Dsn          string `json:"dsn"`
+	Password     string `json:"Password"`
 	MaxIdle      int    `json:"maxIdle"`
 	ConnTimeout  int    `json:"connTimeout"`
 	ReadTimeout  int    `json:"readTimeout"`

@@ -25,6 +25,8 @@ var RedisConnPool *redis.Pool
 func InitRedisConnPool() {
 	redisConfig := Config().Redis
 
+	password := redisConfig.Password
+
 	RedisConnPool = &redis.Pool{
 		MaxIdle:     redisConfig.MaxIdle,
 		IdleTimeout: 240 * time.Second,
@@ -32,6 +34,13 @@ func InitRedisConnPool() {
 			c, err := redis.Dial("tcp", redisConfig.Addr)
 			if err != nil {
 				return nil, err
+			}
+			if password != "" {
+				if _, err := c.Do("AUTH", password); err != nil {
+					c.Close()
+					return nil, err
+				}
+
 			}
 			return c, err
 		},
