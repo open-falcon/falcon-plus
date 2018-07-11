@@ -4,6 +4,7 @@
         "minInterval": 300,
         "queuePattern": "event:p%v",
         "redis": {
+		"password": "",
             "connTimeout": 5000,
             "dsn": "127.0.0.1:6379",
             "maxIdle": 5,
