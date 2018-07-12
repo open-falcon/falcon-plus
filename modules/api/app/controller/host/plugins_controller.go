@@ -26,7 +26,7 @@ import (
 
 type APICreatePluginInput struct {
 	GrpId   int64  `json:"hostgroup_id" binding:"required"`
-	DirPaht string `json:"dir_path" binding:"required"`
+	DirPath string `json:"dir_path" binding:"required"`
 }
 
 func CreatePlugin(c *gin.Context) {
@@ -47,7 +47,7 @@ func CreatePlugin(c *gin.Context) {
 			return
 		}
 	}
-	plugin := f.Plugin{Dir: inputs.DirPaht, GrpId: inputs.GrpId, CreateUser: user.Name}
+	plugin := f.Plugin{Dir: inputs.DirPath, GrpId: inputs.GrpId, CreateUser: user.Name}
 	if dt := db.Falcon.Save(&plugin); dt.Error != nil {
 		h.JSONR(c, expecstatus, dt.Error)
 		return
