@@ -49,4 +49,3 @@ func ComputeStdDeviation(values []float64) float64 {
 	stdDiv = ComputeMean(vp)
 	return float64(math.Sqrt(float64(stdDiv)))
 }
-
