@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"regexp"
 	"strconv"
+	"text/template"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/gin-gonic/gin"
@@ -37,6 +38,7 @@ func GetHostGroups(c *gin.Context) {
 	pageTmp := c.DefaultQuery("page", "")
 	limitTmp := c.DefaultQuery("limit", "")
 	q := c.DefaultQuery("q", ".+")
+	q = template.HTMLEscapeString(q)
 	page, limit, err = h.PageParser(pageTmp, limitTmp)
 	if err != nil {
 		h.JSONR(c, badstatus, err.Error())

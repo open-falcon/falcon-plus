@@ -19,6 +19,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"text/template"
 	"time"
 
 	log "github.com/Sirupsen/logrus"
@@ -482,6 +483,7 @@ func UserList(c *gin.Context) {
 		return
 	}
 	q := c.DefaultQuery("q", ".+")
+	q = template.HTMLEscapeString(q)
 	var user []uic.User
 	var dt *gorm.DB
 	if limit != -1 && page != -1 {
