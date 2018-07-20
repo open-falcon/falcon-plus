@@ -35,6 +35,10 @@ func configPushRoutes() {
 			http.Error(w, "connot decode body", http.StatusBadRequest)
 			return
 		}
+		if g.Config().Http.MaxMetricBodyLenPerRequest != 0 && len(metrics) > g.Config().Http.MaxMetricBodyLenPerRequest {
+			http.Error(w, "metrics exceed maxMetricValueSize", http.StatusBadRequest)
+			return
+		}
 
 		g.SendToTransfer(metrics)
 		w.Write([]byte("success"))

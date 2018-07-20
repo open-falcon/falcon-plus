@@ -45,9 +45,10 @@ type TransferConfig struct {
 }
 
 type HttpConfig struct {
-	Enabled  bool   `json:"enabled"`
-	Listen   string `json:"listen"`
-	Backdoor bool   `json:"backdoor"`
+	Enabled                    bool   `json:"enabled"`
+	Listen                     string `json:"listen"`
+	Backdoor                   bool   `json:"backdoor"`
+	MaxMetricBodyLenPerRequest int    `json:"maxMetricSizePerRequest"`
 }
 
 type CollectorConfig struct {
