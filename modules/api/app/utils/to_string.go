@@ -63,9 +63,9 @@ func ArrStringsToString(arr []string) (result string, err error) {
 	result = ""
 	for indx, a := range arr {
 		if indx == 0 {
-			result = fmt.Sprintf("\"%v\"", a)
+			result = fmt.Sprintf("'%v'", a)
 		} else {
-			result = fmt.Sprintf("%v,\"%v\"", result, a)
+			result = fmt.Sprintf("%v,'%v'", result, a)
 		}
 	}
 	if result == "" {
