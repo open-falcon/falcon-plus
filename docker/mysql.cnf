@@ -1,3 +1,0 @@
-[mysqld]
-max_connections  = 10000
-open-files-limit = 10000

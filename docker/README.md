@@ -1,16 +1,106 @@
-## Running falcon-plus container
+## Running open-falcon container
 
-    docker pull openfalcon/falcon-plus:0.2.0
-    docker run -itd -p 8081:8081 openfalcon/falcon-plus:0.2.0 bash /run.sh hbs
+`the latest version in docker hub is v0.2.1`
 
-## Running falcon-plus container with docker-compose
+##### 1. Start mysql and init the mysql table before the first running
+```
+    ## start mysql in container
+    docker run -itd \
+        --name falcon-mysql \
+        -v /home/work/mysql-data:/var/lib/mysql \
+        -e MYSQL_ROOT_PASSWORD=test123456 \
+        -p 3306:3306 \
+        mysql:5.7
 
-    docker-compose -f init.yml up -d falcon-plus
+    ## init mysql table before the first running
+    cd /tmp && \
+    git clone https://github.com/open-falcon/falcon-plus && \
+    cd /tmp/falcon-plus/ && \
+    for x in `ls ./scripts/mysql/db_schema/*.sql`; do
+        echo init mysql table $x ...;
+        docker exec -i falcon-mysql mysql -uroot -ptest123456 < $x;
+    done
 
-## Running mysql and redis container
+    rm -rf /tmp/falcon-plus/
+```
 
-    docker-compose -f init.yml up -d mysql redis
+##### 2. Start redis in container
+```
+docker run --name falcon-redis -p6379:6379 -d redis:4-alpine3.8
+```
 
-## Stop and Remove containers
+##### 3. Start falcon-plus modules in one container
 
-    docker-compose -f init.yml rm -f
+```
+    ## pull images from hub.docker.com/openfalcon
+    docker pull openfalcon/falcon-plus:v0.2.1
+    
+    ## run falcon-plus container
+    docker run -itd --name falcon-plus \
+         --link=falcon-mysql:db.falcon \
+         --link=falcon-redis:redis.falcon \
+         -p 8433:8433 \
+         -p 8080:8080 \
+         -e MYSQL_PORT=root:test123456@tcp\(db.falcon:3306\) \
+         -e REDIS_PORT=redis.falcon:6379  \
+         -v /home/work/open-falcon/data:/open-falcon/data \
+         -v /home/work/open-falcon/logs:/open-falcon/logs \
+         openfalcon/falcon-plus:v0.2.1
+    
+    ## start falcon backend modules, such as graph,api,etc.
+    docker exec falcon-plus sh ctrl.sh start \
+            graph hbs judge transfer nodata aggregator agent gateway api alarm
+    
+    ## or you can just start/stop/restart specific module as: 
+    docker exec falcon-plus sh ctrl.sh start/stop/restart xxx
+
+    ## check status of backend modules
+    docker exec falcon-plus ./open-falcon check
+    
+    ## or you can check logs at /home/work/open-falcon/logs/ in your host
+    ls -l /home/work/open-falcon/logs/
+    
+```
+
+##### 4. Start falcon-dashboard in container
+```
+    docker run -itd --name falcon-dashboard \
+        -p 8081:8081 \
+        --link=falcon-mysql:db.falcon \
+        --link=falcon-plus:api.falcon \
+        -e API_ADDR=http://api.falcon:8080/api/v1 \
+        -e PORTAL_DB_HOST=db.falcon \
+        -e PORTAL_DB_PORT=3306 \
+        -e PORTAL_DB_USER=root \
+        -e PORTAL_DB_PASS=test123456 \
+        -e PORTAL_DB_NAME=falcon_portal \
+        -e ALARM_DB_HOST=db.falcon \
+        -e ALARM_DB_PORT=3306 \
+        -e ALARM_DB_USER=root \
+        -e ALARM_DB_PASS=test123456 \
+        -e ALARM_DB_NAME=alarms \
+        -w /open-falcon/dashboard falcon-dashboard:v0.2.1  \
+       './control startfg'
+```
+
+----
+
+## Building open-falcon images from source code
+
+##### Building falcon-plus
+
+```
+    cd /tmp && \
+    git clone https://github.com/open-falcon/falcon-plus && \
+    cd /tmp/falcon-plus/ && \
+    docker build -t falcon-plus:v0.2.1 .
+```
+
+##### Building falcon-dashboard
+```
+    cd /tmp && \
+    git clone https://github.com/open-falcon/dashboard  && \
+    cd /tmp/dashboard/ && \
+    docker build -t falcon-dashboard:v0.2.1 .
+```
+
