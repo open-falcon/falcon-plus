@@ -79,7 +79,7 @@ docker run --name falcon-redis -p6379:6379 -d redis:4-alpine3.8
         -e ALARM_DB_USER=root \
         -e ALARM_DB_PASS=test123456 \
         -e ALARM_DB_NAME=alarms \
-        -w /open-falcon/dashboard falcon-dashboard:v0.2.1  \
+        -w /open-falcon/dashboard openfalcon/falcon-dashboard:v0.2.1  \
        './control startfg'
 ```
 
