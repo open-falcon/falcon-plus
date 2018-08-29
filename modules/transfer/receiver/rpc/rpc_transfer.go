@@ -160,6 +160,10 @@ func RecvMetricValues(args []*cmodel.MetricValue, reply *cmodel.TransferResponse
 		sender.Push2TsdbSendQueue(items)
 	}
 
+	if cfg.Influxdb.Enabled {
+		sender.Push2InfluxdbSendQueue(items)
+	}
+
 	reply.Message = "ok"
 	reply.Total = len(args)
 	reply.Latency = (time.Now().UnixNano() - start.UnixNano()) / 1000000

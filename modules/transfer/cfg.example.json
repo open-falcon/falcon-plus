@@ -47,5 +47,17 @@
         "maxIdle": 32,
         "retry": 3,
         "address": "127.0.0.1:8088"
+    },
+    "influxdb": {
+        "enabled": true,
+        "batch": 200,
+        "retry": 3,
+        "maxConns": 32,
+        "username": "admin",
+        "password": "123456",
+        "precision": "s",
+        "db": "foo",
+        "address": "http://127.0.0.1:8086",
+        "timeout": 5000
     }
 }

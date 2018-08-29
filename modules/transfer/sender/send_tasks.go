@@ -16,6 +16,7 @@ package sender
 
 import (
 	"bytes"
+	"github.com/juju/errors"
 	cmodel "github.com/open-falcon/falcon-plus/common/model"
 	"github.com/open-falcon/falcon-plus/modules/transfer/g"
 	"github.com/open-falcon/falcon-plus/modules/transfer/proc"
@@ -37,6 +38,7 @@ func startSendTasks() {
 	judgeConcurrent := cfg.Judge.MaxConns
 	graphConcurrent := cfg.Graph.MaxConns
 	tsdbConcurrent := cfg.Tsdb.MaxConns
+	influxdbConcurrent := cfg.Influxdb.MaxConns
 
 	if tsdbConcurrent < 1 {
 		tsdbConcurrent = 1
@@ -65,6 +67,10 @@ func startSendTasks() {
 
 	if cfg.Tsdb.Enabled {
 		go forward2TsdbTask(tsdbConcurrent)
+	}
+
+	if cfg.Influxdb.Enabled {
+		go forward2InfluxdbTask(influxdbConcurrent)
 	}
 }
 
@@ -196,6 +202,53 @@ func forward2TsdbTask(concurrent int) {
 
 			if err != nil {
 				proc.SendToTsdbFailCnt.IncrBy(int64(len(itemList)))
+				log.Println(err)
+				return
+			}
+		}(items)
+	}
+}
+
+func forward2InfluxdbTask(concurrent int) {
+	batch := g.Config().Influxdb.Batch // 一次发送,最多batch条数据
+	retry := g.Config().Influxdb.MaxRetry
+	sema := nsema.NewSemaphore(concurrent)
+
+	for {
+		items := InfluxdbQueue.PopBackBy(batch)
+		if len(items) == 0 {
+			time.Sleep(DefaultSendTaskSleepInterval)
+			continue
+		}
+		//  同步Call + 有限并发 进行发送
+		sema.Acquire()
+		go func(itemList []interface{}) {
+			defer sema.Release()
+
+			var err error
+			c, err := NewInfluxdbClient()
+			defer c.Client.Close()
+
+			if err != nil {
+				log.Println(errors.ErrorStack(err))
+				return
+			}
+
+			items := make([]*cmodel.InfluxdbItem, 0, batch)
+			for _, i := range itemList {
+				items = append(items, i.(*cmodel.InfluxdbItem))
+			}
+
+			for i := 0; i < retry; i++ {
+				err = c.Send(items)
+				if err == nil {
+					proc.SendToInfluxdbCnt.IncrBy(int64(len(itemList)))
+					break
+				}
+			}
+
+			if err != nil {
+				proc.SendToInfluxdbFailCnt.IncrBy(int64(len(itemList)))
 				log.Println(err)
 				return
 			}
