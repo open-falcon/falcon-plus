@@ -73,15 +73,29 @@ type TsdbConfig struct {
 	Address     string `json:"address"`
 }
 
+type InfluxdbConfig struct {
+	Enabled   bool   `json:"enabled"`
+	Batch     int    `json:"batch"`
+	MaxRetry  int    `json:"retry"`
+	Address   string `json:"address"`
+	Database  string `json:"db"`
+	Username  string `json:"username"`
+	Password  string `json:"password"`
+	Precision string `json:"precision"`
+	Timeout   int    `json:"timeout"`
+	MaxConns  int    `json:"maxConns"`
+}
+
 type GlobalConfig struct {
-	Debug   bool          `json:"debug"`
-	MinStep int           `json:"minStep"` //最小周期,单位sec
-	Http    *HttpConfig   `json:"http"`
-	Rpc     *RpcConfig    `json:"rpc"`
-	Socket  *SocketConfig `json:"socket"`
-	Judge   *JudgeConfig  `json:"judge"`
-	Graph   *GraphConfig  `json:"graph"`
-	Tsdb    *TsdbConfig   `json:"tsdb"`
+	Debug    bool            `json:"debug"`
+	MinStep  int             `json:"minStep"` //最小周期,单位sec
+	Http     *HttpConfig     `json:"http"`
+	Rpc      *RpcConfig      `json:"rpc"`
+	Socket   *SocketConfig   `json:"socket"`
+	Judge    *JudgeConfig    `json:"judge"`
+	Graph    *GraphConfig    `json:"graph"`
+	Tsdb     *TsdbConfig     `json:"tsdb"`
+	Influxdb *InfluxdbConfig `json:"influxdb"`
 }
 
 var (
