@@ -85,6 +85,19 @@ type TransferConfig struct {
 	Cluster     map[string]string `json:"cluster"`
 }
 
+type InfluxdbConfig struct {
+	Enabled   bool   `json:"enabled"`
+	Batch     int    `json:"batch"`
+	MaxRetry  int    `json:"retry"`
+	Address   string `json:"address"`
+	Database  string `json:"db"`
+	Username  string `json:"username"`
+	Password  string `json:"password"`
+	Precision string `json:"precision"`
+	Timeout   int    `json:"timeout"`
+	MaxConns  int    `json:"maxConns"`
+}
+
 type GlobalConfig struct {
 	Debug    bool            `json:"debug"`
 	MinStep  int             `json:"minStep"` //最小周期,单位sec
@@ -95,6 +108,7 @@ type GlobalConfig struct {
 	Graph    *GraphConfig    `json:"graph"`
 	Tsdb     *TsdbConfig     `json:"tsdb"`
 	Transfer *TransferConfig `json:"transfer"`
+	Influxdb *InfluxdbConfig `json:"influxdb"`
 }
 
 var (
