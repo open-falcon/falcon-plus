@@ -38,7 +38,7 @@ func DuMetrics() (L []*model.MetricValue) {
 
 	for _, path := range paths {
 		wg.Add(1)
-		go func(filepath string) {
+		go func(path string) {
 			var err error
 			defer func() {
 				if err != nil {
