@@ -34,6 +34,7 @@ func ListPlugins(relativePath string) map[string]*Plugin {
 	dir := filepath.Join(g.Config().Plugin.Dir, relativePath)
 
 	if !file.IsExist(dir) || file.IsFile(dir) {
+		log.Printf("[WARN] dir %s does not exist\n", dir)
 		return ret
 	}
 

@@ -27,6 +27,9 @@ import (
 	"github.com/open-falcon/falcon-plus/modules/agent/g"
 	"github.com/toolkits/file"
 	"github.com/toolkits/sys"
+	"strings"
+	"fmt"
+	"strconv"
 )
 
 type PluginScheduler struct {
@@ -127,12 +130,128 @@ func PluginRun(plugin *Plugin) {
 		return
 	}
 
+	metrics := processOutput(plugin, data)
+	g.SendToTransfer(metrics)
+}
+
+func processOutput(plugin *Plugin, data []byte) []*model.MetricValue {
 	var metrics []*model.MetricValue
-	err = json.Unmarshal(data, &metrics)
-	if err != nil {
-		log.Printf("[ERROR] json.Unmarshal stdout of %s fail. error:%s stdout: \n%s\n", fpath, err, stdout.String())
-		return
+
+	var err error
+	dataStr := string(data)
+	// 尝试多种方式对输出进行解析
+	if strings.TrimSpace(dataStr)[0] == '[' {
+		err = parseAsJSON(data, &metrics)
+	} else {
+		var metric *model.MetricValue
+		for _, line := range strings.Split(string(data), "\n") {
+			line = strings.TrimSpace(line)
+			if len(line) == 0 {
+				continue
+			}
+
+			if line[0] == '{' {
+				metric, err = parseAsLineJSON(line)
+			} else {
+				metric, err = parseAsLineValue(line)
+			}
+
+			if err == nil {
+				metrics = append(metrics, metric)
+			} else {
+				log.Printf("[ERROR] %v, output line: \"%s\"", err, line)
+			}
+		}
 	}
 
-	g.SendToTransfer(metrics)
+	// 没有任何数据成功解析
+	if len(metrics) == 0 {
+		log.Println("[ERROR] Invalid output:\n", string(data))
+	}
+
+	// 插件的 step 需要在这里设置,
+	// 其他的如: Timestamp, Endpoint, Type 会在 SendToTransfer() 中设置
+	for _, m := range metrics {
+		if m.Step == 0 {
+			m.Step = int64(plugin.Cycle)
+		}
+	}
+
+	return metrics
+}
+
+/*将插件的整个输出当作 json 处理*/
+func parseAsJSON(data []byte, metrics *[]*model.MetricValue) error {
+	err := json.Unmarshal(data, metrics)
+	if err != nil {
+		if g.Config().Debug {
+			log.Printf("[DEBUG] Try parseAsJSON(): %s, IGNORE\n", err)
+		}
+		return err
+	}
+	return nil
+}
+
+/*将插件的一行输出当作 json 处理*/
+func parseAsLineJSON(line string) (*model.MetricValue, error) {
+	var metric model.MetricValue
+	err := json.Unmarshal([]byte(line), &metric)
+	return &metric, err
+}
+
+/*
+* 将插件的一行输出当作一个数值处理
+* 行格式 metric tag1=v1,tag2=v2 value timestamp
+* 可选格式 :
+* 1. metric value
+* 2. metric tag1=v1,tag2=v2 value
+* 3. metric tag1=v1,tag2=v2 value timestamp
+* 4. metric value timestamp
+ */
+func parseAsLineValue(line string) (*model.MetricValue, error) {
+	metric := model.MetricValue{Timestamp: time.Now().Unix()}
+	fields := strings.Fields(line)
+	timestampStr := fmt.Sprintf("%d", metric.Timestamp)
+
+	if g.Config().Debug {
+		log.Printf("[DEBUG] parseAsLineValue: %s\n", line)
+	}
+
+	if len(fields) == 2 { // 格式 1
+		metric.Metric = fields[0]
+		metric.Value = fields[1]
+	} else if len(fields) == 3 {
+		if strings.Index(fields[1], "=") > 0 {
+			// 格式 2
+			metric.Metric = fields[0]
+			metric.Tags = fields[1]
+			metric.Value = fields[2]
+		} else {
+			// 格式 4
+			metric.Metric = fields[0]
+			metric.Value = fields[1]
+			timestampStr = fields[2]
+		}
+	} else if len(fields) == 4 { // 格式 3
+		metric.Metric = fields[0]
+		metric.Tags = fields[1]
+		metric.Value = fields[2]
+		timestampStr = fields[3]
+	} else {
+		return nil, fmt.Errorf("invalid line")
+	}
+
+	if val, err := strconv.Atoi(metric.Value.(string)); err == nil {
+		metric.Value = val
+	} else {
+		return nil, fmt.Errorf("invalid metric value")
+	}
+
+	if timestamp, err := strconv.ParseInt(timestampStr, 10, 64); err == nil {
+		metric.Timestamp = timestamp
+	} else {
+		return nil, fmt.Errorf("invalid metric timestamp")
+	}
+
+	return &metric, nil
 }

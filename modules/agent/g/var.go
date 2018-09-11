@@ -96,6 +96,20 @@ func SendToTransfer(metrics []*model.MetricValue) {
 		}
 	}
 
+	now := time.Now().Unix()
+	defaultHostname, _ := Hostname()
+	for _, m := range metrics {
+		if len(m.Endpoint) == 0 {
+			m.Endpoint = defaultHostname
+		}
+		if len(m.Type) == 0 {
+			m.Type = "GAUGE"
+		}
+		if m.Timestamp == 0 {
+			m.Timestamp = now
+		}
+	}
+
 	debug := Config().Debug
 
 	if debug {
