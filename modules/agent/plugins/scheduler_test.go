@@ -1,10 +1,10 @@
 package plugins
 
 import (
-	"testing"
+	"github.com/open-falcon/falcon-plus/modules/agent/g"
 	"io/ioutil"
 	"os"
-	"github.com/open-falcon/falcon-plus/modules/agent/g"
+	"testing"
 )
 
 func TestProcessOutput(t *testing.T) {
