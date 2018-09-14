@@ -31,6 +31,7 @@ import (
 	grh "github.com/open-falcon/falcon-plus/modules/api/graph"
 	tcache "github.com/toolkits/cache/localcache/timedcache"
 	"net/http"
+	"regexp"
 )
 
 var (
@@ -79,6 +80,14 @@ type APIEndpointRegexpQueryInputs struct {
 	Page  int    `json:"page" form:"page"`
 }
 
+func IsIp(ip string) (b bool) {
+	if m,_ := regexp.MatchString("^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$",ip); !m {
+		return false
+	}
+	return true
+}
+
+
 func EndpointRegexpQuery(c *gin.Context) {
 	inputs := APIEndpointRegexpQueryInputs{
 		//set default is 500
@@ -98,9 +107,20 @@ func EndpointRegexpQuery(c *gin.Context) {
 	if inputs.Label != "" {
 		labels = strings.Split(inputs.Label, ",")
 	}
+	qsNew := []string{}
 	qs := []string{}
+	enphostname := m.Host{}
 	if inputs.Q != "" {
-		qs = strings.Split(inputs.Q, " ")
+		qsNew = strings.Split(inputs.Q, " ")
+		for _,each := range qsNew {
+			if IsIp(each) {
+				db.Falcon.Table("host").Select("hostname").Where("ip in (?)",each).Scan(&enphostname)
+				qs = append(qs,enphostname.Hostname)
+			} else {
+				qs = append(qs,each)
+			}
+		}
+
 	}
 
 	var offset int = 0
@@ -146,7 +166,9 @@ func EndpointRegexpQuery(c *gin.Context) {
 
 	endpoints := []map[string]interface{}{}
 	for _, e := range endpoint {
-		endpoints = append(endpoints, map[string]interface{}{"id": e.ID, "endpoint": e.Endpoint})
+		enpip := m.Host{}
+		db.Falcon.Table("host").Select("ip").Where("hostname in (?)",e.Endpoint).Scan(&enpip)
+		endpoints = append(endpoints, map[string]interface{}{"id": e.ID, "endpoint": e.Endpoint, "ip": enpip.Ip })
 	}
 
 	h.JSONR(c, endpoints)
