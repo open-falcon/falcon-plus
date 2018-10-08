@@ -293,7 +293,10 @@ func IsUserInTeams(c *gin.Context) {
 		h.JSONR(c, http.StatusExpectationFailed, dt.Error)
 		return
 	}
-
+	if len(tus) == 0 {
+		h.JSONR(c, "false")
+		return
+	} 
 	h.JSONR(c, "true")
 	return
 }
