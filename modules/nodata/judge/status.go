@@ -81,7 +81,7 @@ func TurnNodata(key string, ts int64) {
 	// update status
 	ns := v.(*NodataStatus)
 	ns.Status = "NODATA"
-	ns.Cnt += 1
+	ns.Cnt++
 	ns.Ts = ts
 
 	statusLock.Unlock()

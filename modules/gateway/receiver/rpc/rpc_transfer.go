@@ -44,45 +44,45 @@ func RecvMetricValues(args []*cmodel.MetricValue, reply *cmodel.TransferResponse
 	items := []*cmodel.MetaData{}
 	for _, v := range args {
 		if v == nil {
-			reply.Invalid += 1
+			reply.Invalid++
 			continue
 		}
 
 		// 历史遗留问题.
 		// 老版本agent上报的metric=kernel.hostname的数据,其取值为string类型,现在已经不支持了;所以,这里硬编码过滤掉
 		if v.Metric == "kernel.hostname" {
-			reply.Invalid += 1
+			reply.Invalid++
 			continue
 		}
 
 		if v.Metric == "" || v.Endpoint == "" {
-			reply.Invalid += 1
+			reply.Invalid++
 			continue
 		}
 
 		if v.Type != g.COUNTER && v.Type != g.GAUGE && v.Type != g.DERIVE {
-			reply.Invalid += 1
+			reply.Invalid++
 			continue
 		}
 
 		if v.Value == "" {
-			reply.Invalid += 1
+			reply.Invalid++
 			continue
 		}
 
 		if v.Step <= 0 {
-			reply.Invalid += 1
+			reply.Invalid++
 			continue
 		}
 
 		if len(v.Metric)+len(v.Tags) > 510 {
-			reply.Invalid += 1
+			reply.Invalid++
 			continue
 		}
 
 		errtags, tags := cutils.SplitTagsString(v.Tags)
 		if errtags != nil {
-			reply.Invalid += 1
+			reply.Invalid++
 			continue
 		}
 
@@ -120,7 +120,7 @@ func RecvMetricValues(args []*cmodel.MetricValue, reply *cmodel.TransferResponse
 		}
 
 		if !valid {
-			reply.Invalid += 1
+			reply.Invalid++
 			continue
 		}
 

@@ -136,7 +136,7 @@ func Push2GraphSendQueue(items []*cmodel.MetaData) {
 		for _, addr := range cnode.Addrs {
 			Q := GraphQueues[node+addr]
 			if !Q.PushFront(graphItem) {
-				errCnt += 1
+				errCnt++
 			}
 		}
 

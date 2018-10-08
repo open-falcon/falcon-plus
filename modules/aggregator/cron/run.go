@@ -106,7 +106,7 @@ func WorkerRun(item *g.Cluster) {
 		}
 		numerator += numeratorVal
 		denominator += denominatorVal
-		validCount += 1
+		validCount++
 	}
 
 	if !needComputeNumerator {
