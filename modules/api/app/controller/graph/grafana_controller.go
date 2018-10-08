@@ -44,13 +44,13 @@ func repsonseDefault(limit int) (result []APIGrafanaMainQueryOutputs) {
 	//for get right table name
 	enpsHelp := m.Endpoint{}
 	enps := []m.Endpoint{}
-        enpip := m.Host{}
+	enpip := m.Host{}
 	db.Graph.Table(enpsHelp.TableName()).Limit(limit).Scan(&enps)
 	for _, h := range enps {
-                db.Falcon.Table("host").Select("hostname,ip").Where("hostname in (?)",h.Endpoint).Scan(&enpip)
+		db.Falcon.Table("host").Select("hostname,ip").Where("hostname in (?)", h.Endpoint).Scan(&enpip)
 		result = append(result, APIGrafanaMainQueryOutputs{
 			Expandable: true,
-			Text:       h.Endpoint+"_"+enpip.Ip,
+			Text:       h.Endpoint + "_" + enpip.Ip,
 		})
 	}
 	return
@@ -62,13 +62,13 @@ func responseHostsRegexp(limit int, regexpKey string) (result []APIGrafanaMainQu
 	//for get right table name
 	enpsHelp := m.Endpoint{}
 	enps := []m.Endpoint{}
-        enpip := m.Host{}
+	enpip := m.Host{}
 	db.Graph.Table(enpsHelp.TableName()).Where("endpoint regexp ?", regexpKey).Limit(limit).Scan(&enps)
 	for _, h := range enps {
-                db.Falcon.Table("host").Select("hostname,ip").Where("hostname in (?)",h.Endpoint).Scan(&enpip)
+		db.Falcon.Table("host").Select("hostname,ip").Where("hostname in (?)", h.Endpoint).Scan(&enpip)
 		result = append(result, APIGrafanaMainQueryOutputs{
 			Expandable: true,
-			Text:       h.Endpoint+"_"+enpip.Ip,
+			Text:       h.Endpoint + "_" + enpip.Ip,
 		})
 	}
 	return
@@ -166,10 +166,10 @@ func findEndpointIdByEndpointList(hosts []string) []int64 {
 	//for get right table name
 	enpsHelp := m.Endpoint{}
 	enps := []m.Endpoint{}
-        var hostsNew []string
-        for _, hh := range hosts {
-                hostsNew = append(hostsNew,strings.Split(hh, "_")[0])
-        }
+	var hostsNew []string
+	for _, hh := range hosts {
+		hostsNew = append(hostsNew, strings.Split(hh, "_")[0])
+	}
 	hostStr, _ := u.ArrStringsToString(hostsNew)
 	log.Debugf("hostStr: %v", hostStr)
 	log.Debugf("endpoint in (%s)", hostStr)

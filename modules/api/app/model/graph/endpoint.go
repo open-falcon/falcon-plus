@@ -25,10 +25,11 @@ type Endpoint struct {
 	EndpointCounters []EndpointCounter `gorm:"ForeignKey:EndpointIDE"`
 }
 type Host struct {
-	ID               uint              `gorm:"primary_key"`
-	Hostname         string            `json:"hostname"`
-	Ip               string            `json:"ip"`
+	ID       uint   `gorm:"primary_key"`
+	Hostname string `json:"hostname"`
+	Ip       string `json:"ip"`
 }
+
 func (Endpoint) TableName() string {
 	return "endpoint"
 }
