@@ -57,12 +57,12 @@ func GetHostGroups(c *gin.Context) {
 	return
 }
 
-type APICrateHostGroup struct {
+type APICreateHostGroup struct {
 	Name string `json:"name" binding:"required"`
 }
 
-func CrateHostGroup(c *gin.Context) {
-	var inputs APICrateHostGroup
+func CreateHostGroup(c *gin.Context) {
+	var inputs APICreateHostGroup
 	if err := c.Bind(&inputs); err != nil {
 		h.JSONR(c, badstatus, err)
 		return

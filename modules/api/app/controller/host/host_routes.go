@@ -33,7 +33,7 @@ func Routes(r *gin.Engine) {
 	hostr.Use(utils.AuthSessionMidd)
 	//hostgroup
 	hostr.GET("/hostgroup", GetHostGroups)
-	hostr.POST("/hostgroup", CrateHostGroup)
+	hostr.POST("/hostgroup", CreateHostGroup)
 	hostr.POST("/hostgroup/host", BindHostToHostGroup)
 	hostr.PUT("/hostgroup/host", UnBindAHostToHostGroup)
 	hostr.GET("/hostgroup/:host_group", GetHostGroup)
