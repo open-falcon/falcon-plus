@@ -16,4 +16,10 @@ layout: default
 ### Response
 
 ```Status: 200```
-```{"message":"template created"}```
+```{
+  "id": 2,
+  "parent_id": 0,
+  "tpl_name": "AtmpForTesting",
+  "action_id": 0,
+  "create_user": "root"
+}```
