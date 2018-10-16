@@ -2,7 +2,7 @@
 category: Aggreator
 apiurl: '/api/v1/aggregators'
 title: "Create Aggreator to a HostGroup"
-type: 'GET'
+type: 'POST'
 sample_doc: 'aggreator.html'
 layout: default
 ---
