@@ -17,11 +17,10 @@ package strategy
 import (
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"regexp"
 	"strconv"
 	"strings"
-
-	"io/ioutil"
 
 	"github.com/gin-gonic/gin"
 	h "github.com/open-falcon/falcon-plus/modules/api/app/helper"
@@ -109,7 +108,7 @@ func CreateStrategy(c *gin.Context) {
 		h.JSONR(c, expecstatus, dt.Error)
 		return
 	}
-	h.JSONR(c, "stragtegy created")
+	h.JSONR(c, strategy)
 	return
 }
 
