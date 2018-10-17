@@ -14,7 +14,7 @@
 
     ## init mysql table before the first running
     cd /tmp && \
-    git clone https://github.com/open-falcon/falcon-plus && \
+    git clone https://github.com/open-falcon/falcon-plus --depth=1 && \
     cd /tmp/falcon-plus/ && \
     for x in `ls ./scripts/mysql/db_schema/*.sql`; do
         echo init mysql table $x ...;
