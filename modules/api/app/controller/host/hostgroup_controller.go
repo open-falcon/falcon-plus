@@ -215,6 +215,17 @@ func DeleteHostGroup(c *gin.Context) {
 	return
 }
 
+var HostGroupCache map[int]map[string]interface{}
+
+func setHostGroup(grpid int, hg map[string]interface{}) {
+	//todo: lock/unlock
+	HostGroupCache[grpid] = hg
+}
+
+func getHostGroup(grpid int) map[string]interface{} {
+	//todo: lock/unlock
+	return HostGroupCache[grpid]
+}
 func GetHostGroup(c *gin.Context) {
 	grpIDtmp := c.Params.ByName("host_group")
 	q := c.DefaultQuery("q", ".+")
@@ -226,6 +237,10 @@ func GetHostGroup(c *gin.Context) {
 	if err != nil {
 		log.Debugf("grpIDtmp: %v", grpIDtmp)
 		h.JSONR(c, badstatus, err)
+		return
+	}
+	if m := getHostGroup(grpID); m != nil {
+		h.JSONR(c, m)
 		return
 	}
 	hostgroup := f.HostGroup{ID: int64(grpID)}
@@ -248,10 +263,12 @@ func GetHostGroup(c *gin.Context) {
 			}
 		}
 	}
-	h.JSONR(c, map[string]interface{}{
+	result := map[string]interface{}{
 		"hostgroup": hostgroup,
 		"hosts":     hosts,
-	})
+	}
+	setHostGroup(grpID, result)
+	h.JSONR(c, result)
 	return
 }
 
