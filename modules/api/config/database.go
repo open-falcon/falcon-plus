@@ -29,6 +29,7 @@ type DBPool struct {
 	Uic       *gorm.DB
 	Dashboard *gorm.DB
 	Alarm     *gorm.DB
+	AutoAggr  *gorm.DB
 }
 
 var (
@@ -87,6 +88,16 @@ func InitDB(loggerlevel bool, vip *viper.Viper) (err error) {
 	}
 	dashd.SingularTable(true)
 	dbp.Dashboard = dashd
+
+	var auto *sql.DB
+	autod, err := gorm.Open("mysql", vip.GetString("db.auto_aggr"))
+	autod.Dialect().SetDB(auto)
+	autod.LogMode(loggerlevel)
+	if err != nil {
+		return fmt.Errorf("connect to auto_aggr: %s", err.Error())
+	}
+	autod.SingularTable(true)
+	dbp.AutoAggr = autod
 
 	var alm *sql.DB
 	almd, err := gorm.Open("mysql", vip.GetString("db.alarms"))
