@@ -16,9 +16,11 @@ package g
 
 import log "github.com/Sirupsen/logrus"
 import "github.com/natefinch/lumberjack"
+import "os"
+import "path"
 
 var (
-	logFileName = "../logs/app.log"
+	logFileName = "logs/" + path.Base(os.Args[0]) + ".log"
 	MaxMegaSize = 1000
 	MaxBackups  = 5
 	MaxAgeDays  = 7
