@@ -47,8 +47,8 @@ func CombineIM() {
 		// 每分钟读取处理一次
 		time.Sleep(time.Minute)
 		combineIM()
-		log.SetOutput()
 	}
+
 }
 
 func combineMail() {
