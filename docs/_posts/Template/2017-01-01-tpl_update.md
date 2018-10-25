@@ -1,6 +1,6 @@
 ---
 category: Template
-apiurl: '/api/v1/template/'
+apiurl: '/api/v1/template'
 title: "Update Template"
 type: 'PUT'
 sample_doc: 'template.html'
@@ -20,4 +20,10 @@ layout: default
 ### Response
 
 ```Status: 200```
-```{"message":"template updated"}```
+```{
+  "id": 225,
+  "parent_id": 0,
+  "tpl_name": "AtmpForTesting2",
+  "action_id": 0,
+  "create_user": "root"
+}```

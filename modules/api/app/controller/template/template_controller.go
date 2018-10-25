@@ -206,7 +206,7 @@ func UpdateTemplate(c *gin.Context) {
 		h.JSONR(c, badstatus, dt.Error)
 		return
 	}
-	h.JSONR(c, "template updated")
+	h.JSONR(c, tpl)
 	return
 }
 
