@@ -6,6 +6,7 @@
 		"uic": "%%MYSQL%%/uic?charset=utf8&parseTime=True&loc=Local",
 		"dashboard": "%%MYSQL%%/dashboard?charset=utf8&parseTime=True&loc=Local",
 		"alarms": "%%MYSQL%%/alarms?charset=utf8&parseTime=True&loc=Local",
+		"auto_aggr": "%%MYSQL%%/auto_aggr?charset=utf8&parseTime=True&loc=Local",
 		"db_bug": true
 	},
 	"graphs": {
