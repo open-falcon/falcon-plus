@@ -1,9 +1,9 @@
 ---
-category: Aggreator
+category: Aggregator
 apiurl: '/api/v1/hostgroup/#{hostgroup_id}/aggregators'
-title: "Get Aggreator List of HostGroup"
+title: "Get Aggregator List of HostGroup"
 type: 'GET'
-sample_doc: 'aggreator.html'
+sample_doc: 'aggregator.html'
 layout: default
 ---
 
