@@ -50,7 +50,7 @@ func init() {
 		"gateway":    "./gateway/bin/falcon-gateway",
 		"api":        "./api/bin/falcon-api",
 		"alarm":      "./alarm/bin/falcon-alarm",
-		"auto_host":  "./alarm/bin/falcon-auto_host",
+		"auto_host":  "./auto_host/bin/falcon-auto_host",
 	}
 
 	cfgOf = map[string]string{
