@@ -17,7 +17,7 @@ package http
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/open-falcon/falcon-plus/modules/alarm/g"
-	"log"
+	log "github.com/Sirupsen/logrus"
 )
 
 func Start() {

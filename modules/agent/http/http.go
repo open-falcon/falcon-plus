@@ -17,7 +17,7 @@ package http
 import (
 	"encoding/json"
 	"github.com/open-falcon/falcon-plus/modules/agent/g"
-	"log"
+	log "github.com/Sirupsen/logrus"
 	"net/http"
 	_ "net/http/pprof"
 )

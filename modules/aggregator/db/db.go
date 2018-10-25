@@ -18,7 +18,7 @@ import (
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/open-falcon/falcon-plus/modules/aggregator/g"
-	"log"
+	log "github.com/Sirupsen/logrus"
 )
 
 var DB *sql.DB

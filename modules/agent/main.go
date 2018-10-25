@@ -17,6 +17,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	logger "github.com/open-falcon/falcon-plus/g"
 	"github.com/open-falcon/falcon-plus/modules/agent/cron"
 	"github.com/open-falcon/falcon-plus/modules/agent/funcs"
 	"github.com/open-falcon/falcon-plus/modules/agent/g"
@@ -45,9 +46,9 @@ func main() {
 	g.ParseConfig(*cfg)
 
 	if g.Config().Debug {
-		g.InitLog("debug")
+		logger.InitLog("debug")
 	} else {
-		g.InitLog("info")
+		logger.InitLog("info")
 	}
 
 	g.InitRootDir()

@@ -19,6 +19,8 @@ import (
 	"fmt"
 	"regexp"
 	"strconv"
+	"sync"
+	"time"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/gin-gonic/gin"
@@ -215,14 +217,31 @@ func DeleteHostGroup(c *gin.Context) {
 	return
 }
 
-var HostGroupCache map[int]map[string]interface{}
+var HostGroupCache = make(map[int]map[string]interface{})
+var cacheMtx sync.Mutex
+
+func cacheUpdater() {
+	for {
+		time.Sleep(time.Second * 60)
+		invalidCache()
+	}
+}
+func invalidCache() {
+	cacheMtx.Lock()
+	defer cacheMtx.Unlock()
+	HostGroupCache = nil
+}
 
 func setHostGroup(grpid int, hg map[string]interface{}) {
 	//todo: lock/unlock
+	cacheMtx.Lock()
+	defer cacheMtx.Unlock()
 	HostGroupCache[grpid] = hg
 }
 
 func getHostGroup(grpid int) map[string]interface{} {
+	cacheMtx.Lock()
+	defer cacheMtx.Unlock()
 	//todo: lock/unlock
 	return HostGroupCache[grpid]
 }
@@ -240,6 +259,8 @@ func GetHostGroup(c *gin.Context) {
 		return
 	}
 	if m := getHostGroup(grpID); m != nil {
+		cacheMtx.Lock()
+		defer cacheMtx.Unlock()
 		h.JSONR(c, m)
 		return
 	}

@@ -18,7 +18,7 @@ import (
 	"github.com/open-falcon/falcon-plus/modules/agent/g"
 	"github.com/toolkits/file"
 	"io/ioutil"
-	"log"
+	log "github.com/Sirupsen/logrus"
 	"path/filepath"
 	"strconv"
 	"strings"

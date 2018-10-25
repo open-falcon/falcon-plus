@@ -17,7 +17,7 @@ package db
 import (
 	"fmt"
 	"github.com/open-falcon/falcon-plus/modules/aggregator/g"
-	"log"
+	log "github.com/Sirupsen/logrus"
 )
 
 func ReadClusterMonitorItems() (M map[string]*g.Cluster, err error) {

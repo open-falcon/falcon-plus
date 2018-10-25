@@ -15,7 +15,7 @@
 package config
 
 import (
-	"log"
+	log "github.com/Sirupsen/logrus"
 	"sync"
 
 	cmodel "github.com/open-falcon/falcon-plus/common/model"

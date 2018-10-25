@@ -21,7 +21,7 @@ import (
 	"github.com/open-falcon/falcon-plus/modules/transfer/proc"
 	nsema "github.com/toolkits/concurrent/semaphore"
 	"github.com/toolkits/container/list"
-	"log"
+	log "github.com/Sirupsen/logrus"
 	"time"
 )
 

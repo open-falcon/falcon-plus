@@ -15,8 +15,27 @@
 package g
 
 import log "github.com/Sirupsen/logrus"
+import "github.com/natefinch/lumberjack"
+
+var (
+	logFileName = "../logs/app.log"
+	MaxMegaSize = 1000
+	MaxBackups  = 5
+	MaxAgeDays  = 7
+	Compress    = true
+)
 
 func InitLog(level string) (err error) {
+	rotateLogger := &lumberjack.Logger{
+		Filename:   logFileName,
+		MaxSize:    MaxMegaSize, // megabytes
+		MaxBackups: MaxBackups,  // file numbers
+		MaxAge:     MaxAgeDays,  // days
+		Compress:   Compress,    // disabled by default
+		LocalTime:  true,
+	}
+
+	log.SetOutput(rotateLogger)
 	switch level {
 	case "info":
 		log.SetLevel(log.InfoLevel)

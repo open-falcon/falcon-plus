@@ -22,7 +22,7 @@ import (
 	"github.com/open-falcon/falcon-plus/modules/transfer/proc"
 	rings "github.com/toolkits/consistent/rings"
 	nlist "github.com/toolkits/container/list"
-	"log"
+	log "github.com/Sirupsen/logrus"
 )
 
 const (

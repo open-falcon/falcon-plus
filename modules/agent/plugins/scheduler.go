@@ -17,7 +17,7 @@ package plugins
 import (
 	"bytes"
 	"encoding/json"
-	"log"
+	log "github.com/Sirupsen/logrus"
 	"os/exec"
 	"path/filepath"
 	"syscall"

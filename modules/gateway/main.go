@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"os"
 
+	logger "github.com/open-falcon/falcon-plus/g"
 	"github.com/open-falcon/falcon-plus/modules/gateway/g"
 	"github.com/open-falcon/falcon-plus/modules/gateway/http"
 	"github.com/open-falcon/falcon-plus/modules/gateway/receiver"
@@ -39,9 +40,9 @@ func main() {
 	g.ParseConfig(*cfg)
 
 	if g.Config().Debug {
-		g.InitLog("debug")
+		logger.InitLog("debug")
 	} else {
-		g.InitLog("info")
+		logger.InitLog("info")
 	}
 
 	sender.Start()

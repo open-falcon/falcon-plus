@@ -18,7 +18,7 @@ import (
 	"github.com/open-falcon/falcon-plus/common/model"
 	"github.com/open-falcon/falcon-plus/modules/hbs/db"
 	"github.com/toolkits/container/set"
-	"log"
+	log "github.com/Sirupsen/logrus"
 	"strconv"
 	"strings"
 	"sync"

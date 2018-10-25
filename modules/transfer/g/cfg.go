@@ -17,7 +17,7 @@ package g
 import (
 	"encoding/json"
 	"github.com/toolkits/file"
-	"log"
+	log "github.com/Sirupsen/logrus"
 	"strings"
 	"sync"
 )

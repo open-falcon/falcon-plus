@@ -26,6 +26,7 @@ import (
 	"github.com/gin-gonic/gin"
 	yaag_gin "github.com/masato25/yaag/gin"
 	"github.com/masato25/yaag/yaag"
+	"github.com/open-falcon/falcon-plus/g"
 	"github.com/open-falcon/falcon-plus/modules/api/app/controller"
 	"github.com/open-falcon/falcon-plus/modules/api/config"
 	"github.com/open-falcon/falcon-plus/modules/api/graph"
@@ -63,7 +64,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	err = config.InitLog(viper.GetString("log_level"))
+	err = g.InitLog(viper.GetString("log_level"))
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"github.com/open-falcon/falcon-plus/common/model"
 	"github.com/open-falcon/falcon-plus/modules/hbs/g"
-	"log"
+	log "github.com/Sirupsen/logrus"
 )
 
 func UpdateAgent(agentInfo *model.AgentUpdateInfo) {

@@ -16,7 +16,7 @@ package collector
 
 import (
 	"fmt"
-	"log"
+	log "github.com/Sirupsen/logrus"
 
 	tlist "github.com/toolkits/container/list"
 	"github.com/toolkits/container/nmap"

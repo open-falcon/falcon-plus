@@ -15,7 +15,7 @@
 package sender
 
 import (
-	"log"
+	log "github.com/Sirupsen/logrus"
 
 	pfc "github.com/niean/goperfcounter"
 	cmodel "github.com/open-falcon/falcon-plus/common/model"

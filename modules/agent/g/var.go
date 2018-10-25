@@ -18,7 +18,7 @@ import (
 	"bytes"
 	"github.com/open-falcon/falcon-plus/common/model"
 	"github.com/toolkits/slice"
-	"log"
+	log "github.com/Sirupsen/logrus"
 	"net"
 	"os"
 	"strings"

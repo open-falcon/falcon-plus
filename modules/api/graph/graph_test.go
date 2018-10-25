@@ -16,10 +16,11 @@ package graph
 
 import (
 	cmodel "github.com/open-falcon/falcon-plus/common/model"
+	"github.com/open-falcon/falcon-plus/g"
 	"github.com/open-falcon/falcon-plus/modules/api/config"
 	. "github.com/smartystreets/goconvey/convey"
 	"github.com/spf13/viper"
-	"log"
+	log "github.com/Sirupsen/logrus"
 	"testing"
 )
 
@@ -32,7 +33,7 @@ func init() {
 		log.Fatal(err)
 	}
 
-	err = config.InitLog("debug")
+	err = g.InitLog("debug")
 	if err != nil {
 		log.Fatal(err)
 	}

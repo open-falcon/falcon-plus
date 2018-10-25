@@ -15,7 +15,7 @@
 package funcs
 
 import (
-	"log"
+	log "github.com/Sirupsen/logrus"
 
 	"github.com/mindprince/gonvml"
 	"github.com/open-falcon/falcon-plus/common/model"

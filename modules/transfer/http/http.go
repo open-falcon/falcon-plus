@@ -19,7 +19,7 @@ import (
 	"encoding/json"
 	"github.com/open-falcon/falcon-plus/modules/transfer/g"
 	"io/ioutil"
-	"log"
+	log "github.com/Sirupsen/logrus"
 	"net/http"
 	_ "net/http/pprof"
 )

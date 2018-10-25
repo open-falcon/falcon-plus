@@ -16,7 +16,7 @@ package rpc
 
 import (
 	"github.com/open-falcon/falcon-plus/modules/transfer/g"
-	"log"
+	log "github.com/Sirupsen/logrus"
 	"net"
 	"net/rpc"
 	"net/rpc/jsonrpc"

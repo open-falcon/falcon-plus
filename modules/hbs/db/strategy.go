@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"github.com/open-falcon/falcon-plus/common/model"
 	"github.com/toolkits/container/set"
-	"log"
+	log "github.com/Sirupsen/logrus"
 	"strings"
 	"time"
 )

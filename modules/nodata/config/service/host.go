@@ -16,7 +16,7 @@ package service
 
 import (
 	"fmt"
-	"log"
+	log "github.com/Sirupsen/logrus"
 	"time"
 )
 

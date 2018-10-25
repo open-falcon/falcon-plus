@@ -15,7 +15,7 @@
 package db
 
 import (
-	"log"
+	log "github.com/Sirupsen/logrus"
 )
 
 func QueryPlugins() (map[int][]string, error) {

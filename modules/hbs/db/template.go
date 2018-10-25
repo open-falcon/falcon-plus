@@ -16,7 +16,7 @@ package db
 
 import (
 	"github.com/open-falcon/falcon-plus/common/model"
-	"log"
+	log "github.com/Sirupsen/logrus"
 )
 
 func QueryGroupTemplates() (map[int][]int, error) {

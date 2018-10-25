@@ -16,7 +16,7 @@ package proc
 
 import (
 	nproc "github.com/toolkits/proc"
-	"log"
+	log "github.com/Sirupsen/logrus"
 )
 
 // trace

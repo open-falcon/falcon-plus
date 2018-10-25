@@ -22,6 +22,7 @@ import (
 	"syscall"
 
 	"github.com/gin-gonic/gin"
+	logger "github.com/open-falcon/falcon-plus/g"
 	"github.com/open-falcon/falcon-plus/modules/alarm/cron"
 	"github.com/open-falcon/falcon-plus/modules/alarm/g"
 	"github.com/open-falcon/falcon-plus/modules/alarm/http"
@@ -46,7 +47,7 @@ func main() {
 
 	g.ParseConfig(*cfg)
 
-	g.InitLog(g.Config().LogLevel)
+	logger.InitLog(g.Config().LogLevel)
 	if g.Config().LogLevel != "debug" {
 		gin.SetMode(gin.ReleaseMode)
 	}

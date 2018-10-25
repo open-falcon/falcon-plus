@@ -16,7 +16,7 @@ package g
 
 import (
 	nproc "github.com/toolkits/proc"
-	"log"
+	log "github.com/Sirupsen/logrus"
 )
 
 // counter

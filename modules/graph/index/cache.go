@@ -17,7 +17,7 @@ package index
 import (
 	"database/sql"
 	"fmt"
-	"log"
+	log "github.com/Sirupsen/logrus"
 	"strconv"
 	"strings"
 	"sync"

@@ -17,7 +17,7 @@ package g
 import (
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
-	"log"
+	log "github.com/Sirupsen/logrus"
 	"sync"
 )
 

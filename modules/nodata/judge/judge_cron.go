@@ -15,7 +15,7 @@
 package judge
 
 import (
-	"log"
+	log "github.com/Sirupsen/logrus"
 	"time"
 
 	cmodel "github.com/open-falcon/falcon-plus/common/model"

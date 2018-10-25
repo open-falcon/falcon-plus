@@ -17,7 +17,7 @@ package cron
 import (
 	"encoding/json"
 	"fmt"
-	"log"
+	log "github.com/Sirupsen/logrus"
 	"time"
 
 	"github.com/open-falcon/falcon-plus/common/model"

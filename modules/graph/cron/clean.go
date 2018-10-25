@@ -29,7 +29,7 @@
 package cron
 
 import (
-	"log"
+	log "github.com/Sirupsen/logrus"
 	"strings"
 	"time"
 

@@ -17,7 +17,7 @@ package service
 import (
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
-	"log"
+	log "github.com/Sirupsen/logrus"
 	"sync"
 
 	"github.com/open-falcon/falcon-plus/modules/nodata/g"

@@ -17,7 +17,7 @@ package sender
 import (
 	"github.com/open-falcon/falcon-plus/modules/transfer/proc"
 	"github.com/toolkits/container/list"
-	"log"
+	log "github.com/Sirupsen/logrus"
 	"strings"
 	"time"
 )

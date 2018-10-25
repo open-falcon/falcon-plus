@@ -17,13 +17,14 @@ package main
 import (
 	"flag"
 	"fmt"
-	"log"
+	log "github.com/Sirupsen/logrus"
 	"os"
 	"os/signal"
 	"syscall"
 
 	"github.com/gin-gonic/gin"
 
+	logger "github.com/open-falcon/falcon-plus/g"
 	"github.com/open-falcon/falcon-plus/modules/graph/api"
 	"github.com/open-falcon/falcon-plus/modules/graph/cron"
 	"github.com/open-falcon/falcon-plus/modules/graph/g"
@@ -85,9 +86,9 @@ func main() {
 	g.ParseConfig(*cfg)
 
 	if g.Config().Debug {
-		g.InitLog("debug")
+		logger.InitLog("debug")
 	} else {
-		g.InitLog("info")
+		logger.InitLog("info")
 		gin.SetMode(gin.ReleaseMode)
 	}
 

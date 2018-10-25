@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"github.com/open-falcon/falcon-plus/common/model"
 	"github.com/open-falcon/falcon-plus/modules/judge/g"
-	"log"
+	log "github.com/Sirupsen/logrus"
 )
 
 func Judge(L *SafeLinkedList, firstItem *model.JudgeItem, now int64) {

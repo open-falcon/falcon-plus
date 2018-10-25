@@ -17,7 +17,7 @@ package db
 import (
 	"fmt"
 	"github.com/open-falcon/falcon-plus/common/model"
-	"log"
+	log "github.com/Sirupsen/logrus"
 	"time"
 )
 
