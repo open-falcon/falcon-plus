@@ -96,7 +96,7 @@ func getHostGrp(host auto_aggr.Endpoint) (id int64, err error) {
 	return findGrpByLeader(leader, true)
 }
 
-func AutoGenHostGrp() {
+func autoGenHostGrp() {
 	hostList := getNewHost()
 	for _, host := range hostList {
 		log.Printf("proccess %s begin \n", host.Endpoint)
@@ -127,7 +127,7 @@ func AutoGenHostGrp() {
 func Start() {
 	db = config.Con()
 	go func() {
-		AutoGenHostGrp()
+		autoGenHostGrp()
 		genAggregator()
 		time.Sleep(time.Minute)
 	}()

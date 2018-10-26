@@ -20,8 +20,12 @@ func genAggregator() {
 			continue
 		}
 		log.Printf("gen cluster for metric(%s) success", endpointCounter.Counter)
+		deleteEndpointCounter(endpointCounter)
 	}
+}
 
+func deleteEndpointCounter(c auto_aggr.EndpointCounter) error {
+	return db.AutoAggr.Table(c.TableName()).Delete(&c).Error
 }
 
 func getEndpointCounters() []auto_aggr.EndpointCounter {
@@ -39,15 +43,18 @@ func getEndpointName(id uint) (string, error) {
 	}
 	return ep.Endpoint, nil
 }
+
 func genAggr(endpointCounter auto_aggr.EndpointCounter) error {
 	ep, err := getEndpointName(uint(endpointCounter.EndpointID))
 	if err != nil {
 		return err
 	}
+
 	grpId, grpEndpointName, err := getGrpinfo(ep)
 	if err != nil {
 		return err
 	}
+
 	orgTags := getOrgTags(endpointCounter.Counter)
 	numberator := getNumberator(endpointCounter.Counter)
 	denominator := getDenominator(orgTags, endpointCounter.Type)
@@ -65,6 +72,7 @@ func genAggr(endpointCounter auto_aggr.EndpointCounter) error {
 		Step:        endpointCounter.Step,
 		Creator:     autoUser,
 	}
+
 	if err := addCluster(cluster); err != nil {
 		log.Printf("addCluster fail: %s", err)
 	}
