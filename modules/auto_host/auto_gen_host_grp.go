@@ -59,7 +59,7 @@ GETGRP:
 		Name:       leader,
 		CreateUser: autoUser,
 	}
-	if err = db.Falcon.Table(help.TableName()).Create(newHG).Error; err != nil {
+	if err = db.Falcon.Table(help.TableName()).Create(&newHG).Error; err != nil {
 		return -1, fmt.Errorf("create host grp (%s) fail :%s", leader, err)
 	}
 	id, err := getHostId(leader)
