@@ -8,7 +8,6 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/open-falcon/falcon-plus/modules/api/app/model/auto_aggr"
 	"github.com/open-falcon/falcon-plus/modules/api/app/model/falcon_portal"
-	"github.com/open-falcon/falcon-plus/modules/api/app/model/graph"
 	"github.com/open-falcon/falcon-plus/modules/api/config"
 )
 
@@ -30,7 +29,7 @@ func getNewHost() []auto_aggr.Endpoint {
 	return enps
 }
 
-func deleteFromNewHost(ep graph.Endpoint) error {
+func deleteFromNewHost(ep auto_aggr.Endpoint) error {
 	return db.AutoAggr.Table(ep.TableName()).Delete(&ep).Error
 }
 
@@ -83,12 +82,12 @@ func getHostId(name string) (int64, error) {
 	return newH.ID, nil
 }
 
-func getLeader(host graph.Endpoint) string {
+func getLeader(host auto_aggr.Endpoint) string {
 	frag := strings.Split(host.Endpoint, "-")
 	return strings.Join(frag[:len(frag)-1], "-")
 }
 
-func getHostGrp(host graph.Endpoint) (id int64, err error) {
+func getHostGrp(host auto_aggr.Endpoint) (id int64, err error) {
 	leader := getLeader(host)
 	return findGrpByLeader(leader)
 }
