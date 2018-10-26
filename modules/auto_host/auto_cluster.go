@@ -16,10 +16,13 @@ func genAggregator() {
 	for _, endpointCounter := range endpointCounterList {
 		err := genAggr(endpointCounter)
 		if err != nil {
-			log.Printf("gen cluster for metric(%s) fail:%v", endpointCounter.Counter, err)
-			continue
+			if err != NotFoundError {
+				log.Printf("gen cluster for metric(%s) fail:%v", endpointCounter.Counter, err)
+				continue
+			}
+		} else {
+			log.Printf("gen cluster for metric(%s) success", endpointCounter.Counter)
 		}
-		log.Printf("gen cluster for metric(%s) success", endpointCounter.Counter)
 		deleteEndpointCounter(endpointCounter)
 	}
 }

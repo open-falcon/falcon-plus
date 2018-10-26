@@ -16,7 +16,10 @@ const (
 	autoUser = "admin"
 )
 
-var db config.DBPool
+var (
+	db            config.DBPool
+	NotFoundError = fmt.Errorf("not found")
+)
 
 func getNewHost() []auto_aggr.Endpoint {
 	//for get right table name
@@ -56,7 +59,7 @@ GETGRP:
 		return res[0].ID, nil
 	}
 	if !createIfNotExists {
-		return -1, fmt.Errorf("not found")
+		return -1, NotFoundError
 	}
 
 	newHG := falcon_portal.HostGroup{
