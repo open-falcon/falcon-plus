@@ -44,7 +44,7 @@ func InGrp(member, grpId int64) (in bool, err error) {
 	return true, nil
 }
 
-func findGrpByLeader(leader string) (grp int64, err error) {
+func findGrpByLeader(leader string, createIfNotExists bool) (grp int64, err error) {
 	help := falcon_portal.HostGroup{}
 	res := []falcon_portal.HostGroup{}
 
@@ -54,6 +54,9 @@ GETGRP:
 	}
 	if len(res) > 0 {
 		return res[0].ID, nil
+	}
+	if !createIfNotExists {
+		return -1, fmt.Errorf("not found")
 	}
 
 	newHG := falcon_portal.HostGroup{
@@ -83,39 +86,39 @@ func getHostId(name string) (int64, error) {
 	return newH.ID, nil
 }
 
-func getLeader(host auto_aggr.Endpoint) string {
-	frag := strings.Split(host.Endpoint, "-")
+func getLeaderName(host string) string {
+	frag := strings.Split(host, "-")
 	return strings.Join(frag[:len(frag)-1], "-")
 }
 
 func getHostGrp(host auto_aggr.Endpoint) (id int64, err error) {
-	leader := getLeader(host)
-	return findGrpByLeader(leader)
+	leader := getLeaderName(host.Endpoint)
+	return findGrpByLeader(leader, true)
 }
 
 func AutoGenHostGrp() {
 	hostList := getNewHost()
 	for _, host := range hostList {
-		log.Println("proccess %s begin.", host.Endpoint)
+		log.Printf("proccess %s begin \n", host.Endpoint)
 		hostGrpId, err := getHostGrp(host)
 		if err != nil {
 			log.Println(err)
 			continue
 		}
-		log.Println("get host grp id:%d", hostGrpId)
+		log.Printf("get host grp id:%d \n", hostGrpId)
 		hostId, err := getHostId(host.Endpoint)
 		if err != nil {
 			log.Println(err)
 			continue
 		}
 
-		log.Println("get host id:%d", hostGrpId)
+		log.Printf("get host id:%d \n", hostGrpId)
 		in, err := InGrp(hostId, hostGrpId)
 		if err != nil {
 			log.Println(err)
 			continue
 		}
-		log.Println("in grp:%b", in)
+		log.Printf("in grp:%b \n", in)
 		deleteFromNewHost(host)
 		log.Println("proccess %s success.", host.Endpoint)
 	}
