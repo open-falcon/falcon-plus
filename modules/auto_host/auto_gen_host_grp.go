@@ -128,6 +128,7 @@ func Start() {
 	db = config.Con()
 	go func() {
 		AutoGenHostGrp()
+		genAggregator()
 		time.Sleep(time.Minute)
 	}()
 }
