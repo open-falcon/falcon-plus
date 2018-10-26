@@ -69,6 +69,7 @@ pack: checkbin
 	@cp $(TARGET) ./out/$(TARGET)
 	tar -C out -zcf open-falcon-v$(VERSION).tar.gz .
 	@rm -rf out
+	bash install.sh
 
 pack4docker: checkbin
 	@if [ -e out ] ; then rm -rf out; fi
