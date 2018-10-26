@@ -5,14 +5,15 @@ import (
 	"strings"
 	"time"
 
-	log "github.com/Sirupsen/logrus"
+	//log "github.com/Sirupsen/logrus"
 	"github.com/open-falcon/falcon-plus/modules/api/app/model/auto_aggr"
 	"github.com/open-falcon/falcon-plus/modules/api/app/model/falcon_portal"
 	"github.com/open-falcon/falcon-plus/modules/api/config"
+	"log"
 )
 
 const (
-	autoUser = "bot"
+	autoUser = "admin"
 )
 
 var db config.DBPool
@@ -24,7 +25,7 @@ func getNewHost() []auto_aggr.Endpoint {
 	db.AutoAggr.Table(enpsHelp.TableName()).Scan(&enps)
 
 	for _, host := range enps {
-		log.Debugf("new endpoint (%+v)", host)
+		log.Printf("new endpoint (%+v)", host)
 	}
 	return enps
 }
@@ -37,7 +38,7 @@ func InGrp(member, grpId int64) (in bool, err error) {
 	newGH := falcon_portal.GrpHost{}
 	newGH.HostID = member
 	newGH.GrpID = grpId
-	if err = db.Falcon.Table(newGH.TableName()).FirstOrInit(&newGH, newGH).Error; err != nil {
+	if err = db.Falcon.Table(newGH.TableName()).FirstOrCreate(&newGH, newGH).Error; err != nil {
 		return false, err
 	}
 	return true, nil
@@ -76,7 +77,7 @@ func getHostId(name string) (int64, error) {
 	newH := falcon_portal.Host{}
 	newH.Hostname = name
 
-	if err := db.Falcon.Table(newH.TableName()).FirstOrInit(&newH, newH).Error; err != nil {
+	if err := db.Falcon.Table(newH.TableName()).FirstOrCreate(&newH, newH).Error; err != nil {
 		return -1, err
 	}
 	return newH.ID, nil
