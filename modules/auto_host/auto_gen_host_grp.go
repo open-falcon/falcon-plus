@@ -48,7 +48,7 @@ func findGrpByLeader(leader string) (grp int64, err error) {
 	res := []falcon_portal.HostGroup{}
 
 GETGRP:
-	if err = db.Falcon.Table(help.TableName()).Where("grp_name = %s", leader).Scan(&res).Error; err != nil {
+	if err = db.Falcon.Table(help.TableName()).Where("grp_name = ?", leader).Scan(&res).Error; err != nil {
 		return 0, fmt.Errorf("get host_grp fail:%s", err)
 	}
 	if len(res) > 0 {
