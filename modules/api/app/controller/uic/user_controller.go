@@ -296,7 +296,7 @@ func IsUserInTeams(c *gin.Context) {
 	if len(tus) == 0 {
 		h.JSONR(c, "false")
 		return
-	} 
+	}
 	h.JSONR(c, "true")
 	return
 }
