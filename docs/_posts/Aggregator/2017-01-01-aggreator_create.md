@@ -1,9 +1,9 @@
 ---
-category: Aggreator
+category: Aggregator
 apiurl: '/api/v1/aggregator'
-title: "Create Aggreator to a HostGroup"
+title: "Create Aggregator to a HostGroup"
 type: 'POST'
-sample_doc: 'aggreator.html'
+sample_doc: 'aggregator.html'
 layout: default
 ---
 

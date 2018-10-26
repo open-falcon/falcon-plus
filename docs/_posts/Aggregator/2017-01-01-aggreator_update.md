@@ -1,13 +1,16 @@
 ---
-category: Aggreator
+category: Aggregator
 apiurl: '/api/v1/aggregators'
-title: "Get Aggreator Info by id"
-type: 'GET'
-sample_doc: 'aggreator.html'
+title: "Update Aggregator"
+type: 'PUT'
+sample_doc: 'aggregator.html'
 layout: default
 ---
 
 * [Session](#/authentication) Required
+* numerator: 分子
+* denominator: 分母
+* step: 汇报周期（秒为单位）
 
 ### Request
 
@@ -16,9 +19,9 @@ layout: default
   "step": 60,
   "numerator": "$(cpu.idle)",
   "metric": "test.idle",
-  "hostgroup_id": 343,
+  "id": 16,
   "endpoint": "testenp",
-  "denominator": "2"
+  "denominator": "$#"
 }```
 
 ### Response
@@ -28,7 +31,7 @@ layout: default
   "id": 16,
   "grp_id": 343,
   "numerator": "$(cpu.idle)",
-  "denominator": "2",
+  "denominator": "$#",
   "endpoint": "testenp",
   "metric": "test.idle",
   "tags": "",
