@@ -15,17 +15,17 @@
 package utils
 
 import (
+	"golang.org/x/crypto/bcrypt"
+
 	log "github.com/Sirupsen/logrus"
-	"github.com/spf13/viper"
-	"github.com/toolkits/str"
 )
 
 func HashIt(passwd string) (hashed string) {
-	salt := viper.GetString("salt")
-	log.Debugf("salf is %v", salt)
-	if salt == "" {
-		log.Error("salt is empty, please check your conf")
+	if bs, err := bcrypt.GenerateFromPassword([]byte(passwd), bcrypt.DefaultCost); err != nil {
+		log.Errorf("bcrypt fail, error:%v", err)
+		hashed = ""
+	} else {
+		hashed = string(bs)
 	}
-	hashed = str.Md5Encode(salt + passwd)
 	return
 }

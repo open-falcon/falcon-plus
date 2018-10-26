@@ -22,7 +22,6 @@
 	"web_port": ":8080",
 	"access_control": true,
 	"signup_disable": false,
-	"salt": "",
 	"skip_auth": false,
 	"default_token": "default-token-used-in-server-side",
 	"gen_doc": false,

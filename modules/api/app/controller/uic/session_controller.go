@@ -18,6 +18,8 @@ import (
 	"net/http"
 	"time"
 
+	"golang.org/x/crypto/bcrypt"
+
 	log "github.com/Sirupsen/logrus"
 	"github.com/gin-gonic/gin"
 	h "github.com/open-falcon/falcon-plus/modules/api/app/helper"
@@ -51,7 +53,7 @@ func Login(c *gin.Context) {
 	case user.ID == 0:
 		h.JSONR(c, badstatus, "no such user")
 		return
-	case user.Passwd != utils.HashIt(password):
+	case bcrypt.CompareHashAndPassword([]byte(user.Passwd), []byte(password)) != nil:
 		h.JSONR(c, badstatus, "password error")
 		return
 	}

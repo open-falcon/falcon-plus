@@ -22,7 +22,6 @@
 	"web_port": "%%PLUS_API_HTTP%%",
 	"access_control": true,
 	"signup_disable": false,
-	"salt": "",
 	"skip_auth": false,
 	"default_token": "%%PLUS_API_DEFAULT_TOKEN%%",
 	"gen_doc": false,

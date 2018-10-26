@@ -21,6 +21,8 @@ import (
 	"strings"
 	"time"
 
+	"golang.org/x/crypto/bcrypt"
+
 	log "github.com/Sirupsen/logrus"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
@@ -188,7 +190,7 @@ func ChangePassword(c *gin.Context) {
 	case dt.Error != nil:
 		h.JSONR(c, http.StatusExpectationFailed, dt.Error)
 		return
-	case user.Passwd != utils.HashIt(inputs.OldPassword):
+	case bcrypt.CompareHashAndPassword([]byte(user.Passwd), []byte(inputs.OldPassword)) != nil:
 		h.JSONR(c, http.StatusBadRequest, "oldPassword is not match current one")
 		return
 	}
