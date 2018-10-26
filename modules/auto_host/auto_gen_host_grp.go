@@ -6,21 +6,22 @@ import (
 	"time"
 
 	log "github.com/Sirupsen/logrus"
+	"github.com/open-falcon/falcon-plus/modules/api/app/model/auto_aggr"
 	"github.com/open-falcon/falcon-plus/modules/api/app/model/falcon_portal"
 	"github.com/open-falcon/falcon-plus/modules/api/app/model/graph"
 	"github.com/open-falcon/falcon-plus/modules/api/config"
 )
 
-var db config.DBPool = config.Con()
-
 const (
 	autoUser = "bot"
 )
 
-func getNewHost() []graph.Endpoint {
+var db config.DBPool
+
+func getNewHost() []auto_aggr.Endpoint {
 	//for get right table name
-	enpsHelp := graph.Endpoint{}
-	enps := []graph.Endpoint{}
+	enpsHelp := auto_aggr.Endpoint{}
+	enps := []auto_aggr.Endpoint{}
 	db.AutoAggr.Table(enpsHelp.TableName()).Scan(&enps)
 
 	for _, host := range enps {
@@ -118,6 +119,7 @@ func AutoGenHostGrp() {
 }
 
 func Start() {
+	db = config.Con()
 	go func() {
 		AutoGenHostGrp()
 		time.Sleep(time.Minute)
