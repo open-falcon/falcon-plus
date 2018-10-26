@@ -97,7 +97,7 @@ func getNumberator(counter string) string {
 }
 
 func getDenominator(orgTags, typeStr string) string {
-	if strings.Contains(orgTags, "metricType=counter") {
+	if !strings.Contains(orgTags, "metricType=counter") {
 		return "$#"
 	}
 	return "1"
