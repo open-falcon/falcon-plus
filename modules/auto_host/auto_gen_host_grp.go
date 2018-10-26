@@ -95,23 +95,26 @@ func getHostGrp(host auto_aggr.Endpoint) (id int64, err error) {
 func AutoGenHostGrp() {
 	hostList := getNewHost()
 	for _, host := range hostList {
+		log.Println("proccess %s begin.", host.Endpoint)
 		hostGrpId, err := getHostGrp(host)
 		if err != nil {
 			log.Println(err)
 			continue
 		}
-
+		log.Println("get host grp id:%d", hostGrpId)
 		hostId, err := getHostId(host.Endpoint)
 		if err != nil {
 			log.Println(err)
 			continue
 		}
 
-		_, err = InGrp(hostId, hostGrpId)
+		log.Println("get host id:%d", hostGrpId)
+		in, err := InGrp(hostId, hostGrpId)
 		if err != nil {
 			log.Println(err)
 			continue
 		}
+		log.Println("in grp:%b", in)
 		deleteFromNewHost(host)
 		log.Println("proccess %s success.", host.Endpoint)
 	}
