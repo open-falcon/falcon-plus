@@ -162,10 +162,7 @@ func findEndpointIdByEndpointList(hosts []string) []int64 {
 	//for get right table name
 	enpsHelp := m.Endpoint{}
 	enps := []m.Endpoint{}
-	hostStr, _ := u.ArrStringsToString(hosts)
-	log.Debugf("hostStr: %v", hostStr)
-	log.Debugf("endpoint in (%s)", hostStr)
-	db.Graph.Table(enpsHelp.TableName()).Where(fmt.Sprintf("endpoint in (%s)", hostStr)).Scan(&enps)
+	db.Graph.Table(enpsHelp.TableName()).Where("endpoint in (?)", hosts).Scan(&enps)
 	hostIds := make([]int64, len(enps))
 	for indx, h := range enps {
 		hostIds[indx] = int64(h.ID)
