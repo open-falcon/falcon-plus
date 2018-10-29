@@ -33,7 +33,7 @@ func Routes(r *gin.Engine) {
 	hostr.Use(utils.AuthSessionMidd)
 	//hostgroup
 	hostr.GET("/hostgroup", GetHostGroups)
-	hostr.POST("/hostgroup", CrateHostGroup)
+	hostr.POST("/hostgroup", CreateHostGroup)
 	hostr.POST("/hostgroup/host", BindHostToHostGroup)
 	hostr.PUT("/hostgroup/host", UnBindAHostToHostGroup)
 	hostr.GET("/hostgroup/:host_group", GetHostGroup)
@@ -46,7 +46,7 @@ func Routes(r *gin.Engine) {
 	hostr.POST("/plugin", CreatePlugin)
 	hostr.DELETE("/plugin/:id", DeletePlugin)
 
-	//aggreator
+	//aggregator
 	hostr.GET("/hostgroup/:host_group/aggregators", GetAggregatorListOfGrp)
 	hostr.GET("/aggregator/:id", GetAggregator)
 	hostr.POST("/aggregator", CreateAggregator)

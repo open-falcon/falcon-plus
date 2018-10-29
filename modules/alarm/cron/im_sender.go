@@ -52,7 +52,7 @@ func SendIM(im *model.IM) {
 	r.Param("content", im.Content)
 	resp, err := r.String()
 	if err != nil {
-		log.Errorf("send im fail, tos:%s, cotent:%s, error:%v", im.Tos, im.Content, err)
+		log.Errorf("send im fail, tos:%s, content:%s, error:%v", im.Tos, im.Content, err)
 	}
 
 	log.Debugf("send im:%v, resp:%v, url:%s", im, resp, url)

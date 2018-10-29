@@ -18,15 +18,16 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/open-falcon/falcon-plus/common/model"
-	"github.com/open-falcon/falcon-plus/modules/agent/g"
-	"github.com/toolkits/sys"
 	"log"
 	"os/exec"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/open-falcon/falcon-plus/common/model"
+	"github.com/open-falcon/falcon-plus/modules/agent/g"
+	"github.com/toolkits/sys"
 )
 
 var timeout = 30
@@ -38,7 +39,7 @@ func DuMetrics() (L []*model.MetricValue) {
 
 	for _, path := range paths {
 		wg.Add(1)
-		go func(filepath string) {
+		go func(path string) {
 			var err error
 			defer func() {
 				if err != nil {
@@ -77,7 +78,7 @@ func DuMetrics() (L []*model.MetricValue) {
 
 			arr := strings.Fields(stdout.String())
 			if len(arr) < 2 {
-				errors.New(fmt.Sprintf("du -bs %s failed: %s", path, "return fields < 2"))
+				err = errors.New(fmt.Sprintf("du -bs %s failed: %s", path, "return fields < 2"))
 				return
 			}
 

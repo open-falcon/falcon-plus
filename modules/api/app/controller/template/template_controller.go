@@ -161,11 +161,12 @@ func CreateTemplate(c *gin.Context) {
 		CreateUser: user.Name,
 	}
 	dt := db.Falcon.Table("tpl").Save(&template)
+
 	if dt.Error != nil {
 		h.JSONR(c, badstatus, dt.Error)
 		return
 	}
-	h.JSONR(c, "template created")
+	h.JSONR(c, template)
 	return
 }
 

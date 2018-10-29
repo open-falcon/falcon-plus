@@ -1,9 +1,9 @@
 ---
-category: Aggreator
+category: Aggregator
 apiurl: '/api/v1/aggregator/16'
-title: "Delete Aggreator"
+title: "Delete Aggregator"
 type: 'DELETE'
-sample_doc: 'aggreator.html'
+sample_doc: 'aggregator.html'
 layout: default
 ---
 

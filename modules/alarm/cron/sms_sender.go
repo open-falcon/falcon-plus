@@ -52,7 +52,7 @@ func SendSms(sms *model.Sms) {
 	r.Param("content", sms.Content)
 	resp, err := r.String()
 	if err != nil {
-		log.Errorf("send sms fail, tos:%s, cotent:%s, error:%v", sms.Tos, sms.Content, err)
+		log.Errorf("send sms fail, tos:%s, content:%s, error:%v", sms.Tos, sms.Content, err)
 	}
 
 	log.Debugf("send sms:%v, resp:%v, url:%s", sms, resp, url)

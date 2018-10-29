@@ -37,10 +37,6 @@ var Close_chan, Close_done_chan chan int
 var router *gin.Engine
 
 func init() {
-	router = gin.Default()
-	configCommonRoutes()
-	configProcRoutes()
-	configIndexRoutes()
 	Close_chan = make(chan int, 1)
 	Close_done_chan = make(chan int, 1)
 
@@ -95,6 +91,16 @@ func Start() {
 		log.Println("http.Start warning, not enabled")
 		return
 	}
+
+	if !g.Config().Debug {
+		gin.SetMode(gin.ReleaseMode)
+	}
+
+	router = gin.Default()
+
+	configCommonRoutes()
+	configProcRoutes()
+	configIndexRoutes()
 
 	router.GET("/api/v2/counter/migrate", func(c *gin.Context) {
 		counter := rrdtool.GetCounterV2()

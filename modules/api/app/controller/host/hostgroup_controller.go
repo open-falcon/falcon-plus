@@ -57,12 +57,12 @@ func GetHostGroups(c *gin.Context) {
 	return
 }
 
-type APICrateHostGroup struct {
+type APICreateHostGroup struct {
 	Name string `json:"name" binding:"required"`
 }
 
-func CrateHostGroup(c *gin.Context) {
-	var inputs APICrateHostGroup
+func CreateHostGroup(c *gin.Context) {
+	var inputs APICreateHostGroup
 	if err := c.Bind(&inputs); err != nil {
 		h.JSONR(c, badstatus, err)
 		return
@@ -198,9 +198,9 @@ func DeleteHostGroup(c *gin.Context) {
 		dt.Rollback()
 		return
 	}
-	//delete aggreators of hostgroup
+	//delete aggregators of hostgroup
 	if dt := tx.Where("grp_id = ?", grpID).Delete(&f.Cluster{}); dt.Error != nil {
-		h.JSONR(c, expecstatus, fmt.Sprintf("delete aggreators got error: %v", dt.Error))
+		h.JSONR(c, expecstatus, fmt.Sprintf("delete aggregators got error: %v", dt.Error))
 		dt.Rollback()
 		return
 	}

@@ -17,15 +17,16 @@ package plugins
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/open-falcon/falcon-plus/common/model"
-	"github.com/open-falcon/falcon-plus/modules/agent/g"
-	"github.com/toolkits/file"
-	"github.com/toolkits/sys"
 	"log"
 	"os/exec"
 	"path/filepath"
 	"syscall"
 	"time"
+
+	"github.com/open-falcon/falcon-plus/common/model"
+	"github.com/open-falcon/falcon-plus/modules/agent/g"
+	"github.com/toolkits/file"
+	"github.com/toolkits/sys"
 )
 
 type PluginScheduler struct {
@@ -80,7 +81,11 @@ func PluginRun(plugin *Plugin) {
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
-	cmd.Start()
+	err := cmd.Start()
+	if err != nil {
+		log.Printf("[ERROR] plugin start fail, error: %s\n", err)
+		return
+	}
 	if debug {
 		log.Println("plugin started:", fpath)
 	}
