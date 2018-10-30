@@ -243,22 +243,18 @@ func (this DeviationFunction) Compute(L *SafeLinkedList) (vs []*model.HistoryDat
 		datas = append(datas, i.Value)
 	}
 
-	isTriggered = false
+	isTriggered = true
 
 	std := utils.ComputeStdDeviation(datas)
 	mean := utils.ComputeMean(datas)
 
-	upper_bound := mean + 3*std
-	lower_bound := mean - 3*std
+	upperBound := mean + this.RightValue * std
+	lowerBound := mean - this.RightValue * std
 
-	if leftValue >= upper_bound {
-		isTriggered = true
-		return
-	}
-
-	if leftValue <= lower_bound {
-		isTriggered = true
-		return
+	if lowerBound < leftValue {
+		isTriggered = false
+	} else if upperBound >= leftValue {
+		isTriggered = false
 	}
 
 	return
@@ -341,7 +337,7 @@ func ParseFuncFromString(str string, operator string, rightValue float64) (fn Fu
 		fn = &PDiffFunction{Limit: args[0], Operator: operator, RightValue: rightValue}
 	case "lookup":
 		fn = &LookupFunction{Num: args[0], Limit: args[1], Operator: operator, RightValue: rightValue}
-	case "deviation":
+	case "3sigma":
 		fn = &DeviationFunction{Limit: args[0], Operator: operator, RightValue: rightValue}
 	default:
 		err = fmt.Errorf("not_supported_method")
