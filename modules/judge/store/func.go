@@ -248,8 +248,8 @@ func (this DeviationFunction) Compute(L *SafeLinkedList) (vs []*model.HistoryDat
 	std := utils.ComputeStdDeviation(datas)
 	mean := utils.ComputeMean(datas)
 
-	upperBound := mean + this.RightValue * std
-	lowerBound := mean - this.RightValue * std
+	upperBound := mean + this.RightValue*std
+	lowerBound := mean - this.RightValue*std
 
 	if lowerBound <= leftValue {
 		isTriggered = false
