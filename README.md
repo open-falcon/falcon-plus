@@ -8,6 +8,8 @@
 [![Code Issues](https://www.quantifiedcode.com/api/v1/project/5035c017b02c4a4a807ebc4e9f153e6f/badge.svg)](https://www.quantifiedcode.com/app/project/5035c017b02c4a4a807ebc4e9f153e6f)
 [![Go Report Card](https://goreportcard.com/badge/github.com/open-falcon/falcon-plus)](https://goreportcard.com/report/github.com/open-falcon/falcon-plus)
 [![License](https://img.shields.io/badge/LICENSE-Apache2.0-ff69b4.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
+[![Backers on Open Collective](https://opencollective.com/falcon-plus/backers/badge.svg)](#backers) 
+[![Sponsors on Open Collective](https://opencollective.com/falcon-plus/sponsors/badge.svg)](#sponsors) 
 
 # Documentations
 
@@ -150,4 +152,34 @@ make clean all pack
 
 - Any issue or question is welcome, Please feel free to open [github issues](https://github.com/open-falcon/falcon-plus/issues) :)
 - [FAQ](http://book.open-falcon.com/zh_0_2/faq/)
+
+
+## Contributors
+
+This project exists thanks to all the people who contribute. [[Contribute](CONTRIBUTING.md)].
+<a href="https://github.com/open-falcon/falcon-plus/contributors"><img src="https://opencollective.com/falcon-plus/contributors.svg?width=890&button=false" /></a>
+
+
+## Backers
+
+Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/falcon-plus#backer)]
+
+<a href="https://opencollective.com/falcon-plus#backers" target="_blank"><img src="https://opencollective.com/falcon-plus/backers.svg?width=890"></a>
+
+
+## Sponsors
+
+Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [[Become a sponsor](https://opencollective.com/falcon-plus#sponsor)]
+
+<a href="https://opencollective.com/falcon-plus/sponsor/0/website" target="_blank"><img src="https://opencollective.com/falcon-plus/sponsor/0/avatar.svg"></a>
+<a href="https://opencollective.com/falcon-plus/sponsor/1/website" target="_blank"><img src="https://opencollective.com/falcon-plus/sponsor/1/avatar.svg"></a>
+<a href="https://opencollective.com/falcon-plus/sponsor/2/website" target="_blank"><img src="https://opencollective.com/falcon-plus/sponsor/2/avatar.svg"></a>
+<a href="https://opencollective.com/falcon-plus/sponsor/3/website" target="_blank"><img src="https://opencollective.com/falcon-plus/sponsor/3/avatar.svg"></a>
+<a href="https://opencollective.com/falcon-plus/sponsor/4/website" target="_blank"><img src="https://opencollective.com/falcon-plus/sponsor/4/avatar.svg"></a>
+<a href="https://opencollective.com/falcon-plus/sponsor/5/website" target="_blank"><img src="https://opencollective.com/falcon-plus/sponsor/5/avatar.svg"></a>
+<a href="https://opencollective.com/falcon-plus/sponsor/6/website" target="_blank"><img src="https://opencollective.com/falcon-plus/sponsor/6/avatar.svg"></a>
+<a href="https://opencollective.com/falcon-plus/sponsor/7/website" target="_blank"><img src="https://opencollective.com/falcon-plus/sponsor/7/avatar.svg"></a>
+<a href="https://opencollective.com/falcon-plus/sponsor/8/website" target="_blank"><img src="https://opencollective.com/falcon-plus/sponsor/8/avatar.svg"></a>
+<a href="https://opencollective.com/falcon-plus/sponsor/9/website" target="_blank"><img src="https://opencollective.com/falcon-plus/sponsor/9/avatar.svg"></a>
+
 
