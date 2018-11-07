@@ -8,11 +8,13 @@
 [![Code Issues](https://www.quantifiedcode.com/api/v1/project/5035c017b02c4a4a807ebc4e9f153e6f/badge.svg)](https://www.quantifiedcode.com/app/project/5035c017b02c4a4a807ebc4e9f153e6f)
 [![Go Report Card](https://goreportcard.com/badge/github.com/open-falcon/falcon-plus)](https://goreportcard.com/report/github.com/open-falcon/falcon-plus)
 [![License](https://img.shields.io/badge/LICENSE-Apache2.0-ff69b4.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
+[![Backers on Open Collective](https://opencollective.com/falcon-plus/backers/badge.svg)](#backers) 
+[![Sponsors on Open Collective](https://opencollective.com/falcon-plus/sponsors/badge.svg)](#sponsors) 
 
 # Documentations
 
-- [Usage](http://book.open-falcon.com)
-- [Open-Falcon API](http://open-falcon.com/falcon-plus)
+- [Usage](http://book.open-falcon.org)
+- [Open-Falcon API](http://open-falcon.org/falcon-plus)
 
 # Prerequisite
 
@@ -149,5 +151,10 @@ make clean all pack
 # Q&A
 
 - Any issue or question is welcome, Please feel free to open [github issues](https://github.com/open-falcon/falcon-plus/issues) :)
-- [FAQ](http://book.open-falcon.com/zh_0_2/faq/)
+- [FAQ](http://book.open-falcon.org/zh_0_2/faq/)
 
+
+## Contributors
+
+This project exists thanks to all the people who contribute. [[Contribute](CONTRIBUTING.md)].
+<a href="https://github.com/open-falcon/falcon-plus/contributors"><img src="https://opencollective.com/falcon-plus/contributors.svg?width=890&button=false" /></a>
