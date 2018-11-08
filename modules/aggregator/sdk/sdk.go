@@ -47,7 +47,11 @@ func HostnamesByID(group_id int64) ([]string, error) {
 	}
 
 	hosts := []string{}
+	nowTs := time.Now().Unix()
 	for _, x := range resp.Hosts {
+		if x.MaintainBegin <= nowTs && nowTs <= x.MaintainEnd {
+			continue
+		}
 		hosts = append(hosts, x.Hostname)
 	}
 	return hosts, nil
