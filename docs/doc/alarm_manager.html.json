@@ -1,0 +1,142 @@
+{
+  "ApiSpecs": [
+    {
+      "HttpVerb": "POST",
+      "Path": "/api/v1/event",
+      "Calls": [
+        {
+          "Id": 0,
+          "CurrentPath": "/api/v1/event",
+          "MethodType": "POST",
+          "PostForm": null,
+          "RequestHeader": {
+            "Apitoken": "{\"name\": \"root\", \"sig\": \"233fdb00f99811e68a5c001500c6ca5a\"}",
+            "Content-Type": " application/json\r"
+          },
+          "CommonRequestHeaders": null,
+          "ResponseHeader": {
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Allow-Headers": "Content-Type, Content-Length, Apitoken",
+            "Access-Control-Allow-Methods": "POST, GET, OPTIONS, PUT, DELETE, UPDATE",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Expose-Headers": "Content-Length",
+            "Access-Control-Max-Age": "86400",
+            "Content-Type": "application/json; charset=utf-8"
+          },
+          "RequestUrlParams": {},
+          "RequestBody": "{\"username\": \"xiaoming\",\"uic\": [\"plus-dev01\", \"plus-dev02\"],\"endpoint\": \"agent01\",\"counter\": \"mem.memused\", \"priority\": [\"0\",\"1\"], \"start_time\": 1535760000, \"end_time\": 1535767200, \"status\": \"PROBLEM\", \"now_event_status\": false, \"limit\": 10, \"offset\": 0}",
+          "ResponseBody": "{\"Code\": 200,\"Data\": [{\"event_id\": 1000, \"eventcase_id\": \"s_13_3e251836d0e4992f5fc39d8b65864ee6\", \"endpoint\": \"agent01\",\"counter\": \"mem.memused\",\"func\": \"all(#3)\", \"cond\": \"85.63511855141716 > 80\", \"note\": \"内存占用过高\", \"max_step\": 10, \"current_step\": 2, \"priorty\": 1,\"Status\": \"PROBLEM\", \"event_ts\": \"2018-09-01T09:20:00+08:00\", \"template_creator\": \"xiaoming\", \"expression_id\": 0, \"strategy_id\": 13, \"template_id\": 2}, {\"event_id\": 955, \"eventcase_id\": \"s_13_3e251836d0e4992f5fc39d8b65864ee6\", \"endpoint\": \"agent01\",\"counter\": \"mem.memused\",\"func\": \"all(#3)\", \"cond\": \"80.01541888141424 > 80\", \"note\": \"内存占用过高\", \"max_step\": 10, \"current_step\": 1, \"priorty\": 1, \"Status\": \"PROBLEM\", \"event_ts\": \"2018-09-01T09:15:00+08:00\", \"template_creator\": \"xiaoming\", \"expression_id\": 0, \"strategy_id\": 13, \"template_id\": 2}], \"Message\": \"\"}",
+          "ResponseCode": 200
+        },
+        {
+          "Id": 1,
+          "CurrentPath": "/api/v1/event",
+          "MethodType": "POST",
+          "PostForm": null,
+          "RequestHeader": {
+            "Apitoken": "{\"name\": \"root\", \"sig\": \"233fdb00f99811e68a5c001500c6ca5a\"}",
+            "Content-Type": " application/json\r"
+          },
+          "CommonRequestHeaders": null,
+          "ResponseHeader": {
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Allow-Headers": "Content-Type, Content-Length, Apitoken",
+            "Access-Control-Allow-Methods": "POST, GET, OPTIONS, PUT, DELETE, UPDATE",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Expose-Headers": "Content-Length",
+            "Access-Control-Max-Age": "86400",
+            "Content-Type": "application/json; charset=utf-8"
+          },
+          "RequestUrlParams": {},
+          "RequestBody": "{\"username\": \"xiaoming\",\"uic\": [\"plus-dev01\", \"plus-dev02\"],\"endpoint\": \"agent01\",\"counter\": \"mem.memused\", \"priority\": [\"0\",\"1\"], \"start_time\": 1535760000, \"end_time\": 1535767200, \"status\": \"OK\", \"now_event_status\": false, \"limit\": 10, \"offset\": 0}",
+          "ResponseBody": "{\"Code\": 200,\"Data\": [{\"event_id\": 1100, \"eventcase_id\": \"s_13_3e251836d0e4992f5fc39d8b65864ee6\", \"endpoint\": \"agent01\",\"counter\": \"mem.memused\",\"func\": \"all(#3)\", \"cond\": \"70.6454855141423 > 80\", \"note\": \"内存占用过高\", \"max_step\": 10, \"current_step\": 1, \"priorty\": 1,\"Status\": \"OK\", \"event_ts\": \"2018-09-01T09:40:00+08:00\", \"template_creator\": \"xiaoming\", \"expression_id\": 0, \"strategy_id\": 13, \"template_id\": 2}, \"Message\": \"\"}",
+          "ResponseCode": 200
+        }
+      ]
+    },
+    {
+      "HttpVerb": "POST",
+      "Path": "/api/v1/event/fault",
+      "Calls": [
+        {
+          "Id": 2,
+          "CurrentPath": "/api/v1/event/fault",
+          "MethodType": "POST",
+          "PostForm": null,
+          "RequestHeader": {
+            "Apitoken": "{\"name\": \"root\", \"sig\": \"233fdb00f99811e68a5c001500c6ca5a\"}",
+            "Content-Type": " application/json\r"
+          },
+          "CommonRequestHeaders": null,
+          "ResponseHeader": {
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Allow-Headers": "Content-Type, Content-Length, Apitoken",
+            "Access-Control-Allow-Methods": "POST, GET, OPTIONS, PUT, DELETE, UPDATE",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Expose-Headers": "Content-Length",
+            "Access-Control-Max-Age": "86400",
+            "Content-Type": "application/json; charset=utf-8"
+          },
+          "RequestUrlParams": {},
+          "RequestBody": "{\"username\": \"xiaoming\",\"uic\": [\"plus-dev01\", \"plus-dev02\"],\"endpoint\": \"agent01\",\"counter\": \"mem.memused\", \"priority\": [\"0\",\"1\"], \"start_time\": 1535760000, \"end_time\": 1535767200, \"status\": \"PROBLEM\", \"now_event_status\": false, \"have_fault\": true, \"limit\": 10, \"offset\": 0}",
+          "ResponseBody": "{\"Code\": 200,\"Data\": [{\"event_id\": 1000, \"eventcase_id\": \"s_13_3e251836d0e4992f5fc39d8b65864ee6\", \"endpoint\": \"agent01\",\"counter\": \"mem.memused\",\"func\": \"all(#3)\", \"cond\": \"85.63511855141716 > 80\", \"note\": \"内存占用过高\", \"max_step\": 10, \"current_step\": 2, \"priorty\": 1, \"Status\": \"PROBLEM\", \"event_ts\": \"2018-09-01T09:20:00+08:00\", \"template_creator\": \"xiaoming\", \"expression_id\": 0, \"strategy_id\": 13, \"template_id\": 2}, \"faults\": [{\"fault_id\": 60, \"title\": \"X进程内存占用过高导致job重启\", \"updated_at\": \"2018-09-01T09:30:14+08:00\"}]}], \"Message\": \"\"}",
+          "ResponseCode": 200
+        },
+        {
+          "Id": 3,
+          "CurrentPath": "/api/v1/event/fault",
+          "MethodType": "POST",
+          "PostForm": null,
+          "RequestHeader": {
+            "Apitoken": "{\"name\": \"root\", \"sig\": \"233fdb00f99811e68a5c001500c6ca5a\"}",
+            "Content-Type": " application/json\r"
+          },
+          "CommonRequestHeaders": null,
+          "ResponseHeader": {
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Allow-Headers": "Content-Type, Content-Length, Apitoken",
+            "Access-Control-Allow-Methods": "POST, GET, OPTIONS, PUT, DELETE, UPDATE",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Expose-Headers": "Content-Length",
+            "Access-Control-Max-Age": "86400",
+            "Content-Type": "application/json; charset=utf-8"
+          },
+          "RequestUrlParams": {},
+          "RequestBody": "{\"username\": \"xiaoming\",\"uic\": [\"plus-dev01\", \"plus-dev02\"],\"endpoint\": \"agent01\",\"counter\": \"mem.memused\", \"priority\": [\"0\",\"1\"], \"start_time\": 1535760000, \"end_time\": 1535767200, \"status\": \"OK\", \"now_event_status\": false, \"have_fault\": true, \"limit\": 10, \"offset\": 0}",
+          "ResponseBody": "{\"Code\": 200,\"Data\": [{\"event_id\": 1100, \"eventcase_id\": \"s_13_3e251836d0e4992f5fc39d8b65864ee6\", \"endpoint\": \"agent01\",\"counter\": \"mem.memused\",\"func\": \"all(#3)\", \"cond\": \"70.6454855141423 > 80\", \"note\": \"内存占用过高\", \"max_step\": 10, \"current_step\": 1, \"priorty\": 1, \"Status\": \"OK\", \"event_ts\": \"2018-09-01T09:40:00+08:00\", \"template_creator\": \"xiaoming\", \"expression_id\": 0, \"strategy_id\": 13, \"template_id\": 2}, \"faults\": [{\"fault_id\": 60, \"title\": \"X进程内存占用过高导致job重启\", \"updated_at\": \"2018-09-01T09:50:14+08:00\"}]}], \"Message\": \"\"}",
+          "ResponseCode": 200
+        }
+      ]
+    },
+    {
+      "HttpVerb": "POST",
+      "Path": "/api/v1/event/count",
+      "Calls": [
+        {
+          "Id": 4,
+          "CurrentPath": "/api/v1/event/count",
+          "MethodType": "POST",
+          "PostForm": null,
+          "RequestHeader": {
+            "Apitoken": "{\"name\": \"root\", \"sig\": \"233fdb00f99811e68a5c001500c6ca5a\"}",
+            "Content-Type": " application/json\r"
+          },
+          "CommonRequestHeaders": null,
+          "ResponseHeader": {
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Allow-Headers": "Content-Type, Content-Length, Apitoken",
+            "Access-Control-Allow-Methods": "POST, GET, OPTIONS, PUT, DELETE, UPDATE",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Expose-Headers": "Content-Length",
+            "Access-Control-Max-Age": "86400",
+            "Content-Type": "application/json; charset=utf-8"
+          },
+          "RequestUrlParams": {},
+          "RequestBody": "{\"username\": \"xiaoming\",\"uic\": [\"plus-dev01\", \"plus-dev02\"],\"endpoint\": \"agent01\",\"counter\": \"mem.memused\", \"priority\": [\"0\",\"1\"], \"start_time\": 1535760000, \"end_time\": 1535767200, \"status\": \"PROBLEM\", \"now_event_status\": false, \"have_fault\": true}",
+          "ResponseBody": "{\"Code\": 200,\"Data\":{\"count\":11},\"Message\":\"\"}",
+          "ResponseCode": 200
+        }
+      ]
+    }
+  ]
+}
