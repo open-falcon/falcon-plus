@@ -1,4 +1,4 @@
-CMD = agent aggregator graph hbs judge nodata transfer gateway api alarm
+CMD = agent aggregator graph hbs judge nodata transfer gateway api alarm alarm-manager
 TARGET = open-falcon
 PACKAGES ?= $(shell go list ./... | grep -v /vendor/)
 GOFILES := $(shell find . -name "*.go" -type f -not -path "./vendor/*")
@@ -95,4 +95,4 @@ clean:
 	@rm -rf ./$(TARGET)
 	@rm -rf open-falcon-v$(VERSION).tar.gz
 
-.PHONY: clean all agent aggregator graph hbs judge nodata transfer gateway api alarm
+.PHONY: clean all agent aggregator graph hbs judge nodata transfer gateway api alarm alarm-manager

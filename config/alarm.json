@@ -30,6 +30,10 @@
         "plus_api":"http://127.0.0.1:8080",
         "plus_api_token": "%%PLUS_API_DEFAULT_TOKEN%%"
     },
+    "alarm_channel": {
+        "enabled": false,
+        "alarm_manager_api": "http://127.0.0.1:9922/v1/recv"
+    },
     "falcon_portal": {
         "addr": "%%MYSQL%%/alarms?charset=utf8&loc=Asia%2FChongqing",
         "idle": 10,
@@ -41,6 +45,7 @@
         "mail": 50
     },
     "housekeeper": {
+        "enabled": false,
         "event_retention_days": 7,
         "event_delete_batch": 100
     }

@@ -26,5 +26,6 @@
 	"skip_auth": false,
 	"default_token": "%%PLUS_API_DEFAULT_TOKEN%%",
 	"gen_doc": false,
-	"gen_doc_path": "doc/module.html"
+	"gen_doc_path": "doc/module.html",
+    "alarm_manager_api": "http://127.0.0.1:9922"
 }
