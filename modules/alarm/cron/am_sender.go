@@ -1,4 +1,4 @@
-// Copyright 2017 Xiaomi, Inc.
+// Copyright 2018 Xiaomi, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,25 +15,30 @@
 package cron
 
 import (
+	cmodel "github.com/open-falcon/falcon-plus/common/model"
+	"encoding/json"
+	"net/http"
+	log "github.com/Sirupsen/logrus"
 	"github.com/open-falcon/falcon-plus/modules/alarm/g"
-	eventmodel "github.com/open-falcon/falcon-plus/modules/alarm/model/event"
-	"time"
+	"bytes"
 )
 
-func CleanExpiredEvent() {
-	if !g.Config().Housekeeper.Enabled {
+func SendEventToAlarmManager(eve *cmodel.Event) {
+	event, err := json.Marshal(eve)
+	if err != nil {
+		log.Errorf("json marshal err: %s", err.Error())
 		return
 	}
 
-	for {
-
-		retention_days := g.Config().Housekeeper.EventRetentionDays
-		delete_batch := g.Config().Housekeeper.EventDeleteBatch
-
-		now := time.Now()
-		before := now.Add(time.Duration(-retention_days*24) * time.Hour)
-		eventmodel.DeleteEventOlder(before, delete_batch)
-
-		time.Sleep(time.Second * 60)
+	url := g.Config().AlarmChannel.AMApi
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(event))
+	req.Header.Set("Content-Type", "application/json")
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Errorf("send am fail: %s", err.Error())
+		return
 	}
+	defer resp.Body.Close()
+	return
 }

@@ -58,9 +58,15 @@ type WorkerConfig struct {
 	Mail int `json:"mail"`
 }
 
+type AlarmChannelConfig struct {
+	Enabled bool   `json:"enabled"`
+	AMApi   string `json:"alarm_manager_api"`
+}
+
 type HousekeeperConfig struct {
-	EventRetentionDays int `json:"event_retention_days"`
-	EventDeleteBatch   int `json:"event_delete_batch"`
+	Enabled            bool `json:"enabled"`
+	EventRetentionDays int  `json:"event_retention_days"`
+	EventDeleteBatch   int  `json:"event_delete_batch"`
 }
 
 type GlobalConfig struct {
@@ -69,6 +75,7 @@ type GlobalConfig struct {
 	Http         *HttpConfig         `json:"http"`
 	Redis        *RedisConfig        `json:"redis"`
 	Api          *ApiConfig          `json:"api"`
+	AlarmChannel *AlarmChannelConfig `json:"alarm_channel"`
 	Worker       *WorkerConfig       `json:"worker"`
 	Housekeeper  *HousekeeperConfig  `json:"Housekeeper"`
 }
