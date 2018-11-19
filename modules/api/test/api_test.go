@@ -487,7 +487,7 @@ func TestTeam(t *testing.T) {
 		})
 	})
 
-	Convey("Add users to team: PUT /team/user", t, func() {
+	Convey("Add users to team: POST /team/user", t, func() {
 		*rr = map[string]interface{}{}
 		resp, _ := resty.R().
 			SetHeader("Content-Type", "application/json").
@@ -497,7 +497,7 @@ func TestTeam(t *testing.T) {
 				"users":   []string{root_user_name},
 			}).
 			SetResult(rr).
-			Put(fmt.Sprintf("%s/team/user", api_v1))
+			Post(fmt.Sprintf("%s/team/user", api_v1))
 		So(resp.StatusCode(), ShouldEqual, 200)
 		So(*rr, ShouldNotBeEmpty)
 		So((*rr)["message"], ShouldContainSubstring, "successful")
