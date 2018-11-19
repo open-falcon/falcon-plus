@@ -155,8 +155,7 @@ func AuthSession(c *gin.Context) {
 		h.JSONR(c, http.StatusUnauthorized, err)
 		return
 	}
-	//TODO:fix type
-	h.JSONR(c, "session is vaild!")
+	h.JSONR(c, "session is valid!")
 	return
 }
 
