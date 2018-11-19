@@ -155,7 +155,7 @@ func AuthSession(c *gin.Context) {
 		h.JSONR(c, http.StatusUnauthorized, err)
 		return
 	}
-	h.JSONR(c, "session is vaild!")
+	h.JSONR(c, "session is valid!")
 	return
 }
 

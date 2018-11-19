@@ -16,7 +16,9 @@ package utils
 
 import (
 	"bytes"
+	"math/rand"
 	"strconv"
+	"time"
 )
 
 func PK(endpoint, metric string, tags map[string]string) string {
@@ -87,4 +89,20 @@ func Checksum(endpoint string, metric string, tags map[string]string) string {
 
 func ChecksumOfUUID(endpoint, metric string, tags map[string]string, dstype string, step int64) string {
 	return Md5(UUID(endpoint, metric, tags, dstype, int(step)))
+}
+
+func init() {
+	rand.Seed(time.Now().UTC().UnixNano())
+}
+
+func RandString(l int) string {
+	bytes := make([]byte, l)
+	for i := 0; i < l; i++ {
+		bytes[i] = byte(RandInt(65, 90))
+	}
+	return string(bytes)
+}
+
+func RandInt(min int, max int) int {
+	return min + rand.Intn(max-min)
 }
