@@ -276,7 +276,7 @@ func TestUser(t *testing.T) {
 			Get(fmt.Sprintf("%s/user/auth_session", api_v1))
 		So(resp.StatusCode(), ShouldEqual, 200)
 		So(*rr, ShouldNotBeEmpty)
-		So((*rr)["message"], ShouldContainSubstring, "vaild")
+		So((*rr)["message"], ShouldContainSubstring, "valid")
 	})
 
 	Convey("Logout user: GET /user/logout", t, func() {
