@@ -88,7 +88,16 @@ func HasModule(name string) bool {
 }
 
 func setPid(name string) {
-	output, _ := exec.Command("pgrep", "-f", ModuleApps[name]).Output()
+	moduleName := ModuleApps[name]
+
+	// Use the exact match, -x parameter
+	// By default, pgrep only matches the first 15 strings of the process
+	if len(moduleName) >= 15 {
+		moduleName = string([]rune(moduleName)[:15])
+	}
+	moduleName = string([]rune(moduleName)[:len(moduleName)])
+
+	output, _ := exec.Command("pgrep", "-x", moduleName).Output()
 	pidStr := strings.TrimSpace(string(output))
 	PidOf[name] = pidStr
 }
