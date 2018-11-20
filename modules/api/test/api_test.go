@@ -44,7 +44,7 @@ var (
 func init() {
 	cfg_file := os.Getenv("API_TEST_CFG")
 	if cfg_file == "" {
-		cfg_file = "./cfg_example"
+		cfg_file = "./cfg.example"
 	}
 	viper.SetConfigName(cfg_file)
 	viper.AddConfigPath(".")

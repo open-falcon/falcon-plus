@@ -1,15 +1,28 @@
+sudo: required
+
 language: go
 
 go:
-  - 1.6.x
-  - 1.7.x
-  - 1.8.x
+  - "1.8"
+
+env:
+  - DB_USER=root
+  - DB_PASSWORD=test123456
+  - DB_HOST=127.0.0.1
+  - DB_PORT=13306
+  - REDIS_HOST=127.0.0.1
+  - REDIS_PORT=16379
+
+services:
+  - docker
 
 script:
   - make install
   - make fmt-check
   - make misspell-check
   - make all
+  - bash ./docker_test.sh
+ 
 
 after_success:
   - go test -race -coverprofile=coverage.txt -covermode=atomic github.com/open-falcon/falcon-plus/modules/api/test
