@@ -21,18 +21,18 @@ import (
 	"strings"
 	"time"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/gin-gonic/gin"
 	"github.com/open-falcon/falcon-plus/modules/alarm-manager/controller"
 	"github.com/open-falcon/falcon-plus/modules/alarm-manager/model/fault"
 )
-
-//TODO: add log
 
 // Create reads params from request and creates fault.
 // If successful, fault created will be returned.
 func Create(c *gin.Context) {
 	var createInfo fault.CreateInfo
 	if err := c.BindJSON(&createInfo); err != nil {
+		log.Errorf("read params fails: %v", err)
 		c.JSON(http.StatusBadRequest, controller.Resp{
 			Code:    http.StatusBadRequest,
 			Message: err.Error(),
@@ -42,6 +42,7 @@ func Create(c *gin.Context) {
 
 	user, err := GetUser(c)
 	if err != nil {
+		log.Errorf("get user info from session fails: %v", err)
 		c.JSON(http.StatusInternalServerError, controller.Resp{
 			Code:    http.StatusInternalServerError,
 			Message: err.Error(),
@@ -52,6 +53,7 @@ func Create(c *gin.Context) {
 
 	fault, err := fault.Store.Create(createInfo)
 	if err != nil {
+		log.Errorf("create fault fails: %v", err)
 		c.JSON(http.StatusInternalServerError, controller.Resp{
 			Code:    http.StatusInternalServerError,
 			Message: err.Error(),
@@ -88,6 +90,7 @@ func GetUser(c *gin.Context) (string, error) {
 func Get(c *gin.Context) {
 	id, err := strconv.Atoi(c.Params.ByName("id"))
 	if err != nil {
+		log.Errorf("convert fault id fails: %v", err)
 		c.JSON(http.StatusBadRequest, controller.Resp{
 			Code:    http.StatusBadRequest,
 			Message: err.Error(),
@@ -97,6 +100,7 @@ func Get(c *gin.Context) {
 
 	faultinfo, err := fault.Store.Get(uint(id))
 	if err != nil {
+		log.Errorf("get fault by id fails: %v,faultid: %v", err, id)
 		c.JSON(http.StatusInternalServerError, controller.Resp{
 			Code:    http.StatusInternalServerError,
 			Message: err.Error(),
@@ -117,6 +121,7 @@ func Get(c *gin.Context) {
 func GetEvent(c *gin.Context) {
 	id, err := strconv.Atoi(c.Params.ByName("id"))
 	if err != nil {
+		log.Errorf("convert event id fails: %v", err)
 		c.JSON(http.StatusBadRequest, controller.Resp{
 			Code:    http.StatusBadRequest,
 			Message: err.Error(),
@@ -126,6 +131,7 @@ func GetEvent(c *gin.Context) {
 
 	eventinfo, err := fault.Store.GetEvent(uint(id))
 	if err != nil {
+		log.Errorf("get event fails: %v,faultid: %v", err, id)
 		c.JSON(http.StatusInternalServerError, controller.Resp{
 			Code:    http.StatusInternalServerError,
 			Message: err.Error(),
@@ -147,14 +153,17 @@ func AddEvent(c *gin.Context) {
 	id, eventids := Params(c, "id", "eventids", ",")
 
 	if is := IsEmpty(id); is {
+		msg := "id is empty"
+		log.Errorf(msg)
 		c.JSON(http.StatusBadRequest, controller.Resp{
 			Code:    http.StatusBadRequest,
-			Message: "id is empty",
+			Message: msg,
 		})
 		return
 	}
 	faultid, err := strconv.Atoi(id)
 	if err != nil {
+		log.Errorf("convert fault id fails: %v", err)
 		c.JSON(http.StatusBadRequest, controller.Resp{
 			Code:    http.StatusBadRequest,
 			Message: err.Error(),
@@ -163,9 +172,11 @@ func AddEvent(c *gin.Context) {
 	}
 
 	if is := IsEmpty(eventids); is {
+		msg := "eventids is empty"
+		log.Errorf(msg)
 		c.JSON(http.StatusBadRequest, controller.Resp{
 			Code:    http.StatusBadRequest,
-			Message: "eventids is empty",
+			Message: msg,
 		})
 		return
 	}
@@ -173,6 +184,7 @@ func AddEvent(c *gin.Context) {
 	for _, v := range eventids {
 		eid, err := strconv.Atoi(v)
 		if err != nil {
+			log.Errorf("convert event id fails: %v", err)
 			c.JSON(http.StatusBadRequest, controller.Resp{
 				Code:    http.StatusBadRequest,
 				Message: err.Error(),
@@ -184,6 +196,7 @@ func AddEvent(c *gin.Context) {
 
 	faultinfo, err := fault.Store.AddEvent(uint(faultid), eids)
 	if err != nil {
+		log.Errorf("add event fails: %v,faultid: %v", err, faultid)
 		c.JSON(http.StatusInternalServerError, controller.Resp{
 			Code:    http.StatusInternalServerError,
 			Message: err.Error(),
@@ -205,14 +218,17 @@ func DeleteEvent(c *gin.Context) {
 	id, eventids := Params(c, "id", "eventids", ",")
 
 	if is := IsEmpty(id); is {
+		msg := "id is empty"
+		log.Errorf(msg)
 		c.JSON(http.StatusBadRequest, controller.Resp{
 			Code:    http.StatusBadRequest,
-			Message: "id is empty",
+			Message: msg,
 		})
 		return
 	}
 	faultid, err := strconv.Atoi(id)
 	if err != nil {
+		log.Errorf("convert fault id fails: %v", err)
 		c.JSON(http.StatusBadRequest, controller.Resp{
 			Code:    http.StatusBadRequest,
 			Message: err.Error(),
@@ -221,9 +237,11 @@ func DeleteEvent(c *gin.Context) {
 	}
 
 	if is := IsEmpty(eventids); is {
+		msg := "eventids is empty"
+		log.Errorf(msg)
 		c.JSON(http.StatusBadRequest, controller.Resp{
 			Code:    http.StatusBadRequest,
-			Message: "eventids is empty",
+			Message: msg,
 		})
 		return
 	}
@@ -231,6 +249,7 @@ func DeleteEvent(c *gin.Context) {
 	for _, v := range eventids {
 		eid, err := strconv.Atoi(v)
 		if err != nil {
+			log.Errorf("convert event id fails: %v", err)
 			c.JSON(http.StatusBadRequest, controller.Resp{
 				Code:    http.StatusBadRequest,
 				Message: err.Error(),
@@ -242,6 +261,7 @@ func DeleteEvent(c *gin.Context) {
 
 	faultinfo, err := fault.Store.DeleteEvent(uint(faultid), eids)
 	if err != nil {
+		log.Errorf("delete event fails: %v,faultid: %v", err, faultid)
 		c.JSON(http.StatusInternalServerError, controller.Resp{
 			Code:    http.StatusInternalServerError,
 			Message: err.Error(),
@@ -262,6 +282,7 @@ func DeleteEvent(c *gin.Context) {
 func GetComment(c *gin.Context) {
 	id, err := strconv.Atoi(c.Params.ByName("id"))
 	if err != nil {
+		log.Errorf("convert fault id fails: %v", err)
 		c.JSON(http.StatusBadRequest, controller.Resp{
 			Code:    http.StatusBadRequest,
 			Message: err.Error(),
@@ -271,6 +292,7 @@ func GetComment(c *gin.Context) {
 
 	commentInfo, err := fault.Store.GetComment(uint(id))
 	if err != nil {
+		log.Errorf("get comment fails: %v,faultid: %v", err, id)
 		c.JSON(http.StatusInternalServerError, controller.Resp{
 			Code:    http.StatusInternalServerError,
 			Message: err.Error(),
@@ -291,6 +313,7 @@ func GetComment(c *gin.Context) {
 func AddComment(c *gin.Context) {
 	id, err := strconv.Atoi(c.Params.ByName("id"))
 	if err != nil {
+		log.Errorf("convert fault id fails: %v", err)
 		c.JSON(http.StatusBadRequest, controller.Resp{
 			Code:    http.StatusBadRequest,
 			Message: err.Error(),
@@ -300,15 +323,18 @@ func AddComment(c *gin.Context) {
 
 	comment := c.Query("comment")
 	if comment == "" {
+		msg := "comment is empty"
+		log.Errorf(msg)
 		c.JSON(http.StatusBadRequest, controller.Resp{
 			Code:    http.StatusBadRequest,
-			Message: "comment is empty",
+			Message: msg,
 		})
 		return
 	}
 
 	user, err := GetUser(c)
 	if err != nil {
+		log.Errorf("get user info from session fails: %v", err)
 		c.JSON(http.StatusInternalServerError, controller.Resp{
 			Code:    http.StatusInternalServerError,
 			Message: err.Error(),
@@ -318,6 +344,7 @@ func AddComment(c *gin.Context) {
 
 	faultInfo, err := fault.Store.AddComment(uint(id), user, comment)
 	if err != nil {
+		log.Errorf("add comment fails: %v,faultid: %v", err, id)
 		c.JSON(http.StatusInternalServerError, controller.Resp{
 			Code:    http.StatusInternalServerError,
 			Message: err.Error(),
@@ -338,6 +365,7 @@ func AddComment(c *gin.Context) {
 func DeleteComment(c *gin.Context) {
 	id, err := strconv.Atoi(c.Params.ByName("id"))
 	if err != nil {
+		log.Errorf("convert fault id fails: %v", err)
 		c.JSON(http.StatusBadRequest, controller.Resp{
 			Code:    http.StatusBadRequest,
 			Message: err.Error(),
@@ -347,24 +375,29 @@ func DeleteComment(c *gin.Context) {
 
 	comment := c.Query("comment")
 	if comment == "" {
+		msg := "comment is empty"
+		log.Errorf(msg)
 		c.JSON(http.StatusBadRequest, controller.Resp{
 			Code:    http.StatusBadRequest,
-			Message: "comment is empty",
+			Message: msg,
 		})
 		return
 	}
 
 	creator := c.Query("creator")
 	if creator == "" {
+		msg := "creator is empty"
+		log.Errorf(msg)
 		c.JSON(http.StatusBadRequest, controller.Resp{
 			Code:    http.StatusBadRequest,
-			Message: "creator is empty",
+			Message: msg,
 		})
 		return
 	}
 
 	faultInfo, err := fault.Store.DeleteComment(uint(id), creator, comment)
 	if err != nil {
+		log.Errorf("delete comment fails: %v,faultid: %v", err, id)
 		c.JSON(http.StatusInternalServerError, controller.Resp{
 			Code:    http.StatusInternalServerError,
 			Message: err.Error(),
@@ -385,6 +418,7 @@ func DeleteComment(c *gin.Context) {
 func GetTag(c *gin.Context) {
 	id, err := strconv.Atoi(c.Params.ByName("id"))
 	if err != nil {
+		log.Errorf("convert fault id fails: %v", err)
 		c.JSON(http.StatusBadRequest, controller.Resp{
 			Code:    http.StatusBadRequest,
 			Message: err.Error(),
@@ -394,6 +428,7 @@ func GetTag(c *gin.Context) {
 
 	taginfo, err := fault.Store.GetTag(uint(id))
 	if err != nil {
+		log.Errorf("get tag fails: %v,faultid: %v", err, id)
 		c.JSON(http.StatusInternalServerError, controller.Resp{
 			Code:    http.StatusInternalServerError,
 			Message: err.Error(),
@@ -415,14 +450,17 @@ func AddTag(c *gin.Context) {
 	id, tag := Params(c, "id", "tags", ",")
 
 	if is := IsEmpty(id); is {
+		msg := "id is empty"
+		log.Errorf(msg)
 		c.JSON(http.StatusBadRequest, controller.Resp{
 			Code:    http.StatusBadRequest,
-			Message: "id is empty",
+			Message: msg,
 		})
 		return
 	}
 	faultid, err := strconv.Atoi(id)
 	if err != nil {
+		log.Errorf("convert fault id fails: %v", err)
 		c.JSON(http.StatusBadRequest, controller.Resp{
 			Code:    http.StatusBadRequest,
 			Message: err.Error(),
@@ -437,15 +475,18 @@ func AddTag(c *gin.Context) {
 		}
 	}
 	if is := IsEmpty(tags); is {
+		msg := "tags is empty"
+		log.Errorf(msg)
 		c.JSON(http.StatusBadRequest, controller.Resp{
 			Code:    http.StatusBadRequest,
-			Message: "tags is empty",
+			Message: msg,
 		})
 		return
 	}
 
 	faultinfo, err := fault.Store.AddTag(uint(faultid), tags)
 	if err != nil {
+		log.Errorf("add tags fails: %v,faultid: %v", err, faultid)
 		c.JSON(http.StatusInternalServerError, controller.Resp{
 			Code:    http.StatusInternalServerError,
 			Message: err.Error(),
@@ -467,14 +508,17 @@ func DeleteTag(c *gin.Context) {
 	id, tag := Params(c, "id", "tags", ",")
 
 	if is := IsEmpty(id); is {
+		msg := "id is empty"
+		log.Errorf(msg)
 		c.JSON(http.StatusBadRequest, controller.Resp{
 			Code:    http.StatusBadRequest,
-			Message: "id is empty",
+			Message: msg,
 		})
 		return
 	}
 	faultid, err := strconv.Atoi(id)
 	if err != nil {
+		log.Errorf("convert fault id fails: %v", err)
 		c.JSON(http.StatusBadRequest, controller.Resp{
 			Code:    http.StatusBadRequest,
 			Message: err.Error(),
@@ -489,15 +533,18 @@ func DeleteTag(c *gin.Context) {
 		}
 	}
 	if is := IsEmpty(tags); is {
+		msg := "tags is empty"
+		log.Errorf(msg)
 		c.JSON(http.StatusBadRequest, controller.Resp{
 			Code:    http.StatusBadRequest,
-			Message: "tags is empty",
+			Message: msg,
 		})
 		return
 	}
 
 	faultinfo, err := fault.Store.DeleteTag(uint(faultid), tags)
 	if err != nil {
+		log.Errorf("delete tag fails: %v,faultid: %v", err, faultid)
 		c.JSON(http.StatusInternalServerError, controller.Resp{
 			Code:    http.StatusInternalServerError,
 			Message: err.Error(),
@@ -530,6 +577,7 @@ func Params(c *gin.Context, pathkey, querykey, separator string) (string, []stri
 func UpdateOwner(c *gin.Context) {
 	id, err := strconv.Atoi(c.Params.ByName("id"))
 	if err != nil {
+		log.Errorf("convert fault id fails: %v", err)
 		c.JSON(http.StatusBadRequest, controller.Resp{
 			Code:    http.StatusBadRequest,
 			Message: err.Error(),
@@ -539,15 +587,18 @@ func UpdateOwner(c *gin.Context) {
 
 	owner := c.Query("owner")
 	if owner == "" {
+		msg := "owner is empty"
+		log.Errorf(msg)
 		c.JSON(http.StatusBadRequest, controller.Resp{
 			Code:    http.StatusBadRequest,
-			Message: "owner is empty",
+			Message: msg,
 		})
 		return
 	}
 
 	fault, err := fault.Store.UpdateOwner(uint(id), owner)
 	if err != nil {
+		log.Errorf("update owner fails: %v,faultid: %v", err, id)
 		c.JSON(http.StatusInternalServerError, controller.Resp{
 			Code:    http.StatusInternalServerError,
 			Message: err.Error(),
@@ -568,6 +619,7 @@ func UpdateOwner(c *gin.Context) {
 func UpdateState(c *gin.Context) {
 	id, err := strconv.Atoi(c.Params.ByName("id"))
 	if err != nil {
+		log.Errorf("convert fault id fails: %v", err)
 		c.JSON(http.StatusBadRequest, controller.Resp{
 			Code:    http.StatusBadRequest,
 			Message: err.Error(),
@@ -577,15 +629,18 @@ func UpdateState(c *gin.Context) {
 
 	state := c.Query("state")
 	if state == "" {
+		msg := "state is empty"
+		log.Errorf(msg)
 		c.JSON(http.StatusBadRequest, controller.Resp{
 			Code:    http.StatusBadRequest,
-			Message: "state is empty",
+			Message: msg,
 		})
 		return
 	}
 
 	fault, err := fault.Store.UpdateState(uint(id), state)
 	if err != nil {
+		log.Errorf("update state fails: %v,faultid: %v", err, id)
 		c.JSON(http.StatusInternalServerError, controller.Resp{
 			Code:    http.StatusInternalServerError,
 			Message: err.Error(),
@@ -606,23 +661,28 @@ func UpdateState(c *gin.Context) {
 func UpdateFollower(c *gin.Context) {
 	action := c.Query("action")
 	if action == "" {
+		msg := "action is empty"
+		log.Errorf(msg)
 		c.JSON(http.StatusBadRequest, controller.Resp{
 			Code:    http.StatusBadRequest,
-			Message: "action is empty",
+			Message: msg,
 		})
 		return
 	}
 
 	id, follower := Params(c, "id", "follower", ",")
 	if is := IsEmpty(id); is {
+		msg := "id is empty"
+		log.Errorf(msg)
 		c.JSON(http.StatusBadRequest, controller.Resp{
 			Code:    http.StatusBadRequest,
-			Message: "id is empty",
+			Message: msg,
 		})
 		return
 	}
 	faultid, err := strconv.Atoi(id)
 	if err != nil {
+		log.Errorf("convert fault id fails: %v", err)
 		c.JSON(http.StatusBadRequest, controller.Resp{
 			Code:    http.StatusBadRequest,
 			Message: err.Error(),
@@ -637,15 +697,18 @@ func UpdateFollower(c *gin.Context) {
 		}
 	}
 	if is := IsEmpty(followers); is {
+		msg := "follower is empty"
+		log.Errorf(msg)
 		c.JSON(http.StatusBadRequest, controller.Resp{
 			Code:    http.StatusBadRequest,
-			Message: "follower is empty",
+			Message: msg,
 		})
 		return
 	}
 
 	fault, err := fault.Store.UpdateFollower(uint(faultid), followers, action)
 	if err != nil {
+		log.Errorf("update follower fails: %v,faultid: %v", err, faultid)
 		c.JSON(http.StatusInternalServerError, controller.Resp{
 			Code:    http.StatusInternalServerError,
 			Message: err.Error(),
@@ -668,6 +731,7 @@ func UpdateFollower(c *gin.Context) {
 func List(c *gin.Context) {
 	filter, err := FilterInfo(c)
 	if err != nil {
+		log.Errorf("filter is invalid: %v", err)
 		c.JSON(http.StatusBadRequest, controller.Resp{
 			Code:    http.StatusBadRequest,
 			Message: err.Error(),
@@ -677,6 +741,7 @@ func List(c *gin.Context) {
 
 	faults, count, err := fault.Store.List(filter)
 	if err != nil {
+		log.Errorf("list fault fails: %v", err)
 		c.JSON(http.StatusInternalServerError, controller.Resp{
 			Code:    http.StatusInternalServerError,
 			Message: err.Error(),
@@ -703,6 +768,7 @@ func List(c *gin.Context) {
 func GetTimeLine(c *gin.Context) {
 	id, err := strconv.Atoi(c.Params.ByName("id"))
 	if err != nil {
+		log.Errorf("convert fault id fails: %v", err)
 		c.JSON(http.StatusBadRequest, controller.Resp{
 			Code:    http.StatusBadRequest,
 			Message: err.Error(),
@@ -712,6 +778,7 @@ func GetTimeLine(c *gin.Context) {
 
 	timeLine, err := fault.Store.GetTimeLine(uint(id))
 	if err != nil {
+		log.Errorf("get fault timeline fails: %v,faultid: %v", err, id)
 		c.JSON(http.StatusInternalServerError, controller.Resp{
 			Code:    http.StatusInternalServerError,
 			Message: err.Error(),
@@ -732,6 +799,7 @@ func GetTimeLine(c *gin.Context) {
 func UpdateBasic(c *gin.Context) {
 	id, err := strconv.Atoi(c.Params.ByName("id"))
 	if err != nil {
+		log.Errorf("convert fault id fails: %v", err)
 		c.JSON(http.StatusBadRequest, controller.Resp{
 			Code:    http.StatusBadRequest,
 			Message: err.Error(),
@@ -742,15 +810,18 @@ func UpdateBasic(c *gin.Context) {
 	title := c.Query("title")
 	note := c.Query("note")
 	if title == "" && note == "" {
+		msg := "title and note can not be all empty"
+		log.Errorf(msg)
 		c.JSON(http.StatusBadRequest, controller.Resp{
 			Code:    http.StatusBadRequest,
-			Message: "title and note can not be all empty",
+			Message: msg,
 		})
 		return
 	}
 
 	faultinfo, err := fault.Store.UpdateBasic(uint(id), title, note)
 	if err != nil {
+		log.Errorf("update fault basic fails: %v,faultid: %v", err, id)
 		c.JSON(http.StatusInternalServerError, controller.Resp{
 			Code:    http.StatusInternalServerError,
 			Message: err.Error(),

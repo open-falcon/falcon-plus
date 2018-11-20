@@ -26,6 +26,8 @@ import (
 	"github.com/open-falcon/falcon-plus/modules/alarm-manager/model/event"
 )
 
+// TODO:add context to error to make it specific
+
 const (
 	ActionFollow   = "FOLLOW"   // follow the fault
 	ActionUnfollow = "UNFOLLOW" // unfollow the fault
