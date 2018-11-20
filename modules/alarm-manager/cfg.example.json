@@ -1,12 +1,12 @@
 {
-    "log_level":"debug",
-    "db":{
-        "alarm_manager":"root:123456@tcp(127.0.0.1:3306)/alarm_manager?charset=utf8&parseTime=True&loc=Local",
+    "log_level": "debug",
+    "db": {
+        "alarm_manager": "root:@tcp(127.0.0.1:3306)/alarm_manager?charset=utf8&parseTime=True&loc=Local",
         "debug": true
     },
     "api": {
         "plus_api": "http://127.0.0.1:8080",
-        "plus_api_token":"default-token-used-in-server-side"
+        "plus_api_token": "default-token-used-in-server-side"
     },
     "listen": ":9922"
 }
