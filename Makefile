@@ -89,6 +89,10 @@ pack4docker: checkbin
 	tar -C out -zcf open-falcon-v$(VERSION).tar.gz .
 	@rm -rf out
 
+.PHONY: test
+test:
+	@go test ./modules/api/test
+
 clean:
 	@rm -rf ./bin
 	@rm -rf ./out
