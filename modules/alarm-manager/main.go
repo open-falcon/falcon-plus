@@ -24,8 +24,8 @@ import (
 
 	"github.com/open-falcon/falcon-plus/modules/alarm-manager/config"
 	"github.com/open-falcon/falcon-plus/modules/alarm-manager/http"
-	"github.com/open-falcon/falcon-plus/modules/alarm-manager/model/fault"
 	"github.com/open-falcon/falcon-plus/modules/alarm-manager/model/event"
+	"github.com/open-falcon/falcon-plus/modules/alarm-manager/model/fault"
 )
 
 func main() {

@@ -75,14 +75,14 @@ func (EventReceiver) TableName() string {
 }
 
 type EventApiInputs struct {
-	UserName  string `json:"username"`
+	UserName  string   `json:"username"`
 	Uic       []string `json:"uic"`
-	StartTime int64  `json:"start_time"`
-	EndTime   int64  `json:"end_time"`
-	Priority  []int `json:"priority"`
-	Status    string `json:"status"`
-	Endpoint  string `json:"endpoint"`
-	Counter   string `json:"counter"`
+	StartTime int64    `json:"start_time"`
+	EndTime   int64    `json:"end_time"`
+	Priority  []int    `json:"priority"`
+	Status    string   `json:"status"`
+	Endpoint  string   `json:"endpoint"`
+	Counter   string   `json:"counter"`
 	//是否包含故障，包含则传递fault=have
 	HaveFault bool `json:"have_fault"`
 	//event type, 未恢复报警、历史报警

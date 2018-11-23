@@ -15,12 +15,12 @@
 package cron
 
 import (
-	cmodel "github.com/open-falcon/falcon-plus/common/model"
-	"encoding/json"
-	"net/http"
-	log "github.com/Sirupsen/logrus"
-	"github.com/open-falcon/falcon-plus/modules/alarm/g"
 	"bytes"
+	"encoding/json"
+	log "github.com/Sirupsen/logrus"
+	cmodel "github.com/open-falcon/falcon-plus/common/model"
+	"github.com/open-falcon/falcon-plus/modules/alarm/g"
+	"net/http"
 )
 
 func SendEventToAlarmManager(eve *cmodel.Event) {
