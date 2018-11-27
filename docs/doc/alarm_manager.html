@@ -1,0 +1,2150 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <title> API Documentation </title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <link href='http://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+    <style type="text/css">
+        body {
+            font-family: 'Roboto', sans-serif;
+        }
+        .hidden {
+            display:none;
+        }
+        pre {
+            outline: 1px solid #ccc;
+            padding: 5px; margin: 5px;
+        }
+
+        .string { color: green; }
+        .number { color: darkorange; }
+        .boolean { color: blue; }
+        .null { color: magenta; }
+        .key { color: red; }
+
+    </style>
+    <style type="text/css">
+        pre.prettyprint {
+            border: 1px solid #ccc;
+            margin-bottom: 0;
+            padding: 9.5px;
+        }
+    </style>
+    <script>
+
+        function syntaxHighlight(json) {
+            json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+                var cls = 'number';
+                if (/^"/.test(match)) {
+                    if (/:$/.test(match)) {
+                        cls = 'key';
+                    } else {
+                        cls = 'string';
+                    }
+                } else if (/true|false/.test(match)) {
+                    cls = 'boolean';
+                } else if (/null/.test(match)) {
+                    cls = 'null';
+                }
+                return '<span class="' + cls + '">' + match + '</span>';
+            });
+        }
+
+        function spaceJson(json){
+            var validJson = JSON.parse(json);
+            return JSON.stringify(validJson, undefined, 4);
+        }
+    </script>
+
+</head>
+<body>
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container-fluid">
+
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                    data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">Gin</a>
+            <p class="navbar-text">Developed by Gophers at <a href="http://betacraft.co">Betacraft</a></p>
+        </div>
+
+
+    </div>
+
+</nav>
+<div class="container-fluid" style="margin-top: 70px;margin-bottom: 20px;">
+    <div class="container-fluid">
+    <div class="col-md-4">
+        <div class="panel panel-default">
+              <div class="panel-heading">Base Urls</div>
+              <div class="panel-body">
+
+                    <p>Production : <strong>/api/v1</strong></p>
+
+                    <p>Staging : <strong>/api/v1</strong></p>
+
+              </div>
+            </div>
+        <ul class="nav nav-pills nav-stacked" role="tablist">
+
+                <li role="presentation"><a href="#0top" role="tab" data-toggle="tab">POST : /api/v1/event</a> </li>
+
+                <li role="presentation"><a href="#1top" role="tab" data-toggle="tab">POST : /api/v1/event/fault</a> </li>
+
+                <li role="presentation"><a href="#2top" role="tab" data-toggle="tab">POST : /api/v1/event/count</a> </li>
+
+                <li role="presentation"><a href="#3top" role="tab" data-toggle="tab">POST : /api/v1/fault</a></li>
+
+                <li role="presentation"><a href="#4top" role="tab" data-toggle="tab">GET : /api/v1/fault</a></li>
+
+                <li role="presentation"><a href="#5top" role="tab" data-toggle="tab">GET : /api/v1/fault/93</a></li>
+                
+                <li role="presentation"><a href="#6top" role="tab" data-toggle="tab">GET : /api/v1/fault/93/timeline</a></li>
+
+                <li role="presentation"><a href="#7top" role="tab" data-toggle="tab">GET : /api/v1/fault/93/event</a></li>
+
+                <li role="presentation"><a href="#8top" role="tab" data-toggle="tab">PUT : /api/v1/fault/93/event</a></li>
+
+                <li role="presentation"><a href="#9top" role="tab" data-toggle="tab">DELETE : /api/v1/fault/93/event</a></li>
+
+                <li role="presentation"><a href="#10top" role="tab" data-toggle="tab">GET : /api/v1/fault/93/tag</a></li>
+
+                <li role="presentation"><a href="#11top" role="tab" data-toggle="tab">PUT : /api/v1/fault/93/tag</a></li>
+
+                <li role="presentation"><a href="#12top" role="tab" data-toggle="tab">DELETE : /api/v1/fault/93/tag</a></li>
+                
+                <li role="presentation"><a href="#13top" role="tab" data-toggle="tab">GET : /api/v1/fault/93/comment</a></li>
+                
+                <li role="presentation"><a href="#14top" role="tab" data-toggle="tab">PUT : /api/v1/fault/93/comment</a></li>
+
+                <li role="presentation"><a href="#15top" role="tab" data-toggle="tab">DELETE : /api/v1/fault/93/comment</a></li>
+                
+                <li role="presentation"><a href="#16top" role="tab" data-toggle="tab">PUT : /api/v1/fault/93/owner</a></li>
+
+                <li role="presentation"><a href="#17top" role="tab" data-toggle="tab">PUT : /api/v1/fault/93/state</a></li>
+
+                <li role="presentation"><a href="#18top" role="tab" data-toggle="tab">PUT : /api/v1/fault/93/follower</a></li>
+
+                <li role="presentation"><a href="#19top" role="tab" data-toggle="tab">PUT : /api/v1/fault/93/property</a></li>
+
+                                
+
+
+
+
+        <ul>
+    </div>
+    <div class="col-md-8 tab-content">
+
+        <div id="0top" role="tabpanel" class="tab-pane col-md-10">
+
+            <p> <H4> Request Headers </H4> </p>
+            <table class="table table-bordered table-striped">
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+
+                <tr>
+                    <td>Apitoken</td>
+                    <td>{&quot;name&quot;:&quot;root&quot;,&quot;sig&quot;:&quot;427d6803b78311e68afd0242ac130006&quot;}</td>
+                </tr>
+
+                <tr>
+                    <td>Content-Type</td>
+                    <td>application/json</td>
+                </tr>
+
+            </table>
+
+
+            <p> <H4> Request Body </H4> </p>
+            <pre id="request-body-0-0" class="prettyprint">{&quot;username&quot;: &quot;xiaoming&quot;, &quot;uic&quot;: [&quot;plus-dev01&quot;, &quot;plus-dev02&quot;], &quot;endpoint&quot;: &quot;agent01&quot;, &quot;counter&quot;: &quot;mem.memused&quot;, &quot;priority&quot;: [&quot;0&quot;, &quot;1&quot;], &quot;start_time&quot;: 1535760000, &quot;end_time&quot; :1535767200, &quot;status&quot;: &quot;PROBLEM&quot;, &quot;now_event_status&quot;: false, &quot;limit&quot;:10, &quot;offset&quot;:0}</pre>
+            <script>
+
+                var requestHeader ={"Apitoken":"{\"name\": \"root\", \"sig\": \"233fdb00f99811e68a5c001500c6ca5a\"}", "Content-Type":" application/json\r"};
+
+                if (requestHeader["Content-Type"] === "application/json"){
+                    try {
+                        var jsonStr = spaceJson("{\"username\": \"xiaoming\",\"uic\": [\"plus-dev01\", \"plus-dev02\"],\"endpoint\": \"agent01\",\"counter\": \"mem.memused\", \"priority\": [\"0\",\"1\"]," +
+                                "\"start_time\": 1535760000, \"end_time\": 1535767200, \"status\": \"PROBLEM\", \"now_event_status\": false, \"limit\": 10, \"offset\": 0}");
+                        document.getElementById('request-body0-0').innerHTML = syntaxHighlight(jsonStr);
+                    } catch (e) {
+
+                    }
+                }
+            </script>
+
+            <p><h4> Response Status Code</h4></p>
+            <pre class="prettyprint lang-json">200</pre>
+
+            <p><h4> Response Headers</h4></p>
+            <table class="table table-bordered table-striped">
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Credentials</td>
+                    <td> true</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Headers</td>
+                    <td> Content-Type, Content-Length, Apitoken</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Methods</td>
+                    <td> POST, GET, OPTIONS, PUT, DELETE, UPDATE</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Origin</td>
+                    <td> *</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Expose-Headers</td>
+                    <td> Content-Length</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Max-Age</td>
+                    <td> 86400</td>
+                </tr>
+
+                <tr>
+                    <td>Content-Type</td>
+                    <td> application/json; charset=utf-8</td>
+                </tr>
+
+            </table>
+
+
+            <p> <H4> Response Body </H4> </p>
+            <pre class="prettyprint" id="response-body-0-0">{&quot;Code&quot;: 200,&quot;Data&quot;: [{&quot;event_id&quot;: 1000, &quot;eventcase_id&quot;: &quot;s_13_3e251836d0e4992f5fc39d8b65864ee6&quot;,&quot;enpoint&quot;: &quot;agent01&quot;,&quot;counter&quot;: &quot;mem.memused&quot;,&quot;func&quot;: &quot;all(#3)&quot;,&quot;cond&quot;: &quot;85.63511855141716 > 80&quot;,&quot;note&quot;: &quot;内存占用过高&quot;,&quot;mx_step&quot;: 10, &quot;current_step&quot;: 2, &quot;priority&quot;: 1,&quot;status&quot;: &quot;PROBLEM &quot;, &quot;event_ts&quot;: &quot;2018-09-01T09:20:00+08:00&quot;,&quot;template_creator&quot;: &quot;xiaoming&quot;, &quot;expression_id&quot;: 0, &quot;strategy_id&quot;: 13, &quot;template_id&quot;: 2},{&quot;event_id&quot;: 955, &quot;eventcase_id&quot;: &quot;s_13_3e251836d0e4992f5fc39d8b65864ee6&quot;,&quot;enpoint&quot;: &quot;agent01&quot;,&quot;counter&quot;: &quot;mem.memused&quot;,&quot;func&quot;: &quot;all(#3)&quot;,&quot;cond&quot;: &quot;80.01541888141424 > 80&quot;,&quot;note&quot;: &quot;内存占用过高&quot;,&quot;mx_step&quot;: 10, &quot;current_step&quot;: 1, &quot;priority&quot;: 1,&quot;status&quot;: &quot;PROBLEM &quot;, &quot;event_ts&quot;: &quot;2018-09-01T09:15:00+08:00&quot;,&quot;template_creator&quot;: &quot;xiaoming&quot;, &quot;expression_id&quot;: 0, &quot;strategy_id&quot;: 13, &quot;template_id&quot;: 2}], &quot;Message&quot;: &quot;&quot;}</pre>
+            <script>
+
+                var responseHeader ={"Access-Control-Allow-Credentials":"true","Access-Control-Allow-Headers":"Content-Type, Content-Length, Apitoken",
+                    "Access-Control-Allow-Methods":"POST, GET, OPTIONS, PUT, DELETE, UPDATE","Access-Control-Allow-Origin":"*","Access-Control-Expose-Headers":"Content-Length",
+                    "Access-Control-Max-Age":"86400","Content-Type":"application/json; charset=utf-8"};
+                if (responseHeader["Content-Type"] === "application/json"){
+                    try {
+                        var jsonStr = spaceJson("{\"Code\": 200,\"Data\": [{\"event_id\": 1000, \"eventcase_id\": \"s_13_3e251836d0e4992f5fc39d8b65864ee6\", \"endpoint\": \"agent01\",\"counter\": \"mem.memused\",\"func\": \"all(#3)\", \"cond\": \"85.63511855141716 > 80\", \"note\": \"内存占用过高\", \"max_step\": 10, \"current_step\": 2, \"priorty\": 1, " +
+                                "\"Status\": \"PROBLEM\", \"event_ts\": \"2018-09-01T09:20:00+08:00\", \"template_creator\": \"xiaoming\", \"expression_id\": 0, \"strategy_id\": 13, \"template_id\": 2}," +
+                                "{\"event_id\": 955, \"eventcase_id\": \"s_13_3e251836d0e4992f5fc39d8b65864ee6\", \"endpoint\": \"agent01\",\"counter\": \"mem.memused\",\"func\": \"all(#3)\", \"cond\": \"80.01541888141424 > 80\", \"note\": \"内存占用过高\", \"max_step\": 10, \"current_step\": 1, \"priorty\": 1, " +
+                                "\"Status\": \"PROBLEM\", \"event_ts\": \"2018-09-01T09:15:00+08:00\", \"template_creator\": \"xiaoming\", \"expression_id\": 0, \"strategy_id\": 13, \"template_id\": 2}], \"Message\": \"\"}");
+                        document.getElementById('response-body-0-0').innerHTML = syntaxHighlight(jsonStr);
+                    } catch (e) {
+
+                    }
+                }
+            </script>
+            <hr>
+        </div>
+
+        <div id="1top" role="tabpanel" class="tab-pane col-md-10">
+
+            <p> <H4> Request Headers </H4> </p>
+            <table class="table table-bordered table-striped">
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+
+                <tr>
+                    <td>Apitoken</td>
+                    <td>{&quot;name&quot;:&quot;root&quot;,&quot;sig&quot;:&quot;427d6803b78311e68afd0242ac130006&quot;}</td>
+                </tr>
+
+                <tr>
+                    <td>Content-Type</td>
+                    <td>  application/json</td>
+                </tr>
+
+            </table>
+
+
+            <p> <H4> Request Body </H4> </p>
+            <pre id="request-body-0-0" class="prettyprint">{&quot;username&quot;:&quot;xiaoming&quot;,&quot;uic&quot;:[&quot;plus-dev01&quot;, &quot;plus-dev02&quot;],&quot;endpoint&quot;:&quot;agent01&quot;,&quot;counter&quot;: &quot;mem.memused&quot;,&quot;priority&quot;:[&quot;0&quot;,&quot;1&quot;],&quot;start_time&quot;:1535760000,&quot;end_time&quot;:1535767200,&quot;status&quot;: &quot;PROBLEM&quot;, &quot;now_event_status&quot;: false, &quot;have_fault&quot;: true, &quot;limit&quot;:10, &quot;offset&quot;:0}</pre>
+            <script>
+
+                var requestHeader ={"Apitoken":"{\"name\": \"root\", \"sig\": \"233fdb00f99811e68a5c001500c6ca5a\"}", "Content-Type":" application/json\r"};
+
+                if (requestHeader["Content-Type"] === "application/json"){
+                    try {
+                        var jsonStr = spaceJson("{\"username\": \"xiaoming\",\"uic\": [\"plus-dev01\", \"plus-dev02\"],\"endpoint\": \"agent01\",\"counter\": \"mem.memused\", \"priority\": [\"0\",\"1\"]," +
+                                "\"start_time\": 1535760000, \"end_time\": 1535767200, \"status\": \"PROBLEM\", \"now_event_status\": false, \"have_fault\": true, \"limit\": 10, \"offset\": 0}");
+                        document.getElementById('request-body0-0').innerHTML = syntaxHighlight(jsonStr);
+                    } catch (e) {
+
+                    }
+                }
+            </script>
+
+            <p><h4> Response Status Code</h4></p>
+            <pre class="prettyprint lang-json">200</pre>
+
+            <p><h4> Response Headers</h4></p>
+            <table class="table table-bordered table-striped">
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Credentials</td>
+                    <td> true</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Headers</td>
+                    <td> Content-Type, Content-Length, Apitoken</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Methods</td>
+                    <td> POST, GET, OPTIONS, PUT, DELETE, UPDATE</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Origin</td>
+                    <td> *</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Expose-Headers</td>
+                    <td> Content-Length</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Max-Age</td>
+                    <td> 86400</td>
+                </tr>
+
+                <tr>
+                    <td>Content-Type</td>
+                    <td> application/json; charset=utf-8</td>
+                </tr>
+
+            </table>
+
+            <p> <H4> Response Body </H4> </p>
+            <pre class="prettyprint" id="response-body-0-0">{&quot;Code&quot;: 200,&quot;Data&quot;: [{&quot;event_id&quot;: 1000, &quot;eventcase_id&quot;: &quot;s_13_3e251836d0e4992f5fc39d8b65864ee6&quot;,&quot;enpoint&quot;: &quot;agent01&quot;,&quot;counter&quot;: &quot;mem.memused&quot;,&quot;func&quot;: &quot;all(#3)&quot;,&quot;cond&quot;: &quot;85.63511855141716 > 80&quot;,&quot;note&quot;: &quot;内存占用过高&quot;,&quot;mx_step&quot;: 10, &quot;current_step&quot;: 2, &quot;priority&quot;: 1,&quot;status&quot;: &quot;PROBLEM&quot;, &quot;event_ts&quot;: &quot;2018-09-01T09:20:00+08:00&quot;,&quot;template_creator&quot;: &quot;xiaoming&quot;, &quot;expression_id&quot;: 0, &quot;strategy_id&quot;: 13, &quot;template_id&quot;: 2}, &quot;faults&quot;: [{&quot;fault_id&quot;:60, &quot;title&quot;:&quot;X进程内存占用过高导致job重启&quot;, &quot;updated_at&quot;:&quot;2018-09-01T09:30:14+08:00&quot;}]}], &quot;Message&quot;: &quot;&quot;}</pre>
+            <script>
+
+                var responseHeader ={"Access-Control-Allow-Credentials":"true","Access-Control-Allow-Headers":"Content-Type, Content-Length, Apitoken",
+                    "Access-Control-Allow-Methods":"POST, GET, OPTIONS, PUT, DELETE, UPDATE","Access-Control-Allow-Origin":"*","Access-Control-Expose-Headers":"Content-Length",
+                    "Access-Control-Max-Age":"86400","Content-Type":"application/json; charset=utf-8"};
+
+                if (responseHeader["Content-Type"] === "application/json"){
+                    try {
+                        var jsonStr = spaceJson("{\"Code\": 200,\"Data\": [{\"event_id\": 1000, \"eventcase_id\": \"s_13_3e251836d0e4992f5fc39d8b65864ee6\", \"endpoint\": \"agent01\",\"counter\": \"mem.memused\",\"func\": \"all(#3)\", \"cond\": \"85.63511855141716 > 80\", \"note\": \"内存占用过高\", \"max_step\": 10, \"current_step\": 2, \"priorty\": 1, " +
+                                "\"Status\": \"PROBLEM\", \"event_ts\": \"2018-09-01T09:20:00+08:00\", \"template_creator\": \"xiaoming\", \"expression_id\": 0, \"strategy_id\": 13, \"template_id\": 2}, \"faults\": [{\"fault_id\": 60, \"title\": \"X进程内存占用过高导致job重启\", \"updated_at\": \"2018-09-01T09:30:14+08:00\"}]}], \"Message\": \"\"}");
+                        document.getElementById('response-body-0-0').inenrHTML = syntaxHighlight(jsonStr);
+                    } catch (e) {
+
+                    }
+                }
+            </script>
+            <hr>
+
+        </div>
+
+        <div id="2top" role="tabpanel" class="tab-pane col-md-10">
+
+            <p> <H4> Request Headers </H4> </p>
+            <table class="table table-bordered table-striped">
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+
+                <tr>
+                    <td>Apitoken</td>
+                    <td>{&quot;name&quot;:&quot;root&quot;,&quot;sig&quot;:&quot;427d6803b78311e68afd0242ac130006&quot;}</td>
+                </tr>
+
+
+                <tr>
+                    <td>Content-Type</td>
+                    <td>application/json</td>
+                </tr>
+
+            </table>
+
+
+            <p> <H4> Request Body </H4> </p>
+            <pre id="request-body-0-0" class="prettyprint">{&quot;username&quot;:&quot;xiaoming&quot;,&quot;uic&quot;:[&quot;plus-dev01&quot;, &quot;plus-dev02&quot;],&quot;endpoint&quot;:&quot;agent01&quot;,&quot;counter&quot;: &quot;mem.memused&quot;,&quot;priority&quot;:[&quot;0&quot;,&quot;1&quot;],&quot;start_time&quot;:1535760000,&quot;end_time&quot;:1535767200,&quot;status&quot;: &quot;PROBLEM&quot;, &quot;now_event_status&quot;: false, &quot;have_fault&quot;: true}</pre>
+            <script>
+
+                var requestHeader ={"Apitoken":"{\"name\": \"root\", \"sig\": \"233fdb00f99811e68a5c001500c6ca5a\"}", "Content-Type":" application/json\r"};
+
+                if (requestHeader["Content-Type"] === "application/json"){
+                    try {
+                        var jsonStr = spaceJson("{\"username\": \"xiaoming\",\"uic\": [\"plus-dev01\", \"plus-dev02\"],\"endpoint\": \"agent01\",\"counter\": \"mem.memused\", \"priority\": [\"0\",\"1\"]," +
+                                "\"start_time\": 1535760000, \"end_time\": 1535767200, \"status\": \"PROBLEM\", \"now_event_status\": false, \"have_fault\": true}");
+                        document.getElementById('request-body0-0').innerHTML = syntaxHighlight(jsonStr);
+                    } catch (e) {
+
+                    }
+                }
+            </script>
+
+            <p><h4> Response Status Code</h4></p>
+            <pre class="prettyprint lang-json">200</pre>
+
+            <p><h4> Response Headers</h4></p>
+            <table class="table table-bordered table-striped">
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Credentials</td>
+                    <td> true</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Headers</td>
+                    <td> Content-Type, Content-Length, Apitoken</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Methods</td>
+                    <td> POST, GET, OPTIONS, PUT, DELETE, UPDATE</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Origin</td>
+                    <td> *</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Expose-Headers</td>
+                    <td> Content-Length</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Max-Age</td>
+                    <td> 86400</td>
+                </tr>
+
+                <tr>
+                    <td>Content-Type</td>
+                    <td> application/json; charset=utf-8</td>
+                </tr>
+
+            </table>
+
+            <p> <H4> Response Body </H4> </p>
+            <pre class="prettyprint" id="response-body-0-0">{&quot;Code&quot;: 200,&quot;Data&quot;: {&quot;count&quot;: 100}, &quot;Message&quot;: &quot;&quot;}</pre>
+            <script>
+
+                var responseHeader ={"Access-Control-Allow-Credentials":"true","Access-Control-Allow-Headers":"Content-Type, Content-Length, Apitoken",
+                    "Access-Control-Allow-Methods":"POST, GET, OPTIONS, PUT, DELETE, UPDATE","Access-Control-Allow-Origin":"*","Access-Control-Expose-Headers":"Content-Length",
+                    "Access-Control-Max-Age":"86400","Content-Type":"application/json; charset=utf-8"};
+
+                if (responseHeader["Content-Type"] === "application/json"){
+                    try {
+                        var jsonStr = spaceJson("{\"Code\": 200,\"Data\":{\"count\":11},\"Message\":\"\"}");
+                        document.getElementById('response-body-0-0').innerHTML = syntaxHighlight(jsonStr);
+                    } catch (e) {
+
+                    }
+                }
+            </script>
+            <hr>
+
+        </div>
+
+        <div id="3top"  role="tabpanel" class="tab-pane col-md-10">
+
+                <p> <H4> Request Headers </H4> </p>
+                <table class="table table-bordered table-striped">
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+
+                <tr>
+                    <td>Apitoken</td>
+                    <td>{&quot;name&quot;:&quot;root&quot;,&quot;sig&quot;:&quot;427d6803b78311e68afd0242ac130006&quot;}</td>
+                </tr>
+
+
+                <tr>
+                    <td>Content-Type</td>
+                    <td>application/json</td>
+                </tr>
+                </table>
+
+
+                <p> <H4> Request Body </H4> </p>
+                <pre id="request-body-0-0" class="prettyprint">{&quot;title&quot;:&quot;mipush service down&quot;, &quot;note&quot;:&quot;test&quot;, &quot;owner&quot;:&quot;Bob&quot;, &quot;tags&quot;:[&quot;miphone&quot;,&quot;miui&quot;]}</pre>
+                
+                <script>
+
+                    var requestHeader ={"Content-Type":" application/json\r","X-Forwarded-For":" "};
+
+                    if (requestHeader["Content-Type"] === "application/json"){
+                        try {
+                            var jsonStr = spaceJson("{ \"title\":\"mipush service down\", \"note\":\"test\", \"owner\":\"Bob\", \"tags\":[\"miphone\",\"miui\"] }");
+                            document.getElementById('request-body0-0').innerHTML = syntaxHighlight(jsonStr);
+                        } catch (e) {
+
+                        }
+                    }
+                </script>
+
+                <p><h4> Response Status Code</h4></p>
+                <pre class="prettyprint lang-json">200</pre>
+                
+                <p><h4> Response Headers</h4></p>
+                <table class="table table-bordered table-striped">
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Credentials</td>
+                    <td> true</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Headers</td>
+                    <td> Content-Type, Content-Length, Apitoken</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Methods</td>
+                    <td> POST, GET, OPTIONS, PUT, DELETE, UPDATE</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Origin</td>
+                    <td> *</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Expose-Headers</td>
+                    <td> Content-Length</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Max-Age</td>
+                    <td> 86400</td>
+                </tr>
+
+                <tr>
+                    <td>Content-Type</td>
+                    <td> application/json; charset=utf-8</td>
+                </tr>
+
+                </table>
+
+
+                <p> <H4> Response Body </H4> </p>
+                <pre class="prettyprint" id="response-body-0-0">{&quot;Code&quot;: 200, &quot;Data&quot;: { &quot;Id&quot;: 93, &quot;CreatedAt&quot;: &quot;2018-11-12T17:52:56+08:00&quot;, &quot;Title&quot;: &quot;mipush service down&quot;, &quot;Note&quot;: &quot;test&quot;, &quot;Creator&quot;: &quot;root&quot;, &quot;Owner&quot;: &quot;Bob&quot;, &quot;State&quot;: &quot;PROCESSING&quot;, &quot;Tags&quot;: [ &quot;miphone&quot;, &quot;miui&quot; ], &quot;Events&quot;: [], &quot;Followers&quot;: [ &quot;root&quot; ], &quot;Comments&quot;: [] }, &quot;Message&quot;: &quot;fault create succeed&quot;}</pre>
+                <script>
+
+                    var responseHeader ={"Access-Control-Allow-Headers":"Content-Type,Token","Access-Control-Allow-Origin":"*","Content-Type":"application/json; charset=utf-8"};
+
+                    if (responseHeader["Content-Type"] === "application/json"){
+                        try {
+                            var jsonStr = spaceJson("{ \"Code\": 200, \"Data\": { \"Id\": 93, \"CreatedAt\": \"2018-11-12T17:52:56+08:00\", \"Title\": \"mipush service down\", \"Note\": \"test\", \"Creator\": \"root\", \"Owner\": \"Bob\", \"State\": \"PROCESSING\", \"Tags\": [ \"miphone\", \"miui\" ], \"Events\": [], \"Followers\": [ \"root\" ], \"Comments\": [] }, \"Message\": \"fault create succeed\" }");
+                            document.getElementById('response-body-0-0').innerHTML = syntaxHighlight(jsonStr);
+                        } catch (e) {
+
+                        }
+                    }
+                </script>
+                <hr>
+
+        </div>
+
+        <div id="4top"  role="tabpanel" class="tab-pane col-md-10">
+
+                <p> <H4> URL Parameter </H4> </p>
+                <table class="table table-bordered table-striped">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+
+                    <tr>
+                        <td>start</td>
+                        <td> 1542103740</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>end</td>
+                        <td> 1542103740</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>creator</td>
+                        <td> root</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>tag</td>
+                        <td> miui</td>
+                    </tr>
+                    
+                    <tr>
+                        <td>offset</td>
+                        <td> 0</td>
+                    </tr>
+                    
+                     <tr>
+                        <td>limit</td>
+                        <td> 1</td>
+                    </tr>
+
+   
+                </table>
+
+				<p> <H4> Request Headers </H4> </p>
+                <table class="table table-bordered table-striped">
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+
+                <tr>
+                    <td>Apitoken</td>
+                    <td>{&quot;name&quot;:&quot;root&quot;,&quot;sig&quot;:&quot;427d6803b78311e68afd0242ac130006&quot;}</td>
+                </tr>
+                
+                </table>
+
+                <p><h4> Response Status Code</h4></p>
+                <pre class="prettyprint lang-json">200</pre>
+
+				<p><h4> Response Headers</h4></p>
+                <table class="table table-bordered table-striped">
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Credentials</td>
+                    <td> true</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Headers</td>
+                    <td> Content-Type, Content-Length, Apitoken</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Methods</td>
+                    <td> POST, GET, OPTIONS, PUT, DELETE, UPDATE</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Origin</td>
+                    <td> *</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Expose-Headers</td>
+                    <td> Content-Length</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Max-Age</td>
+                    <td> 86400</td>
+                </tr>
+
+                <tr>
+                    <td>Content-Type</td>
+                    <td> application/json; charset=utf-8</td>
+                </tr>
+
+                </table>
+
+                <p> <H4> Response Body </H4> </p>
+                <pre class="prettyprint" id="response-body-0-0">{&quot;Code&quot;: 200, &quot;Data&quot;: { &quot;Faults&quot;: [ { &quot;Id&quot;: 93, &quot;CreatedAt&quot;: &quot;2018-11-12T17:52:56+08:00&quot;, &quot;Title&quot;: &quot;mipush service down&quot;, &quot;Note&quot;: &quot;hello test&quot;, &quot;Creator&quot;: &quot;root&quot;, &quot;Owner&quot;: &quot;George&quot;, &quot;State&quot;: &quot;CLOSED&quot;, &quot;Tags&quot;: [ &quot;micloud&quot;, &quot;miphone&quot;, &quot;miui&quot; ], &quot;Events&quot;: [ { &quot;event_id&quot;: 3, &quot;eventcase_id&quot;: &quot;s_11_d206cd6cbaa6b158c6894426e34d7f4e&quot;, &quot;endpoint&quot;: &quot;c3-op-mon-test01.bj&quot;, &quot;counter&quot;: &quot;agent.alive&quot;, &quot;func&quot;: &quot;all(#1)&quot;, &quot;cond&quot;: &quot;1 == 1&quot;, &quot;note&quot;: &quot;agent.alive&#27979;&#35797;&quot;, &quot;max_step&quot;: 10000, &quot;current_step&quot;: 1625, &quot;priority&quot;: 0, &quot;status&quot;: &quot;PROBLEM&quot;, &quot;event_ts&quot;: &quot;2018-11-03T17:53:00+08:00&quot;, &quot;template_creator&quot;: &quot;jingtaoli&quot;, &quot;expression_id&quot;: 0, &quot;strategy_id&quot;: 11, &quot;template_id&quot;: 7 }, { &quot;event_id&quot;: 2, &quot;eventcase_id&quot;: &quot;s_11_d206cd6cbaa6b158c6894426e34d7f4e&quot;, &quot;endpoint&quot;: &quot;c3-op-mon-test01.bj&quot;, &quot;counter&quot;: &quot;agent.alive&quot;, &quot;func&quot;: &quot;all(#1)&quot;, &quot;cond&quot;: &quot;1 == 1&quot;, &quot;note&quot;: &quot;agent.alive&#27979;&#35797;&quot;, &quot;max_step&quot;: 10000, &quot;current_step&quot;: 1624, &quot;priority&quot;: 0, &quot;status&quot;: &quot;PROBLEM&quot;, &quot;event_ts&quot;: &quot;2018-11-03T17:48:00+08:00&quot;, &quot;template_creator&quot;: &quot;jingtaoli&quot;, &quot;expression_id&quot;: 0, &quot;strategy_id&quot;: 11, &quot;template_id&quot;: 7 }, { &quot;event_id&quot;: 1, &quot;eventcase_id&quot;: &quot;s_13_3e251836d0e4992f5fc39d8b65864ee6&quot;, &quot;endpoint&quot;: &quot;c3-op-mon-test01.bj&quot;, &quot;counter&quot;: &quot;mem.memfree.percent&quot;, &quot;func&quot;: &quot;all(#1)&quot;, &quot;cond&quot;: &quot;92.59889718652626 &gt; 0&quot;, &quot;note&quot;: &quot;&quot;, &quot;max_step&quot;: 5000, &quot;current_step&quot;: 971, &quot;priority&quot;: 3, &quot;status&quot;: &quot;PROBLEM&quot;, &quot;event_ts&quot;: &quot;2018-11-03T17:44:00+08:00&quot;, &quot;template_creator&quot;: &quot;jingtaoli&quot;, &quot;expression_id&quot;: 0, &quot;strategy_id&quot;: 13, &quot;template_id&quot;: 7 } ], &quot;Followers&quot;: [ &quot;root&quot;, &quot;David&quot;, &quot;Jack&quot; ], &quot;Comments&quot;: [] } ], &quot;Count&quot;: 2 }, &quot;Message&quot;: &quot;List fault successfully&quot;}</pre>
+                <script>
+
+                    var responseHeader ={"Access-Control-Allow-Headers":"Content-Type,Token","Access-Control-Allow-Origin":"*","Content-Type":"application/json; charset=utf-8"};
+
+                    if (responseHeader["Content-Type"] === "application/json"){
+                        try {
+                            var jsonStr = spaceJson("{ \"Code\": 200, \"Data\": { \"Faults\": [ { \"Id\": 93, \"CreatedAt\": \"2018-11-12T17:52:56+08:00\", \"Title\": \"mipush service down\", \"Note\": \"hello test\", \"Creator\": \"root\", \"Owner\": \"George\", \"State\": \"CLOSED\", \"Tags\": [ \"micloud\", \"miphone\", \"miui\" ], \"Events\": [ { \"event_id\": 3, \"eventcase_id\": \"s_11_d206cd6cbaa6b158c6894426e34d7f4e\", \"endpoint\": \"c3-op-mon-test01.bj\", \"counter\": \"agent.alive\", \"func\": \"all(#1)\", \"cond\": \"1 == 1\", \"note\": \"agent.alive测试\", \"max_step\": 10000, \"current_step\": 1625, \"priority\": 0, \"status\": \"PROBLEM\", \"event_ts\": \"2018-11-03T17:53:00+08:00\", \"template_creator\": \"jingtaoli\", \"expression_id\": 0, \"strategy_id\": 11, \"template_id\": 7 }, { \"event_id\": 2, \"eventcase_id\": \"s_11_d206cd6cbaa6b158c6894426e34d7f4e\", \"endpoint\": \"c3-op-mon-test01.bj\", \"counter\": \"agent.alive\", \"func\": \"all(#1)\", \"cond\": \"1 == 1\", \"note\": \"agent.alive测试\", \"max_step\": 10000, \"current_step\": 1624, \"priority\": 0, \"status\": \"PROBLEM\", \"event_ts\": \"2018-11-03T17:48:00+08:00\", \"template_creator\": \"jingtaoli\", \"expression_id\": 0, \"strategy_id\": 11, \"template_id\": 7 }, { \"event_id\": 1, \"eventcase_id\": \"s_13_3e251836d0e4992f5fc39d8b65864ee6\", \"endpoint\": \"c3-op-mon-test01.bj\", \"counter\": \"mem.memfree.percent\", \"func\": \"all(#1)\", \"cond\": \"92.59889718652626 > 0\", \"note\": \"\", \"max_step\": 5000, \"current_step\": 971, \"priority\": 3, \"status\": \"PROBLEM\", \"event_ts\": \"2018-11-03T17:44:00+08:00\", \"template_creator\": \"jingtaoli\", \"expression_id\": 0, \"strategy_id\": 13, \"template_id\": 7 } ], \"Followers\": [ \"root\", \"David\", \"Jack\" ], \"Comments\": [] } ], \"Count\": 2 }, \"Message\": \"List fault successfully\" }");
+                            document.getElementById('response-body-0-0').innerHTML = syntaxHighlight(jsonStr);
+                        } catch (e) {
+
+                        }
+                    }
+                </script>
+
+            <hr>
+
+        </div>
+
+        <div id="5top"  role="tabpanel" class="tab-pane col-md-10">
+
+				<p> <H4> Request Header </H4> </p>
+                <table class="table table-bordered table-striped">
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+
+                <tr>
+                    <td>Apitoken</td>
+                    <td>{&quot;name&quot;:&quot;root&quot;,&quot;sig&quot;:&quot;427d6803b78311e68afd0242ac130006&quot;}</td>
+                </tr>
+
+                </table>
+
+                <p><h4> Response Status Code</h4></p>
+                <pre class="prettyprint lang-json">200</pre>
+                
+                <p><h4> Response Headers</h4></p>
+                <table class="table table-bordered table-striped">
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Credentials</td>
+                    <td> true</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Headers</td>
+                    <td> Content-Type, Content-Length, Apitoken</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Methods</td>
+                    <td> POST, GET, OPTIONS, PUT, DELETE, UPDATE</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Origin</td>
+                    <td> *</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Expose-Headers</td>
+                    <td> Content-Length</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Max-Age</td>
+                    <td> 86400</td>
+                </tr>
+
+                <tr>
+                    <td>Content-Type</td>
+                    <td> application/json; charset=utf-8</td>
+                </tr>
+
+                </table>
+           
+
+                <p> <H4> Response Body </H4> </p>
+                <pre class="prettyprint" id="response-body-2-0">{&quot;Code&quot;: 200, &quot;Data&quot;: { &quot;Id&quot;: 93, &quot;CreatedAt&quot;: &quot;2018-11-12T17:52:56+08:00&quot;, &quot;Title&quot;: &quot;mipush service down&quot;, &quot;Note&quot;: &quot;hello test&quot;, &quot;Creator&quot;: &quot;root&quot;, &quot;Owner&quot;: &quot;George&quot;, &quot;State&quot;: &quot;CLOSED&quot;, &quot;Tags&quot;: [ &quot;micloud&quot;, &quot;miphone&quot;, &quot;miui&quot; ], &quot;Events&quot;: [ { &quot;event_id&quot;: 3, &quot;eventcase_id&quot;: &quot;s_11_d206cd6cbaa6b158c6894426e34d7f4e&quot;, &quot;endpoint&quot;: &quot;c3-op-mon-test01.bj&quot;, &quot;counter&quot;: &quot;agent.alive&quot;, &quot;func&quot;: &quot;all(#1)&quot;, &quot;cond&quot;: &quot;1 == 1&quot;, &quot;note&quot;: &quot;agent.alive&#27979;&#35797;&quot;, &quot;max_step&quot;: 10000, &quot;current_step&quot;: 1625, &quot;priority&quot;: 0, &quot;status&quot;: &quot;PROBLEM&quot;, &quot;event_ts&quot;: &quot;2018-11-03T17:53:00+08:00&quot;, &quot;template_creator&quot;: &quot;jingtaoli&quot;, &quot;expression_id&quot;: 0, &quot;strategy_id&quot;: 11, &quot;template_id&quot;: 7 }, { &quot;event_id&quot;: 2, &quot;eventcase_id&quot;: &quot;s_11_d206cd6cbaa6b158c6894426e34d7f4e&quot;, &quot;endpoint&quot;: &quot;c3-op-mon-test01.bj&quot;, &quot;counter&quot;: &quot;agent.alive&quot;, &quot;func&quot;: &quot;all(#1)&quot;, &quot;cond&quot;: &quot;1 == 1&quot;, &quot;note&quot;: &quot;agent.alive&#27979;&#35797;&quot;, &quot;max_step&quot;: 10000, &quot;current_step&quot;: 1624, &quot;priority&quot;: 0, &quot;status&quot;: &quot;PROBLEM&quot;, &quot;event_ts&quot;: &quot;2018-11-03T17:48:00+08:00&quot;, &quot;template_creator&quot;: &quot;jingtaoli&quot;, &quot;expression_id&quot;: 0, &quot;strategy_id&quot;: 11, &quot;template_id&quot;: 7 }, { &quot;event_id&quot;: 1, &quot;eventcase_id&quot;: &quot;s_13_3e251836d0e4992f5fc39d8b65864ee6&quot;, &quot;endpoint&quot;: &quot;c3-op-mon-test01.bj&quot;, &quot;counter&quot;: &quot;mem.memfree.percent&quot;, &quot;func&quot;: &quot;all(#1)&quot;, &quot;cond&quot;: &quot;92.59889718652626 &gt; 0&quot;, &quot;note&quot;: &quot;&quot;, &quot;max_step&quot;: 5000, &quot;current_step&quot;: 971, &quot;priority&quot;: 3, &quot;status&quot;: &quot;PROBLEM&quot;, &quot;event_ts&quot;: &quot;2018-11-03T17:44:00+08:00&quot;, &quot;template_creator&quot;: &quot;jingtaoli&quot;, &quot;expression_id&quot;: 0, &quot;strategy_id&quot;: 13, &quot;template_id&quot;: 7 } ], &quot;Followers&quot;: [ &quot;root&quot;, &quot;David&quot;, &quot;Jack&quot; ], &quot;Comments&quot;: [] }, &quot;Message&quot;: &quot;Get fault successfully&quot;}</pre>
+                <script>
+
+                    var responseHeader ={"Access-Control-Allow-Headers":"Content-Type,Token","Access-Control-Allow-Origin":"*","Content-Type":"application/json; charset=utf-8"};
+
+                    if (responseHeader["Content-Type"] === "application/json"){
+                        try {
+                            var jsonStr = spaceJson("{ \"Code\": 200, \"Data\": { \"Id\": 93, \"CreatedAt\": \"2018-11-12T17:52:56+08:00\", \"Title\": \"mipush service down\", \"Note\": \"hello test\", \"Creator\": \"root\", \"Owner\": \"George\", \"State\": \"CLOSED\", \"Tags\": [ \"micloud\", \"miphone\", \"miui\" ], \"Events\": [ { \"event_id\": 3, \"eventcase_id\": \"s_11_d206cd6cbaa6b158c6894426e34d7f4e\", \"endpoint\": \"c3-op-mon-test01.bj\", \"counter\": \"agent.alive\", \"func\": \"all(#1)\", \"cond\": \"1 == 1\", \"note\": \"agent.alive测试\", \"max_step\": 10000, \"current_step\": 1625, \"priority\": 0, \"status\": \"PROBLEM\", \"event_ts\": \"2018-11-03T17:53:00+08:00\", \"template_creator\": \"jingtaoli\", \"expression_id\": 0, \"strategy_id\": 11, \"template_id\": 7 }, { \"event_id\": 2, \"eventcase_id\": \"s_11_d206cd6cbaa6b158c6894426e34d7f4e\", \"endpoint\": \"c3-op-mon-test01.bj\", \"counter\": \"agent.alive\", \"func\": \"all(#1)\", \"cond\": \"1 == 1\", \"note\": \"agent.alive测试\", \"max_step\": 10000, \"current_step\": 1624, \"priority\": 0, \"status\": \"PROBLEM\", \"event_ts\": \"2018-11-03T17:48:00+08:00\", \"template_creator\": \"jingtaoli\", \"expression_id\": 0, \"strategy_id\": 11, \"template_id\": 7 }, { \"event_id\": 1, \"eventcase_id\": \"s_13_3e251836d0e4992f5fc39d8b65864ee6\", \"endpoint\": \"c3-op-mon-test01.bj\", \"counter\": \"mem.memfree.percent\", \"func\": \"all(#1)\", \"cond\": \"92.59889718652626 > 0\", \"note\": \"\", \"max_step\": 5000, \"current_step\": 971, \"priority\": 3, \"status\": \"PROBLEM\", \"event_ts\": \"2018-11-03T17:44:00+08:00\", \"template_creator\": \"jingtaoli\", \"expression_id\": 0, \"strategy_id\": 13, \"template_id\": 7 } ], \"Followers\": [ \"root\", \"David\", \"Jack\" ], \"Comments\": [] }, \"Message\": \"Get fault successfully\" }");
+                            document.getElementById('response-body-2-0').innerHTML = syntaxHighlight(jsonStr);
+                        } catch (e) {
+
+                        }
+                    }
+                </script>
+
+                <hr>
+
+        </div>
+
+        <div id="6top"  role="tabpanel" class="tab-pane col-md-10">
+
+				<p> <H4> Request Header </H4> </p>
+                <table class="table table-bordered table-striped">
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+
+                <tr>
+                    <td>Apitoken</td>
+                    <td>{&quot;name&quot;:&quot;root&quot;,&quot;sig&quot;:&quot;427d6803b78311e68afd0242ac130006&quot;}</td>
+                </tr>
+
+                </table>
+
+                <p><h4> Response Status Code</h4></p>
+                <pre class="prettyprint lang-json">200</pre>
+                
+                <p><h4> Response Headers</h4></p>
+                <table class="table table-bordered table-striped">
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Credentials</td>
+                    <td> true</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Headers</td>
+                    <td> Content-Type, Content-Length, Apitoken</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Methods</td>
+                    <td> POST, GET, OPTIONS, PUT, DELETE, UPDATE</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Origin</td>
+                    <td> *</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Expose-Headers</td>
+                    <td> Content-Length</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Max-Age</td>
+                    <td> 86400</td>
+                </tr>
+
+                <tr>
+                    <td>Content-Type</td>
+                    <td> application/json; charset=utf-8</td>
+                </tr>
+
+                </table>
+
+
+               
+                <p> <H4> Response Body </H4> </p>
+                <pre class="prettyprint" id="response-body-3-0">{ &quot;Code&quot;: 200, &quot;Data&quot;: { &quot;FirstEventTime&quot;: &quot;2018-11-03T17:44:00+08:00&quot;, &quot;LastEventTime&quot;: &quot;2018-11-03T17:53:00+08:00&quot;, &quot;FaultCreatedAt&quot;: &quot;2018-11-12 17:52:56 +0800 CST&quot;, &quot;FaultClosedAt&quot;: &quot;2018-11-13 15:11:13 +0800 CST&quot; }, &quot;Message&quot;: &quot;Get fault timeline successfully&quot; }</pre>
+                <script>
+
+                    var responseHeader ={"Access-Control-Allow-Headers":"Content-Type,Token","Access-Control-Allow-Origin":"*","Content-Type":"application/json; charset=utf-8"};
+
+                    if (responseHeader["Content-Type"] === "application/json"){
+                        try {
+                            var jsonStr = spaceJson("{ \"Code\": 200, \"Data\": { \"FirstEventTime\": \"2018-11-03T17:44:00+08:00\", \"LastEventTime\": \"2018-11-03T17:53:00+08:00\", \"FaultCreatedAt\": \"2018-11-12 17:52:56 +0800 CST\", \"FaultClosedAt\": \"2018-11-13 15:11:13 +0800 CST\" }, \"Message\": \"Get fault timeline successfully\" }");
+                            document.getElementById('response-body-3-0').innerHTML = syntaxHighlight(jsonStr);
+                        } catch (e) {
+
+                        }
+                    }
+                </script>
+
+                <hr>
+
+        </div>
+
+        <div id="7top"  role="tabpanel" class="tab-pane col-md-10">
+	        
+				<p> <H4> Request Header </H4> </p>
+                <table class="table table-bordered table-striped">
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+
+                <tr>
+                    <td>Apitoken</td>
+                    <td>{&quot;name&quot;:&quot;root&quot;,&quot;sig&quot;:&quot;427d6803b78311e68afd0242ac130006&quot;}</td>
+                </tr>
+
+                </table>
+
+                <p><h4> Response Status Code</h4></p>
+                <pre class="prettyprint lang-json">200</pre>
+                
+                <p><h4> Response Headers</h4></p>
+                <table class="table table-bordered table-striped">
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Credentials</td>
+                    <td> true</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Headers</td>
+                    <td> Content-Type, Content-Length, Apitoken</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Methods</td>
+                    <td> POST, GET, OPTIONS, PUT, DELETE, UPDATE</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Origin</td>
+                    <td> *</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Expose-Headers</td>
+                    <td> Content-Length</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Max-Age</td>
+                    <td> 86400</td>
+                </tr>
+
+                <tr>
+                    <td>Content-Type</td>
+                    <td> application/json; charset=utf-8</td>
+                </tr>
+
+                </table>
+
+              
+                <p> <H4> Response Body </H4> </p>
+                <pre class="prettyprint" id="response-body-5-0">{&quot;Code&quot;: 200, &quot;Data&quot;: [ { &quot;event_id&quot;: 3, &quot;eventcase_id&quot;: &quot;s_11_d206cd6cbaa6b158c6894426e34d7f4e&quot;, &quot;endpoint&quot;: &quot;c3-op-mon-test01.bj&quot;, &quot;counter&quot;: &quot;agent.alive&quot;, &quot;func&quot;: &quot;all(#1)&quot;, &quot;cond&quot;: &quot;1 == 1&quot;, &quot;note&quot;: &quot;agent.alive&#27979;&#35797;&quot;, &quot;max_step&quot;: 10000, &quot;current_step&quot;: 1625, &quot;priority&quot;: 0, &quot;status&quot;: &quot;PROBLEM&quot;, &quot;event_ts&quot;: &quot;2018-11-03T17:53:00+08:00&quot;, &quot;template_creator&quot;: &quot;jingtaoli&quot;, &quot;expression_id&quot;: 0, &quot;strategy_id&quot;: 11, &quot;template_id&quot;: 7 }, { &quot;event_id&quot;: 2, &quot;eventcase_id&quot;: &quot;s_11_d206cd6cbaa6b158c6894426e34d7f4e&quot;, &quot;endpoint&quot;: &quot;c3-op-mon-test01.bj&quot;, &quot;counter&quot;: &quot;agent.alive&quot;, &quot;func&quot;: &quot;all(#1)&quot;, &quot;cond&quot;: &quot;1 == 1&quot;, &quot;note&quot;: &quot;agent.alive&#27979;&#35797;&quot;, &quot;max_step&quot;: 10000, &quot;current_step&quot;: 1624, &quot;priority&quot;: 0, &quot;status&quot;: &quot;PROBLEM&quot;, &quot;event_ts&quot;: &quot;2018-11-03T17:48:00+08:00&quot;, &quot;template_creator&quot;: &quot;jingtaoli&quot;, &quot;expression_id&quot;: 0, &quot;strategy_id&quot;: 11, &quot;template_id&quot;: 7 }, { &quot;event_id&quot;: 1, &quot;eventcase_id&quot;: &quot;s_13_3e251836d0e4992f5fc39d8b65864ee6&quot;, &quot;endpoint&quot;: &quot;c3-op-mon-test01.bj&quot;, &quot;counter&quot;: &quot;mem.memfree.percent&quot;, &quot;func&quot;: &quot;all(#1)&quot;, &quot;cond&quot;: &quot;92.59889718652626 &gt; 0&quot;, &quot;note&quot;: &quot;&quot;, &quot;max_step&quot;: 5000, &quot;current_step&quot;: 971, &quot;priority&quot;: 3, &quot;status&quot;: &quot;PROBLEM&quot;, &quot;event_ts&quot;: &quot;2018-11-03T17:44:00+08:00&quot;, &quot;template_creator&quot;: &quot;jingtaoli&quot;, &quot;expression_id&quot;: 0, &quot;strategy_id&quot;: 13, &quot;template_id&quot;: 7 } ], &quot;Message&quot;: &quot;Get event of fault successfully&quot; }</pre>
+
+                <script>
+                    var responseHeader ={"Access-Control-Allow-Headers":"Content-Type,Token","Access-Control-Allow-Origin":"*","Content-Type":"application/json; charset=utf-8"};
+
+                    if (responseHeader["Content-Type"] === "application/json"){
+                        try {
+                            var jsonStr = spaceJson("{ \"Code\": 200, \"Data\": [ { \"event_id\": 3, \"eventcase_id\": \"s_11_d206cd6cbaa6b158c6894426e34d7f4e\", \"endpoint\": \"c3-op-mon-test01.bj\", \"counter\": \"agent.alive\", \"func\": \"all(#1)\", \"cond\": \"1 == 1\", \"note\": \"agent.alive测试\", \"max_step\": 10000, \"current_step\": 1625, \"priority\": 0, \"status\": \"PROBLEM\", \"event_ts\": \"2018-11-03T17:53:00+08:00\", \"template_creator\": \"jingtaoli\", \"expression_id\": 0, \"strategy_id\": 11, \"template_id\": 7 }, { \"event_id\": 2, \"eventcase_id\": \"s_11_d206cd6cbaa6b158c6894426e34d7f4e\", \"endpoint\": \"c3-op-mon-test01.bj\", \"counter\": \"agent.alive\", \"func\": \"all(#1)\", \"cond\": \"1 == 1\", \"note\": \"agent.alive测试\", \"max_step\": 10000, \"current_step\": 1624, \"priority\": 0, \"status\": \"PROBLEM\", \"event_ts\": \"2018-11-03T17:48:00+08:00\", \"template_creator\": \"jingtaoli\", \"expression_id\": 0, \"strategy_id\": 11, \"template_id\": 7 }, { \"event_id\": 1, \"eventcase_id\": \"s_13_3e251836d0e4992f5fc39d8b65864ee6\", \"endpoint\": \"c3-op-mon-test01.bj\", \"counter\": \"mem.memfree.percent\", \"func\": \"all(#1)\", \"cond\": \"92.59889718652626 > 0\", \"note\": \"\", \"max_step\": 5000, \"current_step\": 971, \"priority\": 3, \"status\": \"PROBLEM\", \"event_ts\": \"2018-11-03T17:44:00+08:00\", \"template_creator\": \"jingtaoli\", \"expression_id\": 0, \"strategy_id\": 13, \"template_id\": 7 } ], \"Message\": \"Get event of fault successfully\" }");
+                            document.getElementById('response-body-5-0').innerHTML = syntaxHighlight(jsonStr);
+                        } catch (e) {
+
+                        }
+                    }
+                </script>
+
+
+                <hr>
+
+        </div>
+
+        <div id="8top"  role="tabpanel" class="tab-pane col-md-10">
+	        
+	            <p> <H4> URL Parameter </H4> </p>
+                <table class="table table-bordered table-striped">
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+
+                <tr>
+                    <td>eventids</td>
+                    <td>1,2,3</td>
+                </tr>
+
+                </table>
+
+
+
+                <p> <H4> Request Header </H4> </p>
+                <table class="table table-bordered table-striped">
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+
+                <tr>
+                    <td>Apitoken</td>
+                    <td>{&quot;name&quot;:&quot;root&quot;,&quot;sig&quot;:&quot;427d6803b78311e68afd0242ac130006&quot;}</td>
+                </tr>
+
+                </table>
+
+                <p><h4> Response Status Code</h4></p>
+                <pre class="prettyprint lang-json">200</pre>
+                
+                <p><h4> Response Headers</h4></p>
+                <table class="table table-bordered table-striped">
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Credentials</td>
+                    <td> true</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Headers</td>
+                    <td> Content-Type, Content-Length, Apitoken</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Methods</td>
+                    <td> POST, GET, OPTIONS, PUT, DELETE, UPDATE</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Origin</td>
+                    <td> *</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Expose-Headers</td>
+                    <td> Content-Length</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Max-Age</td>
+                    <td> 86400</td>
+                </tr>
+
+                <tr>
+                    <td>Content-Type</td>
+                    <td> application/json; charset=utf-8</td>
+                </tr>
+
+                </table>
+
+
+                <p> <H4> Response Body </H4> </p>
+                <pre class="prettyprint" id="response-body-5-0">{&quot;Code&quot;: 200, &quot;Data&quot;: { &quot;Id&quot;: 93, &quot;CreatedAt&quot;: &quot;2018-11-12T17:52:56+08:00&quot;, &quot;Title&quot;: &quot;mipush service down&quot;, &quot;Note&quot;: &quot;test&quot;, &quot;Creator&quot;: &quot;root&quot;, &quot;Owner&quot;: &quot;Bob&quot;, &quot;State&quot;: &quot;PROCESSING&quot;, &quot;Tags&quot;: [ &quot;miphone&quot;, &quot;miui&quot; ], &quot;Events&quot;: [ { &quot;event_id&quot;: 3, &quot;eventcase_id&quot;: &quot;s_11_d206cd6cbaa6b158c6894426e34d7f4e&quot;, &quot;endpoint&quot;: &quot;c3-op-mon-test01.bj&quot;, &quot;counter&quot;: &quot;agent.alive&quot;, &quot;func&quot;: &quot;all(#1)&quot;, &quot;cond&quot;: &quot;1 == 1&quot;, &quot;note&quot;: &quot;agent.alive&#27979;&#35797;&quot;, &quot;max_step&quot;: 10000, &quot;current_step&quot;: 1625, &quot;priority&quot;: 0, &quot;status&quot;: &quot;PROBLEM&quot;, &quot;event_ts&quot;: &quot;2018-11-03T17:53:00+08:00&quot;, &quot;template_creator&quot;: &quot;jingtaoli&quot;, &quot;expression_id&quot;: 0, &quot;strategy_id&quot;: 11, &quot;template_id&quot;: 7 }, { &quot;event_id&quot;: 2, &quot;eventcase_id&quot;: &quot;s_11_d206cd6cbaa6b158c6894426e34d7f4e&quot;, &quot;endpoint&quot;: &quot;c3-op-mon-test01.bj&quot;, &quot;counter&quot;: &quot;agent.alive&quot;, &quot;func&quot;: &quot;all(#1)&quot;, &quot;cond&quot;: &quot;1 == 1&quot;, &quot;note&quot;: &quot;agent.alive&#27979;&#35797;&quot;, &quot;max_step&quot;: 10000, &quot;current_step&quot;: 1624, &quot;priority&quot;: 0, &quot;status&quot;: &quot;PROBLEM&quot;, &quot;event_ts&quot;: &quot;2018-11-03T17:48:00+08:00&quot;, &quot;template_creator&quot;: &quot;jingtaoli&quot;, &quot;expression_id&quot;: 0, &quot;strategy_id&quot;: 11, &quot;template_id&quot;: 7 }, { &quot;event_id&quot;: 1, &quot;eventcase_id&quot;: &quot;s_13_3e251836d0e4992f5fc39d8b65864ee6&quot;, &quot;endpoint&quot;: &quot;c3-op-mon-test01.bj&quot;, &quot;counter&quot;: &quot;mem.memfree.percent&quot;, &quot;func&quot;: &quot;all(#1)&quot;, &quot;cond&quot;: &quot;92.59889718652626 &gt; 0&quot;, &quot;note&quot;: &quot;&quot;, &quot;max_step&quot;: 5000, &quot;current_step&quot;: 971, &quot;priority&quot;: 3, &quot;status&quot;: &quot;PROBLEM&quot;, &quot;event_ts&quot;: &quot;2018-11-03T17:44:00+08:00&quot;, &quot;template_creator&quot;: &quot;jingtaoli&quot;, &quot;expression_id&quot;: 0, &quot;strategy_id&quot;: 13, &quot;template_id&quot;: 7 } ], &quot;Followers&quot;: [ &quot;root&quot; ], &quot;Comments&quot;: [] }, &quot;Message&quot;: &quot;Add event into fault successfully&quot;}</pre>
+                <script>
+
+                    var responseHeader ={"Access-Control-Allow-Headers":"Content-Type,Token","Access-Control-Allow-Origin":"*","Content-Type":"application/json; charset=utf-8"};
+
+                    if (responseHeader["Content-Type"] === "application/json"){
+                        try {
+                            var jsonStr = spaceJson("{ \"Code\": 200, \"Data\": { \"Id\": 93, \"CreatedAt\": \"2018-11-12T17:52:56+08:00\", \"Title\": \"mipush service down\", \"Note\": \"test\", \"Creator\": \"root\", \"Owner\": \"Bob\", \"State\": \"PROCESSING\", \"Tags\": [ \"miphone\", \"miui\" ], \"Events\": [ { \"event_id\": 3, \"eventcase_id\": \"s_11_d206cd6cbaa6b158c6894426e34d7f4e\", \"endpoint\": \"c3-op-mon-test01.bj\", \"counter\": \"agent.alive\", \"func\": \"all(#1)\", \"cond\": \"1 == 1\", \"note\": \"agent.alive测试\", \"max_step\": 10000, \"current_step\": 1625, \"priority\": 0, \"status\": \"PROBLEM\", \"event_ts\": \"2018-11-03T17:53:00+08:00\", \"template_creator\": \"jingtaoli\", \"expression_id\": 0, \"strategy_id\": 11, \"template_id\": 7 }, { \"event_id\": 2, \"eventcase_id\": \"s_11_d206cd6cbaa6b158c6894426e34d7f4e\", \"endpoint\": \"c3-op-mon-test01.bj\", \"counter\": \"agent.alive\", \"func\": \"all(#1)\", \"cond\": \"1 == 1\", \"note\": \"agent.alive测试\", \"max_step\": 10000, \"current_step\": 1624, \"priority\": 0, \"status\": \"PROBLEM\", \"event_ts\": \"2018-11-03T17:48:00+08:00\", \"template_creator\": \"jingtaoli\", \"expression_id\": 0, \"strategy_id\": 11, \"template_id\": 7 }, { \"event_id\": 1, \"eventcase_id\": \"s_13_3e251836d0e4992f5fc39d8b65864ee6\", \"endpoint\": \"c3-op-mon-test01.bj\", \"counter\": \"mem.memfree.percent\", \"func\": \"all(#1)\", \"cond\": \"92.59889718652626 > 0\", \"note\": \"\", \"max_step\": 5000, \"current_step\": 971, \"priority\": 3, \"status\": \"PROBLEM\", \"event_ts\": \"2018-11-03T17:44:00+08:00\", \"template_creator\": \"jingtaoli\", \"expression_id\": 0, \"strategy_id\": 13, \"template_id\": 7 } ], \"Followers\": [ \"root\" ], \"Comments\": [] }, \"Message\": \"Add event into fault successfully\" }");
+                            document.getElementById('response-body-5-0').innerHTML = syntaxHighlight(jsonStr);
+                        } catch (e) {
+
+                        }
+                    }
+                </script>
+
+                <hr>
+
+        </div>
+
+        <div id="9top"  role="tabpanel" class="tab-pane col-md-10">
+
+                <p> <H4> URL Parameter </H4> </p>
+                <table class="table table-bordered table-striped">
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+
+                <tr>
+                    <td>eventids</td>
+                    <td>1</td>
+                </tr>
+
+                </table>
+
+
+
+                <p> <H4> Request Header </H4> </p>
+                <table class="table table-bordered table-striped">
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+
+                <tr>
+                    <td>Apitoken</td>
+                    <td>{&quot;name&quot;:&quot;root&quot;,&quot;sig&quot;:&quot;427d6803b78311e68afd0242ac130006&quot;}</td>
+                </tr>
+
+                </table>
+
+                <p><h4> Response Status Code</h4></p>
+                <pre class="prettyprint lang-json">200</pre>
+                
+                <p><h4> Response Headers</h4></p>
+                <table class="table table-bordered table-striped">
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Credentials</td>
+                    <td> true</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Headers</td>
+                    <td> Content-Type, Content-Length, Apitoken</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Methods</td>
+                    <td> POST, GET, OPTIONS, PUT, DELETE, UPDATE</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Origin</td>
+                    <td> *</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Expose-Headers</td>
+                    <td> Content-Length</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Max-Age</td>
+                    <td> 86400</td>
+                </tr>
+
+                <tr>
+                    <td>Content-Type</td>
+                    <td> application/json; charset=utf-8</td>
+                </tr>
+
+                </table>
+
+
+                <p> <H4> Response Body </H4> </p>
+                <pre class="prettyprint" id="response-body-6-0">{&quot;Code&quot;: 200, &quot;Data&quot;: { &quot;Id&quot;: 93, &quot;CreatedAt&quot;: &quot;2018-11-12T17:52:56+08:00&quot;, &quot;Title&quot;: &quot;mipush service down&quot;, &quot;Note&quot;: &quot;test&quot;, &quot;Creator&quot;: &quot;root&quot;, &quot;Owner&quot;: &quot;Bob&quot;, &quot;State&quot;: &quot;PROCESSING&quot;, &quot;Tags&quot;: [ &quot;miphone&quot;, &quot;miui&quot; ], &quot;Events&quot;: [ { &quot;event_id&quot;: 3, &quot;eventcase_id&quot;: &quot;s_11_d206cd6cbaa6b158c6894426e34d7f4e&quot;, &quot;endpoint&quot;: &quot;c3-op-mon-test01.bj&quot;, &quot;counter&quot;: &quot;agent.alive&quot;, &quot;func&quot;: &quot;all(#1)&quot;, &quot;cond&quot;: &quot;1 == 1&quot;, &quot;note&quot;: &quot;agent.alive&#27979;&#35797;&quot;, &quot;max_step&quot;: 10000, &quot;current_step&quot;: 1625, &quot;priority&quot;: 0, &quot;status&quot;: &quot;PROBLEM&quot;, &quot;event_ts&quot;: &quot;2018-11-03T17:53:00+08:00&quot;, &quot;template_creator&quot;: &quot;jingtaoli&quot;, &quot;expression_id&quot;: 0, &quot;strategy_id&quot;: 11, &quot;template_id&quot;: 7 }, { &quot;event_id&quot;: 2, &quot;eventcase_id&quot;: &quot;s_11_d206cd6cbaa6b158c6894426e34d7f4e&quot;, &quot;endpoint&quot;: &quot;c3-op-mon-test01.bj&quot;, &quot;counter&quot;: &quot;agent.alive&quot;, &quot;func&quot;: &quot;all(#1)&quot;, &quot;cond&quot;: &quot;1 == 1&quot;, &quot;note&quot;: &quot;agent.alive&#27979;&#35797;&quot;, &quot;max_step&quot;: 10000, &quot;current_step&quot;: 1624, &quot;priority&quot;: 0, &quot;status&quot;: &quot;PROBLEM&quot;, &quot;event_ts&quot;: &quot;2018-11-03T17:48:00+08:00&quot;, &quot;template_creator&quot;: &quot;jingtaoli&quot;, &quot;expression_id&quot;: 0, &quot;strategy_id&quot;: 11, &quot;template_id&quot;: 7 } ], &quot;Followers&quot;: [ &quot;root&quot; ], &quot;Comments&quot;: [] }, &quot;Message&quot;: &quot;Delete event from fault successfully&quot;}</pre>
+                <script>
+
+                    var responseHeader ={"Access-Control-Allow-Headers":"Content-Type,Token","Access-Control-Allow-Origin":"*","Content-Type":"application/json; charset=utf-8"};
+
+                    if (responseHeader["Content-Type"] === "application/json"){
+                        try {
+                            var jsonStr = spaceJson("{ \"Code\": 200, \"Data\": { \"Id\": 93, \"CreatedAt\": \"2018-11-12T17:52:56+08:00\", \"Title\": \"mipush service down\", \"Note\": \"test\", \"Creator\": \"root\", \"Owner\": \"Bob\", \"State\": \"PROCESSING\", \"Tags\": [ \"miphone\", \"miui\" ], \"Events\": [ { \"event_id\": 3, \"eventcase_id\": \"s_11_d206cd6cbaa6b158c6894426e34d7f4e\", \"endpoint\": \"c3-op-mon-test01.bj\", \"counter\": \"agent.alive\", \"func\": \"all(#1)\", \"cond\": \"1 == 1\", \"note\": \"agent.alive测试\", \"max_step\": 10000, \"current_step\": 1625, \"priority\": 0, \"status\": \"PROBLEM\", \"event_ts\": \"2018-11-03T17:53:00+08:00\", \"template_creator\": \"jingtaoli\", \"expression_id\": 0, \"strategy_id\": 11, \"template_id\": 7 }, { \"event_id\": 2, \"eventcase_id\": \"s_11_d206cd6cbaa6b158c6894426e34d7f4e\", \"endpoint\": \"c3-op-mon-test01.bj\", \"counter\": \"agent.alive\", \"func\": \"all(#1)\", \"cond\": \"1 == 1\", \"note\": \"agent.alive测试\", \"max_step\": 10000, \"current_step\": 1624, \"priority\": 0, \"status\": \"PROBLEM\", \"event_ts\": \"2018-11-03T17:48:00+08:00\", \"template_creator\": \"jingtaoli\", \"expression_id\": 0, \"strategy_id\": 11, \"template_id\": 7 } ], \"Followers\": [ \"root\" ], \"Comments\": [] }, \"Message\": \"Delete event from fault successfully\" }");
+                            document.getElementById('response-body-6-0').innerHTML = syntaxHighlight(jsonStr);
+                        } catch (e) {
+
+                        }
+                    }
+                </script>
+
+                <hr>
+
+        </div>
+
+        <div id="10top"  role="tabpanel" class="tab-pane col-md-10">
+
+                 <p> <H4> Request Header </H4> </p>
+                <table class="table table-bordered table-striped">
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+
+                <tr>
+                    <td>Apitoken</td>
+                    <td>{&quot;name&quot;:&quot;root&quot;,&quot;sig&quot;:&quot;427d6803b78311e68afd0242ac130006&quot;}</td>
+                </tr>
+
+                </table>
+
+                <p><h4> Response Status Code</h4></p>
+                <pre class="prettyprint lang-json">200</pre>
+                
+                <p><h4> Response Headers</h4></p>
+                <table class="table table-bordered table-striped">
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Credentials</td>
+                    <td> true</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Headers</td>
+                    <td> Content-Type, Content-Length, Apitoken</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Methods</td>
+                    <td> POST, GET, OPTIONS, PUT, DELETE, UPDATE</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Origin</td>
+                    <td> *</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Expose-Headers</td>
+                    <td> Content-Length</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Max-Age</td>
+                    <td> 86400</td>
+                </tr>
+
+                <tr>
+                    <td>Content-Type</td>
+                    <td> application/json; charset=utf-8</td>
+                </tr>
+
+                </table>
+
+
+                <p> <H4> Response Body </H4> </p>
+                <pre class="prettyprint" id="response-body-7-0">{&quot;Code&quot;: 200, &quot;Data&quot;: [ &quot;miphone&quot;, &quot;miui&quot; ], &quot;Message&quot;: &quot;Get tag of fault successfully&quot;}</pre>
+                <script>
+
+                    var responseHeader ={"Access-Control-Allow-Credentials":"true","Access-Control-Allow-Headers":"Content-Type, Content-Length, Apitoken","Access-Control-Allow-Methods":"POST, GET, OPTIONS, PUT, DELETE, UPDATE","Access-Control-Allow-Origin":"*","Access-Control-Expose-Headers":"Content-Length","Access-Control-Max-Age":"86400","Content-Type":"application/json; charset=utf-8"};
+
+                    if (responseHeader["Content-Type"] === "application/json"){
+                        try {
+                            var jsonStr = spaceJson("{ \"Code\": 200, \"Data\": [ \"miphone\", \"miui\" ], \"Message\": \"Get tag of fault successfully\" }");
+                            document.getElementById('response-body-7-0').innerHTML = syntaxHighlight(jsonStr);
+                        } catch (e) {
+
+                        }
+                    }
+                </script>
+
+                <hr>
+
+        </div>
+
+        <div id="11top"  role="tabpanel" class="tab-pane col-md-10">
+	        
+               <p> <H4> URL Parameter </H4> </p>
+                <table class="table table-bordered table-striped">
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+
+                <tr>
+                    <td>tags</td>
+                    <td>micloud,mitv</td>
+                </tr>
+
+                </table>
+
+
+
+                <p> <H4> Request Header </H4> </p>
+                <table class="table table-bordered table-striped">
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+
+                <tr>
+                    <td>Apitoken</td>
+                    <td>{&quot;name&quot;:&quot;root&quot;,&quot;sig&quot;:&quot;427d6803b78311e68afd0242ac130006&quot;}</td>
+                </tr>
+
+                </table>
+
+                <p><h4> Response Status Code</h4></p>
+                <pre class="prettyprint lang-json">200</pre>
+                
+                <p><h4> Response Headers</h4></p>
+                <table class="table table-bordered table-striped">
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Credentials</td>
+                    <td> true</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Headers</td>
+                    <td> Content-Type, Content-Length, Apitoken</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Methods</td>
+                    <td> POST, GET, OPTIONS, PUT, DELETE, UPDATE</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Origin</td>
+                    <td> *</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Expose-Headers</td>
+                    <td> Content-Length</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Max-Age</td>
+                    <td> 86400</td>
+                </tr>
+
+                <tr>
+                    <td>Content-Type</td>
+                    <td> application/json; charset=utf-8</td>
+                </tr>
+
+                </table>
+
+                <p> <H4> Response Body </H4> </p>
+                <pre class="prettyprint" id="response-body-8-0">{&quot;Code&quot;: 200, &quot;Data&quot;: { &quot;Id&quot;: 93, &quot;CreatedAt&quot;: &quot;2018-11-12T17:52:56+08:00&quot;, &quot;Title&quot;: &quot;mipush service down&quot;, &quot;Note&quot;: &quot;test&quot;, &quot;Creator&quot;: &quot;root&quot;, &quot;Owner&quot;: &quot;Bob&quot;, &quot;State&quot;: &quot;PROCESSING&quot;, &quot;Tags&quot;: [ &quot;micloud&quot;, &quot;miphone&quot;, &quot;mitv&quot;, &quot;miui&quot; ], &quot;Events&quot;: [ { &quot;event_id&quot;: 3, &quot;eventcase_id&quot;: &quot;s_11_d206cd6cbaa6b158c6894426e34d7f4e&quot;, &quot;endpoint&quot;: &quot;c3-op-mon-test01.bj&quot;, &quot;counter&quot;: &quot;agent.alive&quot;, &quot;func&quot;: &quot;all(#1)&quot;, &quot;cond&quot;: &quot;1 == 1&quot;, &quot;note&quot;: &quot;agent.alive&#27979;&#35797;&quot;, &quot;max_step&quot;: 10000, &quot;current_step&quot;: 1625, &quot;priority&quot;: 0, &quot;status&quot;: &quot;PROBLEM&quot;, &quot;event_ts&quot;: &quot;2018-11-03T17:53:00+08:00&quot;, &quot;template_creator&quot;: &quot;jingtaoli&quot;, &quot;expression_id&quot;: 0, &quot;strategy_id&quot;: 11, &quot;template_id&quot;: 7 }, { &quot;event_id&quot;: 2, &quot;eventcase_id&quot;: &quot;s_11_d206cd6cbaa6b158c6894426e34d7f4e&quot;, &quot;endpoint&quot;: &quot;c3-op-mon-test01.bj&quot;, &quot;counter&quot;: &quot;agent.alive&quot;, &quot;func&quot;: &quot;all(#1)&quot;, &quot;cond&quot;: &quot;1 == 1&quot;, &quot;note&quot;: &quot;agent.alive&#27979;&#35797;&quot;, &quot;max_step&quot;: 10000, &quot;current_step&quot;: 1624, &quot;priority&quot;: 0, &quot;status&quot;: &quot;PROBLEM&quot;, &quot;event_ts&quot;: &quot;2018-11-03T17:48:00+08:00&quot;, &quot;template_creator&quot;: &quot;jingtaoli&quot;, &quot;expression_id&quot;: 0, &quot;strategy_id&quot;: 11, &quot;template_id&quot;: 7 }, { &quot;event_id&quot;: 1, &quot;eventcase_id&quot;: &quot;s_13_3e251836d0e4992f5fc39d8b65864ee6&quot;, &quot;endpoint&quot;: &quot;c3-op-mon-test01.bj&quot;, &quot;counter&quot;: &quot;mem.memfree.percent&quot;, &quot;func&quot;: &quot;all(#1)&quot;, &quot;cond&quot;: &quot;92.59889718652626 &gt; 0&quot;, &quot;note&quot;: &quot;&quot;, &quot;max_step&quot;: 5000, &quot;current_step&quot;: 971, &quot;priority&quot;: 3, &quot;status&quot;: &quot;PROBLEM&quot;, &quot;event_ts&quot;: &quot;2018-11-03T17:44:00+08:00&quot;, &quot;template_creator&quot;: &quot;jingtaoli&quot;, &quot;expression_id&quot;: 0, &quot;strategy_id&quot;: 13, &quot;template_id&quot;: 7 } ], &quot;Followers&quot;: [ &quot;root&quot; ], &quot;Comments&quot;: [] }, &quot;Message&quot;: &quot;Add tag into fault successfully&quot;}</pre>
+                <script>
+
+                    var responseHeader ={"Access-Control-Allow-Credentials":"true","Access-Control-Allow-Headers":"Content-Type, Content-Length, Apitoken","Access-Control-Allow-Methods":"POST, GET, OPTIONS, PUT, DELETE, UPDATE","Access-Control-Allow-Origin":"*","Access-Control-Expose-Headers":"Content-Length","Access-Control-Max-Age":"86400","Content-Type":"application/json; charset=utf-8"};
+
+                    if (responseHeader["Content-Type"] === "application/json"){
+                        try {
+                            var jsonStr = spaceJson("{ \"Code\": 200, \"Data\": { \"Id\": 93, \"CreatedAt\": \"2018-11-12T17:52:56+08:00\", \"Title\": \"mipush service down\", \"Note\": \"test\", \"Creator\": \"root\", \"Owner\": \"Bob\", \"State\": \"PROCESSING\", \"Tags\": [ \"micloud\", \"miphone\", \"mitv\", \"miui\" ], \"Events\": [ { \"event_id\": 3, \"eventcase_id\": \"s_11_d206cd6cbaa6b158c6894426e34d7f4e\", \"endpoint\": \"c3-op-mon-test01.bj\", \"counter\": \"agent.alive\", \"func\": \"all(#1)\", \"cond\": \"1 == 1\", \"note\": \"agent.alive测试\", \"max_step\": 10000, \"current_step\": 1625, \"priority\": 0, \"status\": \"PROBLEM\", \"event_ts\": \"2018-11-03T17:53:00+08:00\", \"template_creator\": \"jingtaoli\", \"expression_id\": 0, \"strategy_id\": 11, \"template_id\": 7 }, { \"event_id\": 2, \"eventcase_id\": \"s_11_d206cd6cbaa6b158c6894426e34d7f4e\", \"endpoint\": \"c3-op-mon-test01.bj\", \"counter\": \"agent.alive\", \"func\": \"all(#1)\", \"cond\": \"1 == 1\", \"note\": \"agent.alive测试\", \"max_step\": 10000, \"current_step\": 1624, \"priority\": 0, \"status\": \"PROBLEM\", \"event_ts\": \"2018-11-03T17:48:00+08:00\", \"template_creator\": \"jingtaoli\", \"expression_id\": 0, \"strategy_id\": 11, \"template_id\": 7 }, { \"event_id\": 1, \"eventcase_id\": \"s_13_3e251836d0e4992f5fc39d8b65864ee6\", \"endpoint\": \"c3-op-mon-test01.bj\", \"counter\": \"mem.memfree.percent\", \"func\": \"all(#1)\", \"cond\": \"92.59889718652626 > 0\", \"note\": \"\", \"max_step\": 5000, \"current_step\": 971, \"priority\": 3, \"status\": \"PROBLEM\", \"event_ts\": \"2018-11-03T17:44:00+08:00\", \"template_creator\": \"jingtaoli\", \"expression_id\": 0, \"strategy_id\": 13, \"template_id\": 7 } ], \"Followers\": [ \"root\" ], \"Comments\": [] }, \"Message\": \"Add tag into fault successfully\" }");
+                            document.getElementById('response-body-8-0').innerHTML = syntaxHighlight(jsonStr);
+                        } catch (e) {
+
+                        }
+                    }
+                </script>
+
+                <hr>
+
+        </div>
+
+        <div id="12top"  role="tabpanel" class="tab-pane col-md-10">
+	        
+                <p> <H4> URL Parameter </H4> </p>
+                <table class="table table-bordered table-striped">
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+
+                <tr>
+                    <td>tags</td>
+                    <td>mitv</td>
+                </tr>
+
+                </table>
+
+
+
+                <p> <H4> Request Header </H4> </p>
+                <table class="table table-bordered table-striped">
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+
+                <tr>
+                    <td>Apitoken</td>
+                    <td>{&quot;name&quot;:&quot;root&quot;,&quot;sig&quot;:&quot;427d6803b78311e68afd0242ac130006&quot;}</td>
+                </tr>
+
+                </table>
+
+                <p><h4> Response Status Code</h4></p>
+                <pre class="prettyprint lang-json">200</pre>
+                
+                <p><h4> Response Headers</h4></p>
+                <table class="table table-bordered table-striped">
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Credentials</td>
+                    <td> true</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Headers</td>
+                    <td> Content-Type, Content-Length, Apitoken</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Methods</td>
+                    <td> POST, GET, OPTIONS, PUT, DELETE, UPDATE</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Origin</td>
+                    <td> *</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Expose-Headers</td>
+                    <td> Content-Length</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Max-Age</td>
+                    <td> 86400</td>
+                </tr>
+
+                <tr>
+                    <td>Content-Type</td>
+                    <td> application/json; charset=utf-8</td>
+                </tr>
+
+                </table>
+           
+
+                <p> <H4> Response Body </H4> </p>
+                <pre class="prettyprint" id="response-body-9-0">{&quot;Code&quot;: 200, &quot;Data&quot;: { &quot;Id&quot;: 93, &quot;CreatedAt&quot;: &quot;2018-11-12T17:52:56+08:00&quot;, &quot;Title&quot;: &quot;mipush service down&quot;, &quot;Note&quot;: &quot;test&quot;, &quot;Creator&quot;: &quot;root&quot;, &quot;Owner&quot;: &quot;Bob&quot;, &quot;State&quot;: &quot;PROCESSING&quot;, &quot;Tags&quot;: [ &quot;micloud&quot;, &quot;miphone&quot;, &quot;miui&quot; ], &quot;Events&quot;: [ { &quot;event_id&quot;: 3, &quot;eventcase_id&quot;: &quot;s_11_d206cd6cbaa6b158c6894426e34d7f4e&quot;, &quot;endpoint&quot;: &quot;c3-op-mon-test01.bj&quot;, &quot;counter&quot;: &quot;agent.alive&quot;, &quot;func&quot;: &quot;all(#1)&quot;, &quot;cond&quot;: &quot;1 == 1&quot;, &quot;note&quot;: &quot;agent.alive&#27979;&#35797;&quot;, &quot;max_step&quot;: 10000, &quot;current_step&quot;: 1625, &quot;priority&quot;: 0, &quot;status&quot;: &quot;PROBLEM&quot;, &quot;event_ts&quot;: &quot;2018-11-03T17:53:00+08:00&quot;, &quot;template_creator&quot;: &quot;jingtaoli&quot;, &quot;expression_id&quot;: 0, &quot;strategy_id&quot;: 11, &quot;template_id&quot;: 7 }, { &quot;event_id&quot;: 2, &quot;eventcase_id&quot;: &quot;s_11_d206cd6cbaa6b158c6894426e34d7f4e&quot;, &quot;endpoint&quot;: &quot;c3-op-mon-test01.bj&quot;, &quot;counter&quot;: &quot;agent.alive&quot;, &quot;func&quot;: &quot;all(#1)&quot;, &quot;cond&quot;: &quot;1 == 1&quot;, &quot;note&quot;: &quot;agent.alive&#27979;&#35797;&quot;, &quot;max_step&quot;: 10000, &quot;current_step&quot;: 1624, &quot;priority&quot;: 0, &quot;status&quot;: &quot;PROBLEM&quot;, &quot;event_ts&quot;: &quot;2018-11-03T17:48:00+08:00&quot;, &quot;template_creator&quot;: &quot;jingtaoli&quot;, &quot;expression_id&quot;: 0, &quot;strategy_id&quot;: 11, &quot;template_id&quot;: 7 }, { &quot;event_id&quot;: 1, &quot;eventcase_id&quot;: &quot;s_13_3e251836d0e4992f5fc39d8b65864ee6&quot;, &quot;endpoint&quot;: &quot;c3-op-mon-test01.bj&quot;, &quot;counter&quot;: &quot;mem.memfree.percent&quot;, &quot;func&quot;: &quot;all(#1)&quot;, &quot;cond&quot;: &quot;92.59889718652626 &gt; 0&quot;, &quot;note&quot;: &quot;&quot;, &quot;max_step&quot;: 5000, &quot;current_step&quot;: 971, &quot;priority&quot;: 3, &quot;status&quot;: &quot;PROBLEM&quot;, &quot;event_ts&quot;: &quot;2018-11-03T17:44:00+08:00&quot;, &quot;template_creator&quot;: &quot;jingtaoli&quot;, &quot;expression_id&quot;: 0, &quot;strategy_id&quot;: 13, &quot;template_id&quot;: 7 } ], &quot;Followers&quot;: [ &quot;root&quot; ], &quot;Comments&quot;: [] }, &quot;Message&quot;: &quot;Delete tag from fault successfully&quot;}</pre>
+                <script>
+
+                    var responseHeader ={"Access-Control-Allow-Credentials":"true","Access-Control-Allow-Headers":"Content-Type, Content-Length, Apitoken","Access-Control-Allow-Methods":"POST, GET, OPTIONS, PUT, DELETE, UPDATE","Access-Control-Allow-Origin":"*","Access-Control-Expose-Headers":"Content-Length","Access-Control-Max-Age":"86400","Content-Type":"application/json; charset=utf-8"};
+
+                    if (responseHeader["Content-Type"] === "application/json"){
+                        try {
+                            var jsonStr = spaceJson("{ \"Code\": 200, \"Data\": { \"Id\": 93, \"CreatedAt\": \"2018-11-12T17:52:56+08:00\", \"Title\": \"mipush service down\", \"Note\": \"test\", \"Creator\": \"root\", \"Owner\": \"Bob\", \"State\": \"PROCESSING\", \"Tags\": [ \"micloud\", \"miphone\", \"miui\" ], \"Events\": [ { \"event_id\": 3, \"eventcase_id\": \"s_11_d206cd6cbaa6b158c6894426e34d7f4e\", \"endpoint\": \"c3-op-mon-test01.bj\", \"counter\": \"agent.alive\", \"func\": \"all(#1)\", \"cond\": \"1 == 1\", \"note\": \"agent.alive测试\", \"max_step\": 10000, \"current_step\": 1625, \"priority\": 0, \"status\": \"PROBLEM\", \"event_ts\": \"2018-11-03T17:53:00+08:00\", \"template_creator\": \"jingtaoli\", \"expression_id\": 0, \"strategy_id\": 11, \"template_id\": 7 }, { \"event_id\": 2, \"eventcase_id\": \"s_11_d206cd6cbaa6b158c6894426e34d7f4e\", \"endpoint\": \"c3-op-mon-test01.bj\", \"counter\": \"agent.alive\", \"func\": \"all(#1)\", \"cond\": \"1 == 1\", \"note\": \"agent.alive测试\", \"max_step\": 10000, \"current_step\": 1624, \"priority\": 0, \"status\": \"PROBLEM\", \"event_ts\": \"2018-11-03T17:48:00+08:00\", \"template_creator\": \"jingtaoli\", \"expression_id\": 0, \"strategy_id\": 11, \"template_id\": 7 }, { \"event_id\": 1, \"eventcase_id\": \"s_13_3e251836d0e4992f5fc39d8b65864ee6\", \"endpoint\": \"c3-op-mon-test01.bj\", \"counter\": \"mem.memfree.percent\", \"func\": \"all(#1)\", \"cond\": \"92.59889718652626 > 0\", \"note\": \"\", \"max_step\": 5000, \"current_step\": 971, \"priority\": 3, \"status\": \"PROBLEM\", \"event_ts\": \"2018-11-03T17:44:00+08:00\", \"template_creator\": \"jingtaoli\", \"expression_id\": 0, \"strategy_id\": 13, \"template_id\": 7 } ], \"Followers\": [ \"root\" ], \"Comments\": [] }, \"Message\": \"Delete tag from fault successfully\" }");
+                            document.getElementById('response-body-9-0').innerHTML = syntaxHighlight(jsonStr);
+                        } catch (e) {
+
+                        }
+                    }
+                </script>
+
+                <hr>
+
+        </div>
+        
+        <div id="13top" role="tabpanel" class="tab-pane col-md-10">
+	        
+                <p> <H4> Request Header </H4> </p>
+                <table class="table table-bordered table-striped">
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+
+                <tr>
+                    <td>Apitoken</td>
+                    <td>{&quot;name&quot;:&quot;root&quot;,&quot;sig&quot;:&quot;427d6803b78311e68afd0242ac130006&quot;}</td>
+                </tr>
+
+                </table>
+
+                <p><h4> Response Status Code</h4></p>
+                <pre class="prettyprint lang-json">200</pre>
+                
+                <p><h4> Response Headers</h4></p>
+                <table class="table table-bordered table-striped">
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Credentials</td>
+                    <td> true</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Headers</td>
+                    <td> Content-Type, Content-Length, Apitoken</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Methods</td>
+                    <td> POST, GET, OPTIONS, PUT, DELETE, UPDATE</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Origin</td>
+                    <td> *</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Expose-Headers</td>
+                    <td> Content-Length</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Max-Age</td>
+                    <td> 86400</td>
+                </tr>
+
+                <tr>
+                    <td>Content-Type</td>
+                    <td> application/json; charset=utf-8</td>
+                </tr>
+
+                </table>
+           
+
+                <p> <H4> Response Body </H4> </p>
+                <pre class="prettyprint" id="response-body-9-0">{&quot;Code&quot;: 200, &quot;Data&quot;: [ { &quot;CreatedAt&quot;: &quot;2018-11-13T14:14:42+08:00&quot;, &quot;Creator&quot;: &quot;root&quot;, &quot;Comment&quot;: &quot;\&quot;test comment\&quot;&quot; } ], &quot;Message&quot;: &quot;Get comment of fault successfully&quot;}</pre>
+                <script>
+
+                    var responseHeader ={"Access-Control-Allow-Credentials":"true","Access-Control-Allow-Headers":"Content-Type, Content-Length, Apitoken","Access-Control-Allow-Methods":"POST, GET, OPTIONS, PUT, DELETE, UPDATE","Access-Control-Allow-Origin":"*","Access-Control-Expose-Headers":"Content-Length","Access-Control-Max-Age":"86400","Content-Type":"application/json; charset=utf-8"};
+
+                    if (responseHeader["Content-Type"] === "application/json"){
+                        try {
+                            var jsonStr = spaceJson("{ \"Code\": 200, \"Data\": [ { \"CreatedAt\": \"2018-11-13T14:14:42+08:00\", \"Creator\": \"root\", \"Comment\": \"\\"test comment\\"\" } ], \"Message\": \"Get comment of fault successfully\" }");
+                            document.getElementById('response-body-9-0').innerHTML = syntaxHighlight(jsonStr);
+                        } catch (e) {
+
+                        }
+                    }
+                </script>
+                
+                <hr>
+
+        </div>
+        
+        <div id="14top"  role="tabpanel" class="tab-pane col-md-10">
+	        
+                <p> <H4> URL Parameter </H4> </p>
+                <table class="table table-bordered table-striped">
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+
+                <tr>
+                    <td>comment</td>
+                    <td>test comment</td>
+                </tr>
+
+                </table>
+
+
+
+                <p> <H4> Request Header </H4> </p>
+                <table class="table table-bordered table-striped">
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+
+                <tr>
+                    <td>Apitoken</td>
+                    <td>{&quot;name&quot;:&quot;root&quot;,&quot;sig&quot;:&quot;427d6803b78311e68afd0242ac130006&quot;}</td>
+                </tr>
+
+                </table>
+
+                <p><h4> Response Status Code</h4></p>
+                <pre class="prettyprint lang-json">200</pre>
+                
+                <p><h4> Response Headers</h4></p>
+                <table class="table table-bordered table-striped">
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Credentials</td>
+                    <td> true</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Headers</td>
+                    <td> Content-Type, Content-Length, Apitoken</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Methods</td>
+                    <td> POST, GET, OPTIONS, PUT, DELETE, UPDATE</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Origin</td>
+                    <td> *</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Expose-Headers</td>
+                    <td> Content-Length</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Max-Age</td>
+                    <td> 86400</td>
+                </tr>
+
+                <tr>
+                    <td>Content-Type</td>
+                    <td> application/json; charset=utf-8</td>
+                </tr>
+
+                </table>
+           
+
+                <p> <H4> Response Body </H4> </p>
+                <pre class="prettyprint" id="response-body-9-0">{&quot;Code&quot;: 200, &quot;Data&quot;: { &quot;Id&quot;: 93, &quot;CreatedAt&quot;: &quot;2018-11-12T17:52:56+08:00&quot;, &quot;Title&quot;: &quot;mipush service down&quot;, &quot;Note&quot;: &quot;test&quot;, &quot;Creator&quot;: &quot;root&quot;, &quot;Owner&quot;: &quot;Bob&quot;, &quot;State&quot;: &quot;PROCESSING&quot;, &quot;Tags&quot;: [ &quot;micloud&quot;, &quot;miphone&quot;, &quot;miui&quot; ], &quot;Events&quot;: [ { &quot;event_id&quot;: 3, &quot;eventcase_id&quot;: &quot;s_11_d206cd6cbaa6b158c6894426e34d7f4e&quot;, &quot;endpoint&quot;: &quot;c3-op-mon-test01.bj&quot;, &quot;counter&quot;: &quot;agent.alive&quot;, &quot;func&quot;: &quot;all(#1)&quot;, &quot;cond&quot;: &quot;1 == 1&quot;, &quot;note&quot;: &quot;agent.alive&#27979;&#35797;&quot;, &quot;max_step&quot;: 10000, &quot;current_step&quot;: 1625, &quot;priority&quot;: 0, &quot;status&quot;: &quot;PROBLEM&quot;, &quot;event_ts&quot;: &quot;2018-11-03T17:53:00+08:00&quot;, &quot;template_creator&quot;: &quot;jingtaoli&quot;, &quot;expression_id&quot;: 0, &quot;strategy_id&quot;: 11, &quot;template_id&quot;: 7 }, { &quot;event_id&quot;: 2, &quot;eventcase_id&quot;: &quot;s_11_d206cd6cbaa6b158c6894426e34d7f4e&quot;, &quot;endpoint&quot;: &quot;c3-op-mon-test01.bj&quot;, &quot;counter&quot;: &quot;agent.alive&quot;, &quot;func&quot;: &quot;all(#1)&quot;, &quot;cond&quot;: &quot;1 == 1&quot;, &quot;note&quot;: &quot;agent.alive&#27979;&#35797;&quot;, &quot;max_step&quot;: 10000, &quot;current_step&quot;: 1624, &quot;priority&quot;: 0, &quot;status&quot;: &quot;PROBLEM&quot;, &quot;event_ts&quot;: &quot;2018-11-03T17:48:00+08:00&quot;, &quot;template_creator&quot;: &quot;jingtaoli&quot;, &quot;expression_id&quot;: 0, &quot;strategy_id&quot;: 11, &quot;template_id&quot;: 7 }, { &quot;event_id&quot;: 1, &quot;eventcase_id&quot;: &quot;s_13_3e251836d0e4992f5fc39d8b65864ee6&quot;, &quot;endpoint&quot;: &quot;c3-op-mon-test01.bj&quot;, &quot;counter&quot;: &quot;mem.memfree.percent&quot;, &quot;func&quot;: &quot;all(#1)&quot;, &quot;cond&quot;: &quot;92.59889718652626 &gt; 0&quot;, &quot;note&quot;: &quot;&quot;, &quot;max_step&quot;: 5000, &quot;current_step&quot;: 971, &quot;priority&quot;: 3, &quot;status&quot;: &quot;PROBLEM&quot;, &quot;event_ts&quot;: &quot;2018-11-03T17:44:00+08:00&quot;, &quot;template_creator&quot;: &quot;jingtaoli&quot;, &quot;expression_id&quot;: 0, &quot;strategy_id&quot;: 13, &quot;template_id&quot;: 7 } ], &quot;Followers&quot;: [ &quot;root&quot; ], &quot;Comments&quot;: [ { &quot;CreatedAt&quot;: &quot;2018-11-13T14:14:42+08:00&quot;, &quot;Creator&quot;: &quot;root&quot;, &quot;Comment&quot;: &quot;\&quot;test comment\&quot;&quot; } ] }, &quot;Message&quot;: &quot;Add comment successfully&quot;}</pre>
+                <script>
+
+                    var responseHeader ={"Access-Control-Allow-Credentials":"true","Access-Control-Allow-Headers":"Content-Type, Content-Length, Apitoken","Access-Control-Allow-Methods":"POST, GET, OPTIONS, PUT, DELETE, UPDATE","Access-Control-Allow-Origin":"*","Access-Control-Expose-Headers":"Content-Length","Access-Control-Max-Age":"86400","Content-Type":"application/json; charset=utf-8"};
+
+                    if (responseHeader["Content-Type"] === "application/json"){
+                        try {
+                            var jsonStr = spaceJson("{\"Code\": 200, \"Data\": { \"Id\": 93, \"CreatedAt\": \"2018-11-12T17:52:56+08:00\", \"Title\": \"mipush service down\", \"Note\": \"test\", \"Creator\": \"root\", \"Owner\": \"Bob\", \"State\": \"PROCESSING\", \"Tags\": [ \"micloud\", \"miphone\", \"miui\" ], \"Events\": [ { \"event_id\": 3, \"eventcase_id\": \"s_11_d206cd6cbaa6b158c6894426e34d7f4e\", \"endpoint\": \"c3-op-mon-test01.bj\", \"counter\": \"agent.alive\", \"func\": \"all(#1)\", \"cond\": \"1 == 1\", \"note\": \"agent.alive测试\", \"max_step\": 10000, \"current_step\": 1625, \"priority\": 0, \"status\": \"PROBLEM\", \"event_ts\": \"2018-11-03T17:53:00+08:00\", \"template_creator\": \"jingtaoli\", \"expression_id\": 0, \"strategy_id\": 11, \"template_id\": 7 }, { \"event_id\": 2, \"eventcase_id\": \"s_11_d206cd6cbaa6b158c6894426e34d7f4e\", \"endpoint\": \"c3-op-mon-test01.bj\", \"counter\": \"agent.alive\", \"func\": \"all(#1)\", \"cond\": \"1 == 1\", \"note\": \"agent.alive测试\", \"max_step\": 10000, \"current_step\": 1624, \"priority\": 0, \"status\": \"PROBLEM\", \"event_ts\": \"2018-11-03T17:48:00+08:00\", \"template_creator\": \"jingtaoli\", \"expression_id\": 0, \"strategy_id\": 11, \"template_id\": 7 }, { \"event_id\": 1, \"eventcase_id\": \"s_13_3e251836d0e4992f5fc39d8b65864ee6\", \"endpoint\": \"c3-op-mon-test01.bj\", \"counter\": \"mem.memfree.percent\", \"func\": \"all(#1)\", \"cond\": \"92.59889718652626 > 0\", \"note\": \"\", \"max_step\": 5000, \"current_step\": 971, \"priority\": 3, \"status\": \"PROBLEM\", \"event_ts\": \"2018-11-03T17:44:00+08:00\", \"template_creator\": \"jingtaoli\", \"expression_id\": 0, \"strategy_id\": 13, \"template_id\": 7 } ], \"Followers\": [ \"root\" ], \"Comments\": [ { \"CreatedAt\": \"2018-11-13T14:14:42+08:00\", \"Creator\": \"root\", \"Comment\": \"\\"test comment\\"\" } ] }, \"Message\": \"Add comment successfully\"}");
+                            document.getElementById('response-body-9-0').innerHTML = syntaxHighlight(jsonStr);
+                        } catch (e) {
+
+                        }
+                    }
+                </script>
+
+                <hr>
+
+        </div>
+        
+		<div id="15top"  role="tabpanel" class="tab-pane col-md-10">
+	        
+                <p> <H4> URL Parameter </H4> </p>
+                <table class="table table-bordered table-striped">
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+
+                <tr>
+                    <td>comment</td>
+                    <td>"test comment"</td>
+                </tr>
+                
+                <tr>
+                    <td>creator</td>
+                    <td>root</td>
+                </tr>
+                
+                </table>
+
+
+
+                <p> <H4> Request Header </H4> </p>
+                <table class="table table-bordered table-striped">
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+
+                <tr>
+                    <td>Apitoken</td>
+                    <td>{&quot;name&quot;:&quot;root&quot;,&quot;sig&quot;:&quot;427d6803b78311e68afd0242ac130006&quot;}</td>
+                </tr>
+
+                </table>
+
+                <p><h4> Response Status Code</h4></p>
+                <pre class="prettyprint lang-json">200</pre>
+                
+                <p><h4> Response Headers</h4></p>
+                <table class="table table-bordered table-striped">
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Credentials</td>
+                    <td> true</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Headers</td>
+                    <td> Content-Type, Content-Length, Apitoken</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Methods</td>
+                    <td> POST, GET, OPTIONS, PUT, DELETE, UPDATE</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Origin</td>
+                    <td> *</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Expose-Headers</td>
+                    <td> Content-Length</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Max-Age</td>
+                    <td> 86400</td>
+                </tr>
+
+                <tr>
+                    <td>Content-Type</td>
+                    <td> application/json; charset=utf-8</td>
+                </tr>
+
+                </table>
+           
+
+                <p> <H4> Response Body </H4> </p>
+                <pre class="prettyprint" id="response-body-9-0">{&quot;Code&quot;: 200, &quot;Data&quot;: { &quot;Id&quot;: 93, &quot;CreatedAt&quot;: &quot;2018-11-12T17:52:56+08:00&quot;, &quot;Title&quot;: &quot;mipush service down&quot;, &quot;Note&quot;: &quot;test&quot;, &quot;Creator&quot;: &quot;root&quot;, &quot;Owner&quot;: &quot;Bob&quot;, &quot;State&quot;: &quot;PROCESSING&quot;, &quot;Tags&quot;: [ &quot;micloud&quot;, &quot;miphone&quot;, &quot;miui&quot; ], &quot;Events&quot;: [ { &quot;event_id&quot;: 3, &quot;eventcase_id&quot;: &quot;s_11_d206cd6cbaa6b158c6894426e34d7f4e&quot;, &quot;endpoint&quot;: &quot;c3-op-mon-test01.bj&quot;, &quot;counter&quot;: &quot;agent.alive&quot;, &quot;func&quot;: &quot;all(#1)&quot;, &quot;cond&quot;: &quot;1 == 1&quot;, &quot;note&quot;: &quot;agent.alive&#27979;&#35797;&quot;, &quot;max_step&quot;: 10000, &quot;current_step&quot;: 1625, &quot;priority&quot;: 0, &quot;status&quot;: &quot;PROBLEM&quot;, &quot;event_ts&quot;: &quot;2018-11-03T17:53:00+08:00&quot;, &quot;template_creator&quot;: &quot;jingtaoli&quot;, &quot;expression_id&quot;: 0, &quot;strategy_id&quot;: 11, &quot;template_id&quot;: 7 }, { &quot;event_id&quot;: 2, &quot;eventcase_id&quot;: &quot;s_11_d206cd6cbaa6b158c6894426e34d7f4e&quot;, &quot;endpoint&quot;: &quot;c3-op-mon-test01.bj&quot;, &quot;counter&quot;: &quot;agent.alive&quot;, &quot;func&quot;: &quot;all(#1)&quot;, &quot;cond&quot;: &quot;1 == 1&quot;, &quot;note&quot;: &quot;agent.alive&#27979;&#35797;&quot;, &quot;max_step&quot;: 10000, &quot;current_step&quot;: 1624, &quot;priority&quot;: 0, &quot;status&quot;: &quot;PROBLEM&quot;, &quot;event_ts&quot;: &quot;2018-11-03T17:48:00+08:00&quot;, &quot;template_creator&quot;: &quot;jingtaoli&quot;, &quot;expression_id&quot;: 0, &quot;strategy_id&quot;: 11, &quot;template_id&quot;: 7 }, { &quot;event_id&quot;: 1, &quot;eventcase_id&quot;: &quot;s_13_3e251836d0e4992f5fc39d8b65864ee6&quot;, &quot;endpoint&quot;: &quot;c3-op-mon-test01.bj&quot;, &quot;counter&quot;: &quot;mem.memfree.percent&quot;, &quot;func&quot;: &quot;all(#1)&quot;, &quot;cond&quot;: &quot;92.59889718652626 &gt; 0&quot;, &quot;note&quot;: &quot;&quot;, &quot;max_step&quot;: 5000, &quot;current_step&quot;: 971, &quot;priority&quot;: 3, &quot;status&quot;: &quot;PROBLEM&quot;, &quot;event_ts&quot;: &quot;2018-11-03T17:44:00+08:00&quot;, &quot;template_creator&quot;: &quot;jingtaoli&quot;, &quot;expression_id&quot;: 0, &quot;strategy_id&quot;: 13, &quot;template_id&quot;: 7 } ], &quot;Followers&quot;: [ &quot;root&quot; ], &quot;Comments&quot;: [] }, &quot;Message&quot;: &quot;Delete comment successfully&quot;}</pre>
+                <script>
+
+                    var responseHeader ={"Access-Control-Allow-Credentials":"true","Access-Control-Allow-Headers":"Content-Type, Content-Length, Apitoken","Access-Control-Allow-Methods":"POST, GET, OPTIONS, PUT, DELETE, UPDATE","Access-Control-Allow-Origin":"*","Access-Control-Expose-Headers":"Content-Length","Access-Control-Max-Age":"86400","Content-Type":"application/json; charset=utf-8"};
+
+                    if (responseHeader["Content-Type"] === "application/json"){
+                        try {
+                            var jsonStr = spaceJson("{ \"Code\": 200, \"Data\": { \"Id\": 93, \"CreatedAt\": \"2018-11-12T17:52:56+08:00\", \"Title\": \"mipush service down\", \"Note\": \"test\", \"Creator\": \"root\", \"Owner\": \"Bob\", \"State\": \"PROCESSING\", \"Tags\": [ \"micloud\", \"miphone\", \"miui\" ], \"Events\": [ { \"event_id\": 3, \"eventcase_id\": \"s_11_d206cd6cbaa6b158c6894426e34d7f4e\", \"endpoint\": \"c3-op-mon-test01.bj\", \"counter\": \"agent.alive\", \"func\": \"all(#1)\", \"cond\": \"1 == 1\", \"note\": \"agent.alive测试\", \"max_step\": 10000, \"current_step\": 1625, \"priority\": 0, \"status\": \"PROBLEM\", \"event_ts\": \"2018-11-03T17:53:00+08:00\", \"template_creator\": \"jingtaoli\", \"expression_id\": 0, \"strategy_id\": 11, \"template_id\": 7 }, { \"event_id\": 2, \"eventcase_id\": \"s_11_d206cd6cbaa6b158c6894426e34d7f4e\", \"endpoint\": \"c3-op-mon-test01.bj\", \"counter\": \"agent.alive\", \"func\": \"all(#1)\", \"cond\": \"1 == 1\", \"note\": \"agent.alive测试\", \"max_step\": 10000, \"current_step\": 1624, \"priority\": 0, \"status\": \"PROBLEM\", \"event_ts\": \"2018-11-03T17:48:00+08:00\", \"template_creator\": \"jingtaoli\", \"expression_id\": 0, \"strategy_id\": 11, \"template_id\": 7 }, { \"event_id\": 1, \"eventcase_id\": \"s_13_3e251836d0e4992f5fc39d8b65864ee6\", \"endpoint\": \"c3-op-mon-test01.bj\", \"counter\": \"mem.memfree.percent\", \"func\": \"all(#1)\", \"cond\": \"92.59889718652626 > 0\", \"note\": \"\", \"max_step\": 5000, \"current_step\": 971, \"priority\": 3, \"status\": \"PROBLEM\", \"event_ts\": \"2018-11-03T17:44:00+08:00\", \"template_creator\": \"jingtaoli\", \"expression_id\": 0, \"strategy_id\": 13, \"template_id\": 7 } ], \"Followers\": [ \"root\" ], \"Comments\": [] }, \"Message\": \"Delete comment successfully\" }");
+                            document.getElementById('response-body-9-0').innerHTML = syntaxHighlight(jsonStr);
+                        } catch (e) {
+
+                        }
+                    }
+                </script>
+
+                <hr>
+
+        </div>
+        <div id="16top"  role="tabpanel" class="tab-pane col-md-10">
+	        
+                <p> <H4> URL Parameter </H4> </p>
+                <table class="table table-bordered table-striped">
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+
+                <tr>
+                    <td>owner</td>
+                    <td>George</td>
+                </tr>
+                
+                </table>
+
+
+
+                <p> <H4> Request Header </H4> </p>
+                <table class="table table-bordered table-striped">
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+
+                <tr>
+                    <td>Apitoken</td>
+                    <td>{&quot;name&quot;:&quot;root&quot;,&quot;sig&quot;:&quot;427d6803b78311e68afd0242ac130006&quot;}</td>
+                </tr>
+
+                </table>
+
+                <p><h4> Response Status Code</h4></p>
+                <pre class="prettyprint lang-json">200</pre>
+                
+                <p><h4> Response Headers</h4></p>
+                <table class="table table-bordered table-striped">
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Credentials</td>
+                    <td> true</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Headers</td>
+                    <td> Content-Type, Content-Length, Apitoken</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Methods</td>
+                    <td> POST, GET, OPTIONS, PUT, DELETE, UPDATE</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Origin</td>
+                    <td> *</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Expose-Headers</td>
+                    <td> Content-Length</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Max-Age</td>
+                    <td> 86400</td>
+                </tr>
+
+                <tr>
+                    <td>Content-Type</td>
+                    <td> application/json; charset=utf-8</td>
+                </tr>
+
+                </table>
+           
+
+                <p> <H4> Response Body </H4> </p>
+                <pre class="prettyprint" id="response-body-9-0">{&quot;Code&quot;: 200, &quot;Data&quot;: { &quot;Id&quot;: 93, &quot;CreatedAt&quot;: &quot;2018-11-12T17:52:56+08:00&quot;, &quot;Title&quot;: &quot;mipush service down&quot;, &quot;Note&quot;: &quot;test&quot;, &quot;Creator&quot;: &quot;root&quot;, &quot;Owner&quot;: &quot;George&quot;, &quot;State&quot;: &quot;PROCESSING&quot;, &quot;Tags&quot;: [ &quot;micloud&quot;, &quot;miphone&quot;, &quot;miui&quot; ], &quot;Events&quot;: [ { &quot;event_id&quot;: 3, &quot;eventcase_id&quot;: &quot;s_11_d206cd6cbaa6b158c6894426e34d7f4e&quot;, &quot;endpoint&quot;: &quot;c3-op-mon-test01.bj&quot;, &quot;counter&quot;: &quot;agent.alive&quot;, &quot;func&quot;: &quot;all(#1)&quot;, &quot;cond&quot;: &quot;1 == 1&quot;, &quot;note&quot;: &quot;agent.alive&#27979;&#35797;&quot;, &quot;max_step&quot;: 10000, &quot;current_step&quot;: 1625, &quot;priority&quot;: 0, &quot;status&quot;: &quot;PROBLEM&quot;, &quot;event_ts&quot;: &quot;2018-11-03T17:53:00+08:00&quot;, &quot;template_creator&quot;: &quot;jingtaoli&quot;, &quot;expression_id&quot;: 0, &quot;strategy_id&quot;: 11, &quot;template_id&quot;: 7 }, { &quot;event_id&quot;: 2, &quot;eventcase_id&quot;: &quot;s_11_d206cd6cbaa6b158c6894426e34d7f4e&quot;, &quot;endpoint&quot;: &quot;c3-op-mon-test01.bj&quot;, &quot;counter&quot;: &quot;agent.alive&quot;, &quot;func&quot;: &quot;all(#1)&quot;, &quot;cond&quot;: &quot;1 == 1&quot;, &quot;note&quot;: &quot;agent.alive&#27979;&#35797;&quot;, &quot;max_step&quot;: 10000, &quot;current_step&quot;: 1624, &quot;priority&quot;: 0, &quot;status&quot;: &quot;PROBLEM&quot;, &quot;event_ts&quot;: &quot;2018-11-03T17:48:00+08:00&quot;, &quot;template_creator&quot;: &quot;jingtaoli&quot;, &quot;expression_id&quot;: 0, &quot;strategy_id&quot;: 11, &quot;template_id&quot;: 7 }, { &quot;event_id&quot;: 1, &quot;eventcase_id&quot;: &quot;s_13_3e251836d0e4992f5fc39d8b65864ee6&quot;, &quot;endpoint&quot;: &quot;c3-op-mon-test01.bj&quot;, &quot;counter&quot;: &quot;mem.memfree.percent&quot;, &quot;func&quot;: &quot;all(#1)&quot;, &quot;cond&quot;: &quot;92.59889718652626 &gt; 0&quot;, &quot;note&quot;: &quot;&quot;, &quot;max_step&quot;: 5000, &quot;current_step&quot;: 971, &quot;priority&quot;: 3, &quot;status&quot;: &quot;PROBLEM&quot;, &quot;event_ts&quot;: &quot;2018-11-03T17:44:00+08:00&quot;, &quot;template_creator&quot;: &quot;jingtaoli&quot;, &quot;expression_id&quot;: 0, &quot;strategy_id&quot;: 13, &quot;template_id&quot;: 7 } ], &quot;Followers&quot;: [ &quot;root&quot; ], &quot;Comments&quot;: [] }, &quot;Message&quot;: &quot;Update owner successfully&quot;}</pre>
+                <script>
+
+                    var responseHeader ={"Access-Control-Allow-Credentials":"true","Access-Control-Allow-Headers":"Content-Type, Content-Length, Apitoken","Access-Control-Allow-Methods":"POST, GET, OPTIONS, PUT, DELETE, UPDATE","Access-Control-Allow-Origin":"*","Access-Control-Expose-Headers":"Content-Length","Access-Control-Max-Age":"86400","Content-Type":"application/json; charset=utf-8"};
+
+                    if (responseHeader["Content-Type"] === "application/json"){
+                        try {
+                            var jsonStr = spaceJson("{ \"Code\": 200, \"Data\": { \"Id\": 93, \"CreatedAt\": \"2018-11-12T17:52:56+08:00\", \"Title\": \"mipush service down\", \"Note\": \"test\", \"Creator\": \"root\", \"Owner\": \"George\", \"State\": \"PROCESSING\", \"Tags\": [ \"micloud\", \"miphone\", \"miui\" ], \"Events\": [ { \"event_id\": 3, \"eventcase_id\": \"s_11_d206cd6cbaa6b158c6894426e34d7f4e\", \"endpoint\": \"c3-op-mon-test01.bj\", \"counter\": \"agent.alive\", \"func\": \"all(#1)\", \"cond\": \"1 == 1\", \"note\": \"agent.alive测试\", \"max_step\": 10000, \"current_step\": 1625, \"priority\": 0, \"status\": \"PROBLEM\", \"event_ts\": \"2018-11-03T17:53:00+08:00\", \"template_creator\": \"jingtaoli\", \"expression_id\": 0, \"strategy_id\": 11, \"template_id\": 7 }, { \"event_id\": 2, \"eventcase_id\": \"s_11_d206cd6cbaa6b158c6894426e34d7f4e\", \"endpoint\": \"c3-op-mon-test01.bj\", \"counter\": \"agent.alive\", \"func\": \"all(#1)\", \"cond\": \"1 == 1\", \"note\": \"agent.alive测试\", \"max_step\": 10000, \"current_step\": 1624, \"priority\": 0, \"status\": \"PROBLEM\", \"event_ts\": \"2018-11-03T17:48:00+08:00\", \"template_creator\": \"jingtaoli\", \"expression_id\": 0, \"strategy_id\": 11, \"template_id\": 7 }, { \"event_id\": 1, \"eventcase_id\": \"s_13_3e251836d0e4992f5fc39d8b65864ee6\", \"endpoint\": \"c3-op-mon-test01.bj\", \"counter\": \"mem.memfree.percent\", \"func\": \"all(#1)\", \"cond\": \"92.59889718652626 > 0\", \"note\": \"\", \"max_step\": 5000, \"current_step\": 971, \"priority\": 3, \"status\": \"PROBLEM\", \"event_ts\": \"2018-11-03T17:44:00+08:00\", \"template_creator\": \"jingtaoli\", \"expression_id\": 0, \"strategy_id\": 13, \"template_id\": 7 } ], \"Followers\": [ \"root\" ], \"Comments\": [] }, \"Message\": \"Update owner successfully\" }");
+                            document.getElementById('response-body-9-0').innerHTML = syntaxHighlight(jsonStr);
+                        } catch (e) {
+
+                        }
+                    }
+                </script>
+
+                <hr>
+
+        </div>
+        
+
+		<div id="17top"  role="tabpanel" class="tab-pane col-md-10">
+	        
+                <p> <H4> URL Parameter </H4> </p>
+                <table class="table table-bordered table-striped">
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+
+                <tr>
+                    <td>state</td>
+                    <td>CLOSED</td>
+                </tr>
+                
+                </table>
+
+
+
+                <p> <H4> Request Header </H4> </p>
+                <table class="table table-bordered table-striped">
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+
+                <tr>
+                    <td>Apitoken</td>
+                    <td>{&quot;name&quot;:&quot;root&quot;,&quot;sig&quot;:&quot;427d6803b78311e68afd0242ac130006&quot;}</td>
+                </tr>
+
+                </table>
+
+                <p><h4> Response Status Code</h4></p>
+                <pre class="prettyprint lang-json">200</pre>
+                
+                <p><h4> Response Headers</h4></p>
+                <table class="table table-bordered table-striped">
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Credentials</td>
+                    <td> true</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Headers</td>
+                    <td> Content-Type, Content-Length, Apitoken</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Methods</td>
+                    <td> POST, GET, OPTIONS, PUT, DELETE, UPDATE</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Origin</td>
+                    <td> *</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Expose-Headers</td>
+                    <td> Content-Length</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Max-Age</td>
+                    <td> 86400</td>
+                </tr>
+
+                <tr>
+                    <td>Content-Type</td>
+                    <td> application/json; charset=utf-8</td>
+                </tr>
+
+                </table>
+           
+
+                <p> <H4> Response Body </H4> </p>
+                <pre class="prettyprint" id="response-body-9-0">{&quot;Code&quot;: 200, &quot;Data&quot;: { &quot;Id&quot;: 93, &quot;CreatedAt&quot;: &quot;2018-11-12T17:52:56+08:00&quot;, &quot;Title&quot;: &quot;mipush service down&quot;, &quot;Note&quot;: &quot;test&quot;, &quot;Creator&quot;: &quot;root&quot;, &quot;Owner&quot;: &quot;George&quot;, &quot;State&quot;: &quot;CLOSED&quot;, &quot;Tags&quot;: [ &quot;micloud&quot;, &quot;miphone&quot;, &quot;miui&quot; ], &quot;Events&quot;: [ { &quot;event_id&quot;: 3, &quot;eventcase_id&quot;: &quot;s_11_d206cd6cbaa6b158c6894426e34d7f4e&quot;, &quot;endpoint&quot;: &quot;c3-op-mon-test01.bj&quot;, &quot;counter&quot;: &quot;agent.alive&quot;, &quot;func&quot;: &quot;all(#1)&quot;, &quot;cond&quot;: &quot;1 == 1&quot;, &quot;note&quot;: &quot;agent.alive&#27979;&#35797;&quot;, &quot;max_step&quot;: 10000, &quot;current_step&quot;: 1625, &quot;priority&quot;: 0, &quot;status&quot;: &quot;PROBLEM&quot;, &quot;event_ts&quot;: &quot;2018-11-03T17:53:00+08:00&quot;, &quot;template_creator&quot;: &quot;jingtaoli&quot;, &quot;expression_id&quot;: 0, &quot;strategy_id&quot;: 11, &quot;template_id&quot;: 7 }, { &quot;event_id&quot;: 2, &quot;eventcase_id&quot;: &quot;s_11_d206cd6cbaa6b158c6894426e34d7f4e&quot;, &quot;endpoint&quot;: &quot;c3-op-mon-test01.bj&quot;, &quot;counter&quot;: &quot;agent.alive&quot;, &quot;func&quot;: &quot;all(#1)&quot;, &quot;cond&quot;: &quot;1 == 1&quot;, &quot;note&quot;: &quot;agent.alive&#27979;&#35797;&quot;, &quot;max_step&quot;: 10000, &quot;current_step&quot;: 1624, &quot;priority&quot;: 0, &quot;status&quot;: &quot;PROBLEM&quot;, &quot;event_ts&quot;: &quot;2018-11-03T17:48:00+08:00&quot;, &quot;template_creator&quot;: &quot;jingtaoli&quot;, &quot;expression_id&quot;: 0, &quot;strategy_id&quot;: 11, &quot;template_id&quot;: 7 }, { &quot;event_id&quot;: 1, &quot;eventcase_id&quot;: &quot;s_13_3e251836d0e4992f5fc39d8b65864ee6&quot;, &quot;endpoint&quot;: &quot;c3-op-mon-test01.bj&quot;, &quot;counter&quot;: &quot;mem.memfree.percent&quot;, &quot;func&quot;: &quot;all(#1)&quot;, &quot;cond&quot;: &quot;92.59889718652626 &gt; 0&quot;, &quot;note&quot;: &quot;&quot;, &quot;max_step&quot;: 5000, &quot;current_step&quot;: 971, &quot;priority&quot;: 3, &quot;status&quot;: &quot;PROBLEM&quot;, &quot;event_ts&quot;: &quot;2018-11-03T17:44:00+08:00&quot;, &quot;template_creator&quot;: &quot;jingtaoli&quot;, &quot;expression_id&quot;: 0, &quot;strategy_id&quot;: 13, &quot;template_id&quot;: 7 } ], &quot;Followers&quot;: [ &quot;root&quot; ], &quot;Comments&quot;: [] }, &quot;Message&quot;: &quot;Update state successfully&quot;}</pre>
+                <script>
+
+                    var responseHeader ={"Access-Control-Allow-Credentials":"true","Access-Control-Allow-Headers":"Content-Type, Content-Length, Apitoken","Access-Control-Allow-Methods":"POST, GET, OPTIONS, PUT, DELETE, UPDATE","Access-Control-Allow-Origin":"*","Access-Control-Expose-Headers":"Content-Length","Access-Control-Max-Age":"86400","Content-Type":"application/json; charset=utf-8"};
+
+                    if (responseHeader["Content-Type"] === "application/json"){
+                        try {
+                            var jsonStr = spaceJson("{ \"Code\": 200, \"Data\": { \"Id\": 93, \"CreatedAt\": \"2018-11-12T17:52:56+08:00\", \"Title\": \"mipush service down\", \"Note\": \"test\", \"Creator\": \"root\", \"Owner\": \"George\", \"State\": \"CLOSED\", \"Tags\": [ \"micloud\", \"miphone\", \"miui\" ], \"Events\": [ { \"event_id\": 3, \"eventcase_id\": \"s_11_d206cd6cbaa6b158c6894426e34d7f4e\", \"endpoint\": \"c3-op-mon-test01.bj\", \"counter\": \"agent.alive\", \"func\": \"all(#1)\", \"cond\": \"1 == 1\", \"note\": \"agent.alive测试\", \"max_step\": 10000, \"current_step\": 1625, \"priority\": 0, \"status\": \"PROBLEM\", \"event_ts\": \"2018-11-03T17:53:00+08:00\", \"template_creator\": \"jingtaoli\", \"expression_id\": 0, \"strategy_id\": 11, \"template_id\": 7 }, { \"event_id\": 2, \"eventcase_id\": \"s_11_d206cd6cbaa6b158c6894426e34d7f4e\", \"endpoint\": \"c3-op-mon-test01.bj\", \"counter\": \"agent.alive\", \"func\": \"all(#1)\", \"cond\": \"1 == 1\", \"note\": \"agent.alive测>试\", \"max_step\": 10000, \"current_step\": 1624, \"priority\": 0, \"status\": \"PROBLEM\", \"event_ts\": \"2018-11-03T17:48:00+08:00\", \"template_creator\": \"jingtaoli\", \"expression_id\": 0, \"strategy_id\": 11, \"template_id\": 7 }, { \"event_id\": 1, \"eventcase_id\": \"s_13_3e251836d0e4992f5fc39d8b65864ee6\", \"endpoint\": \"c3-op-mon-test01.bj\", \"counter\": \"mem.memfree.percent\", \"func\": \"all(#1)\", \"cond\": \"92.59889718652626 > 0\", \"note\": \"\", \"max_step\": 5000, \"current_step\": 971, \"priority\": 3, \"status\": \"PROBLEM\", \"event_ts\": \"2018-11-03T17:44:00+08:00\", \"template_creator\": \"jingtaoli\", \"expression_id\": 0, \"strategy_id\": 13, \"template_id\": 7 } ], \"Followers\": [ \"root\" ], \"Comments\": [] }, \"Message\": \"Update state successfully\" }");
+                            document.getElementById('response-body-9-0').innerHTML = syntaxHighlight(jsonStr);
+                        } catch (e) {
+
+                        }
+                    }
+                </script>
+
+                <hr>
+
+        </div>
+        
+        <div id="18top"  role="tabpanel" class="tab-pane col-md-10">
+	        
+                <p> <H4> URL Parameter </H4> </p>
+                <table class="table table-bordered table-striped">
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+
+                <tr>
+                    <td>action</td>
+                    <td>FOLLOW</td>
+                </tr>
+                
+                <tr>
+                    <td>follower</td>
+                    <td>Jack,David</td>
+                </tr>
+
+                
+                </table>
+
+
+
+                <p> <H4> Request Header </H4> </p>
+                <table class="table table-bordered table-striped">
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+
+                <tr>
+                    <td>Apitoken</td>
+                    <td>{&quot;name&quot;:&quot;root&quot;,&quot;sig&quot;:&quot;427d6803b78311e68afd0242ac130006&quot;}</td>
+                </tr>
+
+                </table>
+
+                <p><h4> Response Status Code</h4></p>
+                <pre class="prettyprint lang-json">200</pre>
+                
+                <p><h4> Response Headers</h4></p>
+                <table class="table table-bordered table-striped">
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Credentials</td>
+                    <td> true</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Headers</td>
+                    <td> Content-Type, Content-Length, Apitoken</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Methods</td>
+                    <td> POST, GET, OPTIONS, PUT, DELETE, UPDATE</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Origin</td>
+                    <td> *</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Expose-Headers</td>
+                    <td> Content-Length</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Max-Age</td>
+                    <td> 86400</td>
+                </tr>
+
+                <tr>
+                    <td>Content-Type</td>
+                    <td> application/json; charset=utf-8</td>
+                </tr>
+
+                </table>
+           
+
+                <p> <H4> Response Body </H4> </p>
+                <pre class="prettyprint" id="response-body-9-0">{&quot;Code&quot;: 200, &quot;Data&quot;: { &quot;Id&quot;: 93, &quot;CreatedAt&quot;: &quot;2018-11-12T17:52:56+08:00&quot;, &quot;Title&quot;: &quot;mipush service down&quot;, &quot;Note&quot;: &quot;test&quot;, &quot;Creator&quot;: &quot;root&quot;, &quot;Owner&quot;: &quot;George&quot;, &quot;State&quot;: &quot;CLOSED&quot;, &quot;Tags&quot;: [ &quot;micloud&quot;, &quot;miphone&quot;, &quot;miui&quot; ], &quot;Events&quot;: [ { &quot;event_id&quot;: 3, &quot;eventcase_id&quot;: &quot;s_11_d206cd6cbaa6b158c6894426e34d7f4e&quot;, &quot;endpoint&quot;: &quot;c3-op-mon-test01.bj&quot;, &quot;counter&quot;: &quot;agent.alive&quot;, &quot;func&quot;: &quot;all(#1)&quot;, &quot;cond&quot;: &quot;1 == 1&quot;, &quot;note&quot;: &quot;agent.alive&#27979;&#35797;&quot;, &quot;max_step&quot;: 10000, &quot;current_step&quot;: 1625, &quot;priority&quot;: 0, &quot;status&quot;: &quot;PROBLEM&quot;, &quot;event_ts&quot;: &quot;2018-11-03T17:53:00+08:00&quot;, &quot;template_creator&quot;: &quot;jingtaoli&quot;, &quot;expression_id&quot;: 0, &quot;strategy_id&quot;: 11, &quot;template_id&quot;: 7 }, { &quot;event_id&quot;: 2, &quot;eventcase_id&quot;: &quot;s_11_d206cd6cbaa6b158c6894426e34d7f4e&quot;, &quot;endpoint&quot;: &quot;c3-op-mon-test01.bj&quot;, &quot;counter&quot;: &quot;agent.alive&quot;, &quot;func&quot;: &quot;all(#1)&quot;, &quot;cond&quot;: &quot;1 == 1&quot;, &quot;note&quot;: &quot;agent.alive&#27979;&#35797;&quot;, &quot;max_step&quot;: 10000, &quot;current_step&quot;: 1624, &quot;priority&quot;: 0, &quot;status&quot;: &quot;PROBLEM&quot;, &quot;event_ts&quot;: &quot;2018-11-03T17:48:00+08:00&quot;, &quot;template_creator&quot;: &quot;jingtaoli&quot;, &quot;expression_id&quot;: 0, &quot;strategy_id&quot;: 11, &quot;template_id&quot;: 7 }, { &quot;event_id&quot;: 1, &quot;eventcase_id&quot;: &quot;s_13_3e251836d0e4992f5fc39d8b65864ee6&quot;, &quot;endpoint&quot;: &quot;c3-op-mon-test01.bj&quot;, &quot;counter&quot;: &quot;mem.memfree.percent&quot;, &quot;func&quot;: &quot;all(#1)&quot;, &quot;cond&quot;: &quot;92.59889718652626 &gt; 0&quot;, &quot;note&quot;: &quot;&quot;, &quot;max_step&quot;: 5000, &quot;current_step&quot;: 971, &quot;priority&quot;: 3, &quot;status&quot;: &quot;PROBLEM&quot;, &quot;event_ts&quot;: &quot;2018-11-03T17:44:00+08:00&quot;, &quot;template_creator&quot;: &quot;jingtaoli&quot;, &quot;expression_id&quot;: 0, &quot;strategy_id&quot;: 13, &quot;template_id&quot;: 7 } ], &quot;Followers&quot;: [ &quot;root&quot;, &quot;David&quot;, &quot;Jack&quot; ], &quot;Comments&quot;: [] }, &quot;Message&quot;: &quot;Update follower successfully&quot;}</pre>
+                <script>
+
+                    var responseHeader ={"Access-Control-Allow-Credentials":"true","Access-Control-Allow-Headers":"Content-Type, Content-Length, Apitoken","Access-Control-Allow-Methods":"POST, GET, OPTIONS, PUT, DELETE, UPDATE","Access-Control-Allow-Origin":"*","Access-Control-Expose-Headers":"Content-Length","Access-Control-Max-Age":"86400","Content-Type":"application/json; charset=utf-8"};
+
+                    if (responseHeader["Content-Type"] === "application/json"){
+                        try {
+                            var jsonStr = spaceJson("{ \"Code\": 200, \"Data\": { \"Id\": 93, \"CreatedAt\": \"2018-11-12T17:52:56+08:00\", \"Title\": \"mipush service down\", \"Note\": \"test\", \"Creator\": \"root\", \"Owner\": \"George\", \"State\": \"CLOSED\", \"Tags\": [ \"micloud\", \"miphone\", \"miui\" ], \"Events\": [ { \"event_id\": 3, \"eventcase_id\": \"s_11_d206cd6cbaa6b158c6894426e34d7f4e\", \"endpoint\": \"c3-op-mon-test01.bj\", \"counter\": \"agent.alive\", \"func\": \"all(#1)\", \"cond\": \"1 == 1\", \"note\": \"agent.alive测试\", \"max_step\": 10000, \"current_step\": 1625, \"priority\": 0, \"status\": \"PROBLEM\", \"event_ts\": \"2018-11-03T17:53:00+08:00\", \"template_creator\": \"jingtaoli\", \"expression_id\": 0, \"strategy_id\": 11, \"template_id\": 7 }, { \"event_id\": 2, \"eventcase_id\": \"s_11_d206cd6cbaa6b158c6894426e34d7f4e\", \"endpoint\": \"c3-op-mon-test01.bj\", \"counter\": \"agent.alive\", \"func\": \"all(#1)\", \"cond\": \"1 == 1\", \"note\": \"agent.alive测>试\", \"max_step\": 10000, \"current_step\": 1624, \"priority\": 0, \"status\": \"PROBLEM\", \"event_ts\": \"2018-11-03T17:48:00+08:00\", \"template_creator\": \"jingtaoli\", \"expression_id\": 0, \"strategy_id\": 11, \"template_id\": 7 }, { \"event_id\": 1, \"eventcase_id\": \"s_13_3e251836d0e4992f5fc39d8b65864ee6\", \"endpoint\": \"c3-op-mon-test01.bj\", \"counter\": \"mem.memfree.percent\", \"func\": \"all(#1)\", \"cond\": \"92.59889718652626 > 0\", \"note\": \"\", \"max_step\": 5000, \"current_step\": 971, \"priority\": 3, \"status\": \"PROBLEM\", \"event_ts\": \"2018-11-03T17:44:00+08:00\", \"template_creator\": \"jingtaoli\", \"expression_id\": 0, \"strategy_id\": 13, \"template_id\": 7 } ], \"Followers\": [ \"root\", \"David\", \"Jack\" ], \"Comments\": [] }, \"Message\": \"Update follower successfully\" }");
+                            document.getElementById('response-body-9-0').innerHTML = syntaxHighlight(jsonStr);
+                        } catch (e) {
+
+                        }
+                    }
+                </script>
+
+                <hr>
+
+        </div>
+        
+        <div id="19top"  role="tabpanel" class="tab-pane col-md-10">
+	        
+                <p> <H4> URL Parameter </H4> </p>
+                <table class="table table-bordered table-striped">
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+
+                <tr>
+                    <td>title</td>
+                    <td>mipush service</td>
+                </tr>
+                
+                <tr>
+                    <td>note</td>
+                    <td>hello test</td>
+                </tr>
+
+                
+                </table>
+
+
+
+                <p> <H4> Request Header </H4> </p>
+                <table class="table table-bordered table-striped">
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+
+                <tr>
+                    <td>Apitoken</td>
+                    <td>{&quot;name&quot;:&quot;root&quot;,&quot;sig&quot;:&quot;427d6803b78311e68afd0242ac130006&quot;}</td>
+                </tr>
+
+                </table>
+
+                <p><h4> Response Status Code</h4></p>
+                <pre class="prettyprint lang-json">200</pre>
+                
+                <p><h4> Response Headers</h4></p>
+                <table class="table table-bordered table-striped">
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Credentials</td>
+                    <td> true</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Headers</td>
+                    <td> Content-Type, Content-Length, Apitoken</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Methods</td>
+                    <td> POST, GET, OPTIONS, PUT, DELETE, UPDATE</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Allow-Origin</td>
+                    <td> *</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Expose-Headers</td>
+                    <td> Content-Length</td>
+                </tr>
+
+                <tr>
+                    <td>Access-Control-Max-Age</td>
+                    <td> 86400</td>
+                </tr>
+
+                <tr>
+                    <td>Content-Type</td>
+                    <td> application/json; charset=utf-8</td>
+                </tr>
+
+                </table>
+           
+
+                <p> <H4> Response Body </H4> </p>
+                <pre class="prettyprint" id="response-body-9-0">{&quot;Code&quot;: 200, &quot;Data&quot;: { &quot;Id&quot;: 93, &quot;CreatedAt&quot;: &quot;2018-11-12T17:52:56+08:00&quot;, &quot;Title&quot;: &quot;mipush service down&quot;, &quot;Note&quot;: &quot;hello test&quot;, &quot;Creator&quot;: &quot;root&quot;, &quot;Owner&quot;: &quot;George&quot;, &quot;State&quot;: &quot;CLOSED&quot;, &quot;Tags&quot;: [ &quot;micloud&quot;, &quot;miphone&quot;, &quot;miui&quot; ], &quot;Events&quot;: [ { &quot;event_id&quot;: 3, &quot;eventcase_id&quot;: &quot;s_11_d206cd6cbaa6b158c6894426e34d7f4e&quot;, &quot;endpoint&quot;: &quot;c3-op-mon-test01.bj&quot;, &quot;counter&quot;: &quot;agent.alive&quot;, &quot;func&quot;: &quot;all(#1)&quot;, &quot;cond&quot;: &quot;1 == 1&quot;, &quot;note&quot;: &quot;agent.alive&#27979;&#35797;&quot;, &quot;max_step&quot;: 10000, &quot;current_step&quot;: 1625, &quot;priority&quot;: 0, &quot;status&quot;: &quot;PROBLEM&quot;, &quot;event_ts&quot;: &quot;2018-11-03T17:53:00+08:00&quot;, &quot;template_creator&quot;: &quot;jingtaoli&quot;, &quot;expression_id&quot;: 0, &quot;strategy_id&quot;: 11, &quot;template_id&quot;: 7 }, { &quot;event_id&quot;: 2, &quot;eventcase_id&quot;: &quot;s_11_d206cd6cbaa6b158c6894426e34d7f4e&quot;, &quot;endpoint&quot;: &quot;c3-op-mon-test01.bj&quot;, &quot;counter&quot;: &quot;agent.alive&quot;, &quot;func&quot;: &quot;all(#1)&quot;, &quot;cond&quot;: &quot;1 == 1&quot;, &quot;note&quot;: &quot;agent.alive&#27979;&#35797;&quot;, &quot;max_step&quot;: 10000, &quot;current_step&quot;: 1624, &quot;priority&quot;: 0, &quot;status&quot;: &quot;PROBLEM&quot;, &quot;event_ts&quot;: &quot;2018-11-03T17:48:00+08:00&quot;, &quot;template_creator&quot;: &quot;jingtaoli&quot;, &quot;expression_id&quot;: 0, &quot;strategy_id&quot;: 11, &quot;template_id&quot;: 7 }, { &quot;event_id&quot;: 1, &quot;eventcase_id&quot;: &quot;s_13_3e251836d0e4992f5fc39d8b65864ee6&quot;, &quot;endpoint&quot;: &quot;c3-op-mon-test01.bj&quot;, &quot;counter&quot;: &quot;mem.memfree.percent&quot;, &quot;func&quot;: &quot;all(#1)&quot;, &quot;cond&quot;: &quot;92.59889718652626 &gt; 0&quot;, &quot;note&quot;: &quot;&quot;, &quot;max_step&quot;: 5000, &quot;current_step&quot;: 971, &quot;priority&quot;: 3, &quot;status&quot;: &quot;PROBLEM&quot;, &quot;event_ts&quot;: &quot;2018-11-03T17:44:00+08:00&quot;, &quot;template_creator&quot;: &quot;jingtaoli&quot;, &quot;expression_id&quot;: 0, &quot;strategy_id&quot;: 13, &quot;template_id&quot;: 7 } ], &quot;Followers&quot;: [ &quot;root&quot;, &quot;David&quot;, &quot;Jack&quot; ], &quot;Comments&quot;: [] }, &quot;Message&quot;: &quot;Update fault basic successfully&quot;}</pre>
+                <script>
+
+                    var responseHeader ={"Access-Control-Allow-Credentials":"true","Access-Control-Allow-Headers":"Content-Type, Content-Length, Apitoken","Access-Control-Allow-Methods":"POST, GET, OPTIONS, PUT, DELETE, UPDATE","Access-Control-Allow-Origin":"*","Access-Control-Expose-Headers":"Content-Length","Access-Control-Max-Age":"86400","Content-Type":"application/json; charset=utf-8"};
+
+                    if (responseHeader["Content-Type"] === "application/json"){
+                        try {
+                            var jsonStr = spaceJson("{ \"Code\": 200, \"Data\": { \"Id\": 93, \"CreatedAt\": \"2018-11-12T17:52:56+08:00\", \"Title\": \"mipush service down\", \"Note\": \"hello test\", \"Creator\": \"root\", \"Owner\": \"George\", \"State\": \"CLOSED\", \"Tags\": [ \"micloud\", \"miphone\", \"miui\" ], \"Events\": [ { \"event_id\": 3, \"eventcase_id\": \"s_11_d206cd6cbaa6b158c6894426e34d7f4e\", \"endpoint\": \"c3-op-mon-test01.bj\", \"counter\": \"agent.alive\", \"func\": \"all(#1)\", \"cond\": \"1 == 1\", \"note\": \"agent.alive测试\", \"max_step\": 10000, \"current_step\": 1625, \"priority\": 0, \"status\": \"PROBLEM\", \"event_ts\": \"2018-11-03T17:53:00+08:00\", \"template_creator\": \"jingtaoli\", \"expression_id\": 0, \"strategy_id\": 11, \"template_id\": 7 }, { \"event_id\": 2, \"eventcase_id\": \"s_11_d206cd6cbaa6b158c6894426e34d7f4e\", \"endpoint\": \"c3-op-mon-test01.bj\", \"counter\": \"agent.alive\", \"func\": \"all(#1)\", \"cond\": \"1 == 1\", \"note\": \"agent.alive测试\", \"max_step\": 10000, \"current_step\": 1624, \"priority\": 0, \"status\": \"PROBLEM\", \"event_ts\": \"2018-11-03T17:48:00+08:00\", \"template_creator\": \"jingtaoli\", \"expression_id\": 0, \"strategy_id\": 11, \"template_id\": 7 }, { \"event_id\": 1, \"eventcase_id\": \"s_13_3e251836d0e4992f5fc39d8b65864ee6\", \"endpoint\": \"c3-op-mon-test01.bj\", \"counter\": \"mem.memfree.percent\", \"func\": \"all(#1)\", \"cond\": \"92.59889718652626 > 0\", \"note\": \"\", \"max_step\": 5000, \"current_step\": 971, \"priority\": 3, \"status\": \"PROBLEM\", \"event_ts\": \"2018-11-03T17:44:00+08:00\", \"template_creator\": \"jingtaoli\", \"expression_id\": 0, \"strategy_id\": 13, \"template_id\": 7 } ], \"Followers\": [ \"root\", \"David\", \"Jack\" ], \"Comments\": [] }, \"Message\": \"Update fault basic successfully\" }");
+                            document.getElementById('response-body-9-0').innerHTML = syntaxHighlight(jsonStr);
+                        } catch (e) {
+
+                        }
+                    }
+                </script>
+
+                <hr>
+
+        </div>
+        
+
+
+
+    </div>
+</div>
+</div>
+<hr>
+</body>
+</html>

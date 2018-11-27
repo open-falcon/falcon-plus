@@ -1,4 +1,4 @@
-// Copyright 2017 Xiaomi, Inc.
+// Copyright 2018 Xiaomi, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,28 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package cron
+package config
 
 import (
-	"github.com/open-falcon/falcon-plus/modules/alarm/g"
-	eventmodel "github.com/open-falcon/falcon-plus/modules/alarm/model/event"
-	"time"
+	"github.com/spf13/viper"
 )
 
-func CleanExpiredEvent() {
-	if !g.Config().Housekeeper.Enabled {
-		return
-	}
+const VERSION = "0.0.1"
 
-	for {
+type ApiConfig struct {
+	PlusApi      string
+	PlusApiToken string
+}
 
-		retention_days := g.Config().Housekeeper.EventRetentionDays
-		delete_batch := g.Config().Housekeeper.EventDeleteBatch
+var ApiCon *ApiConfig
 
-		now := time.Now()
-		before := now.Add(time.Duration(-retention_days*24) * time.Hour)
-		eventmodel.DeleteEventOlder(before, delete_batch)
-
-		time.Sleep(time.Second * 60)
+func InitApi(vip *viper.Viper) {
+	ApiCon = &ApiConfig{
+		PlusApi:      viper.GetString("api.plus_api"),
+		PlusApiToken: viper.GetString("api.plus_api_token"),
 	}
 }

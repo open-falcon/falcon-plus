@@ -19,6 +19,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/open-falcon/falcon-plus/modules/api/app/controller/alarm"
+	"github.com/open-falcon/falcon-plus/modules/api/app/controller/alarm_manager"
 	"github.com/open-falcon/falcon-plus/modules/api/app/controller/dashboard_graph"
 	"github.com/open-falcon/falcon-plus/modules/api/app/controller/dashboard_screen"
 	"github.com/open-falcon/falcon-plus/modules/api/app/controller/expression"
@@ -46,5 +47,6 @@ func StartGin(port string, r *gin.Engine) {
 	dashboard_graph.Routes(r)
 	dashboard_screen.Routes(r)
 	alarm.Routes(r)
+	alarm_manager.Routes(r)
 	r.Run(port)
 }

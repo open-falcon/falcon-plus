@@ -1,4 +1,4 @@
-// Copyright 2017 Xiaomi, Inc.
+// Copyright 2018 Xiaomi, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,28 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package cron
+package config
 
 import (
-	"github.com/open-falcon/falcon-plus/modules/alarm/g"
-	eventmodel "github.com/open-falcon/falcon-plus/modules/alarm/model/event"
-	"time"
+	log "github.com/Sirupsen/logrus"
 )
 
-func CleanExpiredEvent() {
-	if !g.Config().Housekeeper.Enabled {
-		return
+func InitLog(level string) (err error) {
+	switch level {
+	case "info":
+		log.SetLevel(log.InfoLevel)
+	case "debug":
+		log.SetLevel(log.DebugLevel)
+	case "warn":
+		log.SetLevel(log.WarnLevel)
+	default:
+		log.Fatal("log conf only allow [info, debug, warn], please check your confguire")
 	}
-
-	for {
-
-		retention_days := g.Config().Housekeeper.EventRetentionDays
-		delete_batch := g.Config().Housekeeper.EventDeleteBatch
-
-		now := time.Now()
-		before := now.Add(time.Duration(-retention_days*24) * time.Hour)
-		eventmodel.DeleteEventOlder(before, delete_batch)
-
-		time.Sleep(time.Second * 60)
-	}
+	return
 }

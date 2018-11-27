@@ -89,18 +89,14 @@ func handleItems(items []*cmodel.GraphItem) {
 
 		endpoint := items[i].Endpoint
 		if !g.IsValidString(endpoint) {
-			if cfg.Debug {
-				log.Printf("invalid endpoint: %s", endpoint)
-			}
+			log.Debugf("invalid endpoint: %s", endpoint)
 			pfc.Meter("invalidEnpoint", 1)
 			continue
 		}
 
 		counter := cutils.Counter(items[i].Metric, items[i].Tags)
 		if !g.IsValidString(counter) {
-			if cfg.Debug {
-				log.Printf("invalid counter: %s/%s", endpoint, counter)
-			}
+			log.Debugf("invalid counter: %s/%s", endpoint, counter)
 			pfc.Meter("invalidCounter", 1)
 			continue
 		}

@@ -90,5 +90,12 @@ func popEvent(queues []string) (*cmodel.Event, error) {
 	eventmodel.InsertEvent(&event)
 	// events no longer saved in memory
 
+	// send alarmevent to alarm-manager
+	go func() {
+		if g.Config().AlarmChannel.Enabled && g.Config().AlarmChannel.AMApi != "" {
+			SendEventToAlarmManager(&event)
+		}
+	}()
+
 	return &event, nil
 }

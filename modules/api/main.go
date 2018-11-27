@@ -72,6 +72,8 @@ func main() {
 		log.Fatalf("db conn failed with error %s", err.Error())
 	}
 
+	config.InitAM(viper.GetString("alarm_manager_api"))
+
 	if viper.GetString("log_level") != "debug" {
 		gin.SetMode(gin.ReleaseMode)
 	}
