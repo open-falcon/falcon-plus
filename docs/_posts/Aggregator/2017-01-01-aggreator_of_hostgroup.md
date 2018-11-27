@@ -16,29 +16,31 @@ layout: default
 ### Response
 
 ```Status: 200```
-```[
-  {
-    "id": 13,
-    "grp_id": 343,
-    "numerator": "$(cpu.idle)",
-    "denominator": "2",
-    "endpoint": "testenp",
-    "metric": "test.idle",
-    "tags": "",
-    "ds_type": "GAUGE",
-    "step": 60,
-    "creator": "root"
-  },
-  {
-    "id": 14,
-    "grp_id": 343,
-    "numerator": "$(cpu.idle)",
-    "denominator": "2",
-    "endpoint": "testenp",
-    "metric": "test.idle",
-    "tags": "",
-    "ds_type": "GAUGE",
-    "step": 60,
-    "creator": "root"
-  }
-]```
+```{
+  "hostgroup": "test_group",
+  "aggregators": [
+      {
+        "id": 13,
+        "grp_id": 343,
+        "numerator": "$(cpu.idle)",
+        "denominator": "2",
+        "endpoint": "testenp",
+        "metric": "test.idle",
+        "tags": "",
+        "ds_type": "GAUGE",
+        "step": 60,
+        "creator": "root"
+      },
+      {
+        "id": 14,
+        "grp_id": 343,
+        "numerator": "$(cpu.idle)",
+        "denominator": "2",
+        "endpoint": "testenp",
+        "metric": "test.idle",
+        "tags": "",
+        "ds_type": "GAUGE",
+        "step": 60,
+        "creator": "root"
+      }]
+}```
