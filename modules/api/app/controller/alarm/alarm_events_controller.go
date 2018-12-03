@@ -202,7 +202,7 @@ func EventsGet(c *gin.Context) {
 	if inputs.Limit == 0 || inputs.Limit >= 50 {
 		inputs.Limit = 50
 	}
-	perparedSql := fmt.Sprintf("select id, event_caseId, cond, status, timestamp from %s %s order by timestamp DESC limit %d,%d", f.TableName(), filterCollector, inputs.Page, inputs.Limit)
+	perparedSql := fmt.Sprintf("select id, step, event_caseId, cond, status, timestamp from %s %s order by timestamp DESC limit %d,%d", f.TableName(), filterCollector, inputs.Page, inputs.Limit)
 	db.Alarm.Raw(perparedSql).Scan(&evens)
 	h.JSONR(c, evens)
 }
