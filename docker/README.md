@@ -22,6 +22,7 @@
 ##### 2. Start redis falcon-plus falcon-dashboard in container
 ```
     # you can custom your configs in folder 'custom' before starting
+    # like: replace the ip '192.168.29.244' with your real server ip
     docker-compose up -d
 ```
 
