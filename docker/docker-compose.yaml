@@ -1,0 +1,74 @@
+# Copyright BGI Corp. All Rights Reserved.
+#
+# author:zht
+# e-mail:zhoutong@genomics.cn
+#
+version: '3'
+
+services:
+  mysql:
+    container_name: falcon-mysql
+    image: mysql:5.7
+    environment:
+      - MYSQL_ROOT_PASSWORD=test123456
+    volumes:
+      - '/home/work/open-falcon/data/mysql:/var/lib/mysql'
+    # working_dir:
+    # command:
+    ports:
+      - '9306:3306'
+
+  redis:
+    container_name: falcon-redis
+    image: redis:4-alpine3.8
+    ports:
+      - '9379:6379'
+
+  falcon:
+    container_name: falcon-plus
+    hostname: falcon_plus
+    image: openfalcon/falcon-plus:v0.2.1
+    environment:
+      - MYSQL_PORT=root:test123456@tcp(db.falcon:3306)
+      - REDIS_PORT=redis.falcon:6379
+    volumes:
+      - '/home/work/open-falcon/data:/open-falcon/data'
+      - '/home/work/open-falcon/logs:/open-falcon/logs'
+      - './custom/api.json:/open-falcon/api/config/cfg.json'
+      - './custom/alarm.json:/open-falcon/alarm/config/cfg.json'
+      - './custom/graph.json:/open-falcon/graph/config/cfg.json'
+    links:
+      - 'mysql:db.falcon'
+      - 'redis:redis.falcon'
+#    command: /bin/sh -c 'sleep 10 && sh ctrl.sh start graph hbs judge transfer nodata aggregator gateway api alarm'  & /usr/bin/supervisord -c /etc/supervisord.conf
+    ports:
+      - '6030:6030'     #hbs
+      - '8433:8433'     #transfer  
+      - '9080:8080'     #api
+
+
+#docker exec falcon-plus sh ctrl.sh start graph hbs judge transfer nodata aggregator agent gateway api alarm
+#docker exec falcon-plus ./open-falcon check
+
+  dashboard:
+    container_name: falcon-dashboard
+    image: openfalcon/falcon-dashboard:v0.2.1
+    environment:
+      - API_ADDR=http://api.falcon:8080/api/v1
+      - PORTAL_DB_HOST=db.falcon
+      - PORTAL_DB_PORT=3306
+      - PORTAL_DB_USER=root
+      - PORTAL_DB_PASS=test123456
+      - PORTAL_DB_NAME=falcon_portal
+      - ALARM_DB_HOST=db.falcon
+      - ALARM_DB_PORT=3306
+      - ALARM_DB_USER=root
+      - ALARM_DB_PASS=test123456
+      - ALARM_DB_NAME=alarms
+    links:
+      - 'mysql:db.falcon'
+      - 'falcon:api.falcon'
+    working_dir: /open-falcon/dashboard
+    command: "'./control startfg'"
+    ports:
+      - '9081:8081'

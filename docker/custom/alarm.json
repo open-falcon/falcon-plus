@@ -1,0 +1,47 @@
+{
+    "log_level": "debug",
+    "http": {
+        "enabled": true,
+        "listen": "0.0.0.0:9912"
+    },
+    "redis": {
+        "addr": "redis.falcon:6379",
+        "maxIdle": 5,
+        "highQueues": [
+            "event:p0",
+            "event:p1",
+            "event:p2"
+        ],
+        "lowQueues": [
+            "event:p3",
+            "event:p4",
+            "event:p5",
+            "event:p6"
+        ],
+        "userIMQueue": "/queue/user/im",
+        "userSmsQueue": "/queue/user/sms",
+        "userMailQueue": "/queue/user/mail"
+    },
+    "api": {
+        "im": "http://127.0.0.1:10086/wechat",
+        "sms": "http://127.0.0.1:10086/sms",
+        "mail": "http://192.168.29.244:10086/sender/mail",
+        "dashboard": "http://192.168.29.244:9081",
+        "plus_api":"http://127.0.0.1:8080",
+        "plus_api_token": "default-token-used-in-server-side"
+    },
+    "falcon_portal": {
+        "addr": "root:test123456@tcp(db.falcon:3306)/alarms?charset=utf8&loc=Asia%2FChongqing",
+        "idle": 10,
+        "max": 100
+    },
+    "worker": {
+        "im": 10,
+        "sms": 10,
+        "mail": 50
+    },
+    "housekeeper": {
+        "event_retention_days": 7,
+        "event_delete_batch": 100
+    }
+}
