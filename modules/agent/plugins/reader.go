@@ -20,9 +20,9 @@ import (
 	"io/ioutil"
 	"log"
 	"path/filepath"
+	"regexp"
 	"strconv"
 	"strings"
-	"regexp"
 )
 
 // key: sys/ntp/60_ntp.py
@@ -34,7 +34,7 @@ func ListPlugins(relativePath string) map[string]*Plugin {
 
 	var args string
 	re := regexp.MustCompile(`(.*)\((.*)\)`)
-	relPathWithArgs := re.FindAllStringSubmatch(relativePath,-1)
+	relPathWithArgs := re.FindAllStringSubmatch(relativePath, -1)
 	if relPathWithArgs == nil {
 		relativePath = relativePath
 		args = ""
