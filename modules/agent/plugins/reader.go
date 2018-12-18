@@ -22,6 +22,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"regexp"
 )
 
 // key: sys/ntp/60_ntp.py
@@ -29,6 +30,17 @@ func ListPlugins(relativePath string) map[string]*Plugin {
 	ret := make(map[string]*Plugin)
 	if relativePath == "" {
 		return ret
+	}
+
+	var args string
+	re := regexp.MustCompile(`(.*)\((.*)\)`)
+	relPathWithArgs := re.FindAllStringSubmatch(relativePath,-1)
+	if relPathWithArgs == nil {
+		relativePath = relativePath
+		args = ""
+	} else {
+		relativePath = relPathWithArgs[0][1]
+		args = relPathWithArgs[0][2]
 	}
 
 	dir := filepath.Join(g.Config().Plugin.Dir, relativePath)
@@ -62,8 +74,8 @@ func ListPlugins(relativePath string) map[string]*Plugin {
 		}
 
 		fpath := filepath.Join(relativePath, filename)
-		plugin := &Plugin{FilePath: fpath, MTime: f.ModTime().Unix(), Cycle: cycle}
-		ret[fpath] = plugin
+		plugin := &Plugin{FilePath: fpath, MTime: f.ModTime().Unix(), Cycle: cycle, Args: args}
+		ret[fpath+"("+args+")"] = plugin
 	}
 
 	return ret

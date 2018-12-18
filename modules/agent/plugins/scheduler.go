@@ -64,6 +64,7 @@ func PluginRun(plugin *Plugin) {
 
 	timeout := plugin.Cycle*1000 - 500
 	fpath := filepath.Join(g.Config().Plugin.Dir, plugin.FilePath)
+	args := plugin.Args
 
 	if !file.IsExist(fpath) {
 		log.Println("no such plugin:", fpath)
@@ -72,10 +73,10 @@ func PluginRun(plugin *Plugin) {
 
 	debug := g.Config().Debug
 	if debug {
-		log.Println(fpath, "running...")
+		log.Println(fpath+" "+args, "running...")
 	}
 
-	cmd := exec.Command(fpath)
+	cmd := exec.Command(fpath, args)
 	var stdout bytes.Buffer
 	cmd.Stdout = &stdout
 	var stderr bytes.Buffer
@@ -87,7 +88,7 @@ func PluginRun(plugin *Plugin) {
 		return
 	}
 	if debug {
-		log.Println("plugin started:", fpath)
+		log.Println("plugin started:", fpath+" "+args)
 	}
 
 	err, isTimeout := sys.CmdRunWithTimeout(cmd, time.Duration(timeout)*time.Millisecond)
@@ -103,18 +104,18 @@ func PluginRun(plugin *Plugin) {
 	if isTimeout {
 		// has be killed
 		if err == nil && debug {
-			log.Println("[INFO] timeout and kill process", fpath, "successfully")
+			log.Println("[INFO] timeout and kill process", fpath+" "+args, "successfully")
 		}
 
 		if err != nil {
-			log.Println("[ERROR] kill process", fpath, "occur error:", err)
+			log.Println("[ERROR] kill process", fpath+" "+args, "occur error:", err)
 		}
 
 		return
 	}
 
 	if err != nil {
-		log.Println("[ERROR] exec plugin", fpath, "fail. error:", err)
+		log.Println("[ERROR] exec plugin", fpath+" "+args, "fail. error:", err)
 		return
 	}
 
@@ -122,7 +123,7 @@ func PluginRun(plugin *Plugin) {
 	data := stdout.Bytes()
 	if len(data) == 0 {
 		if debug {
-			log.Println("[DEBUG] stdout of", fpath, "is blank")
+			log.Println("[DEBUG] stdout of", fpath+" "+args, "is blank")
 		}
 		return
 	}
@@ -130,7 +131,7 @@ func PluginRun(plugin *Plugin) {
 	var metrics []*model.MetricValue
 	err = json.Unmarshal(data, &metrics)
 	if err != nil {
-		log.Printf("[ERROR] json.Unmarshal stdout of %s fail. error:%s stdout: \n%s\n", fpath, err, stdout.String())
+		log.Printf("[ERROR] json.Unmarshal stdout of %s %s fail. error:%s stdout: \n%s\n", fpath, args, err, stdout.String())
 		return
 	}
 
