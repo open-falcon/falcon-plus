@@ -4,11 +4,13 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"github.com/toolkits/file"
 	"io"
 	"io/ioutil"
 	"strconv"
 	"strings"
+
+	"github.com/toolkits/file"
+	"github.com/toolkits/sys"
 )
 
 const (
@@ -143,9 +145,46 @@ func NetIfs(onlyPrefix []string) ([]*NetIf, error) {
 				netIf.OutPercent = float64(netIf.OutBytes*BITS_PER_BYTE) * 100.0 / float64(netIf.SpeedBits)
 			}
 		} else {
-			netIf.SpeedBits = int64(0)
-			netIf.InPercent = float64(0)
-			netIf.OutPercent = float64(0)
+			if content, err := sys.CmdOutBytes("ethtool", netIf.Iface); err == nil {
+				var speed int64
+				var speedStr string
+
+				contentReader := bufio.NewReader(bytes.NewBuffer(content))
+				for {
+					line, err := file.ReadLine(contentReader)
+
+					if err == io.EOF {
+						err = nil
+						break
+					}
+
+					if err != nil {
+						break
+					}
+
+					line = bytes.Trim(line, "\t")
+
+					if bytes.HasPrefix(line, []byte("Speed:")) && bytes.HasSuffix(line, []byte("Mb/s")) {
+						speedStr = string(line[7 : len(line)-4])
+						break
+					}
+				}
+
+				speed, err = strconv.ParseInt(strings.TrimSpace(speedStr), 10, 64)
+				if speedStr == "" || err != nil || speed == 0 {
+					netIf.SpeedBits = int64(0)
+					netIf.InPercent = float64(0)
+					netIf.OutPercent = float64(0)
+				} else {
+					netIf.SpeedBits = speed * MILLION_BIT
+					netIf.InPercent = float64(netIf.InBytes*BITS_PER_BYTE) * 100.0 / float64(netIf.SpeedBits)
+					netIf.OutPercent = float64(netIf.OutBytes*BITS_PER_BYTE) * 100.0 / float64(netIf.SpeedBits)
+				}
+			} else {
+				netIf.SpeedBits = int64(0)
+				netIf.InPercent = float64(0)
+				netIf.OutPercent = float64(0)
+			}
 		}
 
 		ret = append(ret, &netIf)
