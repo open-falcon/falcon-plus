@@ -3,14 +3,16 @@ package nux
 import (
 	"bufio"
 	"bytes"
-	"github.com/toolkits/file"
 	"io"
 	"io/ioutil"
+	"math"
 	"strings"
 	"syscall"
+
+	"github.com/toolkits/file"
 )
 
-// return: [][$fs_spec, $fs_file, $fs_vfstype]
+// return: [][$fsSpec, $fsFile, $fsVfstype]
 func ListMountPoint() ([][3]string, error) {
 	contents, err := ioutil.ReadFile("/proc/mounts")
 	if err != nil {
@@ -31,50 +33,50 @@ func ListMountPoint() ([][3]string, error) {
 
 		fields := strings.Fields(string(line))
 		// Docs come from the fstab(5)
-		// fs_spec     # Mounted block special device or remote filesystem e.g. /dev/sda1
-		// fs_file     # Mount point e.g. /data
-		// fs_vfstype  # File system type e.g. ext4
+		// fsSpec     # Mounted block special device or remote filesystem e.g. /dev/sda1
+		// fsFile     # Mount point e.g. /data
+		// fsVfstype  # File system type e.g. ext4
 		// fs_mntops   # Mount options
 		// fs_freq     # Dump(8) utility flags
 		// fs_passno   # Order in which filesystem checks are done at reboot time
 
-		fs_spec := fields[0]
-		fs_file := fields[1]
-		fs_vfstype := fields[2]
+		fsSpec := fields[0]
+		fsFile := fields[1]
+		fsVfstype := fields[2]
 
-		if _, exist := FSSPEC_IGNORE[fs_spec]; exist {
+		if _, exist := FSSPEC_IGNORE[fsSpec]; exist {
 			continue
 		}
 
-		if _, exist := FSTYPE_IGNORE[fs_vfstype]; exist {
+		if _, exist := FSTYPE_IGNORE[fsVfstype]; exist {
 			continue
 		}
 
-		if strings.HasPrefix(fs_vfstype, "fuse") {
+		if strings.HasPrefix(fsVfstype, "fuse") {
 			continue
 		}
 
-		if IgnoreFsFile(fs_file) {
+		if IgnoreFsFile(fsFile) {
 			continue
 		}
 
-		// keep /dev/xxx device with shorter fs_file (remove mount binds)
-		if strings.HasPrefix(fs_spec, "/dev") {
+		// keep /dev/xxx device with shorter fsFile (remove mount binds)
+		if strings.HasPrefix(fsSpec, "/dev") {
 			deviceFound := false
 			for idx := range ret {
-				if ret[idx][0] == fs_spec {
+				if ret[idx][0] == fsSpec {
 					deviceFound = true
-					if len(fs_file) < len(ret[idx][1]) {
-						ret[idx][1] = fs_file
+					if len(fsFile) < len(ret[idx][1]) {
+						ret[idx][1] = fsFile
 					}
 					break
 				}
 			}
 			if !deviceFound {
-				ret = append(ret, [3]string{fs_spec, fs_file, fs_vfstype})
+				ret = append(ret, [3]string{fsSpec, fsFile, fsVfstype})
 			}
 		} else {
-			ret = append(ret, [3]string{fs_spec, fs_file, fs_vfstype})
+			ret = append(ret, [3]string{fsSpec, fsFile, fsVfstype})
 		}
 	}
 	return ret, nil
@@ -95,22 +97,29 @@ func BuildDeviceUsage(_fsSpec, _fsFile, _fsVfstype string) (*DeviceUsage, error)
 	ret.BlocksUsed = uint64(fs.Frsize) * used
 	ret.BlocksFree = uint64(fs.Frsize) * fs.Bavail
 	if fs.Blocks == 0 {
-		ret.BlocksUsedPercent = 100.0
+		ret.BlocksUsedPercent = 0
+		ret.BlocksFreePercent = 0
 	} else {
 		ret.BlocksUsedPercent = float64(used) * 100.0 / float64(used+fs.Bavail)
+		ret.BlocksFreePercent = 100.0 - ret.BlocksUsedPercent
 	}
-	ret.BlocksFreePercent = 100.0 - ret.BlocksUsedPercent
 
 	// inodes
 	ret.InodesAll = fs.Files
-	ret.InodesFree = fs.Ffree
-	ret.InodesUsed = fs.Files - fs.Ffree
+	if fs.Ffree == math.MaxUint64 {
+		ret.InodesFree = 0
+		ret.InodesUsed = 0
+	} else {
+		ret.InodesFree = fs.Ffree
+		ret.InodesUsed = fs.Files - fs.Ffree
+	}
 	if fs.Files == 0 {
-		ret.InodesUsedPercent = 100.0
+		ret.InodesUsedPercent = 0
+		ret.InodesFreePercent = 0
 	} else {
 		ret.InodesUsedPercent = float64(ret.InodesUsed) * 100.0 / float64(ret.InodesAll)
+		ret.InodesFreePercent = 100.0 - ret.InodesUsedPercent
 	}
-	ret.InodesFreePercent = 100.0 - ret.InodesUsedPercent
 
 	return ret, nil
 }
