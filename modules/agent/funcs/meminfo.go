@@ -28,6 +28,9 @@ func MemMetrics() []*model.MetricValue {
 	}
 
 	memFree := m.MemFree + m.Buffers + m.Cached
+	if m.MemAvailable > 0 {
+		memFree = m.MemAvailable
+	}
 	memUsed := m.MemTotal - memFree
 
 	pmemFree := 0.0
