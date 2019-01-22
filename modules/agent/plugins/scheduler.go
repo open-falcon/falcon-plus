@@ -67,16 +67,21 @@ func PluginRun(plugin *Plugin) {
 	args := plugin.Args
 
 	if !file.IsExist(fpath) {
-		log.Println("no such plugin:", fpath)
+		log.Printf("no such plugin: %s(%s)", fpath, args)
 		return
 	}
 
 	debug := g.Config().Debug
 	if debug {
-		log.Println(fpath+" "+args, "running...")
+		log.Printf("%s(%s) running...", fpath, args)
 	}
 
-	cmd := exec.Command(fpath, args)
+	var cmd *exec.Cmd
+	if args == "" {
+		cmd = exec.Command(fpath)
+	} else {
+		cmd = exec.Command(fpath, args)
+	}
 	var stdout bytes.Buffer
 	cmd.Stdout = &stdout
 	var stderr bytes.Buffer
@@ -84,18 +89,18 @@ func PluginRun(plugin *Plugin) {
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 	err := cmd.Start()
 	if err != nil {
-		log.Printf("[ERROR] plugin start fail, error: %s\n", err)
+		log.Printf("[ERROR] plugin start fail: %s(%s) , error: %s\n", fpath, args, err)
 		return
 	}
 	if debug {
-		log.Println("plugin started:", fpath+" "+args)
+		log.Printf("plugin started: %s(%s)", fpath, args)
 	}
 
 	err, isTimeout := sys.CmdRunWithTimeout(cmd, time.Duration(timeout)*time.Millisecond)
 
 	errStr := stderr.String()
 	if errStr != "" {
-		logFile := filepath.Join(g.Config().Plugin.LogDir, plugin.FilePath+".stderr.log")
+		logFile := filepath.Join(g.Config().Plugin.LogDir, plugin.FilePath+"("+plugin.Args+")"+".stderr.log")
 		if _, err = file.WriteString(logFile, errStr); err != nil {
 			log.Printf("[ERROR] write log to %s fail, error: %s\n", logFile, err)
 		}
@@ -104,18 +109,18 @@ func PluginRun(plugin *Plugin) {
 	if isTimeout {
 		// has be killed
 		if err == nil && debug {
-			log.Println("[INFO] timeout and kill process", fpath+" "+args, "successfully")
+			log.Println("[INFO] timeout and kill process ", fpath, "(", args, ")", " successfully")
 		}
 
 		if err != nil {
-			log.Println("[ERROR] kill process", fpath+" "+args, "occur error:", err)
+			log.Println("[ERROR] kill process ", fpath, "(", args, ")", " occur error:", err)
 		}
 
 		return
 	}
 
 	if err != nil {
-		log.Println("[ERROR] exec plugin", fpath+" "+args, "fail. error:", err)
+		log.Println("[ERROR] exec plugin", fpath, "(", args, ")", "fail. error:", err)
 		return
 	}
 
@@ -123,7 +128,7 @@ func PluginRun(plugin *Plugin) {
 	data := stdout.Bytes()
 	if len(data) == 0 {
 		if debug {
-			log.Println("[DEBUG] stdout of", fpath+" "+args, "is blank")
+			log.Println("[DEBUG] stdout of", fpath, "(", args, ")", "is blank")
 		}
 		return
 	}
@@ -131,7 +136,7 @@ func PluginRun(plugin *Plugin) {
 	var metrics []*model.MetricValue
 	err = json.Unmarshal(data, &metrics)
 	if err != nil {
-		log.Printf("[ERROR] json.Unmarshal stdout of %s %s fail. error:%s stdout: \n%s\n", fpath, args, err, stdout.String())
+		log.Printf("[ERROR] json.Unmarshal stdout of %s(%s) fail. error:%s stdout: \n%s\n", fpath, args, err, stdout.String())
 		return
 	}
 

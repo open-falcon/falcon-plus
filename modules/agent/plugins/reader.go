@@ -15,14 +15,16 @@
 package plugins
 
 import (
-	"github.com/open-falcon/falcon-plus/modules/agent/g"
-	"github.com/toolkits/file"
 	"io/ioutil"
 	"log"
+	"os"
 	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/open-falcon/falcon-plus/modules/agent/g"
+	"github.com/toolkits/file"
 )
 
 // key: sys/ntp/60_ntp.py
@@ -32,6 +34,7 @@ func ListPlugins(relativePath string) map[string]*Plugin {
 		return ret
 	}
 
+	//解析参数
 	var args string
 	re := regexp.MustCompile(`(.*)\((.*)\)`)
 	relPathWithArgs := re.FindAllStringSubmatch(relativePath, -1)
@@ -43,15 +46,30 @@ func ListPlugins(relativePath string) map[string]*Plugin {
 		args = relPathWithArgs[0][2]
 	}
 
-	dir := filepath.Join(g.Config().Plugin.Dir, relativePath)
+	path := filepath.Join(g.Config().Plugin.Dir, relativePath)
 
-	if !file.IsExist(dir) || file.IsFile(dir) {
+	//处理路径为脚本的情况
+	if file.IsFile(path) {
+		dir, fileName := filepath.Split(path)
+		arr := strings.Split(fileName, "_")
+		var cycle int
+		var err error
+		cycle, err = strconv.Atoi(arr[0])
+		if err == nil {
+			fi, _ := os.Stat(path)
+			plugin := &Plugin{FilePath: relativePath, MTime: fi.ModTime().Unix(), Cycle: cycle, Args: args}
+			ret[dir+"("+args+")"] = plugin
+			return ret
+		}
+	}
+
+	if !file.IsExist(path) || file.IsFile(path) {
 		return ret
 	}
 
-	fs, err := ioutil.ReadDir(dir)
+	fs, err := ioutil.ReadDir(path)
 	if err != nil {
-		log.Println("can not list files under", dir)
+		log.Println("can not list files under", path)
 		return ret
 	}
 
@@ -60,6 +78,7 @@ func ListPlugins(relativePath string) map[string]*Plugin {
 			continue
 		}
 
+		args = ""
 		filename := f.Name()
 		arr := strings.Split(filename, "_")
 		if len(arr) < 2 {
@@ -77,6 +96,5 @@ func ListPlugins(relativePath string) map[string]*Plugin {
 		plugin := &Plugin{FilePath: fpath, MTime: f.ModTime().Unix(), Cycle: cycle, Args: args}
 		ret[fpath+"("+args+")"] = plugin
 	}
-
 	return ret
 }
