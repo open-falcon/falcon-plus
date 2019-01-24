@@ -16,6 +16,7 @@ package rpc
 
 import (
 	"fmt"
+	"github.com/open-falcon/falcon-plus/common/encrypt"
 	cmodel "github.com/open-falcon/falcon-plus/common/model"
 	cutils "github.com/open-falcon/falcon-plus/common/utils"
 	"github.com/open-falcon/falcon-plus/modules/transfer/g"
@@ -56,6 +57,11 @@ func RecvMetricValues(args []*cmodel.MetricValue, reply *cmodel.TransferResponse
 	start := time.Now()
 	reply.Invalid = 0
 
+	if len(args) > 0 && len(args[0].Byte) > 0 {
+		dec, _ := encrypt.Decrypt(args[0].Byte, []byte(g.Config().AesKey))
+		encrypt.Decode(dec, &args)
+	}
+	
 	items := []*cmodel.MetaData{}
 	for _, v := range args {
 		if v == nil {

@@ -82,6 +82,7 @@ type GlobalConfig struct {
 	Judge   *JudgeConfig  `json:"judge"`
 	Graph   *GraphConfig  `json:"graph"`
 	Tsdb    *TsdbConfig   `json:"tsdb"`
+	AesKey   string       `json:"aesKey"`
 }
 
 var (
