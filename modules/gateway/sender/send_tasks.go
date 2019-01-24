@@ -16,6 +16,7 @@ package sender
 
 import (
 	log "github.com/Sirupsen/logrus"
+	"github.com/open-falcon/falcon-plus/common/encrypt"
 	"math/rand"
 	"time"
 
@@ -67,6 +68,7 @@ func forward2TransferTask(Q *nlist.SafeListLimited, concurrent int32) {
 			// 随机遍历transfer列表，直到数据发送成功 或者 遍历完;随机遍历，可以缓解慢transfer
 			resp := &cmodel.TransferResponse{}
 			sendOk := false
+			aesKey := g.Config().AesKey
 
 			for j := 0; j < retry && !sendOk; j++ {
 				rint := rand.Int()
@@ -82,7 +84,14 @@ func forward2TransferTask(Q *nlist.SafeListLimited, concurrent int32) {
 					}
 
 					pfc.Counter(host, 1)
-					err = SenderConnPools.Call(addr, "Transfer.Update", transItems, resp)
+
+					if len(aesKey) == 16 {
+						encrypted, _ := encrypt.Encrypt(encrypt.Encode(transItems), []byte(g.Config().AesKey))
+						err = SenderConnPools.Call(addr, "Transfer.Update", []cmodel.Encrypt{{Byte: encrypted}}, resp)
+					} else {
+						err = SenderConnPools.Call(addr, "Transfer.Update", transItems, resp)
+					}
+
 					pfc.Counter(host, -1)
 
 					if err == nil {
