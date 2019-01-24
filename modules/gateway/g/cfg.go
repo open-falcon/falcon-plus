@@ -55,6 +55,7 @@ type GlobalConfig struct {
 	Rpc      *RpcConfig      `json:"rpc"`
 	Socket   *SocketConfig   `json:"socket"`
 	Transfer *TransferConfig `json:"transfer"`
+	AesKey   string          `json:"aesKey"`
 }
 
 var (
