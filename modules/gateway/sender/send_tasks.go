@@ -85,7 +85,7 @@ func forward2TransferTask(Q *nlist.SafeListLimited, concurrent int32) {
 
 					pfc.Counter(host, 1)
 
-					if len(aesKey) > 16 {
+					if len(aesKey) == 16 {
 						encrypted, _ := encrypt.Encrypt(encrypt.Encode(transItems), []byte(g.Config().AesKey))
 						err = SenderConnPools.Call(addr, "Transfer.Update", []cmodel.Encrypt{{Byte: encrypted}}, resp)
 					} else {
