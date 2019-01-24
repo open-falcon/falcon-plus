@@ -22,10 +22,10 @@ func Decode(from []byte, to interface{}) {
 	dec.Decode(to)
 }
 
-func PKCS5Padding(ciphertext []byte, blockSize int) []byte {
-	padding := blockSize - len(ciphertext)%blockSize
+func PKCS5Padding(cipherText []byte, blockSize int) []byte {
+	padding := blockSize - len(cipherText)%blockSize
 	padText := bytes.Repeat([]byte{byte(padding)}, padding)
-	return append(ciphertext, padText...)
+	return append(cipherText, padText...)
 }
 
 func PKCS5UnPadding(origData []byte) []byte {
