@@ -17,13 +17,13 @@ func Encode(src interface{}) []byte  {
 }
 
 // byte -> struct
-func Decode(from []byte, to interface{})  {
+func Decode(from []byte, to interface{}) {
 	dec := gob.NewDecoder(bytes.NewBuffer(from))
 	dec.Decode(to)
 }
 
 func PKCS5Padding(ciphertext []byte, blockSize int) []byte {
-	padding := blockSize - len(ciphertext) % blockSize
+	padding := blockSize - len(ciphertext)%blockSize
 	padText := bytes.Repeat([]byte{byte(padding)}, padding)
 	return append(ciphertext, padText...)
 }
