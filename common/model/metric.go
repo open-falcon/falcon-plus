@@ -28,6 +28,7 @@ type MetricValue struct {
 	Type      string      `json:"counterType"`
 	Tags      string      `json:"tags"`
 	Timestamp int64       `json:"timestamp"`
+	Byte      []byte      `json:"byte"`
 }
 
 func (this *MetricValue) String() string {
