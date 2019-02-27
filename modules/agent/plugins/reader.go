@@ -15,61 +15,25 @@
 package plugins
 
 import (
+	"github.com/open-falcon/falcon-plus/modules/agent/g"
 	"io/ioutil"
 	"log"
-	"os"
 	"path/filepath"
-	"regexp"
 	"strconv"
 	"strings"
-
-	"github.com/open-falcon/falcon-plus/modules/agent/g"
-	"github.com/toolkits/file"
 )
 
-// key: sys/ntp/60_ntp.py
-func ListPlugins(relativePath string) map[string]*Plugin {
+// return: dict{sys/ntp/60_ntp.py : *Plugin}
+func ListPlugins(script_path string) map[string]*Plugin {
 	ret := make(map[string]*Plugin)
-	if relativePath == "" {
+	if script_path == "" {
 		return ret
 	}
 
-	//解析参数
-	var args string
-	re := regexp.MustCompile(`(.*)\((.*)\)`)
-	relPathWithArgs := re.FindAllStringSubmatch(relativePath, -1)
-	if relPathWithArgs == nil {
-		relativePath = relativePath
-		args = ""
-	} else {
-		relativePath = relPathWithArgs[0][1]
-		args = relPathWithArgs[0][2]
-	}
-
-	path := filepath.Join(g.Config().Plugin.Dir, relativePath)
-
-	//处理路径为脚本的情况
-	if file.IsFile(path) {
-		dir, fileName := filepath.Split(path)
-		arr := strings.Split(fileName, "_")
-		var cycle int
-		var err error
-		cycle, err = strconv.Atoi(arr[0])
-		if err == nil {
-			fi, _ := os.Stat(path)
-			plugin := &Plugin{FilePath: relativePath, MTime: fi.ModTime().Unix(), Cycle: cycle, Args: args}
-			ret[dir+"("+args+")"] = plugin
-			return ret
-		}
-	}
-
-	if !file.IsExist(path) || file.IsFile(path) {
-		return ret
-	}
-
-	fs, err := ioutil.ReadDir(path)
+	abs_path := filepath.Join(g.Config().Plugin.Dir, script_path)
+	fs, err := ioutil.ReadDir(abs_path)
 	if err != nil {
-		log.Println("can not list files under", path)
+		log.Println("can not list files under", abs_path)
 		return ret
 	}
 
@@ -78,7 +42,6 @@ func ListPlugins(relativePath string) map[string]*Plugin {
 			continue
 		}
 
-		args = ""
 		filename := f.Name()
 		arr := strings.Split(filename, "_")
 		if len(arr) < 2 {
@@ -92,9 +55,9 @@ func ListPlugins(relativePath string) map[string]*Plugin {
 			continue
 		}
 
-		fpath := filepath.Join(relativePath, filename)
-		plugin := &Plugin{FilePath: fpath, MTime: f.ModTime().Unix(), Cycle: cycle, Args: args}
-		ret[fpath+"("+args+")"] = plugin
+		fpath := filepath.Join(script_path, filename)
+		plugin := &Plugin{FilePath: fpath, MTime: f.ModTime().Unix(), Cycle: cycle, Args: ""}
+		ret[fpath] = plugin
 	}
 	return ret
 }

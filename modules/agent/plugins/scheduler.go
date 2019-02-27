@@ -20,6 +20,7 @@ import (
 	"log"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"syscall"
 	"time"
 
@@ -60,8 +61,50 @@ func (this *PluginScheduler) Stop() {
 	close(this.Quit)
 }
 
-func PluginRun(plugin *Plugin) {
+// using ',' as the seprator of args and '\,' to espace
+func PluginArgsParse(raw_args string) []string {
+	ss := strings.Split(raw_args, "\\,")
 
+	out := [][]string{}
+	for _, s := range ss {
+		clean_args := []string{}
+		for _, arg := range strings.Split(s, ",") {
+			arg = strings.Trim(arg, " ")
+			arg = strings.Trim(arg, "\"")
+			arg = strings.Trim(arg, "'")
+			clean_args = append(clean_args, arg)
+		}
+		out = append(out, clean_args)
+	}
+
+	ret := []string{}
+	tail := ""
+
+	for _, x := range out {
+		for j, y := range x {
+			if j == 0 {
+				if tail != "" {
+					ret = append(ret, tail+","+y)
+					tail = ""
+				} else {
+					ret = append(ret, y)
+				}
+			} else if j == len(x)-1 {
+				tail = y
+			} else {
+				ret = append(ret, y)
+			}
+		}
+	}
+
+	if tail != "" {
+		ret = append(ret, tail)
+	}
+
+	return ret
+}
+
+func PluginRun(plugin *Plugin) {
 	timeout := plugin.Cycle*1000 - 500
 	fpath := filepath.Join(g.Config().Plugin.Dir, plugin.FilePath)
 	args := plugin.Args
@@ -80,7 +123,8 @@ func PluginRun(plugin *Plugin) {
 	if args == "" {
 		cmd = exec.Command(fpath)
 	} else {
-		cmd = exec.Command(fpath, args)
+		arg_list := PluginArgsParse(args)
+		cmd = exec.Command(fpath, arg_list...)
 	}
 	var stdout bytes.Buffer
 	cmd.Stdout = &stdout
