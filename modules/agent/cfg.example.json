@@ -3,6 +3,7 @@
     "hostname": "",
     "ip": "",
     "plugin": {
+        "standalone": true,
         "enabled": false,
         "dir": "./plugin",
         "git": "https://github.com/open-falcon/plugin.git",
