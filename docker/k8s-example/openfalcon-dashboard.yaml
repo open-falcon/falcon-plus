@@ -1,0 +1,57 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: open-falcon-dashboard
+  labels:
+    app: monitor
+spec:
+  type: NodePort
+  ports:
+    - name: web
+      port: 8081
+  selector:
+    name: open-falcon-dashboard
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: open-falcon-dashboard
+  labels:
+    app: monitor
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: open-falcon-dashboard
+    spec:
+      containers:
+      - name: open-falcon-dashboard
+        image: openfalcon/falcon-dashboard:v0.2.1
+        command: ["sh","-c","cd /open-falcon/dashboard &&  ./control startfg"]
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8081
+        env:
+        - name: API_ADDR
+          value: http://open-falcon:8080/api/v1
+        - name: PORTAL_DB_HOST
+          value: mysql
+        - name: PORTAL_DB_PORT
+          value: "3306"
+        - name: PORTAL_DB_USER
+          value: root
+        - name: PORTAL_DB_PASS
+          value: 1qazxsw2
+        - name: PORTAL_DB_NAME
+          value: falcon_portal
+        - name: ALARM_DB_HOST
+          value: mysql
+        - name: ALARM_DB_PORT
+          value: "3306"
+        - name: ALARM_DB_USER
+          value: root
+        - name: ALARM_DB_PASS
+          value: 1qazxsw2
+        - name: ALARM_DB_NAME
+          value: alarms
