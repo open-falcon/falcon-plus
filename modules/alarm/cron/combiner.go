@@ -18,7 +18,6 @@ import (
 	"encoding/json"
 	"fmt"
 	log "github.com/Sirupsen/logrus"
-	"github.com/garyburd/redigo/redis"
 	"github.com/open-falcon/falcon-plus/modules/alarm/api"
 	"github.com/open-falcon/falcon-plus/modules/alarm/g"
 	"github.com/open-falcon/falcon-plus/modules/alarm/redi"
@@ -197,15 +196,10 @@ func popAllSmsDto() []*SmsDto {
 	ret := []*SmsDto{}
 	queue := g.Config().Redis.UserSmsQueue
 
-	rc := g.RedisConnPool.Get()
-	defer rc.Close()
-
 	for {
-		reply, err := redis.String(rc.Do("RPOP", queue))
+		reply, err := g.RedisString(g.RedisDo("RPOP", queue))
 		if err != nil {
-			if err != redis.ErrNil {
-				log.Error("get SmsDto fail", err)
-			}
+			log.Error("rpop get SmsDto fail", err)
 			break
 		}
 
@@ -230,15 +224,10 @@ func popAllMailDto() []*MailDto {
 	ret := []*MailDto{}
 	queue := g.Config().Redis.UserMailQueue
 
-	rc := g.RedisConnPool.Get()
-	defer rc.Close()
-
 	for {
-		reply, err := redis.String(rc.Do("RPOP", queue))
+		reply, err := g.RedisString(g.RedisDo("RPOP", queue))
 		if err != nil {
-			if err != redis.ErrNil {
-				log.Error("get MailDto fail", err)
-			}
+			log.Error("rpop get MailDto fail", err)
 			break
 		}
 
@@ -263,15 +252,10 @@ func popAllImDto() []*ImDto {
 	ret := []*ImDto{}
 	queue := g.Config().Redis.UserIMQueue
 
-	rc := g.RedisConnPool.Get()
-	defer rc.Close()
-
 	for {
-		reply, err := redis.String(rc.Do("RPOP", queue))
+		reply, err := g.RedisString(g.RedisDo("RPOP", queue))
 		if err != nil {
-			if err != redis.ErrNil {
-				log.Error("get ImDto fail", err)
-			}
+			log.Error("get ImDto fail", err)
 			break
 		}
 

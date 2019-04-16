@@ -5,6 +5,7 @@
         "listen": "0.0.0.0:9912"
     },
     "redis": {
+        "cluster": false,
         "addr": "%%REDIS%%",
         "maxIdle": 5,
         "highQueues": [

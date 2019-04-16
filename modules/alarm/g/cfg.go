@@ -28,6 +28,7 @@ type HttpConfig struct {
 }
 
 type RedisConfig struct {
+	Cluster       bool     `json:"cluster"`
 	Addr          string   `json:"addr"`
 	MaxIdle       int      `json:"maxIdle"`
 	HighQueues    []string `json:"highQueues"`

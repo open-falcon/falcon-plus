@@ -38,6 +38,7 @@ type HbsConfig struct {
 }
 
 type RedisConfig struct {
+	Cluster      bool   `json:"cluster"`
 	Dsn          string `json:"dsn"`
 	MaxIdle      int    `json:"maxIdle"`
 	ConnTimeout  int    `json:"connTimeout"`

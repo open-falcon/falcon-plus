@@ -25,6 +25,12 @@
 			"revisionTime": "2017-05-19T13:19:18Z"
 		},
 		{
+			"checksumSHA1": "A7qoimg0p6dsVIQNpjX0uW2UjoM=",
+			"path": "github.com/chasex/redis-go-cluster",
+			"revision": "222d81891f1d3fa7cf8b5655020352c3e5b4ec0f",
+			"revisionTime": "2016-12-07T02:39:22Z"
+		},
+		{
 			"checksumSHA1": "3wKVAKACcQc5f6lLn/LrRLLVCMo=",
 			"path": "github.com/chyeh/cast",
 			"revision": "14ed842421beffe8201f18ece67578ffdf59526c",

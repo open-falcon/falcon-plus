@@ -24,9 +24,7 @@ import (
 )
 
 func lpush(queue, message string) {
-	rc := g.RedisConnPool.Get()
-	defer rc.Close()
-	_, err := rc.Do("LPUSH", queue, message)
+	_, err := g.RedisDo("LPUSH", queue, message)
 	if err != nil {
 		log.Error("LPUSH redis", queue, "fail:", err, "message:", message)
 	}

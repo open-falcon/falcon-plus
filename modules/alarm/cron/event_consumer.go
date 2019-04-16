@@ -93,9 +93,6 @@ func ParseUserSms(event *cmodel.Event, action *api.Action) {
 
 	queue := g.Config().Redis.UserSmsQueue
 
-	rc := g.RedisConnPool.Get()
-	defer rc.Close()
-
 	for _, user := range userMap {
 		dto := SmsDto{
 			Priority: priority,
@@ -110,7 +107,7 @@ func ParseUserSms(event *cmodel.Event, action *api.Action) {
 			continue
 		}
 
-		_, err = rc.Do("LPUSH", queue, string(bs))
+		_, err = g.RedisDo("LPUSH", queue, string(bs))
 		if err != nil {
 			log.Error("LPUSH redis", queue, "fail:", err, "dto:", string(bs))
 		}
@@ -128,9 +125,6 @@ func ParseUserMail(event *cmodel.Event, action *api.Action) {
 
 	queue := g.Config().Redis.UserMailQueue
 
-	rc := g.RedisConnPool.Get()
-	defer rc.Close()
-
 	for _, user := range userMap {
 		dto := MailDto{
 			Priority: priority,
@@ -146,7 +140,7 @@ func ParseUserMail(event *cmodel.Event, action *api.Action) {
 			continue
 		}
 
-		_, err = rc.Do("LPUSH", queue, string(bs))
+		_, err = g.RedisDo("LPUSH", queue, string(bs))
 		if err != nil {
 			log.Error("LPUSH redis", queue, "fail:", err, "dto:", string(bs))
 		}
@@ -163,9 +157,6 @@ func ParseUserIm(event *cmodel.Event, action *api.Action) {
 
 	queue := g.Config().Redis.UserIMQueue
 
-	rc := g.RedisConnPool.Get()
-	defer rc.Close()
-
 	for _, user := range userMap {
 		dto := ImDto{
 			Priority: priority,
@@ -180,7 +171,7 @@ func ParseUserIm(event *cmodel.Event, action *api.Action) {
 			continue
 		}
 
-		_, err = rc.Do("LPUSH", queue, string(bs))
+		_, err = g.RedisDo("LPUSH", queue, string(bs))
 		if err != nil {
 			log.Error("LPUSH redis", queue, "fail:", err, "dto:", string(bs))
 		}

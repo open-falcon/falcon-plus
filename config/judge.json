@@ -20,6 +20,7 @@
         "minInterval": 300,
         "queuePattern": "event:p%v",
         "redis": {
+            "cluster": false,
             "dsn": "%%REDIS%%",
             "maxIdle": 5,
             "connTimeout": 5000,
