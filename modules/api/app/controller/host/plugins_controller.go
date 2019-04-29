@@ -89,15 +89,15 @@ func DeletePlugin(c *gin.Context) {
 		h.JSONR(c, badstatus, err)
 		return
 	}
-	plugin := f.Plugin{ID: int64(pluginID)}
-	if dt := db.Falcon.Find(&plugin); dt.Error != nil {
+	plugin := f.Plugin{}
+	if dt := db.Falcon.Where("id = ?", pluginID).Find(&plugin); dt.Error != nil {
 		h.JSONR(c, expecstatus, dt.Error)
 		return
 	}
 	user, _ := h.GetUser(c)
 	if !user.IsAdmin() {
-		hostgroup := f.HostGroup{ID: plugin.GrpId}
-		if dt := db.Falcon.Find(&hostgroup); dt.Error != nil {
+		hostgroup := f.HostGroup{}
+		if dt := db.Falcon.Where("id = ?", plugin.GrpId).Find(&hostgroup); dt.Error != nil {
 			h.JSONR(c, expecstatus, dt.Error)
 			return
 		}
@@ -107,7 +107,7 @@ func DeletePlugin(c *gin.Context) {
 		}
 	}
 
-	if dt := db.Falcon.Delete(&plugin); dt.Error != nil {
+	if dt := db.Falcon.Where("id = ?", pluginID).Delete(&plugin); dt.Error != nil {
 		h.JSONR(c, expecstatus, dt.Error)
 		return
 	}

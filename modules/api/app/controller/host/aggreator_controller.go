@@ -52,7 +52,7 @@ func GetAggregatorListOfGrp(c *gin.Context) {
 	aggregators := []f.Cluster{}
 	var dt *gorm.DB
 	if limit != -1 && page != -1 {
-		dt = db.Falcon.Raw(fmt.Sprintf("SELECT * from cluster WHERE grp_id = %d limit %d,%d", grpID, page, limit)).Scan(&aggregators)
+		dt = db.Falcon.Raw("SELECT * from cluster WHERE grp_id = ? limit ?,?", grpID, page, limit).Scan(&aggregators)
 	} else {
 		dt = db.Falcon.Where("grp_id = ?", grpID).Find(&aggregators)
 	}
@@ -88,8 +88,8 @@ func GetAggregator(c *gin.Context) {
 		h.JSONR(c, badstatus, err)
 		return
 	}
-	aggregator := f.Cluster{ID: int64(aggID)}
-	if dt := db.Falcon.Find(&aggregator); dt.Error != nil {
+	aggregator := f.Cluster{}
+	if dt := db.Falcon.Where("id = ?", aggID).Find(&aggregator); dt.Error != nil {
 		h.JSONR(c, expecstatus, dt.Error)
 		return
 	}
@@ -206,15 +206,15 @@ func DeleteAggregator(c *gin.Context) {
 		h.JSONR(c, badstatus, err)
 		return
 	}
-	aggregator := f.Cluster{ID: int64(aggID)}
-	if dt := db.Falcon.Find(&aggregator); dt.Error != nil {
+	aggregator := f.Cluster{}
+	if dt := db.Falcon.Where("id = ?", aggID).Find(&aggregator); dt.Error != nil {
 		h.JSONR(c, expecstatus, fmt.Sprintf("find aggregator got error: %v", dt.Error.Error()))
 		return
 	}
 	user, _ := h.GetUser(c)
 	if !user.IsAdmin() {
-		hostgroup := f.HostGroup{ID: aggregator.GrpId}
-		if dt := db.Falcon.Find(&hostgroup); dt.Error != nil {
+		hostgroup := f.HostGroup{}
+		if dt := db.Falcon.Where("id = ?", aggregator.GrpId).Find(&hostgroup); dt.Error != nil {
 			h.JSONR(c, expecstatus, fmt.Sprintf("find hostgroup got error: %v", dt.Error.Error()))
 			return
 		}
