@@ -11,6 +11,8 @@ layout: default
 * params:
   * eid: endpoint id list
   * metricQuery: 查询counter参数【选填】。如：metricQuery=device=sda
+  * page: 【选填】分页查询的页码，默认值：1,如： page=2 表示第2页
+  * limit: 【选填】分页查询的页大小，默认值：500，如：limit=10 表示每页10条数据
   * q: 使用 regex 查询字符
     * option 参数
 
