@@ -15,17 +15,21 @@
 package g
 
 import (
+	"errors"
+	"github.com/toolkits/net"
 	"log"
 	"math"
+	"net/rpc"
 	"sync"
 	"time"
 )
 
 type SingleConnRpcClient struct {
 	sync.Mutex
-	rpcClient  *TimeoutRpcClient
-	RpcServers []string
-	Timeout    time.Duration
+	rpcClient   *rpc.Client
+	RpcServers  []string
+	Timeout     time.Duration
+	CallTimeout time.Duration
 }
 
 func (this *SingleConnRpcClient) close() {
@@ -49,7 +53,7 @@ func (this *SingleConnRpcClient) insureConn() {
 		}
 
 		for _, s := range this.RpcServers {
-			this.rpcClient, err = NewTimeoutRpcClient("tcp", s, this.Timeout)
+			this.rpcClient, err = net.JsonRpcClient("tcp", s, this.Timeout)
 			if err == nil {
 				return
 			}
@@ -74,22 +78,19 @@ func (this *SingleConnRpcClient) Call(method string, args interface{}, reply int
 
 	this.insureConn()
 
-	err := this.rpcClient.Call(method, args, reply)
-	if err != nil {
-		this.close()
+	done := make(chan error, 1)
+	go func() {
+		done <- this.rpcClient.Call(method, args, reply)
+	}()
+
+	var err error
+
+	select {
+	case <-time.After(this.CallTimeout):
+		err = errors.New("call hbs timeout")
+	case err = <-done:
 	}
 
-	return err
-}
-
-func (this *SingleConnRpcClient) CallTimeout(method string, args interface{}, reply interface{}, timeout time.Duration) error {
-
-	this.Lock()
-	defer this.Unlock()
-
-	this.insureConn()
-
-	err := this.rpcClient.CallTimeout(method, args, reply, timeout)
 	if err != nil {
 		this.close()
 	}

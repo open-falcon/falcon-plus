@@ -34,7 +34,7 @@ func SyncStrategies() {
 
 func syncStrategies() {
 	var strategiesResponse model.StrategiesResponse
-	err := g.HbsClient.CallTimeout("Hbs.GetStrategies", model.NullRpcRequest{}, &strategiesResponse, time.Duration(g.Config().Hbs.CallTimeout)*time.Millisecond)
+	err := g.HbsClient.Call("Hbs.GetStrategies", model.NullRpcRequest{}, &strategiesResponse)
 	if err != nil {
 		log.Println("[ERROR] Hbs.GetStrategies:", err)
 		return
@@ -68,7 +68,7 @@ func rebuildStrategyMap(strategiesResponse *model.StrategiesResponse) {
 
 func syncExpression() {
 	var expressionResponse model.ExpressionResponse
-	err := g.HbsClient.CallTimeout("Hbs.GetExpressions", model.NullRpcRequest{}, &expressionResponse, time.Duration(g.Config().Hbs.CallTimeout)*time.Millisecond)
+	err := g.HbsClient.Call("Hbs.GetExpressions", model.NullRpcRequest{}, &expressionResponse)
 	if err != nil {
 		log.Println("[ERROR] Hbs.GetExpressions:", err)
 		return

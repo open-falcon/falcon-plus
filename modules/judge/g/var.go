@@ -47,8 +47,9 @@ var (
 
 func InitHbsClient() {
 	HbsClient = &SingleConnRpcClient{
-		RpcServers: Config().Hbs.Servers,
-		Timeout:    time.Duration(Config().Hbs.Timeout) * time.Millisecond,
+		RpcServers:  Config().Hbs.Servers,
+		Timeout:     time.Duration(Config().Hbs.Timeout) * time.Millisecond,
+		CallTimeout: time.Duration(3000) * time.Millisecond,
 	}
 }
 

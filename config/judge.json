@@ -13,8 +13,7 @@
     "hbs": {
         "servers": ["%%HBS_RPC%%"],
         "timeout": 300,
-        "interval": 60,
-		"callTimeout": 1000
+        "interval": 60
     },
     "alarm": {
         "enabled": true,
