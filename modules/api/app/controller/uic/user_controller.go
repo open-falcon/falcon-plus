@@ -234,6 +234,52 @@ func GetUser(c *gin.Context) {
 	return
 }
 
+func UpdateUser(c *gin.Context) {
+	uidtmp := c.Params.ByName("uid")
+	if uidtmp == "" {
+		h.JSONR(c, badstatus, "user id is missing")
+		return
+	}
+	uid, err := strconv.Atoi(uidtmp)
+	if err != nil {
+		h.JSONR(c, badstatus, err)
+		return
+	}
+
+	var inputs APIUserUpdateInput
+	err = c.BindJSON(&inputs)
+	switch {
+	case err != nil:
+		h.JSONR(c, http.StatusExpectationFailed, err)
+		return
+	case utils.HasDangerousCharacters(inputs.Cnname):
+		h.JSONR(c, http.StatusBadRequest, "name pattern is invalid")
+		return
+	}
+
+	user := uic.User{}
+	db.Uic.Table("user").Where("id = ?", uid).Scan(&user)
+	if user.ID == 0 {
+		h.JSONR(c, http.StatusBadRequest, "user does not exist")
+		return
+	}
+
+	uuser := map[string]interface{}{
+		"Cnname": inputs.Cnname,
+		"Email":  inputs.Email,
+		"Phone":  inputs.Phone,
+		"IM":     inputs.IM,
+		"QQ":     inputs.QQ,
+	}
+	dt := db.Uic.Model(&user).Where("id = ?", uid).Update(uuser)
+	if dt.Error != nil {
+		h.JSONR(c, http.StatusExpectationFailed, dt.Error)
+		return
+	}
+	h.JSONR(c, "user info updated")
+	return
+}
+
 func GetUserByName(c *gin.Context) {
 	name := c.Params.ByName("user_name")
 	if name == "" {
