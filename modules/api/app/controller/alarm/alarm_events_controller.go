@@ -111,7 +111,7 @@ func AlarmLists(c *gin.Context) {
 	alarmDB := inputs.collectDBFilters(db.Alarm, f.TableName(), nil)
 	cevens := []alm.EventCases{}
 	//if no specific, will give return first 2000 records
-	if inputs.Page == -1 && inputs.Limit == -1{
+	if inputs.Page == -1 && inputs.Limit == -1 {
 		inputs.Limit = 2000
 		alarmDB = alarmDB.Order("timestamp DESC").Limit(inputs.Limit)
 	} else if inputs.Limit == -1 {
@@ -140,7 +140,7 @@ func AlarmLists(c *gin.Context) {
 		if inputs.Limit >= 50 {
 			inputs.Limit = 50
 		}
-		step := (inputs.Page -1) * inputs.Limit
+		step := (inputs.Page - 1) * inputs.Limit
 		alarmDB = alarmDB.Order("timestamp DESC").Offset(step).Limit(inputs.Limit)
 	}
 	alarmDB.Find(&cevens)
@@ -194,7 +194,7 @@ func EventsGet(c *gin.Context) {
 	if inputs.Limit <= 0 || inputs.Limit >= 50 {
 		inputs.Limit = 50
 	}
-	step := (inputs.Page -1) * inputs.Limit
+	step := (inputs.Page - 1) * inputs.Limit
 	eventDB.Order("timestamp DESC").Offset(step).Limit(inputs.Limit).Scan(&evens)
 	h.JSONR(c, evens)
 }
