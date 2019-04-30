@@ -56,7 +56,7 @@ func ConverIntStringToList(eid string) (result string) {
 			if i == 0 {
 				result = fmt.Sprintf("%d", v)
 			} else {
-				result = fmt.Sprintf("%s, %d", result, v)
+				result = fmt.Sprintf("%s,%d", result, v)
 			}
 		}
 	}
