@@ -17,6 +17,7 @@ package g
 import (
 	"github.com/garyburd/redigo/redis"
 	"log"
+	"strings"
 	"time"
 )
 
@@ -27,7 +28,7 @@ func InitRedisConnPool() {
 		return
 	}
 
-	dsn := Config().Alarm.Redis.Dsn
+	auth, dsn := formatRedisAddr(Config().Alarm.Redis.Dsn)
 	maxIdle := Config().Alarm.Redis.MaxIdle
 	idleTimeout := 240 * time.Second
 
@@ -43,9 +44,23 @@ func InitRedisConnPool() {
 			if err != nil {
 				return nil, err
 			}
+			if auth != "" {
+				if _, err := c.Do("AUTH", auth); err != nil {
+					_ = c.Close()
+					return nil, err
+				}
+			}
 			return c, err
 		},
 		TestOnBorrow: PingRedis,
+	}
+}
+
+func formatRedisAddr(addrConfig string) (string, string) {
+	if redisAddr := strings.Split(addrConfig, "@"); len(redisAddr) == 2 {
+		return redisAddr[0], redisAddr[1]
+	} else {
+		return "", redisAddr[0]
 	}
 }
 
