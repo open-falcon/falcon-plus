@@ -32,14 +32,13 @@ import (
 )
 
 const (
-	DefaultMaxCacheSize                     = 5000000 // 默认 最多500w个,太大了内存会耗尽
 	DefaultCacheProcUpdateTaskSleepInterval = time.Duration(1) * time.Second
 )
 
 // item缓存
 var (
-	IndexedItemCache   = NewIndexCacheBase(DefaultMaxCacheSize)
-	unIndexedItemCache = NewIndexCacheBase(DefaultMaxCacheSize)
+	IndexedItemCache   = NewIndexCacheBase()
+	unIndexedItemCache = NewIndexCacheBase()
 )
 
 // db本地缓存
@@ -172,16 +171,11 @@ func NewIndexCacheItem(uuid string, item *cmodel.GraphItem) *IndexCacheItem {
 // 索引缓存-基本缓存容器
 type IndexCacheBase struct {
 	sync.RWMutex
-	maxSize int
-	data    map[string]interface{}
+	data map[string]interface{}
 }
 
-func NewIndexCacheBase(max int) *IndexCacheBase {
-	return &IndexCacheBase{maxSize: max, data: make(map[string]interface{})}
-}
-
-func (this *IndexCacheBase) GetMaxSize() int {
-	return this.maxSize
+func NewIndexCacheBase() *IndexCacheBase {
+	return &IndexCacheBase{data: make(map[string]interface{})}
 }
 
 func (this *IndexCacheBase) Put(key string, item interface{}) {
