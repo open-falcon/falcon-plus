@@ -15,6 +15,7 @@
 package g
 
 import (
+	"errors"
 	"github.com/toolkits/net"
 	"log"
 	"math"
@@ -25,9 +26,10 @@ import (
 
 type SingleConnRpcClient struct {
 	sync.Mutex
-	rpcClient  *rpc.Client
-	RpcServers []string
-	Timeout    time.Duration
+	rpcClient   *rpc.Client
+	RpcServers  []string
+	Timeout     time.Duration
+	CallTimeout time.Duration
 }
 
 func (this *SingleConnRpcClient) close() {
@@ -76,7 +78,19 @@ func (this *SingleConnRpcClient) Call(method string, args interface{}, reply int
 
 	this.insureConn()
 
-	err := this.rpcClient.Call(method, args, reply)
+	done := make(chan error, 1)
+	go func() {
+		done <- this.rpcClient.Call(method, args, reply)
+	}()
+
+	var err error
+
+	select {
+	case <-time.After(this.CallTimeout):
+		err = errors.New("call hbs timeout")
+	case err = <-done:
+	}
+
 	if err != nil {
 		this.close()
 	}

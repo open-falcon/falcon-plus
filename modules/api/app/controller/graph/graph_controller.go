@@ -171,6 +171,7 @@ func EndpointCounterRegexpQuery(c *gin.Context) {
 	if page > 1 {
 		offset = (page - 1) * limit
 	}
+	eidArray := []string{}
 	if eid == "" {
 		h.JSONR(c, http.StatusBadRequest, "eid is missing")
 	} else {
@@ -179,11 +180,11 @@ func EndpointCounterRegexpQuery(c *gin.Context) {
 			h.JSONR(c, http.StatusBadRequest, "input error, please check your input info.")
 			return
 		} else {
-			eids = fmt.Sprintf("(%s)", eids)
+			eidArray = strings.Split(eids, ",")
 		}
 
 		var counters []m.EndpointCounter
-		dt := db.Graph.Table("endpoint_counter").Select("endpoint_id, counter, step, type").Where(fmt.Sprintf("endpoint_id IN %s", eids))
+		dt := db.Graph.Table("endpoint_counter").Select("endpoint_id, counter, step, type").Where("endpoint_id IN (?)", eidArray)
 		if metricQuery != "" {
 			qs := strings.Split(metricQuery, " ")
 			if len(qs) > 0 {

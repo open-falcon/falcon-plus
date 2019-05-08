@@ -41,7 +41,7 @@ func GetNoDataList(c *gin.Context) {
 	var dt *gorm.DB
 	mockcfgs := []f.Mockcfg{}
 	if limit != -1 && page != -1 {
-		dt = db.Falcon.Raw(fmt.Sprintf("SELECT * from mockcfg limit %d,%d", page, limit)).Scan(&mockcfgs)
+		dt = db.Falcon.Raw("SELECT * from mockcfg limit ?,?", page, limit).Scan(&mockcfgs)
 	} else {
 		dt = db.Falcon.Find(&mockcfgs)
 	}
@@ -64,8 +64,8 @@ func GetNoData(c *gin.Context) {
 		h.JSONR(c, badstatus, err)
 		return
 	}
-	mockcfg := f.Mockcfg{ID: int64(nid)}
-	if dt := db.Falcon.Find(&mockcfg); dt.Error != nil {
+	mockcfg := f.Mockcfg{}
+	if dt := db.Falcon.Where("id = ?", nid).Find(&mockcfg); dt.Error != nil {
 		h.JSONR(c, badstatus, dt.Error)
 		return
 	}
@@ -143,8 +143,8 @@ func DeleteNoData(c *gin.Context) {
 		h.JSONR(c, badstatus, err)
 		return
 	}
-	mockcfg := f.Mockcfg{ID: int64(nid)}
-	if dt := db.Falcon.Delete(&mockcfg); dt.Error != nil {
+	mockcfg := f.Mockcfg{}
+	if dt := db.Falcon.Where("id = ?", nid).Delete(&mockcfg); dt.Error != nil {
 		h.JSONR(c, badstatus, dt.Error)
 		return
 	}

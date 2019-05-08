@@ -15,27 +15,43 @@
 package g
 
 import (
-	"github.com/garyburd/redigo/redis"
 	"log"
+	"strings"
 	"time"
+
+	"github.com/garyburd/redigo/redis"
 )
 
 var RedisConnPool *redis.Pool
 
 func InitRedisConnPool() {
 	redisConfig := Config().Redis
-
+	auth, addr := formatRedisAddr(redisConfig.Addr)
 	RedisConnPool = &redis.Pool{
 		MaxIdle:     redisConfig.MaxIdle,
 		IdleTimeout: 240 * time.Second,
 		Dial: func() (redis.Conn, error) {
-			c, err := redis.Dial("tcp", redisConfig.Addr)
+			c, err := redis.Dial("tcp", addr)
 			if err != nil {
 				return nil, err
+			}
+			if auth != "" {
+				if _, err := c.Do("AUTH", auth); err != nil {
+					_ = c.Close()
+					return nil, err
+				}
 			}
 			return c, err
 		},
 		TestOnBorrow: PingRedis,
+	}
+}
+
+func formatRedisAddr(addrConfig string) (string, string) {
+	if redisAddr := strings.Split(addrConfig, "@"); len(redisAddr) == 1 {
+		return "", redisAddr[0]
+	} else {
+		return strings.Join(redisAddr[0:len(redisAddr)-1], "@"), redisAddr[len(redisAddr)-1]
 	}
 }
 

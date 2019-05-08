@@ -48,12 +48,11 @@ func (this Team) Members() (users []User, err error) {
 	if len(uids) == 0 {
 		return
 	}
-	uidstr, err := arrIntToString(uids)
 	if err != nil {
 		return
 	}
 
-	if dt := db.Uic.Select("name, id, cnname").Where(fmt.Sprintf("id in (%s)", uidstr)).Find(&users); dt.Error != nil {
+	if dt := db.Uic.Select("name, id, cnname").Where("id in (?)", uids).Find(&users); dt.Error != nil {
 		err = dt.Error
 		return
 	}

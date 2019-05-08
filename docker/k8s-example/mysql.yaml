@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+  labels:
+    app: db
+spec:
+  type: NodePort
+  ports:
+  - port: 3306
+    targetPort: mysqlport
+  selector:
+    app: db
+    name: mysql
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: mysql
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: db
+        name: mysql
+    spec:
+      containers:
+      - name: mysql
+        image: mysql:5.7
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: TZ
+          value: "Asia/Shanghai"
+        - name: MYSQL_ROOT_PASSWORD
+          value: "123456"
+        ports:
+        - containerPort: 3306
+          name: mysqlport
+        volumeMounts:
+        - name: mysqldata
+          subPath: mysql_data
+          mountPath: /var/lib/mysql
+      volumes:
+        - name: mysqldata
+          emptyDir: {}

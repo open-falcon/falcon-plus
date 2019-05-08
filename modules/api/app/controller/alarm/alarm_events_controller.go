@@ -16,8 +16,8 @@ package alarm
 
 import (
 	"errors"
-	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
 	h "github.com/open-falcon/falcon-plus/modules/api/app/helper"
 	alm "github.com/open-falcon/falcon-plus/modules/api/app/model/alarm"
 	"strings"
@@ -51,72 +51,52 @@ func (input APIGetAlarmListsInputs) checkInputsContain() error {
 	return nil
 }
 
-func (s APIGetAlarmListsInputs) collectFilters() string {
-	tmp := []string{}
+func (s APIGetAlarmListsInputs) collectDBFilters(database *gorm.DB, tableName string, columns []string) *gorm.DB {
+	filterDB := database.Table(tableName)
+	// nil columns mean select all columns
+	if columns != nil && len(columns) != 0 {
+		filterDB = filterDB.Select(columns)
+	}
 	if s.StartTime != 0 {
-		tmp = append(tmp, fmt.Sprintf("timestamp >= FROM_UNIXTIME(%v)", s.StartTime))
+		filterDB = filterDB.Where("timestamp >= FROM_UNIXTIME(?)", s.StartTime)
 	}
 	if s.EndTime != 0 {
-		tmp = append(tmp, fmt.Sprintf("timestamp <= FROM_UNIXTIME(%v)", s.EndTime))
+		filterDB = filterDB.Where("timestamp <= FROM_UNIXTIME(?)", s.EndTime)
 	}
 	if s.Priority != -1 {
-		tmp = append(tmp, fmt.Sprintf("priority = %d", s.Priority))
+		filterDB = filterDB.Where("priority = ?", s.Priority)
 	}
 	if s.Status != "" {
-		status := ""
 		statusTmp := strings.Split(s.Status, ",")
-		for indx, n := range statusTmp {
-			if indx == 0 {
-				status = fmt.Sprintf(" status = '%s' ", n)
-			} else {
-				status = fmt.Sprintf(" %s OR status = '%s' ", status, n)
-			}
-		}
-		status = fmt.Sprintf("( %s )", status)
-		tmp = append(tmp, status)
+		filterDB = filterDB.Where("status in (?)", statusTmp)
 	}
 	if s.ProcessStatus != "" {
-		pstatus := ""
 		pstatusTmp := strings.Split(s.ProcessStatus, ",")
-		for indx, n := range pstatusTmp {
-			if indx == 0 {
-				pstatus = fmt.Sprintf(" process_status = '%s' ", n)
-			} else {
-				pstatus = fmt.Sprintf(" %s OR process_status = '%s' ", pstatus, n)
-			}
-		}
-		pstatus = fmt.Sprintf("( %s )", pstatus)
-		tmp = append(tmp, pstatus)
+		filterDB = filterDB.Where("process_status in (?)", pstatusTmp)
 	}
 	if s.Metrics != "" {
-		tmp = append(tmp, fmt.Sprintf("metrics regexp '%s'", s.Metrics))
+		filterDB = filterDB.Where("metric regexp ?", s.Metrics)
 	}
 	if s.EventId != "" {
-		tmp = append(tmp, fmt.Sprintf("id = '%s'", s.EventId))
+		filterDB = filterDB.Where("id = ?", s.EventId)
 	}
 	if s.Endpoints != nil && len(s.Endpoints) != 0 {
-		for i, ep := range s.Endpoints {
-			s.Endpoints[i] = fmt.Sprintf("'%s'", ep)
-		}
-		tmp = append(tmp, fmt.Sprintf("endpoint in (%s)", strings.Join(s.Endpoints, ", ")))
+		filterDB = filterDB.Where("endpoint in (?)", s.Endpoints)
 	}
 	if s.StrategyId != 0 {
-		tmp = append(tmp, fmt.Sprintf("strategy_id = %d", s.StrategyId))
+		filterDB = filterDB.Where("strategy_id = ?", s.StrategyId)
 	}
 	if s.TemplateId != 0 {
-		tmp = append(tmp, fmt.Sprintf("template_id = %d", s.TemplateId))
+		filterDB = filterDB.Where("template_id = ?", s.TemplateId)
 	}
-	filterStrTmp := strings.Join(tmp, " AND ")
-	if filterStrTmp != "" {
-		filterStrTmp = fmt.Sprintf("WHERE %s", filterStrTmp)
-	}
-	return filterStrTmp
+	return filterDB
 }
 
 func AlarmLists(c *gin.Context) {
 	var inputs APIGetAlarmListsInputs
 	//set default
 	inputs.Page = -1
+	inputs.Limit = -1
 	inputs.Priority = -1
 	if err := c.Bind(&inputs); err != nil {
 		h.JSONR(c, badstatus, err)
@@ -126,31 +106,44 @@ func AlarmLists(c *gin.Context) {
 		h.JSONR(c, badstatus, err)
 		return
 	}
-	filterCollector := inputs.collectFilters()
 	//for get correct table name
 	f := alm.EventCases{}
+	alarmDB := inputs.collectDBFilters(db.Alarm, f.TableName(), nil)
 	cevens := []alm.EventCases{}
-	perparedSql := ""
 	//if no specific, will give return first 2000 records
-	if inputs.Page == -1 {
-		if inputs.Limit >= 2000 || inputs.Limit == 0 {
-			inputs.Limit = 2000
-		}
-		perparedSql = fmt.Sprintf("select * from %s %s order by timestamp DESC limit %d", f.TableName(), filterCollector, inputs.Limit)
+	if inputs.Page == -1 && inputs.Limit == -1 {
+		inputs.Limit = 2000
+		alarmDB = alarmDB.Order("timestamp DESC").Limit(inputs.Limit)
+	} else if inputs.Limit == -1 {
+		// set page but not set limit
+		h.JSONR(c, badstatus, errors.New("You set page but skip limit params, please check your input"))
+		return
 	} else {
+		// set limit but not set page
+		if inputs.Page == -1 {
+			// limit invalid
+			if inputs.Limit <= 0 {
+				h.JSONR(c, badstatus, errors.New("limit or page can not set to 0 or less than 0"))
+				return
+			}
+			// set default page
+			inputs.Page = 1
+		} else {
+			// set page and limit
+			// page or limit invalid
+			if inputs.Page <= 0 || inputs.Limit <= 0 {
+				h.JSONR(c, badstatus, errors.New("limit or page can not set to 0 or less than 0"))
+				return
+			}
+		}
 		//set the max limit of each page
 		if inputs.Limit >= 50 {
 			inputs.Limit = 50
 		}
-
-		// if page stands for step page
-		// {"page":0} for actual page 1
-		// step = page * limit
-		step := inputs.Page * inputs.Limit
-
-		perparedSql = fmt.Sprintf("select * from %s %s  order by timestamp DESC limit %d,%d", f.TableName(), filterCollector, step, inputs.Limit)
+		step := (inputs.Page - 1) * inputs.Limit
+		alarmDB = alarmDB.Order("timestamp DESC").Offset(step).Limit(inputs.Limit)
 	}
-	db.Alarm.Raw(perparedSql).Find(&cevens)
+	alarmDB.Find(&cevens)
 	h.JSONR(c, cevens)
 }
 
@@ -166,26 +159,25 @@ type APIEventsGetInputs struct {
 	Page int `json:"page" form:"page"`
 }
 
-func (s APIEventsGetInputs) collectFilters() string {
-	tmp := []string{}
-	filterStrTmp := ""
+func (s APIEventsGetInputs) collectDBFilters(database *gorm.DB, tableName string, columns []string) *gorm.DB {
+	filterDB := database.Table(tableName)
+	// nil columns mean select all columns
+	if columns != nil && len(columns) != 0 {
+		filterDB = filterDB.Select(columns)
+	}
 	if s.StartTime != 0 {
-		tmp = append(tmp, fmt.Sprintf("timestamp >= FROM_UNIXTIME(%v)", s.StartTime))
+		filterDB = filterDB.Where("timestamp >= FROM_UNIXTIME(?)", s.StartTime)
 	}
 	if s.EndTime != 0 {
-		tmp = append(tmp, fmt.Sprintf("timestamp <= FROM_UNIXTIME(%v)", s.EndTime))
+		filterDB = filterDB.Where("timestamp <= FROM_UNIXTIME(?)", s.EndTime)
 	}
 	if s.EventId != "" {
-		tmp = append(tmp, fmt.Sprintf("event_caseId = '%s'", s.EventId))
+		filterDB = filterDB.Where("event_caseId = ?", s.EventId)
 	}
 	if s.Status == 0 || s.Status == 1 {
-		tmp = append(tmp, fmt.Sprintf("status = %d", s.Status))
+		filterDB = filterDB.Where("status = ?", s.Status)
 	}
-	if len(tmp) != 0 {
-		filterStrTmp = strings.Join(tmp, " AND ")
-		filterStrTmp = fmt.Sprintf("WHERE %s", filterStrTmp)
-	}
-	return filterStrTmp
+	return filterDB
 }
 
 func EventsGet(c *gin.Context) {
@@ -195,14 +187,14 @@ func EventsGet(c *gin.Context) {
 		h.JSONR(c, badstatus, err)
 		return
 	}
-	filterCollector := inputs.collectFilters()
 	//for get correct table name
 	f := alm.Events{}
+	eventDB := inputs.collectDBFilters(db.Alarm, f.TableName(), []string{"id", "step", "event_caseId", "cond", "status", "timestamp"})
 	evens := []alm.Events{}
-	if inputs.Limit == 0 || inputs.Limit >= 50 {
+	if inputs.Limit <= 0 || inputs.Limit >= 50 {
 		inputs.Limit = 50
 	}
-	perparedSql := fmt.Sprintf("select id, step, event_caseId, cond, status, timestamp from %s %s order by timestamp DESC limit %d,%d", f.TableName(), filterCollector, inputs.Page, inputs.Limit)
-	db.Alarm.Raw(perparedSql).Scan(&evens)
+	step := (inputs.Page - 1) * inputs.Limit
+	eventDB.Order("timestamp DESC").Offset(step).Limit(inputs.Limit).Scan(&evens)
 	h.JSONR(c, evens)
 }

@@ -1,7 +1,7 @@
 ---
 category: User
-apiurl: '/api/v1/user/update'
-title: 'Update User'
+apiurl: '/api/v1/user/u/:uid'
+title: 'Update Specific User'
 type: 'PUT'
 sample_doc: 'user.html'
 layout: default
