@@ -33,15 +33,12 @@ func SyncMinePlugins() {
 		return
 	}
 
-	// With hbs.
-	if !g.Config().Plugin.Standalone {
-		if !g.Config().Heartbeat.Enabled {
-			return
-		}
+	if !g.Config().Heartbeat.Enabled {
+		return
+	}
 
-		if g.Config().Heartbeat.Addr == "" {
-			return
-		}
+	if g.Config().Heartbeat.Addr == "" {
+		return
 	}
 
 	go syncMinePlugins()
@@ -59,40 +56,36 @@ func syncMinePlugins() {
 	for {
 		time.Sleep(duration)
 
-		if !g.Config().Plugin.Standalone {
-			hostname, err := g.Hostname()
-			if err != nil {
-				continue
-			}
+		hostname, err := g.Hostname()
+		if err != nil {
+			continue
+		}
 
-			req := model.AgentHeartbeatRequest{
-				Hostname: hostname,
-			}
+		req := model.AgentHeartbeatRequest{
+			Hostname: hostname,
+		}
 
-			var resp model.AgentPluginsResponse
-			err = g.HbsClient.Call("Agent.MinePlugins", req, &resp)
-			if err != nil {
-				log.Println("call Agent.MinePlugin fail:", err)
-				continue
-			}
+		var resp model.AgentPluginsResponse
+		err = g.HbsClient.Call("Agent.MinePlugins", req, &resp)
+		if err != nil {
+			log.Println("call Agent.MinePlugin fail:", err)
+			continue
+		}
 
-			if resp.Timestamp <= timestamp {
-				continue
-			}
+		if resp.Timestamp <= timestamp {
+			continue
+		}
 
-			pluginDirs = resp.Plugins
-			timestamp = resp.Timestamp
+		pluginDirs = resp.Plugins
+		timestamp = resp.Timestamp
 
-			if g.Config().Debug {
-				log.Printf("call Agent.MinePlugin:%v\n", resp)
-			}
+		if g.Config().Debug {
+			log.Printf("call Agent.MinePlugin:%v\n", resp)
+		}
 
-			if len(pluginDirs) == 0 {
-				plugins.ClearAllPlugins()
-				continue
-			}
-		} else {
-			pluginDirs = []string{"."}
+		if len(pluginDirs) == 0 {
+			plugins.ClearAllPlugins()
+			continue
 		}
 
 		desiredAll := make(map[string]*plugins.Plugin)

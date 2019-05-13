@@ -24,11 +24,10 @@ import (
 )
 
 type PluginConfig struct {
-	Standalone bool   `json:"standalone"` // Enable plugin function without heartbeat.
-	Enabled    bool   `json:"enabled"`
-	Dir        string `json:"dir"`
-	Git        string `json:"git"`
-	LogDir     string `json:"logs"`
+	Enabled bool   `json:"enabled"`
+	Dir     string `json:"dir"`
+	Git     string `json:"git"`
+	LogDir  string `json:"logs"`
 }
 
 type HeartbeatConfig struct {
