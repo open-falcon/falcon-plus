@@ -37,7 +37,9 @@ docker run -itd --name falcon-plus \
 	 $image_tag
 
 ## start falcon backend modules, such as graph,api,etc.
+sleep 5
 docker exec falcon-plus sh ctrl.sh start \
 		graph hbs judge transfer nodata aggregator agent gateway api alarm
 
+sleep 5
 make test
