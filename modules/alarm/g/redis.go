@@ -15,10 +15,11 @@
 package g
 
 import (
-	"github.com/garyburd/redigo/redis"
 	"log"
 	"strings"
 	"time"
+
+	"github.com/garyburd/redigo/redis"
 )
 
 var RedisConnPool *redis.Pool
@@ -47,10 +48,10 @@ func InitRedisConnPool() {
 }
 
 func formatRedisAddr(addrConfig string) (string, string) {
-	if redisAddr := strings.Split(addrConfig, "@"); len(redisAddr) == 2 {
-		return redisAddr[0], redisAddr[1]
-	} else {
+	if redisAddr := strings.Split(addrConfig, "@"); len(redisAddr) == 1 {
 		return "", redisAddr[0]
+	} else {
+		return strings.Join(redisAddr[0:len(redisAddr)-1], "@"), redisAddr[len(redisAddr)-1]
 	}
 }
 
