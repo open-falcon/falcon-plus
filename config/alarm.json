@@ -31,7 +31,7 @@
         "plus_api_token": "%%PLUS_API_DEFAULT_TOKEN%%"
     },
     "falcon_portal": {
-        "addr": "%%MYSQL%%/alarms?charset=utf8&loc=Asia%2FChongqing",
+        "addr": "%%MYSQL%%/alarms?charset=utf8&loc=Local",
         "idle": 10,
         "max": 100
     },
