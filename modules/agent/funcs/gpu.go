@@ -1,3 +1,5 @@
+// +build 386 amd64
+
 // Copyright 2017 Xiaomi, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,6 +23,13 @@ import (
 	"github.com/open-falcon/falcon-plus/common/model"
 	"github.com/open-falcon/falcon-plus/modules/agent/g"
 )
+
+var GpuMetricConf = FuncsAndInterval{
+	Fs: []func() []*model.MetricValue{
+		GpuMetrics,
+	},
+	Interval: g.Config().Transfer.Interval,
+}
 
 // 需要load libnvidia-ml.so.1库
 func GpuMetrics() (L []*model.MetricValue) {

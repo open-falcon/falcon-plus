@@ -1,4 +1,4 @@
-// +build !386,!amd64
+// +build 386 amd64
 
 // Copyright 2017 Xiaomi, Inc.
 //
@@ -72,5 +72,6 @@ func BuildMappers() {
 			},
 			Interval: interval,
 		},
+		GpuMetricConf,
 	}
 }
