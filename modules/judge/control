@@ -55,7 +55,7 @@ function stop() {
 function kill9() {
     pid=`cat $pidfile`
     kill -9 $pid
-    echo "$app stoped..."
+    echo "$app stopped..."
 }
 
 function restart() {
@@ -71,7 +71,7 @@ function status() {
         echo -n "$app now is running, pid="
         cat $pidfile
     else
-        echo "$app is stoped"
+        echo "$app is stopped"
     fi
 }
 

@@ -65,13 +65,13 @@ function start() {
 function stop() {
     pid=`cat $pidfile`
     kill $pid
-    echo "stoped"
+    echo "stopped"
 }
 
 function shutdown() {
     pid=`cat $pidfile`
     kill -9 $pid
-    echo "stoped"
+    echo "stopped"
 }
 
 function restart() {
@@ -88,7 +88,7 @@ function status() {
         echo -n "running, pid="
         cat $pidfile
     else
-        echo "stoped"
+        echo "stopped"
     fi
 }
 
