@@ -51,7 +51,7 @@ function stop() {
     pid=`cat $pidfile`
     kill $pid
     rm -f $pidfile
-    echo "$app stoped..."
+    echo "$app stopped..."
 }
 
 function restart() {
@@ -66,7 +66,7 @@ function status() {
     if [ $running -gt 0 ];then
         echo started
     else
-        echo stoped
+        echo stopped
     fi
 }
 
