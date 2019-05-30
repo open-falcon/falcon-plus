@@ -61,7 +61,7 @@ mysql -h 127.0.0.1 -u root -p < 4_graph-db-schema.sql
 mysql -h 127.0.0.1 -u root -p < 5_alarms-db-schema.sql
 ```
 
-**NOTE: if you are upgrading from v0.1 to current version v0.2.0,then**. [More upgrading instruction](http://www.jianshu.com/p/6fb2c2b4d030)
+**NOTE: if you are upgrading from v0.1 to v0.2.0(or above),then**. [More upgrading instruction](http://www.jianshu.com/p/6fb2c2b4d030)
 
     mysql -h 127.0.0.1 -u root -p < 5_alarms-db-schema.sql
 
