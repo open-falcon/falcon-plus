@@ -38,7 +38,7 @@ spec:
     spec:
       containers:
       - name: open-falcon
-        image: openfalcon/falcon-plus:v0.2.1
+        image: openfalcon/falcon-plus:v0.3
         workingDir: /open-falcon
         command:
         - /bin/entrypoint.sh
