@@ -15,25 +15,71 @@
 package utils
 
 import (
-	"fmt"
+	"bytes"
+	"math/rand"
+	"strconv"
+	"time"
 )
 
 func PK(endpoint, metric string, tags map[string]string) string {
+	ret := bufferPool.Get().(*bytes.Buffer)
+	ret.Reset()
+	defer bufferPool.Put(ret)
+
 	if tags == nil || len(tags) == 0 {
-		return fmt.Sprintf("%s/%s", endpoint, metric)
+		ret.WriteString(endpoint)
+		ret.WriteString("/")
+		ret.WriteString(metric)
+
+		return ret.String()
 	}
-	return fmt.Sprintf("%s/%s/%s", endpoint, metric, SortedTags(tags))
+	ret.WriteString(endpoint)
+	ret.WriteString("/")
+	ret.WriteString(metric)
+	ret.WriteString("/")
+	ret.WriteString(SortedTags(tags))
+	return ret.String()
 }
 
 func PK2(endpoint, counter string) string {
-	return fmt.Sprintf("%s/%s", endpoint, counter)
+	ret := bufferPool.Get().(*bytes.Buffer)
+	ret.Reset()
+	defer bufferPool.Put(ret)
+
+	ret.WriteString(endpoint)
+	ret.WriteString("/")
+	ret.WriteString(counter)
+
+	return ret.String()
 }
 
 func UUID(endpoint, metric string, tags map[string]string, dstype string, step int) string {
+	ret := bufferPool.Get().(*bytes.Buffer)
+	ret.Reset()
+	defer bufferPool.Put(ret)
+
 	if tags == nil || len(tags) == 0 {
-		return fmt.Sprintf("%s/%s/%s/%d", endpoint, metric, dstype, step)
+		ret.WriteString(endpoint)
+		ret.WriteString("/")
+		ret.WriteString(metric)
+		ret.WriteString("/")
+		ret.WriteString(dstype)
+		ret.WriteString("/")
+		ret.WriteString(strconv.Itoa(step))
+
+		return ret.String()
 	}
-	return fmt.Sprintf("%s/%s/%s/%s/%d", endpoint, metric, SortedTags(tags), dstype, step)
+	ret.WriteString(endpoint)
+	ret.WriteString("/")
+	ret.WriteString(metric)
+	ret.WriteString("/")
+	ret.WriteString(SortedTags(tags))
+	ret.WriteString("/")
+	ret.WriteString(dstype)
+	ret.WriteString("/")
+	ret.WriteString(strconv.Itoa(step))
+
+	return ret.String()
 }
 
 func Checksum(endpoint string, metric string, tags map[string]string) string {
@@ -43,4 +89,20 @@ func Checksum(endpoint string, metric string, tags map[string]string) string {
 
 func ChecksumOfUUID(endpoint, metric string, tags map[string]string, dstype string, step int64) string {
 	return Md5(UUID(endpoint, metric, tags, dstype, int(step)))
+}
+
+func init() {
+	rand.Seed(time.Now().UTC().UnixNano())
+}
+
+func RandString(l int) string {
+	bytes := make([]byte, l)
+	for i := 0; i < l; i++ {
+		bytes[i] = byte(RandInt(65, 90))
+	}
+	return string(bytes)
+}
+
+func RandInt(min int, max int) int {
+	return min + rand.Intn(max-min)
 }

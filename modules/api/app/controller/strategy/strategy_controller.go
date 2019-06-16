@@ -17,11 +17,10 @@ package strategy
 import (
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"regexp"
 	"strconv"
 	"strings"
-
-	"io/ioutil"
 
 	"github.com/gin-gonic/gin"
 	h "github.com/open-falcon/falcon-plus/modules/api/app/helper"
@@ -109,7 +108,7 @@ func CreateStrategy(c *gin.Context) {
 		h.JSONR(c, expecstatus, dt.Error)
 		return
 	}
-	h.JSONR(c, "stragtegy created")
+	h.JSONR(c, strategy)
 	return
 }
 
@@ -124,8 +123,8 @@ func GetStrategy(c *gin.Context) {
 		h.JSONR(c, badstatus, err)
 		return
 	}
-	strategy := f.Strategy{ID: int64(sid)}
-	if dt := db.Falcon.Find(&strategy); dt.Error != nil {
+	strategy := f.Strategy{}
+	if dt := db.Falcon.Where("id = ?", sid).Find(&strategy); dt.Error != nil {
 		h.JSONR(c, badstatus, dt.Error)
 		return
 	}
@@ -211,8 +210,8 @@ func DeleteStrategy(c *gin.Context) {
 		h.JSONR(c, badstatus, err)
 		return
 	}
-	strategy := f.Strategy{ID: int64(sid)}
-	if dt := db.Falcon.Delete(&strategy); dt.Error != nil {
+	strategy := f.Strategy{}
+	if dt := db.Falcon.Where("id = ?", sid).Delete(&strategy); dt.Error != nil {
 		h.JSONR(c, badstatus, dt.Error)
 		return
 	}

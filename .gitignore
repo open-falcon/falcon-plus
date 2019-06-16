@@ -4,3 +4,5 @@ out/
 *.swo
 *.tar.gz
 docs/_site
+.idea
+open-falcon

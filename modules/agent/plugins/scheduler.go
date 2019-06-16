@@ -17,15 +17,17 @@ package plugins
 import (
 	"bytes"
 	"encoding/json"
+	"log"
+	"os/exec"
+	"path/filepath"
+	"strings"
+	"syscall"
+	"time"
+
 	"github.com/open-falcon/falcon-plus/common/model"
 	"github.com/open-falcon/falcon-plus/modules/agent/g"
 	"github.com/toolkits/file"
 	"github.com/toolkits/sys"
-	"log"
-	"os/exec"
-	"path/filepath"
-	"syscall"
-	"time"
 )
 
 type PluginScheduler struct {
@@ -59,37 +61,90 @@ func (this *PluginScheduler) Stop() {
 	close(this.Quit)
 }
 
-func PluginRun(plugin *Plugin) {
+// using ',' as the seprator of args and '\,' to espace
+func PluginArgsParse(raw_args string) []string {
+	ss := strings.Split(raw_args, "\\,")
 
+	out := [][]string{}
+	for _, s := range ss {
+		clean_args := []string{}
+		for _, arg := range strings.Split(s, ",") {
+			arg = strings.Trim(arg, " ")
+			arg = strings.Trim(arg, "\"")
+			arg = strings.Trim(arg, "'")
+			clean_args = append(clean_args, arg)
+		}
+		out = append(out, clean_args)
+	}
+
+	ret := []string{}
+	tail := ""
+
+	for _, x := range out {
+		for j, y := range x {
+			if j == 0 {
+				if tail != "" {
+					ret = append(ret, tail+","+y)
+					tail = ""
+				} else {
+					ret = append(ret, y)
+				}
+			} else if j == len(x)-1 {
+				tail = y
+			} else {
+				ret = append(ret, y)
+			}
+		}
+	}
+
+	if tail != "" {
+		ret = append(ret, tail)
+	}
+
+	return ret
+}
+
+func PluginRun(plugin *Plugin) {
 	timeout := plugin.Cycle*1000 - 500
 	fpath := filepath.Join(g.Config().Plugin.Dir, plugin.FilePath)
+	args := plugin.Args
 
 	if !file.IsExist(fpath) {
-		log.Println("no such plugin:", fpath)
+		log.Printf("no such plugin: %s(%s)", fpath, args)
 		return
 	}
 
 	debug := g.Config().Debug
 	if debug {
-		log.Println(fpath, "running...")
+		log.Printf("%s(%s) running...", fpath, args)
 	}
 
-	cmd := exec.Command(fpath)
+	var cmd *exec.Cmd
+	if args == "" {
+		cmd = exec.Command(fpath)
+	} else {
+		arg_list := PluginArgsParse(args)
+		cmd = exec.Command(fpath, arg_list...)
+	}
 	var stdout bytes.Buffer
 	cmd.Stdout = &stdout
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
-	cmd.Start()
+	err := cmd.Start()
+	if err != nil {
+		log.Printf("[ERROR] plugin start fail: %s(%s) , error: %s\n", fpath, args, err)
+		return
+	}
 	if debug {
-		log.Println("plugin started:", fpath)
+		log.Printf("plugin started: %s(%s)", fpath, args)
 	}
 
 	err, isTimeout := sys.CmdRunWithTimeout(cmd, time.Duration(timeout)*time.Millisecond)
 
 	errStr := stderr.String()
 	if errStr != "" {
-		logFile := filepath.Join(g.Config().Plugin.LogDir, plugin.FilePath+".stderr.log")
+		logFile := filepath.Join(g.Config().Plugin.LogDir, plugin.FilePath+"("+plugin.Args+")"+".stderr.log")
 		if _, err = file.WriteString(logFile, errStr); err != nil {
 			log.Printf("[ERROR] write log to %s fail, error: %s\n", logFile, err)
 		}
@@ -98,18 +153,18 @@ func PluginRun(plugin *Plugin) {
 	if isTimeout {
 		// has be killed
 		if err == nil && debug {
-			log.Println("[INFO] timeout and kill process", fpath, "successfully")
+			log.Println("[INFO] timeout and kill process ", fpath, "(", args, ")", " successfully")
 		}
 
 		if err != nil {
-			log.Println("[ERROR] kill process", fpath, "occur error:", err)
+			log.Println("[ERROR] kill process ", fpath, "(", args, ")", " occur error:", err)
 		}
 
 		return
 	}
 
 	if err != nil {
-		log.Println("[ERROR] exec plugin", fpath, "fail. error:", err)
+		log.Println("[ERROR] exec plugin", fpath, "(", args, ")", "fail. error:", err)
 		return
 	}
 
@@ -117,7 +172,7 @@ func PluginRun(plugin *Plugin) {
 	data := stdout.Bytes()
 	if len(data) == 0 {
 		if debug {
-			log.Println("[DEBUG] stdout of", fpath, "is blank")
+			log.Println("[DEBUG] stdout of", fpath, "(", args, ")", "is blank")
 		}
 		return
 	}
@@ -125,7 +180,7 @@ func PluginRun(plugin *Plugin) {
 	var metrics []*model.MetricValue
 	err = json.Unmarshal(data, &metrics)
 	if err != nil {
-		log.Printf("[ERROR] json.Unmarshal stdout of %s fail. error:%s stdout: \n%s\n", fpath, err, stdout.String())
+		log.Printf("[ERROR] json.Unmarshal stdout of %s(%s) fail. error:%s stdout: \n%s\n", fpath, args, err, stdout.String())
 		return
 	}
 

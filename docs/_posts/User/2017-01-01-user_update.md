@@ -12,7 +12,6 @@ layout: default
 
 ### Request
 ```{
-  "name": "test1",
   "cnname": "翱鶚Test",
   "email": "root123@cepave.com",
   "im": "44955834958",

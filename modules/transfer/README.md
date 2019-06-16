@@ -72,6 +72,8 @@ u want sending items via java jsonrpc client? turn to one java example: [jsonrpc
 
     debug: true/false, 如果为true，日志中会打印debug信息
 
+    minStep: 30, 允许上报的数据最小间隔，默认为30秒
+
     http
         - enable: true/false, 表示是否开启该http端口，该端口为控制端口，主要用来对transfer发送控制命令、统计命令、debug命令等
         - listen: 表示监听的http端口

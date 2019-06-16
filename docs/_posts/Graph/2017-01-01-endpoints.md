@@ -8,9 +8,11 @@ layout: default
 ---
 
 * [Session](#/authentication) Required
-* q: 使用 regex 查询字符
-  * option 参数
-
+* params:
+    * q: 使用 regex 查询字符
+      * option 参数
+    * page: 【选填】分页查询的页码，默认值：1,如： page=2 表示第2页
+    * limit: 【选填】分页查询的页大小，默认值：500，如：limit=10 表示每页10条数据
 
 ### Response
 

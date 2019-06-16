@@ -23,7 +23,6 @@ import (
 	"github.com/jinzhu/gorm"
 	h "github.com/open-falcon/falcon-plus/modules/api/app/helper"
 	f "github.com/open-falcon/falcon-plus/modules/api/app/model/falcon_portal"
-	u "github.com/open-falcon/falcon-plus/modules/api/app/utils"
 )
 
 type APIGetTemplatesOutput struct {
@@ -51,8 +50,7 @@ func GetTemplates(c *gin.Context) {
 	var templates []f.Template
 	q := c.DefaultQuery("q", ".+")
 	if limit != -1 && page != -1 {
-		dt = db.Falcon.Raw(
-			fmt.Sprintf("SELECT * from tpl WHERE tpl_name regexp %s limit %d,%d", q, page, limit)).Scan(&templates)
+		dt = db.Falcon.Raw("SELECT * from tpl WHERE tpl_name regexp ? limit ?,?", q, page, limit).Scan(&templates)
 	} else {
 		dt = db.Falcon.Where("tpl_name regexp ?", q).Find(&templates)
 	}
@@ -161,11 +159,12 @@ func CreateTemplate(c *gin.Context) {
 		CreateUser: user.Name,
 	}
 	dt := db.Falcon.Table("tpl").Save(&template)
+
 	if dt.Error != nil {
 		h.JSONR(c, badstatus, dt.Error)
 		return
 	}
-	h.JSONR(c, "template created")
+	h.JSONR(c, template)
 	return
 }
 
@@ -283,8 +282,7 @@ func GetATemplateHostgroup(c *gin.Context) {
 		for _, t := range tplGrps {
 			tips = append(tips, t.GrpID)
 		}
-		tipsStr, _ := u.ArrInt64ToString(tips)
-		db.Falcon.Where(fmt.Sprintf("id in (%s)", tipsStr)).Find(&hostgroups)
+		db.Falcon.Where("id in (?)", tips).Find(&hostgroups)
 	}
 	h.JSONR(c, map[string]interface{}{
 		"template":   tpl,

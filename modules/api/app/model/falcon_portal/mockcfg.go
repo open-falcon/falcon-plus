@@ -14,6 +14,10 @@
 
 package falcon_portal
 
+import (
+	"time"
+)
+
 // +----------+---------------------+------+-----+-------------------+-----------------------------+
 // | Field    | Type                | Null | Key | Default           | Extra                       |
 // +----------+---------------------+------+-----+-------------------+-----------------------------+
@@ -37,13 +41,14 @@ type Mockcfg struct {
 	Name string `json:"name" gorm:"column:name"`
 	Obj  string `json:"obj" gorm:"column:obj"`
 	//group, host, other
-	ObjType string  `json:"obj_type" gorm:"column:obj_type"`
-	Metric  string  `json:"metric" gorm:"column:metric"`
-	Tags    string  `json:"tags" gorm:"column:tags"`
-	DsType  string  `json:"dstype" gorm:"column:dstype"`
-	Step    int     `json:"step" gorm:"column:step"`
-	Mock    float64 `json:"mock" gorm:"column:mock"`
-	Creator string  `json:"creator" gorm:"column:creator"`
+	ObjType string    `json:"obj_type" gorm:"column:obj_type"`
+	Metric  string    `json:"metric" gorm:"column:metric"`
+	Tags    string    `json:"tags" gorm:"column:tags"`
+	DsType  string    `json:"dstype" gorm:"column:dstype"`
+	Step    int       `json:"step" gorm:"column:step"`
+	Mock    float64   `json:"mock" gorm:"column:mock"`
+	Creator string    `json:"creator" gorm:"column:creator"`
+	TCreate time.Time `json:"-"`
 }
 
 func (this Mockcfg) TableName() string {

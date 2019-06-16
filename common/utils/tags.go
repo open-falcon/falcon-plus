@@ -15,6 +15,7 @@
 package utils
 
 import (
+	"bytes"
 	"fmt"
 	"sort"
 	"strings"
@@ -31,10 +32,17 @@ func SortedTags(tags map[string]string) string {
 		return ""
 	}
 
+	ret := bufferPool.Get().(*bytes.Buffer)
+	ret.Reset()
+	defer bufferPool.Put(ret)
+
 	if size == 1 {
 		for k, v := range tags {
-			return fmt.Sprintf("%s=%s", k, v)
+			ret.WriteString(k)
+			ret.WriteString("=")
+			ret.WriteString(v)
 		}
+		return ret.String()
 	}
 
 	keys := make([]string, size)
@@ -46,26 +54,33 @@ func SortedTags(tags map[string]string) string {
 
 	sort.Strings(keys)
 
-	ret := make([]string, size)
 	for j, key := range keys {
-		ret[j] = fmt.Sprintf("%s=%s", key, tags[key])
+		ret.WriteString(key)
+		ret.WriteString("=")
+		ret.WriteString(tags[key])
+		if j != size-1 {
+			ret.WriteString(",")
+		}
 	}
 
-	return strings.Join(ret, ",")
+	return ret.String()
 }
 
 func DictedTagstring(s string) map[string]string {
 	if s == "" {
 		return map[string]string{}
 	}
-	s = strings.Replace(s, " ", "", -1)
+
+	if strings.ContainsRune(s, ' ') {
+		s = strings.Replace(s, " ", "", -1)
+	}
 
 	tag_dict := make(map[string]string)
 	tags := strings.Split(s, ",")
 	for _, tag := range tags {
-		tag_pair := strings.SplitN(tag, "=", 2)
-		if len(tag_pair) == 2 {
-			tag_dict[tag_pair[0]] = tag_pair[1]
+		idx := strings.IndexRune(tag, '=')
+		if idx != -1 {
+			tag_dict[tag[:idx]] = tag[idx+1:]
 		}
 	}
 	return tag_dict

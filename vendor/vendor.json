@@ -253,6 +253,12 @@
 			"revisionTime": "2017-03-22T23:44:13Z"
 		},
 		{
+			"checksumSHA1": "jFdpNLbJwMjS0bhHRXlBJ6JUIzw=",
+			"path": "github.com/mindprince/gonvml",
+			"revision": "eea82dc7bb371c99a9f2b991088e267ab473b40a",
+			"revisionTime": "2018-01-11T08:01:36Z"
+		},
+		{
 			"checksumSHA1": "c1JIqjo91nD1RMFImnW69n8jtj8=",
 			"path": "github.com/mitchellh/mapstructure",
 			"revision": "cc8532a8e9a55ea36402aa21efdf403a60d34096",
@@ -475,10 +481,10 @@
 			"revisionTime": "2016-09-10T08:58:01Z"
 		},
 		{
-			"checksumSHA1": "y8ZzF+8Tcqbo1lxChvzC3Lq+9XQ=",
+			"checksumSHA1": "4wB1bl+P4L2YZYbcZMNaqnFlaO4=",
 			"path": "github.com/toolkits/nux",
-			"revision": "40e948efd15371c0381842833894bc71dea076e4",
-			"revisionTime": "2016-09-07T02:20:33Z"
+			"revision": "7494d04b55d9a82c404a7625bd65d918bca734ac",
+			"revisionTime": "2018-12-20T05:49:08Z"
 		},
 		{
 			"checksumSHA1": "/MzoyPy+MujCNT0eYLFpfAj3+pE=",

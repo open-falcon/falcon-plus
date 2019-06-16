@@ -45,7 +45,7 @@ func GetHostGroups(c *gin.Context) {
 	var hostgroups []f.HostGroup
 	var dt *gorm.DB
 	if limit != -1 && page != -1 {
-		dt = db.Falcon.Raw(fmt.Sprintf("SELECT * from grp  where grp_name regexp '%s' limit %d,%d", q, page, limit)).Scan(&hostgroups)
+		dt = db.Falcon.Raw("SELECT * from grp  where grp_name regexp ? limit ?,?", q, page, limit).Scan(&hostgroups)
 	} else {
 		dt = db.Falcon.Table("grp").Where("grp_name regexp ?", q).Find(&hostgroups)
 	}
@@ -57,12 +57,12 @@ func GetHostGroups(c *gin.Context) {
 	return
 }
 
-type APICrateHostGroup struct {
+type APICreateHostGroup struct {
 	Name string `json:"name" binding:"required"`
 }
 
-func CrateHostGroup(c *gin.Context) {
-	var inputs APICrateHostGroup
+func CreateHostGroup(c *gin.Context) {
+	var inputs APICreateHostGroup
 	if err := c.Bind(&inputs); err != nil {
 		h.JSONR(c, badstatus, err)
 		return
@@ -174,9 +174,9 @@ func DeleteHostGroup(c *gin.Context) {
 		return
 	}
 	user, _ := h.GetUser(c)
-	hostgroup := f.HostGroup{ID: int64(grpID)}
+	hostgroup := f.HostGroup{}
 	if !user.IsAdmin() {
-		if dt := db.Falcon.Find(&hostgroup); dt.Error != nil {
+		if dt := db.Falcon.Where("id = ?", grpID).Find(&hostgroup); dt.Error != nil {
 			h.JSONR(c, badstatus, dt.Error)
 			return
 		}
@@ -198,14 +198,14 @@ func DeleteHostGroup(c *gin.Context) {
 		dt.Rollback()
 		return
 	}
-	//delete aggreators of hostgroup
+	//delete aggregators of hostgroup
 	if dt := tx.Where("grp_id = ?", grpID).Delete(&f.Cluster{}); dt.Error != nil {
-		h.JSONR(c, expecstatus, fmt.Sprintf("delete aggreators got error: %v", dt.Error))
+		h.JSONR(c, expecstatus, fmt.Sprintf("delete aggregators got error: %v", dt.Error))
 		dt.Rollback()
 		return
 	}
 	//finally delete hostgroup
-	if dt := tx.Delete(&f.HostGroup{ID: int64(grpID)}); dt.Error != nil {
+	if dt := tx.Where("id = ?", grpID).Delete(&f.HostGroup{}); dt.Error != nil {
 		h.JSONR(c, expecstatus, dt.Error)
 		tx.Rollback()
 		return
@@ -228,8 +228,8 @@ func GetHostGroup(c *gin.Context) {
 		h.JSONR(c, badstatus, err)
 		return
 	}
-	hostgroup := f.HostGroup{ID: int64(grpID)}
-	if dt := db.Falcon.Find(&hostgroup); dt.Error != nil {
+	hostgroup := f.HostGroup{}
+	if dt := db.Falcon.Where("id = ?", grpID).Find(&hostgroup); dt.Error != nil {
 		h.JSONR(c, expecstatus, dt.Error)
 		return
 	}
@@ -365,8 +365,8 @@ func GetTemplateOfHostGroup(c *gin.Context) {
 		h.JSONR(c, badstatus, err)
 		return
 	}
-	hostgroup := f.HostGroup{ID: int64(grpID)}
-	if dt := db.Falcon.Find(&hostgroup); dt.Error != nil {
+	hostgroup := f.HostGroup{}
+	if dt := db.Falcon.Where("id = ?", grpID).Find(&hostgroup); dt.Error != nil {
 		h.JSONR(c, expecstatus, dt.Error)
 		return
 	}
@@ -378,8 +378,7 @@ func GetTemplateOfHostGroup(c *gin.Context) {
 		for _, t := range grpTpls {
 			tips = append(tips, t.TplID)
 		}
-		tipsStr, _ := u.ArrInt64ToString(tips)
-		db.Falcon.Where(fmt.Sprintf("id in (%s)", tipsStr)).Find(&Tpls)
+		db.Falcon.Where("id in (?)", tips).Find(&Tpls)
 	}
 	h.JSONR(c, map[string]interface{}{
 		"hostgroup": hostgroup,
@@ -420,8 +419,8 @@ func PatchHostGroupHost(c *gin.Context) {
 
 	user, _ := h.GetUser(c)
 
-	hostgroup := f.HostGroup{ID: int64(grpID)}
-	if dt := db.Falcon.Find(&hostgroup); dt.Error != nil {
+	hostgroup := f.HostGroup{}
+	if dt := db.Falcon.Where("id = ?", grpID).Find(&hostgroup); dt.Error != nil {
 		h.JSONR(c, expecstatus, dt.Error)
 		return
 	}

@@ -18,9 +18,9 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
 	h "github.com/open-falcon/falcon-plus/modules/api/app/helper"
 	alm "github.com/open-falcon/falcon-plus/modules/api/app/model/alarm"
-	"strings"
 	"time"
 )
 
@@ -45,25 +45,25 @@ func (input APIGetNotesOfAlarmInputs) checkInputsContain() error {
 	return nil
 }
 
-func (s APIGetNotesOfAlarmInputs) collectFilters() string {
-	tmp := []string{}
+func (s APIGetNotesOfAlarmInputs) collectDBFilters(database *gorm.DB, tableName string, columns []string) *gorm.DB {
+	filterDB := database.Table(tableName)
+	// nil columns mean select all columns
+	if columns != nil && len(columns) != 0 {
+		filterDB = filterDB.Select(columns)
+	}
 	if s.StartTime != 0 {
-		tmp = append(tmp, fmt.Sprintf("timestamp >= FROM_UNIXTIME(%v)", s.StartTime))
+		filterDB = filterDB.Where("timestamp >= FROM_UNIXTIME(?)", s.StartTime)
 	}
 	if s.EndTime != 0 {
-		tmp = append(tmp, fmt.Sprintf("timestamp <= FROM_UNIXTIME(%v)", s.EndTime))
+		filterDB = filterDB.Where("timestamp <= FROM_UNIXTIME(?)", s.EndTime)
 	}
 	if s.Status != "" {
-		tmp = append(tmp, fmt.Sprintf("status = '%s'", s.Status))
+		filterDB = filterDB.Where("status = ?", s.Status)
 	}
 	if s.EventId != "" {
-		tmp = append(tmp, fmt.Sprintf("event_caseId = '%s'", s.EventId))
+		filterDB = filterDB.Where("event_caseId = ?", s.EventId)
 	}
-	filterStrTmp := strings.Join(tmp, " AND ")
-	if filterStrTmp != "" {
-		filterStrTmp = fmt.Sprintf("WHERE %s", filterStrTmp)
-	}
-	return filterStrTmp
+	return filterDB
 }
 
 type APIGetNotesOfAlarmOuput struct {
@@ -85,21 +85,15 @@ func GetNotesOfAlarm(c *gin.Context) {
 		h.JSONR(c, badstatus, err)
 		return
 	}
-	filterCollector := inputs.collectFilters()
 	//for get correct table name
 	f := alm.EventNote{}
+	noteDB := inputs.collectDBFilters(db.Alarm, f.TableName(), []string{"id", "event_caseId", "note", "case_id", "status", "timestamp", "user_id"})
 	notes := []alm.EventNote{}
-	if inputs.Limit == 0 || inputs.Limit >= 50 {
+	if inputs.Limit <= 0 || inputs.Limit >= 50 {
 		inputs.Limit = 50
 	}
-	perparedSql := fmt.Sprintf(
-		"select id, event_caseId, note, case_id, status, timestamp, user_id from %s %s order by timestamp DESC limit %d,%d",
-		f.TableName(),
-		filterCollector,
-		inputs.Page,
-		inputs.Limit,
-	)
-	db.Alarm.Raw(perparedSql).Scan(&notes)
+	step := (inputs.Page - 1) * inputs.Limit
+	noteDB.Order("timestamp DESC").Offset(step).Limit(inputs.Limit).Scan(&notes)
 	output := []APIGetNotesOfAlarmOuput{}
 	for _, n := range notes {
 		output = append(output, APIGetNotesOfAlarmOuput{

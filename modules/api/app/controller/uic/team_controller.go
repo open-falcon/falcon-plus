@@ -25,7 +25,6 @@ import (
 	"github.com/jinzhu/gorm"
 	h "github.com/open-falcon/falcon-plus/modules/api/app/helper"
 	"github.com/open-falcon/falcon-plus/modules/api/app/model/uic"
-	"github.com/open-falcon/falcon-plus/modules/api/app/utils"
 	"github.com/open-falcon/falcon-plus/modules/api/config"
 )
 
@@ -199,17 +198,77 @@ func UpdateTeam(c *gin.Context) {
 	}
 }
 
-func bindUsers(db config.DBPool, tid int, users []int) (err error) {
-	var dt *gorm.DB
-	uids, err := utils.ArrIntToString(users)
-	if err != nil {
+type APIAddTeamUsers struct {
+	TeamID int      `json:"team_id" binding:"required"`
+	Users  []string `json:"users" binding:"required"`
+}
+
+// admin, team creator, team member can mangage the team
+func AddTeamUsers(c *gin.Context) {
+	var ipt APIAddTeamUsers
+	if err := c.Bind(&ipt); err != nil {
+		h.JSONR(c, badstatus, err)
 		return
 	}
 
+	cuser, err := h.GetUser(c)
+	if err != nil {
+		h.JSONR(c, badstatus, err)
+		return
+	}
+
+	dt := db.Uic
+	if cuser.IsAdmin() {
+		dt = dt.Table("team").Where("id = ?", ipt.TeamID)
+	} else {
+		dt = dt.Raw(
+			`select a.* from team as a, rel_team_user as b 
+			where a.id = b.tid AND a.id = ? AND b.uid = ? 
+			UNION select * from team where creator = ? AND id = ?`,
+			ipt.TeamID, cuser.ID, cuser.ID, ipt.TeamID)
+	}
+	var team uic.Team
+	dt = dt.Find(&team)
+	if dt.Error != nil {
+		h.JSONR(c, badstatus, dt.Error)
+		return
+	}
+
+	var users []uic.User
+	if dt = db.Uic.Table("user").Where("name in (?)", ipt.Users).Find(&users); dt.Error != nil {
+		h.JSONR(c, badstatus, err)
+		return
+	}
+	if len(users) == 0 {
+		h.JSONR(c, badstatus, "empty users")
+		return
+	}
+
+	for _, u := range users {
+		ur := uic.RelTeamUser{Tid: int64(ipt.TeamID), Uid: int64(u.ID)}
+		db.Uic.Table("rel_team_user").Where(&ur).Find(&ur)
+		if ur.ID == 0 {
+			dt = db.Uic.Table("rel_team_user").Create(&ur)
+		} else {
+			//if record exist, do next
+			continue
+		}
+		if dt.Error != nil {
+			h.JSONR(c, badstatus, dt.Error)
+			return
+		}
+	}
+
+	h.JSONR(c, "add successful")
+
+}
+
+func bindUsers(db config.DBPool, tid int, users []int) (err error) {
+	var dt *gorm.DB
+
 	//delete unbind users
 	var needDeleteMan []uic.RelTeamUser
-	qPared := fmt.Sprintf("tid = %d AND NOT (uid IN (%v))", tid, uids)
-	dt = db.Uic.Table("rel_team_user").Where(qPared).Find(&needDeleteMan)
+	dt = db.Uic.Table("rel_team_user").Where("tid = ? AND NOT (uid IN (?))", tid, users).Find(&needDeleteMan)
 	if dt.Error != nil {
 		err = dt.Error
 		return
@@ -313,8 +372,8 @@ func GetTeam(c *gin.Context) {
 		h.JSONR(c, badstatus, err)
 		return
 	}
-	team := uic.Team{ID: int64(team_id)}
-	dt := db.Uic.Find(&team)
+	team := uic.Team{}
+	dt := db.Uic.Where("id = ?", team_id).Find(&team)
 	if dt.Error != nil {
 		h.JSONR(c, badstatus, dt.Error)
 		return
@@ -328,17 +387,13 @@ func GetTeam(c *gin.Context) {
 	resp.Team = team
 	resp.Users = []uic.User{}
 	if len(uidarr) != 0 {
-		uids := ""
-		for indx, v := range uidarr {
-			if indx == 0 {
-				uids = fmt.Sprintf("%v", v.Uid)
-			} else {
-				uids = fmt.Sprintf("%v,%v", uids, v.Uid)
-			}
+		uids := []int64{}
+		for _, v := range uidarr {
+			uids = append(uids, v.Uid)
 		}
-		log.Debugf("uids:%s", uids)
+		log.Debugf("uids:%v", uids)
 		var users []uic.User
-		db.Uic.Table("user").Where(fmt.Sprintf("id IN (%s)", uids)).Find(&users)
+		db.Uic.Table("user").Where("id IN (?)", uids).Find(&users)
 		resp.Users = users
 	}
 	h.JSONR(c, resp)
@@ -368,17 +423,13 @@ func GetTeamByName(c *gin.Context) {
 	resp.Team = team
 	resp.Users = []uic.User{}
 	if len(uidarr) != 0 {
-		uids := ""
-		for indx, v := range uidarr {
-			if indx == 0 {
-				uids = fmt.Sprintf("%v", v.Uid)
-			} else {
-				uids = fmt.Sprintf("%v,%v", uids, v.Uid)
-			}
+		uids := []int64{}
+		for _, v := range uidarr {
+			uids = append(uids, v.Uid)
 		}
-		log.Debugf("uids:%s", uids)
+		log.Debugf("uids:%v", uids)
 		var users []uic.User
-		db.Uic.Table("user").Where(fmt.Sprintf("id IN (%s)", uids)).Find(&users)
+		db.Uic.Table("user").Where("id IN (?)", uids).Find(&users)
 		resp.Users = users
 	}
 	h.JSONR(c, resp)

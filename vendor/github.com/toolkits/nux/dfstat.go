@@ -8,19 +8,20 @@ import (
 var FSSPEC_IGNORE = map[string]struct{}{
 	"none":  struct{}{},
 	"nodev": struct{}{},
-	"tmpfs": struct{}{},
 }
 
 var FSTYPE_IGNORE = map[string]struct{}{
 	"cgroup":     struct{}{},
 	"debugfs":    struct{}{},
+	"devpts":     struct{}{},
 	"devtmpfs":   struct{}{},
 	"rpc_pipefs": struct{}{},
 	"rootfs":     struct{}{},
+	"overlay":    struct{}{},
+	"tmpfs":      struct{}{},
 }
 
 var FSFILE_PREFIX_IGNORE = []string{
-	"/dev",
 	"/sys",
 	"/net",
 	"/misc",

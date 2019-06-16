@@ -40,6 +40,7 @@ func Routes(r *gin.Engine) {
 	authapi.Use(utils.AuthSessionMidd)
 	authapi.GET("/current", UserInfo)
 	authapi.GET("/u/:uid", GetUser)
+	authapi.PUT("/u/:uid", UpdateUser)
 	authapi.GET("/name/:user_name", GetUserByName)
 	authapi.PUT("/update", UpdateCurrentUser)
 	authapi.PUT("/cgpasswd", ChangePassword)
@@ -52,6 +53,7 @@ func Routes(r *gin.Engine) {
 	adminapi.PUT("/change_user_passwd", AdminChangePassword)
 	adminapi.PUT("/change_user_profile", AdminChangeUserProfile)
 	adminapi.DELETE("/delete_user", AdminUserDelete)
+	adminapi.POST("/login", AdminLogin)
 
 	//team
 	authapi_team := r.Group("/api/v1")
@@ -61,5 +63,6 @@ func Routes(r *gin.Engine) {
 	authapi_team.GET("/team/name/:team_name", GetTeamByName)
 	authapi_team.POST("/team", CreateTeam)
 	authapi_team.PUT("/team", UpdateTeam)
+	authapi_team.POST("/team/user", AddTeamUsers)
 	authapi_team.DELETE("/team/:team_id", DeleteTeam)
 }

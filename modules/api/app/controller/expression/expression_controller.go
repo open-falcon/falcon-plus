@@ -43,7 +43,7 @@ func GetExpressionList(c *gin.Context) {
 	var dt *gorm.DB
 	expressions := []f.Expression{}
 	if limit != -1 && page != -1 {
-		dt = db.Falcon.Raw(fmt.Sprintf("SELECT * from expression limit %d,%d", page, limit)).Scan(&expressions)
+		dt = db.Falcon.Raw("SELECT * from expression limit ?,?", page, limit).Scan(&expressions)
 	} else {
 		dt = db.Falcon.Find(&expressions)
 	}
@@ -66,8 +66,8 @@ func GetExpression(c *gin.Context) {
 		h.JSONR(c, badstatus, err)
 		return
 	}
-	expression := f.Expression{ID: int64(eid)}
-	if dt := db.Falcon.Find(&expression); dt.Error != nil {
+	expression := f.Expression{}
+	if dt := db.Falcon.Where("id = ?", eid).Find(&expression); dt.Error != nil {
 		h.JSONR(c, badstatus, dt.Error)
 		return
 	}
@@ -108,7 +108,7 @@ type ActionTmp struct {
 
 func (this APICreateExrpessionInput) CheckFormat() (err error) {
 	validOp := regexp.MustCompile(`^(>|=|<|!)(=)?$`)
-	validRightValue := regexp.MustCompile(`^\d+$`)
+	validRightValue := regexp.MustCompile(`^\-?\d+(\.\d+)?$`)
 	switch {
 	case !validOp.MatchString(this.Op):
 		err = errors.New("op's formating is not vaild")
@@ -192,7 +192,7 @@ type ActionTmpU struct {
 
 func (this APIUpdateExrpessionInput) CheckFormat() (err error) {
 	validOp := regexp.MustCompile(`^(>|=|<|!)(=)?$`)
-	validRightValue := regexp.MustCompile(`^\d+$`)
+	validRightValue := regexp.MustCompile(`^\-?\d+(\.\d+)?$`)
 	switch {
 	case !validOp.MatchString(this.Op):
 		err = errors.New("op's formating is not vaild")
@@ -287,9 +287,9 @@ func DeleteExpression(c *gin.Context) {
 	}
 	tx := db.Falcon.Begin()
 	user, _ := h.GetUser(c)
-	expression := f.Expression{ID: int64(eid)}
+	expression := f.Expression{}
 	if !user.IsAdmin() {
-		tx.Find(&expression)
+		tx.Where("id = ?", eid).Find(&expression)
 		if expression.CreateUser != user.Name {
 			h.JSONR(c, badstatus, "You don't have permission!")
 			tx.Rollback()
@@ -302,7 +302,7 @@ func DeleteExpression(c *gin.Context) {
 		tx.Rollback()
 		return
 	}
-	if dt := tx.Delete(&expression); dt.Error != nil {
+	if dt := tx.Where("id = ?", eid).Delete(&expression); dt.Error != nil {
 		h.JSONR(c, badstatus, dt.Error)
 		tx.Rollback()
 		return

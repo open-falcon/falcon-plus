@@ -17,6 +17,7 @@ package store
 import (
 	"fmt"
 	"github.com/open-falcon/falcon-plus/common/model"
+	"github.com/open-falcon/falcon-plus/common/utils"
 	"math"
 	"strconv"
 	"strings"
@@ -212,6 +213,51 @@ func (this DiffFunction) Compute(L *SafeLinkedList) (vs []*model.HistoryData, le
 	return
 }
 
+type StdDeviationFunction struct {
+	Function
+	Limit      int
+	Operator   string
+	RightValue float64
+}
+
+/*
+	离群点检测函数，更多请参考3-sigma算法：https://en.wikipedia.org/wiki/68%E2%80%9395%E2%80%9399.7_rule
+	stddev(#10) = 3 //取最新 **10** 个点的数据分别计算得到他们的标准差和均值，分别计为 σ 和 μ，其中当前值计为 X，那么当 X 落在区间 [μ-3σ, μ+3σ] 之外时则报警。
+*/
+
+func (this StdDeviationFunction) Compute(L *SafeLinkedList) (vs []*model.HistoryData, leftValue float64, isTriggered bool, isEnough bool) {
+	vs, isEnough = L.HistoryData(this.Limit)
+	if !isEnough {
+		return
+	}
+
+	if len(vs) == 0 {
+		isEnough = false
+		return
+	}
+
+	leftValue = vs[0].Value
+
+	var datas []float64
+	for _, i := range vs {
+		datas = append(datas, i.Value)
+	}
+
+	isTriggered = false
+
+	std := utils.ComputeStdDeviation(datas)
+	mean := utils.ComputeMean(datas)
+
+	upperBound := mean + this.RightValue*std
+	lowerBound := mean - this.RightValue*std
+
+	if leftValue < lowerBound || leftValue > upperBound {
+		isTriggered = true
+	}
+
+	return
+}
+
 // pdiff(#3)
 type PDiffFunction struct {
 	Function
@@ -261,8 +307,11 @@ func atois(s string) (ret []int, err error) {
 	return
 }
 
-// @str: e.g. all(#3) sum(#3) avg(#10) diff(#10)
+// @str: e.g. all(#3) sum(#3) avg(#10) diff(#10) stddev(#10)
 func ParseFuncFromString(str string, operator string, rightValue float64) (fn Function, err error) {
+	if str == "" {
+		return nil, fmt.Errorf("func can not be null!")
+	}
 	idx := strings.Index(str, "#")
 	args, err := atois(str[idx+1 : len(str)-1])
 	if err != nil {
@@ -286,6 +335,8 @@ func ParseFuncFromString(str string, operator string, rightValue float64) (fn Fu
 		fn = &PDiffFunction{Limit: args[0], Operator: operator, RightValue: rightValue}
 	case "lookup":
 		fn = &LookupFunction{Num: args[0], Limit: args[1], Operator: operator, RightValue: rightValue}
+	case "stddev":
+		fn = &StdDeviationFunction{Limit: args[0], Operator: operator, RightValue: rightValue}
 	default:
 		err = fmt.Errorf("not_supported_method")
 	}

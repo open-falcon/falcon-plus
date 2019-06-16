@@ -225,12 +225,58 @@ func GetUser(c *gin.Context) {
 		h.JSONR(c, badstatus, err)
 		return
 	}
-	fuser := uic.User{ID: int64(uid)}
-	if dt := db.Uic.Table("user").Find(&fuser); dt.Error != nil {
-		h.JSONR(c, http.StatusExpectationFailed, dt.Error)
+	fuser := uic.User{}
+	if dt := db.Uic.Table("user").Where("id = ?", uid).Find(&fuser); dt.Error != nil {
+		h.JSONR(c, http.StatusInternalServerError, dt.Error)
 		return
 	}
 	h.JSONR(c, fuser)
+	return
+}
+
+func UpdateUser(c *gin.Context) {
+	uidtmp := c.Params.ByName("uid")
+	if uidtmp == "" {
+		h.JSONR(c, badstatus, "user id is missing")
+		return
+	}
+	uid, err := strconv.Atoi(uidtmp)
+	if err != nil {
+		h.JSONR(c, badstatus, err)
+		return
+	}
+
+	var inputs APIUserUpdateInput
+	err = c.BindJSON(&inputs)
+	switch {
+	case err != nil:
+		h.JSONR(c, http.StatusExpectationFailed, err)
+		return
+	case utils.HasDangerousCharacters(inputs.Cnname):
+		h.JSONR(c, http.StatusBadRequest, "name pattern is invalid")
+		return
+	}
+
+	user := uic.User{}
+	db.Uic.Table("user").Where("id = ?", uid).Scan(&user)
+	if user.ID == 0 {
+		h.JSONR(c, http.StatusBadRequest, "user does not exist")
+		return
+	}
+
+	uuser := map[string]interface{}{
+		"Cnname": inputs.Cnname,
+		"Email":  inputs.Email,
+		"Phone":  inputs.Phone,
+		"IM":     inputs.IM,
+		"QQ":     inputs.QQ,
+	}
+	dt := db.Uic.Model(&user).Where("id = ?", uid).Update(uuser)
+	if dt.Error != nil {
+		h.JSONR(c, http.StatusExpectationFailed, dt.Error)
+		return
+	}
+	h.JSONR(c, "user info updated")
 	return
 }
 
@@ -293,7 +339,10 @@ func IsUserInTeams(c *gin.Context) {
 		h.JSONR(c, http.StatusExpectationFailed, dt.Error)
 		return
 	}
-
+	if len(tus) == 0 {
+		h.JSONR(c, "false")
+		return
+	}
 	h.JSONR(c, "true")
 	return
 }
@@ -328,8 +377,7 @@ func GetUserTeams(c *gin.Context) {
 		tids = append(tids, ut.Tid)
 	}
 	teams := []uic.Team{}
-	tidsStr, _ := utils.ArrInt64ToString(tids)
-	dt = db.Uic.Table("team").Where(fmt.Sprintf("id in (%s)", tidsStr)).Find(&teams)
+	dt = db.Uic.Table("team").Where("id in (?)", tids).Find(&teams)
 	if dt.Error != nil {
 		h.JSONR(c, http.StatusExpectationFailed, dt.Error)
 		return
@@ -485,8 +533,7 @@ func UserList(c *gin.Context) {
 	var user []uic.User
 	var dt *gorm.DB
 	if limit != -1 && page != -1 {
-		dt = db.Uic.Raw(
-			fmt.Sprintf("select * from user where name regexp '%s' limit %d,%d", q, page, limit)).Scan(&user)
+		dt = db.Uic.Raw("select * from user where name regexp ? limit ?,?", q, page, limit).Scan(&user)
 	} else {
 		dt = db.Uic.Table("user").Where("name regexp ?", q).Scan(&user)
 	}
@@ -533,6 +580,7 @@ func ChangeRoleOfUser(c *gin.Context) {
 		h.JSONR(c, http.StatusExpectationFailed, dt.Error)
 		return
 	}
+	//TODO: fix me of type
 	h.JSONR(c, fmt.Sprintf("user role update sccuessful, affect row: %v", dt.RowsAffected))
 	return
 }

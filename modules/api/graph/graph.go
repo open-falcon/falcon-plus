@@ -59,8 +59,7 @@ func Start(addrs map[string]string) {
 	}
 	defer func() {
 		if r := recover(); r != nil {
-			log.Error("graph got painc")
-			log.Error(fmt.Sprintf("%s", r))
+			log.Errorf("graph got painc:%v", r)
 			Start(clusterMap)
 		}
 	}()

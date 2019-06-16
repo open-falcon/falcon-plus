@@ -17,7 +17,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"log"
 	"os"
 	"os/signal"
@@ -87,11 +86,12 @@ func main() {
 		g.InitLog("debug")
 	} else {
 		g.InitLog("info")
-		gin.SetMode(gin.ReleaseMode)
 	}
 
 	// init db
 	g.InitDB()
+	// rrdtool init
+	rrdtool.InitChannel()
 	// rrdtool before api for disable loopback connection
 	rrdtool.Start()
 	// start api

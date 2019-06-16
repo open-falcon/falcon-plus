@@ -16,9 +16,10 @@ package api
 
 import (
 	"fmt"
-	log "github.com/Sirupsen/logrus"
 	"math"
 	"time"
+
+	log "github.com/Sirupsen/logrus"
 
 	pfc "github.com/niean/goperfcounter"
 	cmodel "github.com/open-falcon/falcon-plus/common/model"
@@ -34,7 +35,12 @@ import (
 type Graph int
 
 func (this *Graph) GetRrd(key string, rrdfile *g.File) (err error) {
-	if md5, dsType, step, err := g.SplitRrdCacheKey(key); err != nil {
+	var (
+		md5    string
+		dsType string
+		step   int
+	)
+	if md5, dsType, step, err = g.SplitRrdCacheKey(key); err != nil {
 		return err
 	} else {
 		rrdfile.Filename = g.RrdFileName(g.Config().RRD.Storage, md5, dsType, step)
@@ -42,10 +48,10 @@ func (this *Graph) GetRrd(key string, rrdfile *g.File) (err error) {
 
 	items := store.GraphItems.PopAll(key)
 	if len(items) > 0 {
-		rrdtool.FlushFile(rrdfile.Filename, items)
+		rrdtool.FlushFile(rrdfile.Filename, md5, items)
 	}
 
-	rrdfile.Body, err = rrdtool.ReadFile(rrdfile.Filename)
+	rrdfile.Body, err = rrdtool.ReadFile(rrdfile.Filename, md5)
 	return
 }
 
@@ -83,18 +89,14 @@ func handleItems(items []*cmodel.GraphItem) {
 
 		endpoint := items[i].Endpoint
 		if !g.IsValidString(endpoint) {
-			if cfg.Debug {
-				log.Printf("invalid endpoint: %s", endpoint)
-			}
+			log.Debugf("invalid endpoint: %s", endpoint)
 			pfc.Meter("invalidEnpoint", 1)
 			continue
 		}
 
 		counter := cutils.Counter(items[i].Metric, items[i].Tags)
 		if !g.IsValidString(counter) {
-			if cfg.Debug {
-				log.Printf("invalid counter: %s/%s", endpoint, counter)
-			}
+			log.Debugf("invalid counter: %s/%s", endpoint, counter)
 			pfc.Meter("invalidCounter", 1)
 			continue
 		}
@@ -176,7 +178,7 @@ func (this *Graph) Query(param cmodel.GraphQueryParam, resp *cmodel.GraphQueryRe
 		// read data from rrd file
 		// 从RRD中获取数据不包含起始时间点
 		// 例: start_ts=1484651400,step=60,则第一个数据时间为1484651460)
-		datas, _ = rrdtool.Fetch(filename, param.ConsolFun, start_ts-int64(step), end_ts, step)
+		datas, _ = rrdtool.Fetch(filename, md5, param.ConsolFun, start_ts-int64(step), end_ts, step)
 		datas_size = len(datas)
 	}
 
@@ -207,10 +209,10 @@ func (this *Graph) Query(param cmodel.GraphQueryParam, resp *cmodel.GraphQueryRe
 		itemIdx := 0
 		if dsType == g.DERIVE || dsType == g.COUNTER {
 			for ts < itemEndTs {
-				if itemIdx < items_size-1 && ts == items[itemIdx].Timestamp &&
-					ts == items[itemIdx+1].Timestamp-int64(step) {
-					val = cmodel.JsonFloat(items[itemIdx+1].Value-items[itemIdx].Value) / cmodel.JsonFloat(step)
-					if val < 0 {
+				if itemIdx < items_size-1 && ts == items[itemIdx].Timestamp {
+					if ts == items[itemIdx+1].Timestamp-int64(step) && items[itemIdx+1].Value >= items[itemIdx].Value {
+						val = cmodel.JsonFloat(items[itemIdx+1].Value-items[itemIdx].Value) / cmodel.JsonFloat(step)
+					} else {
 						val = cmodel.JsonFloat(math.NaN())
 					}
 					itemIdx++
