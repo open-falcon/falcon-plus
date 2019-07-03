@@ -178,7 +178,8 @@ func forward2TsdbTask(concurrent int) {
 			defer sema.Release()
 
 			var tsdbBuffer bytes.Buffer
-			for i := 0; i < len(itemList); i++ {
+			count := len(itemList)
+			for i := 0; i < count; i++ {
 				tsdbItem := itemList[i].(*cmodel.TsdbItem)
 				tsdbBuffer.WriteString(tsdbItem.TsdbString())
 				tsdbBuffer.WriteString("\n")
