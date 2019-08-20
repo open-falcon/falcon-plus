@@ -20,6 +20,7 @@ import (
 	"github.com/open-falcon/falcon-plus/modules/alarm/model"
 	"github.com/open-falcon/falcon-plus/modules/alarm/redi"
 	"github.com/toolkits/net/httplib"
+	"strings"
 	"time"
 )
 
@@ -47,6 +48,10 @@ func SendSms(sms *model.Sms) {
 	}()
 
 	url := g.Config().Api.Sms
+	if !strings.HasPrefix(strings.ToLower(url), "http") {
+		log.Errorf("send sms fail, sms provider config is not valid")
+		return
+	}
 	r := httplib.Post(url).SetTimeout(5*time.Second, 30*time.Second)
 	r.Param("tos", sms.Tos)
 	r.Param("content", sms.Content)
