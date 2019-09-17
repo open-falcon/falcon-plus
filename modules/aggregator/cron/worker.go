@@ -30,7 +30,6 @@ type Worker struct {
 
 func NewWorker(ci *g.Cluster) Worker {
 	w := Worker{}
-	//	w.Ticker = time.NewTicker(time.Duration(ci.Step) * time.Second)
 	w.Quit = make(chan struct{})
 	w.ClusterItem = ci
 	return w
@@ -42,13 +41,13 @@ func (this Worker) Start() {
 		r1 := rand.New(s1)
 		// 60s, step usually
 		delay := r1.Int63n(60000)
-
 		if g.Config().Debug {
 			log.Printf("[I] after %5d ms, start worker %d", delay, this.ClusterItem.Id)
 		}
 
 		time.Sleep(time.Duration(delay) * time.Millisecond)
 		this.Ticker = time.NewTicker(time.Duration(this.ClusterItem.Step) * time.Second)
+
 		for {
 			select {
 			case <-this.Ticker.C:
