@@ -6,8 +6,11 @@ import (
 )
 
 var FSSPEC_IGNORE = map[string]struct{}{
-	"none":  struct{}{},
-	"nodev": struct{}{},
+	"none":      struct{}{},
+	"nodev":     struct{}{},
+	"proc":      struct{}{},
+	"hugetlbfs": struct{}{},
+	"mqueue":    struct{}{},
 }
 
 var FSTYPE_IGNORE = map[string]struct{}{
@@ -15,10 +18,12 @@ var FSTYPE_IGNORE = map[string]struct{}{
 	"debugfs":    struct{}{},
 	"devpts":     struct{}{},
 	"devtmpfs":   struct{}{},
+	"iso9660":    struct{}{},
 	"rpc_pipefs": struct{}{},
 	"rootfs":     struct{}{},
 	"overlay":    struct{}{},
 	"tmpfs":      struct{}{},
+	"squashfs":   struct{}{},
 }
 
 var FSFILE_PREFIX_IGNORE = []string{
