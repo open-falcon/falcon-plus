@@ -133,7 +133,10 @@ func parseCpuFields(fields []string) *CpuUsage {
 			continue
 		}
 
-		cu.Total += val
+		// user time is already include guest time
+		if i != 9 {
+			cu.Total += val
+		}
 		switch i {
 		case 1:
 			cu.User = val
