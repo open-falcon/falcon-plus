@@ -35,7 +35,7 @@ func configCommonRoutes() {
 	})
 
 	router.GET("/api/v2/version", func(c *gin.Context) {
-		JSONR(c, 200, gin.H{"value": g.VERSION})
+		JSONR(c, 200, gin.H{"value": g.VersionMsg()})
 	})
 
 	router.GET("/api/v2/workdir", func(c *gin.Context) {

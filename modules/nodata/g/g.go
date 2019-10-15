@@ -29,9 +29,15 @@ import (
 // 0.0.7 use gauss distribution to get threshold, sync judge and sender, fix bug of collector's cache
 // 0.0.8 simplify project
 
-const (
-	VERSION = "0.0.8"
+var (
+	BinaryName string
+	Version    string
+	GitCommit  string
 )
+
+func VersionMsg() string {
+	return Version + "@" + GitCommit
+}
 
 func init() {
 	runtime.GOMAXPROCS(runtime.NumCPU())

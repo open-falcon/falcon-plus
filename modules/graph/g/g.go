@@ -38,8 +38,17 @@ import (
 // 0.5.8 clean GraphItems/historyCache Cache at regular intervals
 // 0.5.9 add flush style(flush by number of every counter's monitoring data)
 
+var (
+	BinaryName string
+	Version    string
+	GitCommit  string
+)
+
+func VersionMsg() string {
+	return Version + "@" + GitCommit
+}
+
 const (
-	VERSION         = "0.5.9"
 	GAUGE           = "GAUGE"
 	DERIVE          = "DERIVE"
 	COUNTER         = "COUNTER"

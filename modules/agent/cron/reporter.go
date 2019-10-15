@@ -38,7 +38,7 @@ func reportAgentStatus(interval time.Duration) {
 		req := model.AgentReportRequest{
 			Hostname:      hostname,
 			IP:            g.IP(),
-			AgentVersion:  g.VERSION,
+			AgentVersion:  g.VersionMsg(),
 			PluginVersion: g.GetCurrPluginVersion(),
 		}
 
