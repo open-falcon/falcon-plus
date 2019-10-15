@@ -28,7 +28,7 @@ func configCommonRoutes() {
 	})
 
 	http.HandleFunc("/version", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte(fmt.Sprintf("%s\n", g.VERSION)))
+		w.Write([]byte(fmt.Sprintf("%s\n", g.VersionMsg())))
 	})
 
 	http.HandleFunc("/workdir", func(w http.ResponseWriter, r *http.Request) {

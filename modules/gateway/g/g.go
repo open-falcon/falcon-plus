@@ -31,8 +31,17 @@ import (
 // 0.0.10: control sending concurrent of slow transfers
 // 0.0.11: use pfc
 
+var (
+	BinaryName string
+	Version    string
+	GitCommit  string
+)
+
+func VersionMsg() string {
+	return Version + "@" + GitCommit
+}
+
 const (
-	VERSION      = "0.0.11"
 	GAUGE        = "GAUGE"
 	COUNTER      = "COUNTER"
 	DERIVE       = "DERIVE"

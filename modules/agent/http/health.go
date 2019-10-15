@@ -25,6 +25,6 @@ func configHealthRoutes() {
 	})
 
 	http.HandleFunc("/version", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte(g.VERSION))
+		w.Write([]byte(g.VersionMsg()))
 	})
 }

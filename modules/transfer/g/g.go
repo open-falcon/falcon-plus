@@ -31,8 +31,17 @@ import (
 // 0.0.16: support config of min step
 // 0.0.17: remove migrating, which is implemented in graph
 
+var (
+	BinaryName string
+	Version    string
+	GitCommit  string
+)
+
+func VersionMsg() string {
+	return Version + "@" + GitCommit
+}
+
 const (
-	VERSION      = "0.0.17"
 	GAUGE        = "GAUGE"
 	COUNTER      = "COUNTER"
 	DERIVE       = "DERIVE"
