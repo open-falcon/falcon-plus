@@ -26,12 +26,16 @@ import (
 )
 
 func main() {
+	g.BinaryName = BinaryName
+	g.Version = Version
+	g.GitCommit = GitCommit
+
 	cfg := flag.String("c", "cfg.json", "configuration file")
 	version := flag.Bool("v", false, "show version")
 	flag.Parse()
 
 	if *version {
-		fmt.Println(g.VERSION)
+		fmt.Printf("Open-Falcon %s version %s, build %s\n", BinaryName, Version, GitCommit)
 		os.Exit(0)
 	}
 

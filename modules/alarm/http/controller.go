@@ -21,7 +21,7 @@ import (
 )
 
 func Version(c *gin.Context) {
-	c.String(200, g.VERSION)
+	c.String(200, g.VersionMsg())
 }
 
 func Health(c *gin.Context) {

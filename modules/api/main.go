@@ -37,13 +37,17 @@ func initGraph() {
 }
 
 func main() {
+	config.BinaryName = BinaryName
+	config.Version = Version
+	config.GitCommit = GitCommit
+
 	cfgTmp := flag.String("c", "cfg.json", "configuration file")
 	version := flag.Bool("v", false, "show version")
 	help := flag.Bool("h", false, "help")
 	flag.Parse()
 	cfg := *cfgTmp
 	if *version {
-		fmt.Println(config.VERSION)
+		fmt.Printf("Open-Falcon %s version %s, build %s\n", BinaryName, Version, GitCommit)
 		os.Exit(0)
 	}
 
