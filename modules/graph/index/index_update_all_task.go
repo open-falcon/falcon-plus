@@ -18,7 +18,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"time"
 
 	nsema "github.com/toolkits/concurrent/semaphore"

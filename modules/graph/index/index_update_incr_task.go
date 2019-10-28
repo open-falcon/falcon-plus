@@ -16,7 +16,7 @@ package index
 
 import (
 	"database/sql"
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"time"
 
 	nsema "github.com/toolkits/concurrent/semaphore"
