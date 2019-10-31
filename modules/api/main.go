@@ -22,13 +22,13 @@ import (
 	"strings"
 	"syscall"
 
-	log "github.com/Sirupsen/logrus"
 	"github.com/gin-gonic/gin"
 	yaag_gin "github.com/masato25/yaag/gin"
 	"github.com/masato25/yaag/yaag"
 	"github.com/open-falcon/falcon-plus/modules/api/app/controller"
 	"github.com/open-falcon/falcon-plus/modules/api/config"
 	"github.com/open-falcon/falcon-plus/modules/api/graph"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
