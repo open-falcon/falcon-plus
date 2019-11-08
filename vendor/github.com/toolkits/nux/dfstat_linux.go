@@ -14,7 +14,7 @@ import (
 
 // return: [][$fsSpec, $fsFile, $fsVfstype]
 func ListMountPoint() ([][3]string, error) {
-	contents, err := ioutil.ReadFile("/proc/mounts")
+	contents, err := ioutil.ReadFile(Root() + "/proc/mounts")
 	if err != nil {
 		return nil, err
 	}
@@ -61,7 +61,7 @@ func ListMountPoint() ([][3]string, error) {
 		}
 
 		// keep /dev/xxx device with shorter fsFile (remove mount binds)
-		if strings.HasPrefix(fsSpec, "/dev") {
+		if strings.HasPrefix(fsSpec, Root()+"/dev") {
 			deviceFound := false
 			for idx := range ret {
 				if ret[idx][0] == fsSpec {

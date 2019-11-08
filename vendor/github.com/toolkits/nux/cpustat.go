@@ -4,11 +4,12 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"github.com/toolkits/file"
 	"io"
 	"io/ioutil"
 	"strconv"
 	"strings"
+
+	"github.com/toolkits/file"
 )
 
 type CpuUsage struct {
@@ -58,7 +59,7 @@ func (this *ProcStat) String() string {
 }
 
 func CurrentProcStat() (*ProcStat, error) {
-	f := "/proc/stat"
+	f := Root() + "/proc/stat"
 	bs, err := ioutil.ReadFile(f)
 	if err != nil {
 		return nil, err

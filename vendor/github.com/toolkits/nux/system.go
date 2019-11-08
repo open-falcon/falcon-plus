@@ -2,21 +2,22 @@ package nux
 
 import (
 	"fmt"
-	"github.com/toolkits/file"
 	"strconv"
 	"strings"
+
+	"github.com/toolkits/file"
 )
 
 func SystemUptime() (days, hours, mins int64, err error) {
 	var content string
-	content, err = file.ToTrimString("/proc/uptime")
+	content, err = file.ToTrimString(Root() + "/proc/uptime")
 	if err != nil {
 		return
 	}
 
 	fields := strings.Fields(content)
 	if len(fields) < 2 {
-		err = fmt.Errorf("/proc/uptime format not supported")
+		err = fmt.Errorf(Root() + "/proc/uptime format not supported")
 		return
 	}
 

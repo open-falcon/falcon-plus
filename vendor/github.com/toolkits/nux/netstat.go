@@ -3,18 +3,19 @@ package nux
 import (
 	"bufio"
 	"bytes"
-	"github.com/toolkits/file"
 	"io"
 	"io/ioutil"
 	"strconv"
 	"strings"
+
+	"github.com/toolkits/file"
 )
 
 // @param ext e.g. TcpExt or IpExt
 func Netstat(ext string) (ret map[string]uint64, err error) {
 	ret = make(map[string]uint64)
 	var contents []byte
-	contents, err = ioutil.ReadFile("/proc/net/netstat")
+	contents, err = ioutil.ReadFile(Root() + "/proc/net/netstat")
 	if err != nil {
 		return
 	}
