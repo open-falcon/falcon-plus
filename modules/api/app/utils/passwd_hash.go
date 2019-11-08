@@ -15,7 +15,7 @@
 package utils
 
 import (
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"github.com/toolkits/str"
 )

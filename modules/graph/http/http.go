@@ -17,7 +17,7 @@ package http
 import (
 	"encoding/json"
 	"fmt"
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"net"
 	"net/http"
 	_ "net/http/pprof"
