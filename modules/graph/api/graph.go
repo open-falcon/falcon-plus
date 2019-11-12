@@ -128,6 +128,7 @@ func (this *Graph) Query(param cmodel.GraphQueryParam, resp *cmodel.GraphQueryRe
 	var (
 		datas      []*cmodel.RRDData
 		datas_size int
+		step       int
 	)
 
 	// statistics
@@ -139,7 +140,15 @@ func (this *Graph) Query(param cmodel.GraphQueryParam, resp *cmodel.GraphQueryRe
 	resp.Values = []*cmodel.RRDData{}
 	resp.Endpoint = param.Endpoint
 	resp.Counter = param.Counter
-	dsType, step, exists := index.GetTypeAndStep(param.Endpoint, param.Counter) // complete dsType and step
+
+	dsType, fStep, exists := index.GetTypeAndStep(param.Endpoint, param.Counter) // complete dsType and step
+
+	if param.Step > 0 {
+		step = param.Step
+	} else {
+		step = fStep
+	}
+
 	if !exists {
 		return nil
 	}
@@ -153,8 +162,8 @@ func (this *Graph) Query(param cmodel.GraphQueryParam, resp *cmodel.GraphQueryRe
 	}
 
 	md5 := cutils.Md5(param.Endpoint + "/" + param.Counter)
-	key := g.FormRrdCacheKey(md5, dsType, step)
-	filename := g.RrdFileName(cfg.RRD.Storage, md5, dsType, step)
+	key := g.FormRrdCacheKey(md5, dsType, fStep)
+	filename := g.RrdFileName(cfg.RRD.Storage, md5, dsType, fStep)
 
 	// read cached items
 	items, flag := store.GraphItems.FetchAll(key)
