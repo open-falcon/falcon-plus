@@ -82,6 +82,10 @@ docker run --name falcon-redis -p6379:6379 -d redis:4-alpine3.8
         -w /open-falcon/dashboard openfalcon/falcon-dashboard:v0.2.1  \
        './control startfg'
 ```
+##### 5. Start falcon-agent in container
+```
+    sudo docker run -d --restart always --name falcon-agent -e NUX_ROOTFS=/rootfs -v /:/rootfs:ro openfalcon/falcon-plus:v0.3 ./agent/bin/falcon-agent -c /open-falcon/agent/config/cfg.json
+```
 
 ----
 
