@@ -56,7 +56,7 @@ Inter-|   Receive                                                |  Transmit
     lo:   26105     286    0    0    0     0          0         0    26105     286    0    0    0     0       0          0
 */
 func NetIfs(onlyPrefix []string) ([]*NetIf, error) {
-	contents, err := ioutil.ReadFile("/proc/net/dev")
+	contents, err := ioutil.ReadFile(Root() + "/proc/net/dev")
 	if err != nil {
 		return nil, err
 	}
@@ -127,7 +127,7 @@ func NetIfs(onlyPrefix []string) ([]*NetIf, error) {
 		netIf.TotalErrors = netIf.InErrors + netIf.OutErrors
 		netIf.TotalDropped = netIf.InDropped + netIf.OutDropped
 
-		speedFile := fmt.Sprintf("/sys/class/net/%s/speed", netIf.Iface)
+		speedFile := fmt.Sprintf(Root()+"/sys/class/net/%s/speed", netIf.Iface)
 		if content, err := ioutil.ReadFile(speedFile); err == nil {
 			var speed int64
 			speed, err = strconv.ParseInt(strings.TrimSpace(string(content)), 10, 64)

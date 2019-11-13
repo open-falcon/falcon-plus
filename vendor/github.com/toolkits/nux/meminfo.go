@@ -4,11 +4,12 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"github.com/toolkits/file"
 	"io"
 	"io/ioutil"
 	"strconv"
 	"strings"
+
+	"github.com/toolkits/file"
 )
 
 type Mem struct {
@@ -39,7 +40,7 @@ var WANT = map[string]struct{}{
 }
 
 func MemInfo() (*Mem, error) {
-	contents, err := ioutil.ReadFile("/proc/meminfo")
+	contents, err := ioutil.ReadFile(Root() + "/proc/meminfo")
 	if err != nil {
 		return nil, err
 	}

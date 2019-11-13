@@ -40,7 +40,7 @@ func (this *DiskStats) String() string {
 }
 
 func ListDiskStats() ([]*DiskStats, error) {
-	proc_diskstats := "/proc/diskstats"
+	proc_diskstats := Root() + "/proc/diskstats"
 	if !file.IsExist(proc_diskstats) {
 		return nil, fmt.Errorf("%s not exists", proc_diskstats)
 	}

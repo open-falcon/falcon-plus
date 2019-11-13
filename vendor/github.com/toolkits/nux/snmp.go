@@ -3,17 +3,18 @@ package nux
 import (
 	"bufio"
 	"bytes"
-	"github.com/toolkits/file"
 	"io"
 	"io/ioutil"
 	"strconv"
 	"strings"
+
+	"github.com/toolkits/file"
 )
 
 func Snmp(title string) (ret map[string]int64, err error) {
 	ret = make(map[string]int64)
 	var contents []byte
-	contents, err = ioutil.ReadFile("/proc/net/snmp")
+	contents, err = ioutil.ReadFile(Root() + "/proc/net/snmp")
 	if err != nil {
 		return
 	}
