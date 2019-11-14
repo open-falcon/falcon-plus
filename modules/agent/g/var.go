@@ -20,6 +20,7 @@ import (
 	"net"
 	"os"
 	"os/exec"
+	"path"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -41,15 +42,9 @@ func InitRootDir() {
 	if root != "" {
 		Root = root
 	} else {
-		file, e := exec.LookPath(os.Args[0])
-		if e != nil {
-			log.Fatalln("LookPath fail:", e)
-		}
-		path, e := filepath.Abs(file)
-		if e != nil {
-			log.Fatalln("Abs fail:", e)
-		}
-		root = lookupRootDir(path)
+		file, _ := exec.LookPath(os.Args[0])
+		execDir, _ := filepath.Abs(file)
+		root = lookupRootDir(path.Dir(execDir))
 		if root != "" {
 			Root = root
 		}
@@ -57,17 +52,21 @@ func InitRootDir() {
 }
 
 // path目录下找 public，判断是否存在，不存在上级目录找
-func lookupRootDir(path string) string {
-	public := filepath.Join(path, "public")
+func lookupRootDir(dir string) string {
+	index := filepath.Join("public", "index.html")
+	public := filepath.Join(dir, index)
 	_, err := os.Stat(public)
 	if err == nil {
 		return public
 	}
 	if os.IsNotExist(err) {
-		parent := filepath.Dir(path)
-		public = filepath.Join(parent, "public")
-		if _, err := os.Stat(public); err == nil {
-			return parent
+		for i := 0; i < 2; i++ {
+			parent := path.Dir(dir)
+			public = filepath.Join(parent, index)
+			if _, err := os.Stat(public); err == nil {
+				return parent
+			}
+			dir = parent
 		}
 	}
 	return ""
