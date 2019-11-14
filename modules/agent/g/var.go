@@ -16,24 +16,61 @@ package g
 
 import (
 	"bytes"
-	"github.com/open-falcon/falcon-plus/common/model"
-	"github.com/toolkits/slice"
 	"log"
 	"net"
 	"os"
+	"os/exec"
+	"path/filepath"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/open-falcon/falcon-plus/common/model"
+	"github.com/toolkits/slice"
 )
 
 var Root string
 
 func InitRootDir() {
-	var err error
-	Root, err = os.Getwd()
+	pwd, err := os.Getwd()
 	if err != nil {
 		log.Fatalln("getwd fail:", err)
 	}
+	Root = pwd
+	root := lookupRootDir(pwd)
+	if root != "" {
+		Root = root
+	} else {
+		file, e := exec.LookPath(os.Args[0])
+		if e != nil {
+			log.Fatalln("LookPath fail:", e)
+		}
+		path, e := filepath.Abs(file)
+		if e != nil {
+			log.Fatalln("Abs fail:", e)
+		}
+		root = lookupRootDir(path)
+		if root != "" {
+			Root = root
+		}
+	}
+}
+
+// path目录下找 public，判断是否存在，不存在上级目录找
+func lookupRootDir(path string) string {
+	public := filepath.Join(path, "public")
+	_, err := os.Stat(public)
+	if err == nil {
+		return public
+	}
+	if os.IsNotExist(err) {
+		parent := filepath.Dir(path)
+		public = filepath.Join(parent, "public")
+		if _, err := os.Stat(public); err == nil {
+			return parent
+		}
+	}
+	return ""
 }
 
 var LocalIp string
