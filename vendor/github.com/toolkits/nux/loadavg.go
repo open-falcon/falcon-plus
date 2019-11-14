@@ -3,9 +3,10 @@ package nux
 import (
 	"errors"
 	"fmt"
-	"github.com/toolkits/file"
 	"strconv"
 	"strings"
+
+	"github.com/toolkits/file"
 )
 
 type Loadavg struct {
@@ -24,7 +25,7 @@ func LoadAvg() (*Loadavg, error) {
 
 	loadAvg := Loadavg{}
 
-	data, err := file.ToTrimString("/proc/loadavg")
+	data, err := file.ToTrimString(Root() + "/proc/loadavg")
 	if err != nil {
 		return nil, err
 	}

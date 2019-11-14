@@ -4,11 +4,12 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"github.com/toolkits/file"
 	"io"
 	"io/ioutil"
 	"strconv"
 	"strings"
+
+	"github.com/toolkits/file"
 )
 
 type Proc struct {
@@ -23,7 +24,7 @@ func (this *Proc) String() string {
 
 func AllProcs() (ps []*Proc, err error) {
 	var dirs []string
-	dirs, err = file.DirsUnder("/proc")
+	dirs, err = file.DirsUnder(Root() + "/proc")
 	if err != nil {
 		return
 	}
@@ -39,8 +40,8 @@ func AllProcs() (ps []*Proc, err error) {
 			continue
 		}
 
-		statusFile := fmt.Sprintf("/proc/%d/status", pid)
-		cmdlineFile := fmt.Sprintf("/proc/%d/cmdline", pid)
+		statusFile := fmt.Sprintf(Root()+"/proc/%d/status", pid)
+		cmdlineFile := fmt.Sprintf(Root()+"/proc/%d/cmdline", pid)
 		if !file.IsExist(statusFile) || !file.IsExist(cmdlineFile) {
 			continue
 		}
