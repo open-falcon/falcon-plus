@@ -33,33 +33,32 @@ import (
 var Root string
 
 func InitRootDir() {
+	defer func() {
+		log.Printf("Root dir: %s", Root)
+	}()
+
 	pwd, err := os.Getwd()
 	if err != nil {
 		log.Fatalln("getwd fail:", err)
 	}
-	Root = pwd
-	root := lookupRootDir(pwd)
-	if root != "" {
+	if root := lookupRootDir(pwd); root != "" {
 		Root = root
-	} else {
-		file, _ := exec.LookPath(os.Args[0])
-		execDir, _ := filepath.Abs(file)
-		root = lookupRootDir(path.Dir(execDir))
-		if root != "" {
-			Root = root
-		}
+		return
 	}
+	file, _ := exec.LookPath(os.Args[0])
+	execDir, _ := filepath.Abs(file)
+	if root := lookupRootDir(path.Dir(execDir)); root != "" {
+		Root = root
+		return
+	}
+	Root = pwd
 }
 
 // path目录下找 public，判断是否存在，不存在上级目录找
 func lookupRootDir(dir string) string {
 	index := filepath.Join("public", "index.html")
 	public := filepath.Join(dir, index)
-	_, err := os.Stat(public)
-	if err == nil {
-		return public
-	}
-	if os.IsNotExist(err) {
+	if _, err := os.Stat(public); os.IsNotExist(err) {
 		for i := 0; i < 2; i++ {
 			parent := path.Dir(dir)
 			public = filepath.Join(parent, index)
@@ -68,6 +67,8 @@ func lookupRootDir(dir string) string {
 			}
 			dir = parent
 		}
+	} else if err == nil {
+		return dir
 	}
 	return ""
 }
