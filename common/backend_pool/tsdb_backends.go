@@ -24,7 +24,7 @@ import (
 
 // TSDB
 type TsdbClient struct {
-	cli  *struct{ net.Conn }
+	cli  net.Conn
 	name string
 }
 
@@ -33,13 +33,13 @@ func (t TsdbClient) Name() string {
 }
 
 func (t TsdbClient) Closed() bool {
-	return t.cli.Conn == nil
+	return t.cli == nil
 }
 
 func (t TsdbClient) Close() error {
 	if t.cli != nil {
 		err := t.cli.Close()
-		t.cli.Conn = nil
+		t.cli = nil
 		return err
 	}
 	return nil
@@ -59,10 +59,7 @@ func newTsdbConnPool(address string, maxConns int, maxIdle int, connTimeout int)
 			return nil, err
 		}
 
-		return TsdbClient{
-			cli:  &struct{ net.Conn }{conn},
-			name: name,
-		}, nil
+		return TsdbClient{conn, name}, nil
 	}
 
 	return pool
