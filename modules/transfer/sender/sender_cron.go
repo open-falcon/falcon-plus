@@ -15,11 +15,14 @@
 package sender
 
 import (
-	"github.com/open-falcon/falcon-plus/modules/transfer/proc"
-	"github.com/toolkits/container/list"
 	"log"
 	"strings"
 	"time"
+
+	"github.com/open-falcon/falcon-plus/modules/transfer/proc"
+	"github.com/toolkits/container/list"
+
+	pfc "github.com/niean/goperfcounter"
 )
 
 const (
@@ -50,6 +53,8 @@ func startLogCron() {
 func refreshSendingCacheSize() {
 	proc.JudgeQueuesCnt.SetCnt(calcSendCacheSize(JudgeQueues))
 	proc.GraphQueuesCnt.SetCnt(calcSendCacheSize(GraphQueues))
+	proc.TransferQueueCnt.SetCnt(int64(TransferQueue.Len()))
+	pfc.Gauge("TransferQueueSize", int64(TransferQueue.Len()))
 }
 func calcSendCacheSize(mapList map[string]*list.SafeListLimited) int64 {
 	var cnt int64 = 0
