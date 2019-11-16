@@ -24,12 +24,24 @@ func initConnPools() {
 	cfg := g.Config()
 
 	// judge
-	judgeInstances := nset.NewStringSet()
-	for _, instance := range cfg.Judge.Cluster {
-		judgeInstances.Add(instance)
+	if cfg.Judge.Enabled {
+		judgeInstances := nset.NewStringSet()
+		for _, instance := range cfg.Judge.Cluster {
+			judgeInstances.Add(instance)
+		}
+		JudgeConnPools = backend.CreateSafeRpcConnPools(cfg.Judge.MaxConns, cfg.Judge.MaxIdle,
+			cfg.Judge.ConnTimeout, cfg.Judge.CallTimeout, judgeInstances.ToSlice())
 	}
-	JudgeConnPools = backend.CreateSafeRpcConnPools(cfg.Judge.MaxConns, cfg.Judge.MaxIdle,
-		cfg.Judge.ConnTimeout, cfg.Judge.CallTimeout, judgeInstances.ToSlice())
+
+	// transfer
+	if cfg.Transfer.Enabled {
+		transferInstances := nset.NewStringSet()
+		for _, instance := range cfg.Transfer.Cluster {
+			transferInstances.Add(instance)
+		}
+		TransferConnPools = backend.CreateSafeRpcConnPools(cfg.Transfer.MaxConns, cfg.Transfer.MaxIdle,
+			cfg.Transfer.ConnTimeout, cfg.Transfer.CallTimeout, transferInstances.ToSlice())
+	}
 
 	// tsdb
 	if cfg.Tsdb.Enabled {
@@ -37,15 +49,17 @@ func initConnPools() {
 	}
 
 	// graph
-	graphInstances := nset.NewSafeSet()
-	for _, nitem := range cfg.Graph.ClusterList {
-		for _, addr := range nitem.Addrs {
-			graphInstances.Add(addr)
+	if cfg.Graph.Enabled {
+		graphInstances := nset.NewSafeSet()
+		for _, nitem := range cfg.Graph.ClusterList {
+			for _, addr := range nitem.Addrs {
+				graphInstances.Add(addr)
+			}
 		}
-	}
-	GraphConnPools = backend.CreateSafeRpcConnPools(cfg.Graph.MaxConns, cfg.Graph.MaxIdle,
-		cfg.Graph.ConnTimeout, cfg.Graph.CallTimeout, graphInstances.ToSlice())
+		GraphConnPools = backend.CreateSafeRpcConnPools(cfg.Graph.MaxConns, cfg.Graph.MaxIdle,
+			cfg.Graph.ConnTimeout, cfg.Graph.CallTimeout, graphInstances.ToSlice())
 
+	}
 }
 
 func DestroyConnPools() {
