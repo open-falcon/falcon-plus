@@ -44,11 +44,13 @@ func StartRpc() {
 	server.Register(new(Transfer))
 
 	for {
-		conn, err := listener.Accept()
+		conn, err := listener.AcceptTCP()
 		if err != nil {
 			log.Println("listener.Accept occur error:", err)
 			continue
 		}
+
+		conn.SetKeepAlive(true)
 		go server.ServeCodec(jsonrpc.NewServerCodec(conn))
 	}
 }

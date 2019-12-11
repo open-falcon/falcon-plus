@@ -73,7 +73,7 @@ func Start() {
 	go func() {
 		var tempDelay time.Duration // how long to sleep on accept failure
 		for {
-			conn, err := listener.Accept()
+			conn, err := listener.AcceptTCP()
 			if err != nil {
 				if tempDelay == 0 {
 					tempDelay = 5 * time.Millisecond
@@ -86,6 +86,8 @@ func Start() {
 				time.Sleep(tempDelay)
 				continue
 			}
+
+			conn.SetKeepAlive(true)
 			tempDelay = 0
 			go func() {
 				e := connects.insert(conn)
