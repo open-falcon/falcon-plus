@@ -12,30 +12,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package sender
+package g
 
 import (
-	"time"
-
-	pfc "github.com/niean/goperfcounter"
+	"path/filepath"
+	"runtime"
+	"testing"
 )
 
-const (
-	DefaultProcCronPeriod = time.Duration(5) * time.Second //ProcCron的周期,默认1s
-)
-
-// send_cron程序入口
-func startSenderCron() {
-	go startProcCron()
-}
-
-func startProcCron() {
-	for {
-		time.Sleep(DefaultProcCronPeriod)
-		refreshSendingCacheSize()
+func TestInitRootDir(t *testing.T) {
+	tests := []struct {
+		name string
+	}{
+		{},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			InitRootDir()
+			if getCurrentPath() != Root {
+				t.Errorf("Root: [%v], actually: [%v]", getCurrentPath(), Root)
+			}
+		})
 	}
 }
 
-func refreshSendingCacheSize() {
-	pfc.Gauge("SendQueueSize", int64(SenderQueue.Len()))
+func getCurrentPath() string {
+	_, filename, _, _ := runtime.Caller(1)
+	return filepath.Dir(filepath.Dir(filename))
 }

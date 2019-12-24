@@ -16,13 +16,14 @@ package sender
 
 import (
 	"fmt"
+	"log"
+
 	backend "github.com/open-falcon/falcon-plus/common/backend_pool"
 	cmodel "github.com/open-falcon/falcon-plus/common/model"
 	"github.com/open-falcon/falcon-plus/modules/transfer/g"
 	"github.com/open-falcon/falcon-plus/modules/transfer/proc"
 	rings "github.com/toolkits/consistent/rings"
 	nlist "github.com/toolkits/container/list"
-	"log"
 )
 
 const (
@@ -44,9 +45,17 @@ var (
 // 发送缓存队列
 // node -> queue_of_data
 var (
-	TsdbQueue   *nlist.SafeListLimited
-	JudgeQueues = make(map[string]*nlist.SafeListLimited)
-	GraphQueues = make(map[string]*nlist.SafeListLimited)
+	TsdbQueue     *nlist.SafeListLimited
+	JudgeQueues   = make(map[string]*nlist.SafeListLimited)
+	GraphQueues   = make(map[string]*nlist.SafeListLimited)
+	TransferQueue *nlist.SafeListLimited
+)
+
+// transfer的主机列表，以及主机名和地址的映射关系
+// 用于随机遍历transfer
+var (
+	TransferMap       = make(map[string]string, 0)
+	TransferHostnames = make([]string, 0)
 )
 
 // 连接池
@@ -55,6 +64,7 @@ var (
 	JudgeConnPools     *backend.SafeRpcConnPools
 	TsdbConnPoolHelper *backend.TsdbConnPoolHelper
 	GraphConnPools     *backend.SafeRpcConnPools
+	TransferConnPools  *backend.SafeRpcConnPools
 )
 
 // 初始化数据发送服务, 在main函数中调用
@@ -211,4 +221,14 @@ func convert2TsdbItem(d *cmodel.MetaData) *cmodel.TsdbItem {
 
 func alignTs(ts int64, period int64) int64 {
 	return ts - ts%period
+}
+
+func Push2TransferSendQueue(items []*cmodel.MetaData) {
+	for _, item := range items {
+		isSuccess := TransferQueue.PushFront(item)
+
+		if !isSuccess {
+			proc.SendToTransferDropCnt.Incr()
+		}
+	}
 }
