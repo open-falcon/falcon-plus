@@ -38,32 +38,66 @@ gateway组件，部署于分区中。单个gateway实例的转发能力，为 {1
 ```
 {
     "debug": true,
+    "minStep": 30,
     "http": {
         "enabled": true,
-        "listen": "0.0.0.0:6060"
+        "listen": "0.0.0.0:16060"
     },
     "rpc": {
         "enabled": true,
-        "listen": "0.0.0.0:8433"
+        "listen": "0.0.0.0:18433"
     },
     "socket": {
         "enabled": true,
-        "listen": "0.0.0.0:4444",
+        "listen": "0.0.0.0:14444",
         "timeout": 3600
     },
+    "judge": {
+        "enabled": false,
+        "batch": 200,
+        "connTimeout": 1000,
+        "callTimeout": 5000,
+        "maxConns": 32,
+        "maxIdle": 32,
+        "replicas": 500,
+        "cluster": {
+            "judge-00" : "%%JUDGE_RPC%%"
+        }
+    },
+    "graph": {
+        "enabled": false,
+        "batch": 200,
+        "connTimeout": 1000,
+        "callTimeout": 5000,
+        "maxConns": 32,
+        "maxIdle": 32,
+        "replicas": 500,
+        "cluster": {
+            "graph-00" : "%%GRAPH_RPC%%"
+        }
+    },
+   "tsdb": {
+        "enabled": false,
+        "batch": 200,
+        "connTimeout": 1000,
+        "callTimeout": 5000,
+        "maxConns": 32,
+        "maxIdle": 32,
+        "retry": 3,
+        "address": "127.0.0.1:8088"
+    },
     "transfer": {
-        "enabled": true, //true/false, 表示是否开启向tranfser转发数据
-        "batch": 200, //数据转发的批量大小，可以加快发送速度，建议保持默认值
-        "retry": 2, //重试次数，默认1、不重试
-        "connTimeout": 1000, //毫秒，与后端建立连接的超时时间，可以根据网络质量微调，建议保持默认
-        "callTimeout": 5000, //毫秒，发送数据给后端的超时时间，可以根据网络质量微调，建议保持默认
-        "maxConns": 32, //连接池相关配置，最大连接数，建议保持默认
-        "maxIdle": 32, //连接池相关配置，最大空闲连接数，建议保持默认
-        "cluster": { //transfer服务器集群，支持多条记录
-            "t1": "127.0.0.1:8433" //一个transfer实例，形如"node":"$hostname:$port"
+        "enabled": true,
+        "batch": 200,
+        "connTimeout": 1000,
+        "callTimeout": 5000,
+        "maxConns": 32,
+        "maxIdle": 32,
+        "retry": 3,
+        "cluster": {
+            "t1": "%%TRANSFER_RPC%%"
         }
     }
-}
 ```
 
 从版本**v0.0.11**后，gateway组件引入了golang业务监控组件[GoPerfcounter](https://github.com/niean/goperfcounter)。GoPerfcounter会主动将gateway的内部状态数据，push给本地的falcon-agent，其配置文件`perfcounter.json`内容如下，含义见[这里](https://github.com/niean/goperfcounter/blob/master/README.md#配置)

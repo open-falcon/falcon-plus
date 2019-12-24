@@ -17,14 +17,15 @@ package socket
 import (
 	"bufio"
 	"fmt"
-	cmodel "github.com/open-falcon/falcon-plus/common/model"
-	"github.com/open-falcon/falcon-plus/modules/transfer/g"
-	"github.com/open-falcon/falcon-plus/modules/transfer/proc"
-	"github.com/open-falcon/falcon-plus/modules/transfer/sender"
 	"net"
 	"strconv"
 	"strings"
 	"time"
+
+	cmodel "github.com/open-falcon/falcon-plus/common/model"
+	"github.com/open-falcon/falcon-plus/modules/transfer/g"
+	"github.com/open-falcon/falcon-plus/modules/transfer/proc"
+	"github.com/open-falcon/falcon-plus/modules/transfer/sender"
 )
 
 func socketTelnetHandle(conn net.Conn) {
@@ -82,6 +83,10 @@ func socketTelnetHandle(conn net.Conn) {
 
 	if cfg.Judge.Enabled {
 		sender.Push2JudgeSendQueue(items)
+	}
+
+	if cfg.Transfer.Enabled {
+		sender.Push2TransferSendQueue(items)
 	}
 
 	return

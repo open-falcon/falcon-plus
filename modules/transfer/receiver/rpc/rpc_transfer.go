@@ -16,13 +16,14 @@ package rpc
 
 import (
 	"fmt"
+	"strconv"
+	"time"
+
 	cmodel "github.com/open-falcon/falcon-plus/common/model"
 	cutils "github.com/open-falcon/falcon-plus/common/utils"
 	"github.com/open-falcon/falcon-plus/modules/transfer/g"
 	"github.com/open-falcon/falcon-plus/modules/transfer/proc"
 	"github.com/open-falcon/falcon-plus/modules/transfer/sender"
-	"strconv"
-	"time"
 )
 
 type Transfer int
@@ -158,6 +159,10 @@ func RecvMetricValues(args []*cmodel.MetricValue, reply *cmodel.TransferResponse
 
 	if cfg.Tsdb.Enabled {
 		sender.Push2TsdbSendQueue(items)
+	}
+
+	if cfg.Transfer.Enabled {
+		sender.Push2TransferSendQueue(items)
 	}
 
 	reply.Message = "ok"

@@ -15,8 +15,9 @@
 package proc
 
 import (
-	nproc "github.com/toolkits/proc"
 	"log"
+
+	nproc "github.com/toolkits/proc"
 )
 
 // trace
@@ -37,22 +38,26 @@ var (
 	HttpRecvCnt   = nproc.NewSCounterQps("HttpRecvCnt")
 	SocketRecvCnt = nproc.NewSCounterQps("SocketRecvCnt")
 
-	SendToJudgeCnt = nproc.NewSCounterQps("SendToJudgeCnt")
-	SendToTsdbCnt  = nproc.NewSCounterQps("SendToTsdbCnt")
-	SendToGraphCnt = nproc.NewSCounterQps("SendToGraphCnt")
+	SendToJudgeCnt    = nproc.NewSCounterQps("SendToJudgeCnt")
+	SendToTsdbCnt     = nproc.NewSCounterQps("SendToTsdbCnt")
+	SendToGraphCnt    = nproc.NewSCounterQps("SendToGraphCnt")
+	SendToTransferCnt = nproc.NewSCounterQps("SendToTransferCnt")
 
-	SendToJudgeDropCnt = nproc.NewSCounterQps("SendToJudgeDropCnt")
-	SendToTsdbDropCnt  = nproc.NewSCounterQps("SendToTsdbDropCnt")
-	SendToGraphDropCnt = nproc.NewSCounterQps("SendToGraphDropCnt")
+	SendToJudgeDropCnt    = nproc.NewSCounterQps("SendToJudgeDropCnt")
+	SendToTsdbDropCnt     = nproc.NewSCounterQps("SendToTsdbDropCnt")
+	SendToGraphDropCnt    = nproc.NewSCounterQps("SendToGraphDropCnt")
+	SendToTransferDropCnt = nproc.NewSCounterQps("SendToTransferDropCnt")
 
-	SendToJudgeFailCnt = nproc.NewSCounterQps("SendToJudgeFailCnt")
-	SendToTsdbFailCnt  = nproc.NewSCounterQps("SendToTsdbFailCnt")
-	SendToGraphFailCnt = nproc.NewSCounterQps("SendToGraphFailCnt")
+	SendToJudgeFailCnt    = nproc.NewSCounterQps("SendToJudgeFailCnt")
+	SendToTsdbFailCnt     = nproc.NewSCounterQps("SendToTsdbFailCnt")
+	SendToGraphFailCnt    = nproc.NewSCounterQps("SendToGraphFailCnt")
+	SendToTransferFailCnt = nproc.NewSCounterQps("SendToTransferFailCnt")
 
 	// 发送缓存大小
-	JudgeQueuesCnt = nproc.NewSCounterBase("JudgeSendCacheCnt")
-	TsdbQueuesCnt  = nproc.NewSCounterBase("TsdbSendCacheCnt")
-	GraphQueuesCnt = nproc.NewSCounterBase("GraphSendCacheCnt")
+	JudgeQueuesCnt    = nproc.NewSCounterBase("JudgeSendCacheCnt")
+	TsdbQueuesCnt     = nproc.NewSCounterBase("TsdbSendCacheCnt")
+	GraphQueuesCnt    = nproc.NewSCounterBase("GraphSendCacheCnt")
+	TransferQueuesCnt = nproc.NewSCounterBase("TransferSendCacheCnt")
 
 	// http请求次数
 	HistoryRequestCnt = nproc.NewSCounterQps("HistoryRequestCnt")
@@ -84,21 +89,25 @@ func GetAll() []interface{} {
 	ret = append(ret, SendToJudgeCnt.Get())
 	ret = append(ret, SendToTsdbCnt.Get())
 	ret = append(ret, SendToGraphCnt.Get())
+	ret = append(ret, SendToTransferCnt.Get())
 
 	// drop cnt
 	ret = append(ret, SendToJudgeDropCnt.Get())
 	ret = append(ret, SendToTsdbDropCnt.Get())
 	ret = append(ret, SendToGraphDropCnt.Get())
+	ret = append(ret, SendToTransferDropCnt.Get())
 
 	// send fail cnt
 	ret = append(ret, SendToJudgeFailCnt.Get())
 	ret = append(ret, SendToTsdbFailCnt.Get())
 	ret = append(ret, SendToGraphFailCnt.Get())
+	ret = append(ret, SendToTransferFailCnt.Get())
 
 	// cache cnt
 	ret = append(ret, JudgeQueuesCnt.Get())
 	ret = append(ret, TsdbQueuesCnt.Get())
 	ret = append(ret, GraphQueuesCnt.Get())
+	ret = append(ret, TransferQueuesCnt.Get())
 
 	// http request
 	ret = append(ret, HistoryRequestCnt.Get())
