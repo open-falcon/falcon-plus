@@ -47,5 +47,17 @@
         "maxIdle": 32,
         "retry": 3,
         "address": "127.0.0.1:8088"
+    },
+    "transfer": {
+        "enabled": false,
+        "batch": 200,
+        "connTimeout": 1000,
+        "callTimeout": 5000,
+        "maxConns": 32,
+        "maxIdle": 32,
+        "retry": 3,
+        "cluster": {
+            "t1": "127.0.0.1:8433"
+        }
     }
 }

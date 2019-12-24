@@ -15,11 +15,13 @@
 package sender
 
 import (
-	"github.com/open-falcon/falcon-plus/modules/transfer/proc"
-	"github.com/toolkits/container/list"
 	"log"
 	"strings"
 	"time"
+
+	"github.com/open-falcon/falcon-plus/modules/transfer/g"
+	"github.com/open-falcon/falcon-plus/modules/transfer/proc"
+	"github.com/toolkits/container/list"
 )
 
 const (
@@ -50,7 +52,17 @@ func startLogCron() {
 func refreshSendingCacheSize() {
 	proc.JudgeQueuesCnt.SetCnt(calcSendCacheSize(JudgeQueues))
 	proc.GraphQueuesCnt.SetCnt(calcSendCacheSize(GraphQueues))
+
+	cfg := g.Config()
+
+	if cfg.Tsdb.Enabled {
+		proc.TsdbQueuesCnt.SetCnt(int64(TsdbQueue.Len()))
+	}
+	if cfg.Transfer.Enabled {
+		proc.TransferQueuesCnt.SetCnt(int64(TransferQueue.Len()))
+	}
 }
+
 func calcSendCacheSize(mapList map[string]*list.SafeListLimited) int64 {
 	var cnt int64 = 0
 	for _, list := range mapList {
@@ -62,5 +74,7 @@ func calcSendCacheSize(mapList map[string]*list.SafeListLimited) int64 {
 }
 
 func logConnPoolsProc() {
-	log.Printf("connPools proc: \n%v", strings.Join(GraphConnPools.Proc(), "\n"))
+	log.Printf("judge connPools proc: \n%v", strings.Join(JudgeConnPools.Proc(), "\n"))
+	log.Printf("graph connPools proc: \n%v", strings.Join(GraphConnPools.Proc(), "\n"))
+	log.Printf("transfer connPools proc: \n%v", strings.Join(TransferConnPools.Proc(), "\n"))
 }

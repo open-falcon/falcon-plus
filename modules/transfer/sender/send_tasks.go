@@ -16,13 +16,17 @@ package sender
 
 import (
 	"bytes"
+	"log"
+	"math/rand"
+	"time"
+
+	pfc "github.com/niean/goperfcounter"
 	cmodel "github.com/open-falcon/falcon-plus/common/model"
+	cutils "github.com/open-falcon/falcon-plus/common/utils"
 	"github.com/open-falcon/falcon-plus/modules/transfer/g"
 	"github.com/open-falcon/falcon-plus/modules/transfer/proc"
 	nsema "github.com/toolkits/concurrent/semaphore"
 	"github.com/toolkits/container/list"
-	"log"
-	"time"
 )
 
 // send
@@ -37,6 +41,7 @@ func startSendTasks() {
 	judgeConcurrent := cfg.Judge.MaxConns
 	graphConcurrent := cfg.Graph.MaxConns
 	tsdbConcurrent := cfg.Tsdb.MaxConns
+	transferConcurrent := cfg.Transfer.MaxConns
 
 	if tsdbConcurrent < 1 {
 		tsdbConcurrent = 1
@@ -48,6 +53,10 @@ func startSendTasks() {
 
 	if graphConcurrent < 1 {
 		graphConcurrent = 1
+	}
+
+	if transferConcurrent < 1 {
+		transferConcurrent = 1
 	}
 
 	// init send go-routines
@@ -65,6 +74,11 @@ func startSendTasks() {
 
 	if cfg.Tsdb.Enabled {
 		go forward2TsdbTask(tsdbConcurrent)
+	}
+
+	if cfg.Transfer.Enabled {
+		concurrent := transferConcurrent * len(cfg.Transfer.Cluster)
+		go forward2TransferTask(TransferQueue, concurrent)
 	}
 }
 
@@ -201,5 +215,85 @@ func forward2TsdbTask(concurrent int) {
 				return
 			}
 		}(items)
+	}
+}
+
+// Transfer定时任务, 将Transfer发送缓存中的数据 通过rpc连接池 发送到Transfer(此时transfer仅仅起到转发数据的功能)
+func forward2TransferTask(Q *list.SafeListLimited, concurrent int) {
+	cfg := g.Config()
+	batch := cfg.Transfer.Batch // 一次发送,最多batch条数据
+	maxConns := int64(cfg.Transfer.MaxConns)
+	retry := cfg.Transfer.MaxRetry //最多尝试发送retry次
+	if retry < 1 {
+		retry = 1
+	}
+
+	sema := nsema.NewSemaphore(concurrent)
+	transNum := len(TransferHostnames)
+
+	for {
+		items := Q.PopBackBy(batch)
+		count := len(items)
+		if count == 0 {
+			time.Sleep(DefaultSendTaskSleepInterval)
+			continue
+		}
+
+		transferItems := make([]*cmodel.MetricValue, count)
+		for i := 0; i < count; i++ {
+			transferItems[i] = convert(items[i].(*cmodel.MetaData))
+		}
+
+		//	同步Call + 有限并发 进行发送
+		sema.Acquire()
+		go func(transferItems []*cmodel.MetricValue, count int) {
+			defer sema.Release()
+
+			// 随机遍历transfer列表，直到数据发送成功 或者 遍历完;随机遍历，可以缓解慢transfer
+			resp := &cmodel.TransferResponse{}
+			var err error
+			sendOk := false
+
+			for j := 0; j < retry && !sendOk; j++ {
+				rint := rand.Int()
+				for i := 0; i < transNum && !sendOk; i++ {
+					idx := (i + rint) % transNum
+					host := TransferHostnames[idx]
+					addr := TransferMap[host]
+
+					// 过滤掉建连缓慢的host, 否则会严重影响发送速率
+					cc := pfc.GetCounterCount(host)
+					if cc >= maxConns {
+						continue
+					}
+
+					pfc.Counter(host, 1)
+					err = TransferConnPools.Call(addr, "Transfer.Update", transferItems, resp)
+					pfc.Counter(host, -1)
+
+					// statistics
+					if err == nil {
+						sendOk = true
+						proc.SendToTransferCnt.IncrBy(int64(count))
+					} else {
+						log.Printf("transfer update fail, transfer hostname: %s, transfer instance: %s, items size:%d, error:%v, resp:%v", host, addr, len(transferItems), err, resp)
+						proc.SendToTransferFailCnt.IncrBy(int64(count))
+					}
+				}
+			}
+		}(transferItems, count)
+	}
+}
+
+// cmodel.MetaData --> cmodel.MetricValue
+func convert(v *cmodel.MetaData) *cmodel.MetricValue {
+	return &cmodel.MetricValue{
+		Metric:    v.Metric,
+		Endpoint:  v.Endpoint,
+		Timestamp: v.Timestamp,
+		Step:      v.Step,
+		Type:      v.CounterType,
+		Tags:      cutils.SortedTags(v.Tags),
+		Value:     v.Value,
 	}
 }
