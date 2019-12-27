@@ -89,13 +89,13 @@ type InfluxdbConfig struct {
 	Enabled   bool   `json:"enabled"`
 	Batch     int    `json:"batch"`
 	MaxRetry  int    `json:"retry"`
+	MaxConns  int    `json:"maxConns"`
+	Timeout   int    `json:"timeout"`
 	Address   string `json:"address"`
 	Database  string `json:"db"`
 	Username  string `json:"username"`
 	Password  string `json:"password"`
 	Precision string `json:"precision"`
-	Timeout   int    `json:"timeout"`
-	MaxConns  int    `json:"maxConns"`
 }
 
 type GlobalConfig struct {

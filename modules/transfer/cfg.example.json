@@ -61,7 +61,7 @@
         }
     },
     "influxdb": {
-        "enabled": true,
+        "enabled": false,
         "batch": 200,
         "retry": 3,
         "maxConns": 32,

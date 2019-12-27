@@ -51,6 +51,7 @@ var (
 	JudgeQueues   = make(map[string]*nlist.SafeListLimited)
 	GraphQueues   = make(map[string]*nlist.SafeListLimited)
 	TransferQueue *nlist.SafeListLimited
+	InfluxdbQueue *nlist.SafeListLimited
 )
 
 // transfer的主机列表，以及主机名和地址的映射关系
@@ -58,9 +59,6 @@ var (
 var (
 	TransferMap       = make(map[string]string, 0)
 	TransferHostnames = make([]string, 0)
-	InfluxdbQueue     *nlist.SafeListLimited
-	JudgeQueues       = make(map[string]*nlist.SafeListLimited)
-	GraphQueues       = make(map[string]*nlist.SafeListLimited)
 )
 
 // 连接池
@@ -84,7 +82,7 @@ func NewInfluxdbClient() (*InfluxClient, error) {
 		Addr:     g.Config().Influxdb.Address,
 		Username: g.Config().Influxdb.Username,
 		Password: g.Config().Influxdb.Password,
-		Timeout:  time.Duration(g.Config().Influxdb.Timeout),
+		Timeout:  time.Millisecond * time.Duration(g.Config().Influxdb.Timeout),
 	})
 
 	if err != nil {
