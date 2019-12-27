@@ -42,16 +42,19 @@ var (
 	SendToTsdbCnt     = nproc.NewSCounterQps("SendToTsdbCnt")
 	SendToGraphCnt    = nproc.NewSCounterQps("SendToGraphCnt")
 	SendToTransferCnt = nproc.NewSCounterQps("SendToTransferCnt")
+	SendToInfluxdbCnt = nproc.NewSCounterQps("SendToInfluxdbCnt")
 
 	SendToJudgeDropCnt    = nproc.NewSCounterQps("SendToJudgeDropCnt")
 	SendToTsdbDropCnt     = nproc.NewSCounterQps("SendToTsdbDropCnt")
 	SendToGraphDropCnt    = nproc.NewSCounterQps("SendToGraphDropCnt")
 	SendToTransferDropCnt = nproc.NewSCounterQps("SendToTransferDropCnt")
+	SendToInfluxdbDropCnt = nproc.NewSCounterQps("SendToTsdbDropCnt")
 
 	SendToJudgeFailCnt    = nproc.NewSCounterQps("SendToJudgeFailCnt")
 	SendToTsdbFailCnt     = nproc.NewSCounterQps("SendToTsdbFailCnt")
 	SendToGraphFailCnt    = nproc.NewSCounterQps("SendToGraphFailCnt")
 	SendToTransferFailCnt = nproc.NewSCounterQps("SendToTransferFailCnt")
+	SendToInfluxdbFailCnt = nproc.NewSCounterQps("SendToInfluxdbFailCnt")
 
 	// 发送缓存大小
 	JudgeQueuesCnt    = nproc.NewSCounterBase("JudgeSendCacheCnt")
@@ -88,6 +91,7 @@ func GetAll() []interface{} {
 	// send cnt
 	ret = append(ret, SendToJudgeCnt.Get())
 	ret = append(ret, SendToTsdbCnt.Get())
+	ret = append(ret, SendToInfluxdbCnt.Get())
 	ret = append(ret, SendToGraphCnt.Get())
 	ret = append(ret, SendToTransferCnt.Get())
 
@@ -96,12 +100,14 @@ func GetAll() []interface{} {
 	ret = append(ret, SendToTsdbDropCnt.Get())
 	ret = append(ret, SendToGraphDropCnt.Get())
 	ret = append(ret, SendToTransferDropCnt.Get())
+	ret = append(ret, SendToInfluxdbDropCnt.Get())
 
 	// send fail cnt
 	ret = append(ret, SendToJudgeFailCnt.Get())
 	ret = append(ret, SendToTsdbFailCnt.Get())
 	ret = append(ret, SendToGraphFailCnt.Get())
 	ret = append(ret, SendToTransferFailCnt.Get())
+	ret = append(ret, SendToInfluxdbFailCnt.Get())
 
 	// cache cnt
 	ret = append(ret, JudgeQueuesCnt.Get())
