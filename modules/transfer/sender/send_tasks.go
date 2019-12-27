@@ -20,6 +20,7 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/juju/errors"
 	pfc "github.com/niean/goperfcounter"
 	cmodel "github.com/open-falcon/falcon-plus/common/model"
 	cutils "github.com/open-falcon/falcon-plus/common/utils"
@@ -42,6 +43,7 @@ func startSendTasks() {
 	graphConcurrent := cfg.Graph.MaxConns
 	tsdbConcurrent := cfg.Tsdb.MaxConns
 	transferConcurrent := cfg.Transfer.MaxConns
+	influxdbConcurrent := cfg.Influxdb.MaxConns
 
 	if tsdbConcurrent < 1 {
 		tsdbConcurrent = 1
@@ -57,6 +59,10 @@ func startSendTasks() {
 
 	if transferConcurrent < 1 {
 		transferConcurrent = 1
+	}
+
+	if influxdbConcurrent < 1 {
+		influxdbConcurrent = 1
 	}
 
 	// init send go-routines
@@ -79,6 +85,10 @@ func startSendTasks() {
 	if cfg.Transfer.Enabled {
 		concurrent := transferConcurrent * len(cfg.Transfer.Cluster)
 		go forward2TransferTask(TransferQueue, concurrent)
+	}
+
+	if cfg.Influxdb.Enabled {
+		go forward2InfluxdbTask(influxdbConcurrent)
 	}
 }
 
@@ -295,5 +305,52 @@ func convert(v *cmodel.MetaData) *cmodel.MetricValue {
 		Type:      v.CounterType,
 		Tags:      cutils.SortedTags(v.Tags),
 		Value:     v.Value,
+	}
+}
+
+func forward2InfluxdbTask(concurrent int) {
+	batch := g.Config().Influxdb.Batch // 一次发送,最多batch条数据
+	retry := g.Config().Influxdb.MaxRetry
+	sema := nsema.NewSemaphore(concurrent)
+
+	for {
+		items := InfluxdbQueue.PopBackBy(batch)
+		if len(items) == 0 {
+			time.Sleep(DefaultSendTaskSleepInterval)
+			continue
+		}
+		//  同步Call + 有限并发 进行发送
+		sema.Acquire()
+		go func(itemList []interface{}) {
+			defer sema.Release()
+
+			var err error
+			c, err := NewInfluxdbClient()
+			defer c.Client.Close()
+
+			if err != nil {
+				log.Println(errors.ErrorStack(err))
+				return
+			}
+
+			items := make([]*cmodel.InfluxdbItem, 0, batch)
+			for _, i := range itemList {
+				items = append(items, i.(*cmodel.InfluxdbItem))
+			}
+
+			for i := 0; i < retry; i++ {
+				err = c.Send(items)
+				if err == nil {
+					proc.SendToInfluxdbCnt.IncrBy(int64(len(itemList)))
+					break
+				}
+			}
+
+			if err != nil {
+				proc.SendToInfluxdbFailCnt.IncrBy(int64(len(itemList)))
+				log.Println(err)
+				return
+			}
+		}(items)
 	}
 }
