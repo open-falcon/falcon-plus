@@ -17,8 +17,8 @@ package store
 import (
 	"container/list"
 	"errors"
+	log "github.com/sirupsen/logrus"
 	"hash/crc32"
-	"log"
 	"sync"
 
 	cmodel "github.com/open-falcon/falcon-plus/common/model"
@@ -37,7 +37,7 @@ type GraphItemMap struct {
 func (this *GraphItemMap) Get(key string) (*SafeLinkedList, bool) {
 	this.RLock()
 	defer this.RUnlock()
-	idx := hashKey(key) % uint32(this.Size)
+	idx := this.idx(key)
 	val, ok := this.A[idx][key]
 	return val, ok
 }
@@ -46,7 +46,7 @@ func (this *GraphItemMap) Get(key string) (*SafeLinkedList, bool) {
 func (this *GraphItemMap) Remove(key string) bool {
 	this.Lock()
 	defer this.Unlock()
-	idx := hashKey(key) % uint32(this.Size)
+	idx := this.idx(key)
 	_, exists := this.A[idx][key]
 	if !exists {
 		return false
@@ -67,7 +67,7 @@ func (this *GraphItemMap) Getitems(idx int) map[string]*SafeLinkedList {
 func (this *GraphItemMap) Set(key string, val *SafeLinkedList) {
 	this.Lock()
 	defer this.Unlock()
-	idx := hashKey(key) % uint32(this.Size)
+	idx := this.idx(key)
 	this.A[idx][key] = val
 }
 
@@ -84,7 +84,7 @@ func (this *GraphItemMap) Len() int {
 func (this *GraphItemMap) First(key string) *cmodel.GraphItem {
 	this.RLock()
 	defer this.RUnlock()
-	idx := hashKey(key) % uint32(this.Size)
+	idx := this.idx(key)
 	sl, ok := this.A[idx][key]
 	if !ok {
 		return nil
@@ -101,7 +101,7 @@ func (this *GraphItemMap) First(key string) *cmodel.GraphItem {
 func (this *GraphItemMap) PushAll(key string, items []*cmodel.GraphItem) error {
 	this.Lock()
 	defer this.Unlock()
-	idx := hashKey(key) % uint32(this.Size)
+	idx := this.idx(key)
 	sl, ok := this.A[idx][key]
 	if !ok {
 		return errors.New("not exist")
@@ -113,7 +113,7 @@ func (this *GraphItemMap) PushAll(key string, items []*cmodel.GraphItem) error {
 func (this *GraphItemMap) GetFlag(key string) (uint32, error) {
 	this.Lock()
 	defer this.Unlock()
-	idx := hashKey(key) % uint32(this.Size)
+	idx := this.idx(key)
 	sl, ok := this.A[idx][key]
 	if !ok {
 		return 0, errors.New("not exist")
@@ -121,10 +121,14 @@ func (this *GraphItemMap) GetFlag(key string) (uint32, error) {
 	return sl.Flag, nil
 }
 
+func (this *GraphItemMap) idx(key string) uint32 {
+	return hashKey(key) % uint32(this.Size)
+}
+
 func (this *GraphItemMap) SetFlag(key string, flag uint32) error {
 	this.Lock()
 	defer this.Unlock()
-	idx := hashKey(key) % uint32(this.Size)
+	idx := this.idx(key)
 	sl, ok := this.A[idx][key]
 	if !ok {
 		return errors.New("not exist")
@@ -136,7 +140,7 @@ func (this *GraphItemMap) SetFlag(key string, flag uint32) error {
 func (this *GraphItemMap) PopAll(key string) []*cmodel.GraphItem {
 	this.Lock()
 	defer this.Unlock()
-	idx := hashKey(key) % uint32(this.Size)
+	idx := this.idx(key)
 	sl, ok := this.A[idx][key]
 	if !ok {
 		return []*cmodel.GraphItem{}
@@ -147,7 +151,7 @@ func (this *GraphItemMap) PopAll(key string) []*cmodel.GraphItem {
 func (this *GraphItemMap) FetchAll(key string) ([]*cmodel.GraphItem, uint32) {
 	this.RLock()
 	defer this.RUnlock()
-	idx := hashKey(key) % uint32(this.Size)
+	idx := this.idx(key)
 	sl, ok := this.A[idx][key]
 	if !ok {
 		return []*cmodel.GraphItem{}, 0
@@ -175,7 +179,6 @@ func (this *GraphItemMap) PushFront(key string,
 	if linkedList, exists := this.Get(key); exists {
 		linkedList.PushFront(item)
 	} else {
-		//log.Println("new key:", key)
 		safeList := &SafeLinkedList{L: list.New()}
 		safeList.L.PushFront(item)
 
@@ -207,7 +210,7 @@ func (this *GraphItemMap) KeysByIndex(idx int) []string {
 func (this *GraphItemMap) Back(key string) *cmodel.GraphItem {
 	this.RLock()
 	defer this.RUnlock()
-	idx := hashKey(key) % uint32(this.Size)
+	idx := this.idx(key)
 	L, ok := this.A[idx][key]
 	if !ok {
 		return nil
@@ -225,7 +228,7 @@ func (this *GraphItemMap) Back(key string) *cmodel.GraphItem {
 func (this *GraphItemMap) ItemCnt(key string) int {
 	this.RLock()
 	defer this.RUnlock()
-	idx := hashKey(key) % uint32(this.Size)
+	idx := this.idx(key)
 	L, ok := this.A[idx][key]
 	if !ok {
 		return 0

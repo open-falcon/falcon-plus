@@ -48,7 +48,7 @@ func (this *Graph) GetRrd(key string, rrdfile *g.File) (err error) {
 
 	items := store.GraphItems.PopAll(key)
 	if len(items) > 0 {
-		rrdtool.FlushFile(rrdfile.Filename, md5, items)
+		rrdtool.CommitFile(rrdfile.Filename, md5, items)
 	}
 
 	rrdfile.Body, err = rrdtool.ReadFile(rrdfile.Filename, md5)
@@ -178,7 +178,11 @@ func (this *Graph) Query(param cmodel.GraphQueryParam, resp *cmodel.GraphQueryRe
 		// read data from rrd file
 		// 从RRD中获取数据不包含起始时间点
 		// 例: start_ts=1484651400,step=60,则第一个数据时间为1484651460)
-		datas, _ = rrdtool.Fetch(filename, md5, param.ConsolFun, start_ts-int64(step), end_ts, step)
+		var err error
+		datas, err = rrdtool.Fetch(filename, md5, param.ConsolFun, start_ts-int64(step), end_ts, step)
+		if err != nil {
+			log.Debugf("rrdtool fetch %s error: %v", filename, err)
+		}
 		datas_size = len(datas)
 	}
 
