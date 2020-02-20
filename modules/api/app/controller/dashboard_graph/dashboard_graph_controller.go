@@ -202,6 +202,8 @@ func DashboardGraphUpdate(c *gin.Context) {
 	}
 	if inputs.Method != "" {
 		d.Method = inputs.Method
+	} else {
+		d.Method = " "
 	}
 	if inputs.Position != 0 {
 		d.Position = inputs.Position
