@@ -84,12 +84,17 @@ pack4docker: checkbin
 	@$(foreach var,$(CMD),mkdir -p ./out/$(var)/logs;)
 	@$(foreach var,$(CMD),cp ./config/$(var).json ./out/$(var)/config/cfg.json;)
 	@$(foreach var,$(CMD),cp ./bin/$(var)/falcon-$(var) ./out/$(var)/bin;)
-	@cp -r ./modules/agent/public ./out/agent/
-	@(cd ./out && ln -s ./agent/public/ ./public)
-	@(cd ./out && mkdir -p ./agent/plugin && ln -s ./agent/plugin/ ./plugin)
-	@cp -r ./modules/api/data ./out/api/
-	@mkdir out/graph/data
-	@bash ./docker/confgen4docker.sh
+	@if expr "$(CMD)" : "agent" > /dev/null; then \
+		(cp -r ./modules/agent/public ./out/agent/); \
+		(cd ./out && ln -s ./agent/public/ ./public); \
+		(cd ./out && mkdir -p ./agent/plugin && ln -s ./agent/plugin/ ./plugin); \
+	fi
+	@if expr "$(CMD)" : "api" > /dev/null; then \
+		cp -r ./modules/api/data ./out/api/; \
+	fi
+	@if expr "$(CMD)" : "graph" > /dev/null; then \
+		mkdir out/graph/data; \
+	fi
 	@cp ./docker/ctrl.sh ./out/ && chmod +x ./out/ctrl.sh
 	@cp $(TARGET) ./out/$(TARGET)
 	tar -C out -zcf open-falcon-v$(VERSION).tar.gz .

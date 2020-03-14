@@ -10,7 +10,7 @@
 	},
 	"graphs": {
 		"cluster": {
-			"graph-00": "127.0.0.1:6070"
+			"graph-00": "%%GRAPH_RPC%%"
 		},
 		"max_conns": 100,
 		"max_idle": 100,
