@@ -6,11 +6,11 @@ DOCKER_HOST_IP=$(route -n | awk '/UG[ \t]/{print $2}')
 
 # Search $1 and replace with $2 or $3(defualt)
 replace() {
-    target=$2
-    if [ -z "$target" ]; then
-      target=$3
+    replacement=$2
+    if [ -z "$replacement" ]; then
+      replacement=$3
     fi
-    find $DOCKER_DIR/*/config/*.json -type f -exec sed -i "s/$1/$2/g" {} \;
+    find $DOCKER_DIR/*/config/*.json -type f -exec sed -i "s/$1/$replacement/g" {} \;
 }
 
 replace "%%MYSQL%%" "$MYSQL_PORT" "$DOCKER_HOST_IP:3306"
