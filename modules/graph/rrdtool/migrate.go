@@ -177,7 +177,7 @@ func net_task_worker(idx int, ch chan *Net_task_t, client **rpc.Client, addr str
 				if err = fetch_rrd(client, task.Key, addr); err != nil {
 					if strings.HasSuffix(err.Error(), "no such file or directory") {
 						// which expect that err msg like open xxx.rrd: no such file or directory
-						// TODO:check error in cross diffrent platforms
+						// TODO:check error in cross different platforms
 						pfc.Meter("migrate.scprrd.null", 1)
 						atomic.AddUint64(&stat_cnt[FETCH_S_ISNOTEXIST], 1)
 						store.GraphItems.SetFlag(task.Key, 0)
