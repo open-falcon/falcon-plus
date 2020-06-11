@@ -104,7 +104,7 @@ type GraphAccurateQueryParam struct {
 }
 
 type GraphAccurateQueryResponse struct {
-	Values []*RRDData `json:"values"`
+	Values []*RRDData `json:"Values"`
 }
 
 type JsonFloat float64
