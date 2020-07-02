@@ -95,13 +95,14 @@ func checkStartReq(name string) error {
 func isStarted(name string) bool {
 	ticker := time.NewTicker(time.Millisecond * 100)
 	defer ticker.Stop()
+	timeout := time.After(time.Second)
 	for {
 		select {
 		case <-ticker.C:
 			if g.IsRunning(name) {
 				return true
 			}
-		case <-time.After(time.Second):
+		case <-timeout:
 			return false
 		}
 	}
