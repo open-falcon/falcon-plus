@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: open-falcon
+  name: falcon-alarm
+  labels:
+    app: open-falcon
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 9912
+  selector:
+    name: falcon-alarm
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  namespace: open-falcon
+  name: falcon-alarm
+  labels:
+    app: open-falcon
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: falcon-alarm
+    spec:
+      containers:
+        - name: falcon-alarm
+          image: registry.cn-hangzhou.aliyuncs.com/open-falcon/alarm:v0.3
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 9912
+              name: http
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /open-falcon/alarm/config
+              name: falcon-alarm-config
+            - mountPath: /etc/localtime
+              name: tz-config
+      volumes:
+        - flexVolume:
+            driver: alicloud/nas
+            options:
+              path: /open-falcon/falcon-alarm/config
+              server: xxx.cn-hangzhou.nas.aliyuncs.com
+              vers: "4.0"
+          name: falcon-alarm-config
+        - hostPath:
+            path: /etc/localtime
+            type: ''
+          name: tz-config

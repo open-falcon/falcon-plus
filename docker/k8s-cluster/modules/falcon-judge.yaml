@@ -1,0 +1,59 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: open-falcon
+  name: falcon-judge
+  labels:
+    app: open-falcon
+spec:
+  type: ClusterIP
+  ports:
+    - name: rpc
+      port: 6080
+    - name: http
+      port: 6081
+  selector:
+    name: falcon-judge
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  namespace: open-falcon
+  name: falcon-judge
+  labels:
+    app: open-falcon
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: falcon-judge
+    spec:
+      containers:
+        - name: falcon-judge
+          image: registry.cn-hangzhou.aliyuncs.com/open-falcon/judge:v0.3
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 6080
+              name: rpc
+              protocol: TCP
+            - containerPort: 6081
+              name: http
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /open-falcon/judge/config
+              name: falcon-judge-config
+            - mountPath: /etc/localtime
+              name: tz-config
+      volumes:
+        - flexVolume:
+            driver: alicloud/nas
+            options:
+              path: /open-falcon/falcon-judge/config
+              server: xxx.cn-hangzhou.nas.aliyuncs.com
+              vers: "4.0"
+          name: falcon-judge-config
+        - hostPath:
+            path: /etc/localtime
+            type: ''
+          name: tz-config
