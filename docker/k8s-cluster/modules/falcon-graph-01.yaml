@@ -1,0 +1,68 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: open-falcon
+  name: falcon-graph-01
+  labels:
+    app: open-falcon
+spec:
+  type: ClusterIP
+  ports:
+    - name: rpc
+      port: 6070
+    - name: http
+      port: 6071
+  selector:
+    name: falcon-graph-01
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  namespace: open-falcon
+  name: falcon-graph-01
+  labels:
+    app: open-falcon
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: falcon-graph-01
+    spec:
+      containers:
+        - name: falcon-graph-01
+          image: registry.cn-hangzhou.aliyuncs.com/open-falcon/graph:v0.3
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 6070
+              name: rpc
+              protocol: TCP
+            - containerPort: 6071
+              name: http
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /open-falcon/graph/config
+              name: falcon-graph-config
+            - mountPath: /open-falcon/graph/data
+              name: falcon-graph-data
+            - mountPath: /etc/localtime
+              name: tz-config
+      volumes:
+        - flexVolume:
+            driver: alicloud/nas
+            options:
+              path: /open-falcon/falcon-graph/01/config
+              server: xxx.cn-hangzhou.nas.aliyuncs.com
+              vers: "4.0"
+          name: falcon-graph-config
+        - flexVolume:
+            driver: alicloud/nas
+            options:
+              path: /open-falcon/falcon-graph/01/data
+              server: xxx.cn-hangzhou.nas.aliyuncs.com
+              vers: "4.0"
+          name: falcon-graph-data
+        - hostPath:
+            path: /etc/localtime
+            type: ''
+          name: tz-config

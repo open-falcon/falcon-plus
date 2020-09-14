@@ -1,0 +1,67 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: open-falcon
+  name: falcon-dashboard
+  labels:
+    app: open-falcon
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 8081
+  selector:
+    name: falcon-dashboard
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  namespace: open-falcon
+  name: falcon-dashboard
+  labels:
+    app: open-falcon
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: falcon-dashboard
+    spec:
+      containers:
+      - name: falcon-dashboard
+        image: openfalcon/falcon-dashboard:v0.2.1
+        command: ["sh","-c","cd /open-falcon/dashboard &&  ./control startfg"]
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8081
+        env:
+        - name: API_ADDR
+          value: http://falcon-api:8080/api/v1
+        - name: PORTAL_DB_HOST
+          value: 127.0.0.1
+        - name: PORTAL_DB_PORT
+          value: "3306"
+        - name: PORTAL_DB_USER
+          value: root
+        - name: PORTAL_DB_PASS
+          value: xxx
+        - name: PORTAL_DB_NAME
+          value: falcon_portal
+        - name: ALARM_DB_HOST
+          value: 127.0.0.1
+        - name: ALARM_DB_PORT
+          value: "3306"
+        - name: ALARM_DB_USER
+          value: root
+        - name: ALARM_DB_PASS
+          value: root
+        - name: ALARM_DB_NAME
+          value: alarms
+        volumeMounts:
+          - mountPath: /etc/localtime
+            name: tz-config
+      volumes:
+        - hostPath:
+            path: /etc/localtime
+            type: ''
+          name: tz-config

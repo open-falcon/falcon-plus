@@ -1,0 +1,59 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: open-falcon
+  name: falcon-hbs
+  labels:
+    app: open-falcon
+spec:
+  type: ClusterIP
+  ports:
+    - name: rpc
+      port: 6030
+    - name: http
+      port: 6031
+  selector:
+    name: falcon-hbs
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  namespace: open-falcon
+  name: falcon-hbs
+  labels:
+    app: open-falcon
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: falcon-hbs
+    spec:
+      containers:
+        - name: falcon-hbs
+          image: registry.cn-hangzhou.aliyuncs.com/open-falcon/hbs:v0.3
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 6030
+              name: rpc
+              protocol: TCP
+            - containerPort: 6031
+              name: http
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /open-falcon/hbs/config
+              name: falcon-hbs-config
+            - mountPath: /etc/localtime
+              name: tz-config
+      volumes:
+        - flexVolume:
+            driver: alicloud/nas
+            options:
+              path: /open-falcon/falcon-hbs/config
+              server: xxx.cn-hangzhou.nas.aliyuncs.com
+              vers: "4.0"
+          name: falcon-hbs-config
+        - hostPath:
+            path: /etc/localtime
+            type: ''
+          name: tz-config
