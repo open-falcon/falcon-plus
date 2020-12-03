@@ -1,7 +1,10 @@
 {
+    "max_memory": 200,
+    "memoryctrl": false,
     "debug": true,
     "hostname": "",
     "ip": "",
+    "batch": 2000,
     "plugin": {
         "enabled": false,
         "dir": "./plugin",

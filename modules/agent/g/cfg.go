@@ -18,6 +18,8 @@ import (
 	"encoding/json"
 	"log"
 	"os"
+	"strconv"
+	"strings"
 	"sync"
 
 	"github.com/toolkits/file"
@@ -56,9 +58,12 @@ type CollectorConfig struct {
 }
 
 type GlobalConfig struct {
+	MaxMemory     uint64            `json:"max_memory"`
+	MemoryCtrl    bool              `json:"memoryctrl"`
 	Debug         bool              `json:"debug"`
 	Hostname      string            `json:"hostname"`
 	IP            string            `json:"ip"`
+	Batch         int               `json:"batch,omitempty"`
 	Plugin        *PluginConfig     `json:"plugin"`
 	Heartbeat     *HeartbeatConfig  `json:"heartbeat"`
 	Transfer      *TransferConfig   `json:"transfer"`
@@ -132,6 +137,39 @@ func ParseConfig(cfg string) {
 	err = json.Unmarshal([]byte(configContent), &c)
 	if err != nil {
 		log.Fatalln("parse config file:", cfg, "fail:", err)
+	}
+
+	memCtrl :=os.Getenv("MEMORY_CTRL")
+	if len(memCtrl)!=0{
+		if strings.ToLower(memCtrl)=="true"{
+			c.MemoryCtrl=true
+		}else{
+			c.MemoryCtrl=false
+		}
+	}
+
+	transferAddr :=os.Getenv("TRANSFER_URL")
+	if len(transferAddr)!=0{
+		c.Transfer.Addrs=strings.Split(transferAddr,",")
+		log.Println("transfer url: ",transferAddr)
+	}
+
+	heartbeatURL :=os.Getenv("HEARTBEAT_URL")
+	if len(heartbeatURL)!=0{
+		c.Heartbeat.Addr=heartbeatURL
+		log.Println("heartbeat URL: ",transferAddr)
+	}
+	limitBatch :=os.Getenv("LIMIT_BATCH")
+	if len(limitBatch)!=0{
+		c.Batch,err=strconv.Atoi(limitBatch)
+		if err!=nil{
+			log.Println("invalid limit Batch: ",limitBatch)
+		}
+		log.Println("from env set Batch size: ", c.Batch)
+	}
+	if c.Batch<=0{
+		c.Batch=2000
+		log.Println("set batch default size: ",c.Batch)
 	}
 
 	lock.Lock()
