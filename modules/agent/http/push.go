@@ -16,7 +16,6 @@ package http
 
 import (
 	"encoding/json"
-	"errors"
 	"github.com/open-falcon/falcon-plus/common/model"
 	"github.com/open-falcon/falcon-plus/modules/agent/funcs"
 	"github.com/open-falcon/falcon-plus/modules/agent/g"
@@ -26,14 +25,14 @@ import (
 )
 
 func configPushRoutes() {
-	http.HandleFunc("/v1/push", cors(func(w http.ResponseWriter, req *http.Request) {
+	http.HandleFunc("/v1/push", func(w http.ResponseWriter, req *http.Request) {
 		if req.ContentLength == 0 {
 			http.Error(w, "body is blank", http.StatusBadRequest)
 			return
 		}
-		if g.Config().MemoryCtrl == true {
-			errMem := MemCtrl(w)
-			if errMem != nil {
+		if g.Config().AgentMemCtrl == true {
+			ok := isHandReq(w)
+			if !ok {
 				return
 			}
 		}
@@ -41,65 +40,29 @@ func configPushRoutes() {
 		var metrics []*model.MetricValue
 		err := decoder.Decode(&metrics)
 		if err != nil {
-			http.Error(w, "connot decode body", http.StatusBadRequest)
+			http.Error(w, "cannot decode body", http.StatusBadRequest)
 			return
 		}
-		if len(metrics) >= g.Config().Batch {
+		if len(metrics) > g.Config().Batch {
 			http.Error(w, "cannot post Metric too Big !!! curr count: "+strconv.Itoa(len(metrics)), http.StatusBadRequest)
 		}
 		g.SendToTransfer(metrics)
 		w.Write([]byte("success"))
-	}))
+	})
 }
 
-func MemCtrl(w http.ResponseWriter) error {
+func isHandReq(w http.ResponseWriter) bool {
 	log.Printf("memory control start")
-	mem, err := funcs.AgentMemInfo()
+	memUsed, err := funcs.AgentMemInfo()
 	if err != nil {
 		RenderMsgJson(w, err.Error())
-		return err
+		return false
 	}
-	memUsed := mem.VmRSS
-	if memUsed > g.Config().MaxMemory {
+	if memUsed > g.Config().AgentMemLimit {
 		log.Printf("memory consumption has exceeded the threshold")
 		http.Error(w, "memory consumption has exceeded the threshold", http.StatusBadRequest)
-		return errors.New("memory consumption has exceeded the threshold")
+		return false
 	}
-	return err
+	return true
 }
 
-// 确认下相关请求是否有关联
-func cors(f http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		origin := r.Header.Get("Origin")
-		switch r.Method {
-		case "OPTIONS":
-			method := r.Header.Get("Access-Control-Request-Method")
-			log.Printf("preflight request method: %v", method)
-			if method == "POST" {
-				w.Header().Set("Access-Control-Allow-Origin", origin)
-				w.Header().Set("Access-Control-Allow-Headers", "*")
-				w.Header().Set("Access-Control-Allow-Methods", "POST,OPTIONS")
-				w.WriteHeader(http.StatusOK)
-				return
-			} else {
-				w.WriteHeader(http.StatusBadRequest)
-				return
-			}
-		case "POST":
-			if origin == r.Header.Get("Origin") {
-				w.Header().Set("Access-Control-Allow-Origin", origin)
-			} else if origin == "" {
-				f(w, r)
-				return
-			} else {
-				w.WriteHeader(http.StatusBadRequest)
-				return
-			}
-		default:
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-		f(w, r)
-	}
-}

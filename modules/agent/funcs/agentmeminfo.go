@@ -15,29 +15,7 @@ import (
 	"strings"
 )
 
-type Mem struct {
-	Buffers   uint64
-	Cached    uint64
-	MemTotal  uint64
-	MemFree   uint64
-	SwapTotal uint64
-	SwapUsed  uint64
-	SwapFree  uint64
-	VmRSS     uint64
-}
-
-var Multi uint64 = 1024
-
-var WANT = map[string]struct{}{
-	"Buffers":   struct{}{},
-	"Cached":    struct{}{},
-	"MemTotal":  struct{}{},
-	"MemFree":   struct{}{},
-	"SwapTotal": struct{}{},
-	"SwapUsed":  struct{}{},
-	"SwapFree":  struct{}{},
-	"VmRSS":     struct{}{},
-}
+const Multi uint64 = 1024
 
 // ProcessInfo 定义进程信息
 type ProcessInfo struct {
@@ -47,67 +25,65 @@ type ProcessInfo struct {
 	state string
 }
 
-// ProcessManager
-type ProcessManager struct {
-	handler *os.File
+// agentInfo falcon-agent进程信息
+var agentInfo *ProcessInfo
+
+func init() {
+	agentInfo = getProcInfo("falcon-agent")
+	if agentInfo == nil {
+		log.Println("not exist falcon-agent proc")
+	}
 }
 
-func AgentMemInfo() (*Mem, error) {
-	proc := ProcessManager{}
-	pid, err := proc.CheckProc()
-	if err != nil {
-		return nil, err
+func AgentMemInfo() (uint64, error) {
+	if agentInfo == nil {
+		agentInfo = getProcInfo("falcon-agent")
+		if agentInfo==nil {
+			return 0, errors.New("not exist falcon-agent proc")
+		}
 	}
-	var strs = strconv.Itoa(pid)
-	contents, err := ioutil.ReadFile("/proc" + strs + "status")
+	pid := agentInfo.pid
+	contents, err := ioutil.ReadFile("/proc" + strconv.Itoa(pid) + "status")
 	if err != nil {
 		log.Printf("error: %v", err)
-		return nil, err
-	}
-	memInfo := &Mem{}
-	reader := bufio.NewReader(bytes.NewBuffer(contents))
-
-	for {
-		line, err := file.ReadLine(reader)
-		if err == io.EOF {
-			err = nil
-			break
-		} else if err != nil {
-			return nil, err
-		}
-		fields := strings.Fields(string(line))
-		fieldName := fields[0]
-		_, ok := WANT[fieldName]
-		if ok && len(fields) == 3 {
-			val, numerr := strconv.ParseUint(fields[1], 10, 64)
-			if numerr != nil {
-				continue
-			}
-			switch fieldName {
-			case "VmRSS":
-				memInfo.VmRSS = val / Multi
-			}
-		}
-	}
-	if err != nil {
-		return nil, err
-	}
-	return memInfo, nil
-}
-
-func (proc *ProcessManager) CheckProc() (int, error) {
-	d, err := os.Open("/proc")
-	if err != nil {
 		return 0, err
 	}
-	defer func() {
-		d.Close()
-	}()
-	proc.handler = d
+
+	reader := bufio.NewReader(bytes.NewBuffer(contents))
+	var agentVmRSS uint64
 	for {
-		fileList, err := proc.handler.Readdir(10)
-		if err != nil && err != io.EOF {
-			return 0, err
+		info, err := file.ReadLine(reader)
+		if err != nil {
+			break
+		}
+		fields := strings.Fields(string(info))
+		if len(fields) < 2 || fields[0] != "VmRSS" {
+			continue
+		}
+		val, numErr := strconv.ParseUint(fields[1], 10, 64)
+		if numErr != nil {
+			continue
+		}
+		agentVmRSS = val / Multi
+	}
+	if err != io.EOF {
+		return 0, err
+	}
+	return agentVmRSS, nil
+}
+
+func getProcInfo(procName string) *ProcessInfo {
+	dirs, err := os.Open("/proc")
+	if err != nil {
+		log.Println(err)
+		return nil
+	}
+	defer dirs.Close()
+	for {
+		fileList, err := dirs.Readdir(10)
+		if err != nil {
+			log.Println(err)
+			return nil
 		}
 		for _, fi := range fileList {
 			if !fi.IsDir() {
@@ -121,35 +97,36 @@ func (proc *ProcessManager) CheckProc() (int, error) {
 			if err != nil {
 				continue
 			}
-			p := ProcessInfo{pid: int(pid)}
-			if err := p.Load(); err == nil {
-				return p.pid, nil
-			} else {
+			procData, err := ioutil.ReadFile(fmt.Sprintf("/proc/%d/stat", pid))
+			if err != nil {
 				continue
 			}
+			procInfo := matchProc(procData, procName)
+			if procInfo == nil {
+				continue
+			}
+			procInfo.pid=int(pid)
+			return procInfo
 		}
 	}
 }
 
-// 确认下
-func (p *ProcessInfo) Load() error {
-	dataBytes, err := ioutil.ReadFile(fmt.Sprintf("/proc/%d/stat", p.pid))
-	if err != nil {
-		return err
+// matchProc 获得相应进程名称的pid的信息
+func matchProc(procData []byte, procName string) *ProcessInfo {
+	var p = &ProcessInfo{
+		name:procName,
 	}
-	data := string(dataBytes)
+	data := string(procData)
 	start := strings.IndexRune(data, '(') + 1
 	end := strings.IndexRune(data[start:], ')')
-	p.name = data[start : start+end]
-	if p.name == "falcon-agent" {
-		result := strings.Split(string(data[start+end+2:]), " ")
-		if len(result) < 2 {
-			return errors.New("length not right")
-		}
-		p.state = result[0]
-		if ppid, err := strconv.Atoi(result[2]); err == nil {
-			p.ppid = ppid
-		}
+	otherInfo := strings.Split(data[start+end+2:], " ")
+	if data[start:start+end] != procName || len(otherInfo) < 3 {
+		return nil
 	}
-	return errors.New("the proc not exist")
+	p.state = otherInfo[0]
+	ppid, err := strconv.Atoi(otherInfo[2])
+	if err == nil {
+		p.ppid = ppid
+	}
+	return p
 }

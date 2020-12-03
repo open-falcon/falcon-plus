@@ -58,8 +58,8 @@ type CollectorConfig struct {
 }
 
 type GlobalConfig struct {
-	MaxMemory     uint64            `json:"max_memory"`
-	MemoryCtrl    bool              `json:"memoryctrl"`
+	AgentMemLimit uint64            `json:"agent_mem_limit"`
+	AgentMemCtrl  bool              `json:"agent_mem_ctrl"`
 	Debug         bool              `json:"debug"`
 	Hostname      string            `json:"hostname"`
 	IP            string            `json:"ip"`
@@ -139,37 +139,38 @@ func ParseConfig(cfg string) {
 		log.Fatalln("parse config file:", cfg, "fail:", err)
 	}
 
-	memCtrl :=os.Getenv("MEMORY_CTRL")
-	if len(memCtrl)!=0{
-		if strings.ToLower(memCtrl)=="true"{
-			c.MemoryCtrl=true
-		}else{
-			c.MemoryCtrl=false
+	memCtrl := os.Getenv("AGENT_MEM_CTRL")
+	if memCtrl != "" {
+		if strings.ToLower(memCtrl) == "true" {
+			c.AgentMemCtrl = true
+		} else {
+			c.AgentMemCtrl = false
 		}
+		log.Println("set AgentMemCtrl:", c.AgentMemCtrl, "from env")
 	}
 
-	transferAddr :=os.Getenv("TRANSFER_URL")
-	if len(transferAddr)!=0{
-		c.Transfer.Addrs=strings.Split(transferAddr,",")
-		log.Println("transfer url: ",transferAddr)
+	transferAddr := os.Getenv("TRANSFER_URL")
+	if transferAddr != "" {
+		c.Transfer.Addrs = strings.Split(transferAddr, ",")
+		log.Println("set transfer url: " + transferAddr + " from env")
 	}
 
-	heartbeatURL :=os.Getenv("HEARTBEAT_URL")
-	if len(heartbeatURL)!=0{
-		c.Heartbeat.Addr=heartbeatURL
-		log.Println("heartbeat URL: ",transferAddr)
+	heartbeatURL := os.Getenv("HEARTBEAT_URL")
+	if len(heartbeatURL) != 0 {
+		c.Heartbeat.Addr = heartbeatURL
+		log.Println("set heartbeat URL: " + heartbeatURL + " from env")
 	}
-	limitBatch :=os.Getenv("LIMIT_BATCH")
-	if len(limitBatch)!=0{
-		c.Batch,err=strconv.Atoi(limitBatch)
-		if err!=nil{
-			log.Println("invalid limit Batch: ",limitBatch)
-		}
-		log.Println("from env set Batch size: ", c.Batch)
+
+	limitBatch, err := strconv.Atoi(os.Getenv("LIMIT_BATCH"))
+	if err != nil {
+		log.Println("invalid limit Batch: ", limitBatch)
+	} else {
+		c.Batch = limitBatch
+		log.Println("set limit Batch: ", limitBatch, "from env")
 	}
-	if c.Batch<=0{
-		c.Batch=2000
-		log.Println("set batch default size: ",c.Batch)
+	if c.Batch <= 0 {
+		c.Batch = 2000
+		log.Println("set batch default size: ", c.Batch)
 	}
 
 	lock.Lock()

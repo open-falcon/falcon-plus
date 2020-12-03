@@ -1,6 +1,6 @@
 {
-    "max_memory": 200,
-    "memoryctrl": false,
+    "agent_mem_limit": 200,
+    "agent_mem_ctrl": false,
     "debug": true,
     "hostname": "",
     "ip": "",
