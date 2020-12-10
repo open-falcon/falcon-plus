@@ -73,54 +73,28 @@
 			"revisionTime": "2017-07-06T22:48:25Z"
 		},
 		{
-			"checksumSHA1": "qlEzrgKgIkh7y0ePm9BNo1cNdXo=",
-			"path": "github.com/gin-contrib/sse",
-			"revision": "06e6e3d866e43b8fad2615b422d3bf05fd63d9be",
-			"revisionTime": "2020-08-15T10:46:36Z"
-		},
-		{
-			"checksumSHA1": "IAfO/AbAc5L0eN8jer7x6sGD+Es=",
+			"checksumSHA1": "RsNwOto8G8aXIiRrlFn4dtU9q/g=",
 			"path": "github.com/gin-gonic/gin",
-			"revision": "6a8b8b6651a228590bbc42145483ff864f4f6e89",
-			"revisionTime": "2020-05-03T13:12:07Z",
-			"version": "v1.6.3",
-			"versionExact": "v1.6.3"
+			"revision": "e2212d40c62a98b388a5eb48ecbdcf88534688ba",
+			"revisionTime": "2016-12-04T22:13:08Z",
+			"version": "v1.1.4",
+			"versionExact": "v1.1.4"
 		},
 		{
-			"checksumSHA1": "VGrSfi6ORVO4G4bdQYtp2cZVEdI=",
+			"checksumSHA1": "UsILDoIB2S7ra+w2fMdb85mX3HM=",
 			"path": "github.com/gin-gonic/gin/binding",
-			"revision": "6a8b8b6651a228590bbc42145483ff864f4f6e89",
-			"revisionTime": "2020-05-03T13:12:07Z",
-			"version": "v1.6.3",
-			"versionExact": "v1.6.3"
+			"revision": "e2212d40c62a98b388a5eb48ecbdcf88534688ba",
+			"revisionTime": "2016-12-04T22:13:08Z",
+			"version": "v1.1.4",
+			"versionExact": "v1.1.4"
 		},
 		{
-			"checksumSHA1": "/81vKkFpIIiNB/QszbfwiWfX1tk=",
-			"path": "github.com/gin-gonic/gin/internal/bytesconv",
-			"revision": "6a8b8b6651a228590bbc42145483ff864f4f6e89",
-			"revisionTime": "2020-05-03T13:12:07Z",
-			"version": "v1.6.3",
-			"versionExact": "v1.6.3"
-		},
-		{
-			"checksumSHA1": "rST0S8cuVbM57VmJhWXhKNUkKTc=",
-			"path": "github.com/gin-gonic/gin/internal/json",
-			"revision": "6a8b8b6651a228590bbc42145483ff864f4f6e89",
-			"revisionTime": "2020-05-03T13:12:07Z",
-			"version": "v1.6.3",
-			"versionExact": "v1.6.3"
-		},
-		{
-			"checksumSHA1": "ZHiNx6a8A8f4x7EeT8N3EEx9e5Q=",
+			"checksumSHA1": "PHv9FNb7YavJWtAHcY6ZgXmkmHs=",
 			"path": "github.com/gin-gonic/gin/render",
-			"revision": "6a8b8b6651a228590bbc42145483ff864f4f6e89",
-			"revisionTime": "2020-05-03T13:12:07Z",
-			"version": "v1.6.3",
-			"versionExact": "v1.6.3"
-		},
-		{
-			"path": "github.com/go-playground/validator/v10",
-			"revision": ""
+			"revision": "e2212d40c62a98b388a5eb48ecbdcf88534688ba",
+			"revisionTime": "2016-12-04T22:13:08Z",
+			"version": "v1.1.4",
+			"versionExact": "v1.1.4"
 		},
 		{
 			"checksumSHA1": "VCKsz7001qwfA2bHLo/AOn0xos0=",
@@ -231,12 +205,6 @@
 			"revisionTime": "2017-01-02T12:52:26Z"
 		},
 		{
-			"checksumSHA1": "+kGGVKi/vNd3BtNScLmBYO5+16Q=",
-			"path": "github.com/json-iterator/go",
-			"revision": "6821bec9fa5c17f697f0f2f77ac5055e41a203ac",
-			"revisionTime": "2020-08-06T01:14:08Z"
-		},
-		{
 			"checksumSHA1": "Js/yx9fZ3+wH1wZpHNIxSTMIaCg=",
 			"path": "github.com/jtolds/gls",
 			"revision": "77f18212c9c7edc9bd6a33d383a7b545ce62f064",
@@ -313,18 +281,6 @@
 			"path": "github.com/mitchellh/mapstructure",
 			"revision": "cc8532a8e9a55ea36402aa21efdf403a60d34096",
 			"revisionTime": "2017-04-22T00:02:51Z"
-		},
-		{
-			"checksumSHA1": "ZTcgWKWHsrX0RXYVXn5Xeb8Q0go=",
-			"path": "github.com/modern-go/concurrent",
-			"revision": "bacd9c7ef1dd9b15be4a9909b8ac7a4e313eec94",
-			"revisionTime": "2018-03-06T01:26:44Z"
-		},
-		{
-			"checksumSHA1": "yf/ngONIpklY40kbEKkej7Y/AeQ=",
-			"path": "github.com/modern-go/reflect2",
-			"revision": "7e6ae53ffa0b80243b941dafd23e2c78e2f24135",
-			"revisionTime": "2020-06-02T03:00:31Z"
 		},
 		{
 			"checksumSHA1": "EykqGCTy45u1Z2oZQti8i0acsgI=",
@@ -587,12 +543,6 @@
 			"revisionTime": "2016-05-24T12:27:20Z"
 		},
 		{
-			"checksumSHA1": "NMGMnCniY50xEx7EBcrRiO1Ilsg=",
-			"path": "github.com/ugorji/go/codec",
-			"revision": "6e6582875a5fc653bb3fba5691f85629f09940db",
-			"revisionTime": "2020-10-14T17:42:39Z"
-		},
-		{
 			"checksumSHA1": "BGm8lKZmvJbf/YOJLeL1rw2WVjA=",
 			"path": "golang.org/x/crypto/ssh/terminal",
 			"revision": "ae8bce0030810cf999bb2b9868ae5c7c58e6343b",
@@ -641,10 +591,10 @@
 			"revisionTime": "2016-07-18T13:41:25Z"
 		},
 		{
-			"checksumSHA1": "wZxi5gt6Zfs4vh8795dNA/lva7g=",
+			"checksumSHA1": "fALlQNY1fM99NesfLJ50KguWsio=",
 			"path": "gopkg.in/yaml.v2",
-			"revision": "0b1645d91e851e735d3e23330303ce81f70adbe3",
-			"revisionTime": "2020-05-06T23:08:38Z"
+			"revision": "cd8b52f8269e0feb286dfeef29f8fe4d5b397e0b",
+			"revisionTime": "2017-04-07T17:21:22Z"
 		}
 	],
 	"rootPath": "github.com/open-falcon/falcon-plus"
