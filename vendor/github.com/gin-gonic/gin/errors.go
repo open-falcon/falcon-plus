@@ -5,55 +5,46 @@
 package gin
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"reflect"
-	"strings"
-
-	"github.com/gin-gonic/gin/internal/json"
 )
 
-// ErrorType is an unsigned 64-bit error code as defined in the gin spec.
 type ErrorType uint64
 
 const (
-	// ErrorTypeBind is used when Context.Bind() fails.
-	ErrorTypeBind ErrorType = 1 << 63
-	// ErrorTypeRender is used when Context.Render() fails.
-	ErrorTypeRender ErrorType = 1 << 62
-	// ErrorTypePrivate indicates a private error.
+	ErrorTypeBind    ErrorType = 1 << 63 // used when c.Bind() fails
+	ErrorTypeRender  ErrorType = 1 << 62 // used when c.Render() fails
 	ErrorTypePrivate ErrorType = 1 << 0
-	// ErrorTypePublic indicates a public error.
-	ErrorTypePublic ErrorType = 1 << 1
-	// ErrorTypeAny indicates any other error.
+	ErrorTypePublic  ErrorType = 1 << 1
+
 	ErrorTypeAny ErrorType = 1<<64 - 1
-	// ErrorTypeNu indicates any other error.
-	ErrorTypeNu = 2
+	ErrorTypeNu            = 2
 )
 
-// Error represents a error's specification.
-type Error struct {
-	Err  error
-	Type ErrorType
-	Meta interface{}
-}
+type (
+	Error struct {
+		Err  error
+		Type ErrorType
+		Meta interface{}
+	}
 
-type errorMsgs []*Error
+	errorMsgs []*Error
+)
 
 var _ error = &Error{}
 
-// SetType sets the error's type.
 func (msg *Error) SetType(flags ErrorType) *Error {
 	msg.Type = flags
 	return msg
 }
 
-// SetMeta sets the error's meta data.
 func (msg *Error) SetMeta(data interface{}) *Error {
 	msg.Meta = data
 	return msg
 }
 
-// JSON creates a properly formatted JSON
 func (msg *Error) JSON() interface{} {
 	json := H{}
 	if msg.Meta != nil {
@@ -75,23 +66,22 @@ func (msg *Error) JSON() interface{} {
 	return json
 }
 
-// MarshalJSON implements the json.Marshaller interface.
+// MarshalJSON implements the json.Marshaller interface
 func (msg *Error) MarshalJSON() ([]byte, error) {
 	return json.Marshal(msg.JSON())
 }
 
-// Error implements the error interface.
-func (msg Error) Error() string {
+// Implements the error interface
+func (msg *Error) Error() string {
 	return msg.Err.Error()
 }
 
-// IsType judges one error.
 func (msg *Error) IsType(flags ErrorType) bool {
 	return (msg.Type & flags) > 0
 }
 
-// ByType returns a readonly copy filtered the byte.
-// ie ByType(gin.ErrorTypePublic) returns a slice of errors with type=ErrorTypePublic.
+// Returns a readonly copy filterd the byte.
+// ie ByType(gin.ErrorTypePublic) returns a slice of errors with type=ErrorTypePublic
 func (a errorMsgs) ByType(typ ErrorType) errorMsgs {
 	if len(a) == 0 {
 		return nil
@@ -108,16 +98,17 @@ func (a errorMsgs) ByType(typ ErrorType) errorMsgs {
 	return result
 }
 
-// Last returns the last error in the slice. It returns nil if the array is empty.
-// Shortcut for errors[len(errors)-1].
+// Returns the last error in the slice. It returns nil if the array is empty.
+// Shortcut for errors[len(errors)-1]
 func (a errorMsgs) Last() *Error {
-	if length := len(a); length > 0 {
+	length := len(a)
+	if length > 0 {
 		return a[length-1]
 	}
 	return nil
 }
 
-// Errors returns an array will all the error messages.
+// Returns an array will all the error messages.
 // Example:
 // 		c.Error(errors.New("first"))
 // 		c.Error(errors.New("second"))
@@ -149,7 +140,6 @@ func (a errorMsgs) JSON() interface{} {
 	}
 }
 
-// MarshalJSON implements the json.Marshaller interface.
 func (a errorMsgs) MarshalJSON() ([]byte, error) {
 	return json.Marshal(a.JSON())
 }
@@ -158,9 +148,9 @@ func (a errorMsgs) String() string {
 	if len(a) == 0 {
 		return ""
 	}
-	var buffer strings.Builder
+	var buffer bytes.Buffer
 	for i, msg := range a {
-		fmt.Fprintf(&buffer, "Error #%02d: %s\n", i+1, msg.Err)
+		fmt.Fprintf(&buffer, "Error #%02d: %s\n", (i + 1), msg.Err)
 		if msg.Meta != nil {
 			fmt.Fprintf(&buffer, "     Meta: %v\n", msg.Meta)
 		}

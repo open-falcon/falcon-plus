@@ -5,33 +5,29 @@
 package gin
 
 import (
+	"crypto/subtle"
 	"encoding/base64"
-	"net/http"
 	"strconv"
-
-	"github.com/gin-gonic/gin/internal/bytesconv"
 )
 
-// AuthUserKey is the cookie name for user credential in basic auth.
 const AuthUserKey = "user"
 
-// Accounts defines a key/value for user/pass list of authorized logins.
-type Accounts map[string]string
-
-type authPair struct {
-	value string
-	user  string
-}
-
-type authPairs []authPair
+type (
+	Accounts map[string]string
+	authPair struct {
+		Value string
+		User  string
+	}
+	authPairs []authPair
+)
 
 func (a authPairs) searchCredential(authValue string) (string, bool) {
-	if authValue == "" {
+	if len(authValue) == 0 {
 		return "", false
 	}
 	for _, pair := range a {
-		if pair.value == authValue {
-			return pair.user, true
+		if pair.Value == authValue {
+			return pair.User, true
 		}
 	}
 	return "", false
@@ -49,17 +45,16 @@ func BasicAuthForRealm(accounts Accounts, realm string) HandlerFunc {
 	pairs := processAccounts(accounts)
 	return func(c *Context) {
 		// Search user in the slice of allowed credentials
-		user, found := pairs.searchCredential(c.requestHeader("Authorization"))
+		user, found := pairs.searchCredential(c.Request.Header.Get("Authorization"))
 		if !found {
 			// Credentials doesn't match, we return 401 and abort handlers chain.
 			c.Header("WWW-Authenticate", realm)
-			c.AbortWithStatus(http.StatusUnauthorized)
-			return
+			c.AbortWithStatus(401)
+		} else {
+			// The user credentials was found, set user's id to key AuthUserKey in this context, the userId can be read later using
+			// c.MustGet(gin.AuthUserKey)
+			c.Set(AuthUserKey, user)
 		}
-
-		// The user credentials was found, set user's id to key AuthUserKey in this context, the user's id can be read later using
-		// c.MustGet(gin.AuthUserKey).
-		c.Set(AuthUserKey, user)
 	}
 }
 
@@ -73,11 +68,11 @@ func processAccounts(accounts Accounts) authPairs {
 	assert1(len(accounts) > 0, "Empty list of authorized credentials")
 	pairs := make(authPairs, 0, len(accounts))
 	for user, password := range accounts {
-		assert1(user != "", "User can not be empty")
+		assert1(len(user) > 0, "User can not be empty")
 		value := authorizationHeader(user, password)
 		pairs = append(pairs, authPair{
-			value: value,
-			user:  user,
+			Value: value,
+			User:  user,
 		})
 	}
 	return pairs
@@ -85,5 +80,13 @@ func processAccounts(accounts Accounts) authPairs {
 
 func authorizationHeader(user, password string) string {
 	base := user + ":" + password
-	return "Basic " + base64.StdEncoding.EncodeToString(bytesconv.StringToBytes(base))
+	return "Basic " + base64.StdEncoding.EncodeToString([]byte(base))
+}
+
+func secureCompare(given, actual string) bool {
+	if subtle.ConstantTimeEq(int32(len(given)), int32(len(actual))) == 1 {
+		return subtle.ConstantTimeCompare([]byte(given), []byte(actual)) == 1
+	}
+	/* Securely compare actual to itself to keep constant time, but always return false */
+	return subtle.ConstantTimeCompare([]byte(actual), []byte(actual)) == 1 && false
 }
