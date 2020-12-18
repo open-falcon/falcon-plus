@@ -40,18 +40,13 @@ func Login(c *gin.Context) {
 		h.JSONR(c, badstatus, "name or password is blank")
 		return
 	}
-	name := inputs.Name
-	password := inputs.Password
-
-	user := uic.User{
-		Name: name,
-	}
-	db.Uic.Where(&user).Find(&user)
+	user := uic.User{}
+	db.Uic.Where(uic.User{Name: inputs.Name}).Find(&user)
 	switch {
 	case user.ID == 0:
 		h.JSONR(c, badstatus, "no such user")
 		return
-	case user.Passwd != utils.HashIt(password):
+	case user.Passwd != utils.HashIt(inputs.Password):
 		h.JSONR(c, badstatus, "password error")
 		return
 	}
