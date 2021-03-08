@@ -3,7 +3,7 @@ sudo: required
 language: go
 
 go:
-  - "1.8"
+  - "1.15"
 
 env:
   - DB_USER=root DB_PASSWORD=test123456 DB_HOST=127.0.0.1 DB_PORT=13306 REDIS_HOST=127.0.0.1 REDIS_PORT=16379 API_PORT=18080 API_HOST=127.0.0.1
