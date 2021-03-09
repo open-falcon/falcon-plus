@@ -14,7 +14,7 @@ docker run --name falcon-mysql -e MYSQL_ROOT_PASSWORD=$DB_PASSWORD -p $DB_PORT:3
 docker run --name falcon-redis -p $REDIS_PORT:6379 -d redis:4-alpine3.8
 
 echo "waiting mysql start..."
-sleep 10
+sleep 15
 for x in `ls ./scripts/mysql/db_schema/*.sql`; do
     echo "- - -" $x ...
     mysql -h $DB_HOST -P$DB_PORT -u$DB_USER -p$DB_PASSWORD < $x
@@ -35,11 +35,13 @@ docker run -itd --name falcon-plus \
 	 -e MYSQL_PORT=$DB_USER:$DB_PASSWORD@tcp\(db.falcon:3306\) \
 	 -e REDIS_PORT=redis.falcon:6379  \
 	 $image_tag
+sleep 15
 
 ## start falcon backend modules, such as graph,api,etc.
-sleep 5
 docker exec falcon-plus sh ctrl.sh start \
 		graph hbs judge transfer nodata aggregator agent gateway api alarm
 
-sleep 5
+echo "sleep 15s waiting for falcon-plus process ready..."
+sleep 15
+
 make test

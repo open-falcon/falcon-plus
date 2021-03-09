@@ -46,7 +46,7 @@ func repsonseDefault(limit int) (result []APIGrafanaMainQueryOutputs) {
 	for _, h := range enps {
 		result = append(result, APIGrafanaMainQueryOutputs{
 			Expandable: true,
-			Text:       h.Endpoint,
+			Text:       strings.Replace(h.Endpoint, ".", "~", -1), //convert '.' to '~' of endpoint
 		})
 	}
 	return
@@ -62,7 +62,7 @@ func responseHostsRegexp(limit int, regexpKey string) (result []APIGrafanaMainQu
 	for _, h := range enps {
 		result = append(result, APIGrafanaMainQueryOutputs{
 			Expandable: true,
-			Text:       h.Endpoint,
+			Text:       strings.Replace(h.Endpoint, ".", "~", -1), //convert '.' to '~' of endpoint
 		})
 	}
 	return
@@ -70,12 +70,13 @@ func responseHostsRegexp(limit int, regexpKey string) (result []APIGrafanaMainQu
 
 //for resolve mixed query with endpoint & counter of query string
 func cutEndpointCounterHelp(regexpKey string) (hosts []string, counter string) {
+	//e.g. "{aaa,bbb}#xxx#yyy#zzz#.*" => hosts=[aaa,bbb], counter="xxx\.yyy\.zzz\..*"
 	r, _ := regexp.Compile("^{?([^#}]+)}?#(.+)")
 	matchedList := r.FindAllStringSubmatch(regexpKey, 1)
 	if len(matchedList) != 0 {
 		if len(matchedList[0]) > 1 {
-			//get hosts
-			hostsTmp := matchedList[0][1]
+			//get hosts and convert '~' to '.' of endpoint
+			hostsTmp := strings.Replace(matchedList[0][1], "~", ".", -1)
 			counterTmp := matchedList[0][2]
 			hosts = strings.Split(hostsTmp, ",")
 			counter = strings.Replace(counterTmp, "#", "\\.", -1)
@@ -83,29 +84,30 @@ func cutEndpointCounterHelp(regexpKey string) (hosts []string, counter string) {
 	} else {
 		log.Errorf("grafana query inputs error: %v", regexpKey)
 	}
+
 	return
 }
 
 func expandableChecking(counter string, counterSearchKeyWord string) (expsub string, needexp bool) {
-	re := regexp.MustCompile("(\\.\\+|\\.\\*)\\s*$")
-	counterSearchKeyWord = re.ReplaceAllString(counterSearchKeyWord, "")
-	counterSearchKeyWord = strings.Replace(counterSearchKeyWord, "\\.", ".", -1)
-	expCheck := strings.Replace(counter, counterSearchKeyWord, "", -1)
+	terms := strings.Split(counterSearchKeyWord, "\\.")
+	expCheck := ""
+
+	if len(terms) == 1 {
+		expCheck = counter
+	} else {
+		counter_search_prefix := strings.Join(terms[0:len(terms)-1], ".")
+		expCheck = strings.TrimPrefix(counter, counter_search_prefix)
+		expCheck = strings.TrimPrefix(expCheck, ".")
+	}
 	if expCheck == "" {
 		needexp = false
 		expsub = expCheck
 	} else {
-		needexp = true
-		re = regexp.MustCompile("^\\.")
-		expsubArr := strings.Split(re.ReplaceAllString(expCheck, ""), ".")
-		switch len(expsubArr) {
-		case 0:
-			expsub = ""
-		case 1:
-			expsub = expsubArr[0]
+		a := strings.Split(expCheck, ".")
+		expsub = a[0]
+		if len(a) == 1 {
 			needexp = false
-		default:
-			expsub = expsubArr[0]
+		} else {
 			needexp = true
 		}
 	}
@@ -216,6 +218,7 @@ func GrafanaMainQuery(c *gin.Context) {
 	} else if strings.Contains(inputs.Query, "#") && !strings.Contains(inputs.Query, "#select metric") {
 		output = responseCounterRegexp(inputs.Query)
 	}
+	log.Debugf("query response:%v", output)
 	c.JSON(200, output)
 	return
 }
