@@ -1,6 +1,7 @@
 package assertions
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 )
@@ -14,9 +15,10 @@ func ShouldHaveSameTypeAs(actual interface{}, expected ...interface{}) string {
 	first := reflect.TypeOf(actual)
 	second := reflect.TypeOf(expected[0])
 
-	if equal := ShouldEqual(first, second); equal != success {
+	if first != second {
 		return serializer.serialize(second, first, fmt.Sprintf(shouldHaveBeenA, actual, second, first))
 	}
+
 	return success
 }
 
@@ -29,7 +31,7 @@ func ShouldNotHaveSameTypeAs(actual interface{}, expected ...interface{}) string
 	first := reflect.TypeOf(actual)
 	second := reflect.TypeOf(expected[0])
 
-	if equal := ShouldEqual(first, second); equal == success {
+	if (actual == nil && expected[0] == nil) || first == second {
 		return fmt.Sprintf(shouldNotHaveBeenA, actual, second)
 	}
 	return success
@@ -64,10 +66,6 @@ func ShouldImplement(actual interface{}, expectedList ...interface{}) string {
 	}
 
 	expectedInterface := expectedType.Elem()
-
-	if actualType == nil {
-		return fmt.Sprintf(shouldHaveImplemented, expectedInterface, actual)
-	}
 
 	if !actualType.Implements(expectedInterface) {
 		return fmt.Sprintf(shouldHaveImplemented, expectedInterface, actualType)
@@ -111,42 +109,46 @@ func ShouldNotImplement(actual interface{}, expectedList ...interface{}) string 
 	return success
 }
 
-// ShouldBeError receives one parameter and ensures
-// that it is an error interface.
-// It optionally takes an additional second parameter to test
-// an expected error message.
+// ShouldBeError asserts that the first argument implements the error interface.
+// It also compares the first argument against the second argument if provided
+// (which must be an error message string or another error value).
 func ShouldBeError(actual interface{}, expected ...interface{}) string {
-	expectedErrMsg, err := cleanShouldBeErrorInput(actual, expected...)
-
-	if err != "" {
-		return err
+	if fail := atMost(1, expected); fail != success {
+		return fail
 	}
 
-	val, ok := actual.(error)
-	if !ok {
-		return shouldBeError
+	if !isError(actual) {
+		return fmt.Sprintf(shouldBeError, reflect.TypeOf(actual))
 	}
 
-	if expectedErrMsg != "" && val.Error() != expectedErrMsg {
-		return fmt.Sprintf(shouldBeErrorExpectedMessage, expectedErrMsg, val.Error())
+	if len(expected) == 0 {
+		return success
+	}
+
+	if expected := expected[0]; !isString(expected) && !isError(expected) {
+		return fmt.Sprintf(shouldBeErrorInvalidComparisonValue, reflect.TypeOf(expected))
+	}
+	return ShouldEqual(fmt.Sprint(actual), fmt.Sprint(expected[0]))
+}
+
+// ShouldWrap asserts that the first argument (which must be an error value)
+// 'wraps' the second/final argument (which must also be an error value).
+// It relies on errors.Is to make the determination (https://golang.org/pkg/errors/#Is).
+func ShouldWrap(actual interface{}, expected ...interface{}) string {
+	if fail := need(1, expected); fail != success {
+		return fail
+	}
+
+	if !isError(actual) || !isError(expected[0]) {
+		return fmt.Sprintf(shouldWrapInvalidTypes, reflect.TypeOf(actual), reflect.TypeOf(expected[0]))
+	}
+
+	if !errors.Is(actual.(error), expected[0].(error)) {
+		return fmt.Sprintf(`Expected error("%s") to wrap error("%s") but it didn't.`, actual, expected[0])
 	}
 
 	return success
 }
 
-// Clean the `ShouldBeError` assertion input.
-// If a second, optional argument was passed (the expected error message),
-// it will be returned. Otherwise, return an empty string and an error message.
-func cleanShouldBeErrorInput(actual interface{}, expected ...interface{}) (string, string) {
-	if len(expected) == 0 {
-		return "", ""
-	}
-
-	// Make sure the provided is a string
-	val, ok := expected[0].(string)
-	if !ok {
-		return "", "This assertion requires an error message string to be provided (you provided a non-string type)."
-	}
-
-	return val, ""
-}
+func isString(value interface{}) bool { _, ok := value.(string); return ok }
+func isError(value interface{}) bool  { _, ok := value.(error); return ok }
