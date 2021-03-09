@@ -35,11 +35,13 @@ docker run -itd --name falcon-plus \
 	 -e MYSQL_PORT=$DB_USER:$DB_PASSWORD@tcp\(db.falcon:3306\) \
 	 -e REDIS_PORT=redis.falcon:6379  \
 	 $image_tag
+sleep 15
 
 ## start falcon backend modules, such as graph,api,etc.
-sleep 15
 docker exec falcon-plus sh ctrl.sh start \
 		graph hbs judge transfer nodata aggregator agent gateway api alarm
 
-sleep 10
+echo "sleep 15s waiting for falcon-plus process ready..."
+sleep 15
+
 make test
