@@ -2,6 +2,9 @@ sudo: required
 
 language: go
 
+arch:
+- amd64
+- arm64
 go:
   - "1.15"
 
@@ -12,13 +15,14 @@ services:
   - docker
 
 script:
+  - go get -u github.com/go-sql-driver/mysql
   - make install
+  - make fmt
   - make fmt-check
   - make misspell-check
   - make all
   - bash ./docker_test.sh
  
-
 after_success:
   - go test -race -coverprofile=coverage.txt -covermode=atomic github.com/open-falcon/falcon-plus/modules/api/test
   - bash <(curl -s https://codecov.io/bash)

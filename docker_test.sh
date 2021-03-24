@@ -10,7 +10,11 @@ export API_PORT=18080
 export API_HOST=127.0.0.1
 
 docker rm -f falcon-mysql falcon-redis falcon-plus &> /dev/null
-docker run --name falcon-mysql -e MYSQL_ROOT_PASSWORD=$DB_PASSWORD -p $DB_PORT:3306 -d mysql:5.7
+if [[ `uname -m` == "aarch64" ]]; then
+	docker run --name falcon-mysql -e MYSQL_ROOT_PASSWORD=$DB_PASSWORD -p $DB_PORT:3306 -d mariadb:10.3
+else
+	docker run --name falcon-mysql -e MYSQL_ROOT_PASSWORD=$DB_PASSWORD -p $DB_PORT:3306 -d mysql:5.7
+fi
 docker run --name falcon-redis -p $REDIS_PORT:6379 -d redis:4-alpine3.8
 
 echo "waiting mysql start..."
@@ -24,7 +28,11 @@ commit_id=`git rev-parse --short HEAD`
 image_tag="falcon-plus:$commit_id"
 
 #build docker image from source code
-docker build -t $image_tag .
+if [[ `uname -m` == "aarch64" ]]; then
+	docker build -t $image_tag -f Dockerfile_arm64 .
+else
+	docker build -t $image_tag .
+fi
 
 ## run falcon-plus container
 docker run -itd --name falcon-plus \
