@@ -24,11 +24,16 @@ clean() {
 
 build() {
     echo "build source..."
+    if [ `uname -m` == "aarch64"]; then
+        BASE_IMAGE=jimmytinsley/makegcc-golang \
+    else
+        BASE_IMAGE=openfalcon/makegcc-golang:1.10-alpine \
+    fi
     docker run -it --rm \
         --name build \
         -v "$(pwd)":"/go/src/github.com/open-falcon/falcon-plus" \
         -w "/go/src/github.com/open-falcon/falcon-plus" \
-        openfalcon/makegcc-golang:1.10-alpine \
+        $BASE_IMAGE \
         docker/k8s-cluster/init.sh
 }
 
