@@ -219,7 +219,7 @@ CREATE TABLE alert_link
 (
   id        INT UNSIGNED NOT NULL AUTO_INCREMENT,
   path      VARCHAR(16)  NOT NULL DEFAULT '',
-  content   TEXT         NOT NULL,
+  content   MEDIUMTEXT   NOT NULL,
   create_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
   UNIQUE KEY alert_path(path)
