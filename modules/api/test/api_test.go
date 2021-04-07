@@ -20,6 +20,7 @@ import (
 	"os"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/masato25/resty"
 	log "github.com/sirupsen/logrus"
@@ -555,31 +556,60 @@ func TestGraph(t *testing.T) {
 
 	rc := resty.New()
 	rc.SetHeader("Apitoken", api_token)
+	var rr *[]map[string]interface{} = &[]map[string]interface{}{}
 
 	Convey("Get endpoint list: GET /graph/endpoint", t, func() {
-		r := []map[string]interface{}{}
 		resp, _ := rc.R().SetQueryParam("q", ".+").
-			SetResult(&r).
+			SetResult(rr).
 			Get(fmt.Sprintf("%s/graph/endpoint", api_v1))
 		So(resp.StatusCode(), ShouldEqual, 200)
-		So(len(r), ShouldBeGreaterThanOrEqualTo, 0)
+		So(len(*rr), ShouldBeGreaterThanOrEqualTo, 0)
 
-		if len(r) == 0 {
-			return
-		}
+	})
 
-		eid := r[0]["id"]
-		r = []map[string]interface{}{}
-		Convey("Get counter list: GET /graph/endpoint_counter", func() {
-			resp, _ := rc.R().
-				SetQueryParam("eid", fmt.Sprintf("%v", eid)).
-				SetQueryParam("metricQuery", ".+").
-				SetQueryParam("limit", "1").
-				SetResult(&r).
-				Get(fmt.Sprintf("%s/graph/endpoint_counter", api_v1))
-			So(resp.StatusCode(), ShouldEqual, 200)
-			So(r, ShouldNotBeEmpty)
-		})
+	if len(*rr) == 0 {
+		return
+	}
+
+	eid := (*rr)[0]["id"]
+	endpoint := (*rr)[0]["endpoint"]
+	Convey("Get counter list: GET /graph/endpoint_counter", t, func() {
+		resp, _ := rc.R().
+			SetQueryParam("eid", fmt.Sprintf("%v", eid)).
+			SetQueryParam("metricQuery", ".+").
+			SetQueryParam("limit", "1").
+			SetResult(rr).
+			Get(fmt.Sprintf("%s/graph/endpoint_counter", api_v1))
+		So(resp.StatusCode(), ShouldEqual, 200)
+		So(*rr, ShouldNotBeEmpty)
+	})
+
+	if len(*rr) == 0 {
+		return
+	}
+
+	counter := (*rr)[0]["counter"]
+	step := (*rr)[0]["step"]
+
+	now := time.Now()
+	start_ts := now.Add(time.Duration(-1) * time.Hour).Unix()
+	end_ts := now.Unix()
+
+	Convey("Query counter history: POST /graph/history", t, func() {
+		resp, _ := rc.R().
+			SetBody(map[string]interface{}{
+				"step":       step,
+				"consol_fun": "AVERAGE",
+				"start_time": start_ts,
+				"end_time":   end_ts,
+				"hostnames":  []string{endpoint.(string)},
+				"counters":   []string{counter.(string)},
+			}).
+			SetResult(rr).
+			Post(fmt.Sprintf("%s/graph/history", api_v1))
+		log.Info(resp)
+		So(resp.StatusCode(), ShouldEqual, 200)
+		So(*rr, ShouldNotBeEmpty)
 	})
 }
 

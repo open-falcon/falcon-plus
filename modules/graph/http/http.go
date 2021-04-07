@@ -16,7 +16,6 @@ package http
 
 import (
 	"encoding/json"
-	"fmt"
 	log "github.com/sirupsen/logrus"
 	"net"
 	"net/http"
@@ -25,7 +24,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/open-falcon/falcon-plus/modules/graph/g"
-	"github.com/open-falcon/falcon-plus/modules/graph/rrdtool"
 )
 
 type Dto struct {
@@ -101,19 +99,6 @@ func Start() {
 	configCommonRoutes()
 	configProcRoutes()
 	configIndexRoutes()
-
-	router.GET("/api/v2/counter/migrate", func(c *gin.Context) {
-		counter := rrdtool.GetCounterV2()
-		log.Debug("migrating counter v2:", fmt.Sprintf("%+v", counter))
-		c.JSON(200, counter)
-	})
-
-	//compatible with open-falcon v0.1
-	router.GET("/counter/migrate", func(c *gin.Context) {
-		cnt := rrdtool.GetCounter()
-		log.Debug("migrating counter:", cnt)
-		c.JSON(200, gin.H{"msg": "ok", "counter": cnt})
-	})
 
 	addr := g.Config().Http.Listen
 	if addr == "" {

@@ -17,7 +17,7 @@ package g
 import (
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"sync"
 )
 
@@ -33,11 +33,11 @@ func InitDB() {
 	var err error
 	DB, err = makeDbConn()
 	if DB == nil || err != nil {
-		log.Fatalln("g.InitDB, get db conn fail", err)
+		log.Fatal("g.InitDB, get db conn fail", err)
 	}
 
 	dbConnMap = make(map[string]*sql.DB)
-	log.Println("g.InitDB ok")
+	log.Info("g.InitDB ok")
 }
 
 func GetDbConn(connName string) (c *sql.DB, e error) {

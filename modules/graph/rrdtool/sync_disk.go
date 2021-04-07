@@ -17,12 +17,12 @@ package rrdtool
 import (
 	"io"
 	"io/ioutil"
-	"log"
 	"os"
 	"time"
 
 	"github.com/open-falcon/falcon-plus/modules/graph/g"
 	"github.com/open-falcon/falcon-plus/modules/graph/store"
+	log "github.com/sirupsen/logrus"
 	"github.com/toolkits/file"
 )
 
@@ -41,33 +41,38 @@ type io_task_t struct {
 }
 
 var (
-	Out_done_chan chan int
-	io_task_chans []chan *io_task_t
+	Main_done_chan chan int
+	io_task_chans  []chan *io_task_t
 )
 
 func InitChannel() {
-	Out_done_chan = make(chan int, 1)
+	Main_done_chan = make(chan int, 1)
 	ioWorkerNum := g.Config().IOWorkerNum
 	io_task_chans = make([]chan *io_task_t, ioWorkerNum)
 	for i := 0; i < ioWorkerNum; i++ {
+		//the io task queue length is 16
 		io_task_chans[i] = make(chan *io_task_t, 16)
 	}
 }
 
 func syncDisk() {
-	time.Sleep(time.Second * g.CACHE_DELAY)
 	ticker := time.NewTicker(time.Millisecond * g.FLUSH_DISK_STEP)
 	defer ticker.Stop()
 	var idx int = 0
+	n := store.GraphItems.Size / 10
 
 	for {
 		select {
 		case <-ticker.C:
 			idx = idx % store.GraphItems.Size
-			FlushRRD(idx, false)
+			commitByIdx(idx)
+			if idx%n == 0 {
+				log.Debugf("flush rrd hash idx:%03d size:%03d disk:%08d net:%08d",
+					idx, store.GraphItems.Size, disk_counter, net_counter)
+			}
 			idx += 1
-		case <-Out_done_chan:
-			log.Println("cron recv sigout and exit...")
+		case <-Main_done_chan:
+			log.Info("syncDisk cron recv sigout and exit...")
 			return
 		}
 	}

@@ -17,7 +17,7 @@ package index
 import (
 	"database/sql"
 	"fmt"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"strconv"
 	"strings"
 	"sync"
@@ -97,7 +97,7 @@ func GetEndpointFromCache(endpoint string) (int64, bool) {
 	var id int64 = -1
 	err := g.DB.QueryRow("SELECT id FROM endpoint WHERE endpoint = ?", endpoint).Scan(&id)
 	if err != nil && err != sql.ErrNoRows {
-		log.Println("query endpoint id fail,", err)
+		log.Error("query endpoint id fail,", err)
 		return -1, false
 	}
 
@@ -132,7 +132,7 @@ func GetCounterFromCache(endpointId int64, counter string) (dsType string, step 
 	err = g.DB.QueryRow("SELECT type, step FROM endpoint_counter WHERE endpoint_id = ? and counter = ?",
 		endpointId, counter).Scan(&dsType, &step)
 	if err != nil && err != sql.ErrNoRows {
-		log.Println("query type and step fail", err)
+		log.Error("query type and step fail", err)
 		return
 	}
 

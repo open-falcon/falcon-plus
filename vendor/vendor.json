@@ -279,10 +279,10 @@
 			"revisionTime": "2015-12-21T08:53:10Z"
 		},
 		{
-			"checksumSHA1": "I0kIkGOtYBit3XflqEqbEt+kuhQ=",
+			"checksumSHA1": "8tcXzsjEx8Qo/4wv0+T0/CZJqqk=",
 			"path": "github.com/open-falcon/rrdlite",
-			"revision": "7d8646c85cc56cad1f65d97abbe24fdfc1b88917",
-			"revisionTime": "2017-04-12T12:20:36Z"
+			"revision": "bf5829f786ad3765b09ae54f416106d5f1565c07",
+			"revisionTime": "2020-02-14T14:08:04Z"
 		},
 		{
 			"checksumSHA1": "F1IYMLBLAZaTOWnmXsgaxTGvrWI=",
