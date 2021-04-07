@@ -1,0 +1,164 @@
+version: '3.5'
+
+services:
+  mysql:
+    container_name: falcon-mysql
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - ./scripts/mysql/db_schema:/docker-entrypoint-initdb.d/
+      - mysql-data:/var/lib/mysql
+
+  redis:
+    container_name: falcon-redis
+    image: redis:4-alpine3.8
+
+  hbs: &falcon
+    container_name: falcon-hbs
+    build:
+      context: ./
+      args:
+        MODULE: hbs
+      dockerfile: Dockerfile.module
+    image: openfalcon/falcon-hbs:dev
+    environment:
+      MYSQL_PORT: root:root@tcp\(falcon-mysql:3306\)
+      REDIS_PORT: falcon-redis:6379
+      AGGREGATOR_HTTP: falcon-aggregator:6055
+      GRAPH_HTTP: falcon-graph:6071
+      GRAPH_RPC: falcon-graph:6070
+      HBS_HTTP: falcon-hbs:6031
+      HBS_RPC: falcon-hbs:6030
+      JUDGE_HTTP: falcon-judge:6081
+      JUDGE_RPC: falcon-judge:6080
+      NODATA_HTTP: falcon-nodata:6090
+      TRANSFER_HTTP: falcon-transfer:6060
+      TRANSFER_RPC: falcon-transfer:8433
+      PLUS_API_HTTP: falcon-api:8080
+      AGENT_HOSTNAME: docker-agent
+    depends_on:
+      - mysql
+      - redis
+    command: "sh ctrl.sh run hbs"
+
+  agent:
+    <<: *falcon
+    build:
+      context: ./
+      args:
+        MODULE: agent
+      dockerfile: Dockerfile.module
+    image: openfalcon/falcon-agent:dev
+    container_name: falcon-agent
+    depends_on:
+      - hbs
+      - transfer
+    command: "sh ctrl.sh run agent"
+
+  aggregator:
+    <<: *falcon
+    build:
+      context: ./
+      args:
+        MODULE: aggregator
+      dockerfile: Dockerfile.module
+    image: openfalcon/falcon-aggregator:dev
+    container_name: falcon-aggregator
+    command: "sh ctrl.sh run aggregator"
+
+  nodata:
+    <<: *falcon
+    build:
+      context: ./
+      args:
+        MODULE: nodata
+      dockerfile: Dockerfile.module
+    image: openfalcon/falcon-nodata:dev
+    container_name: falcon-nodata
+    command: "sh ctrl.sh run nodata"
+
+  api:
+    <<: *falcon
+    build:
+      context: ./
+      args:
+        MODULE: api
+      dockerfile: Dockerfile.module
+    image: openfalcon/falcon-api:dev
+    container_name: falcon-api
+    command: "sh ctrl.sh run api"
+    ports:
+      - 8080:8080
+
+  alarm:
+    <<: *falcon
+    build:
+      context: ./
+      args:
+        MODULE: alarm
+      dockerfile: Dockerfile.module
+    image: openfalcon/falcon-alarm:dev
+    container_name: falcon-alarm
+    command: "sh ctrl.sh run alarm"
+
+  transfer:
+    <<: *falcon
+    build:
+      context: ./
+      args:
+        MODULE: transfer
+      dockerfile: Dockerfile.module
+    image: openfalcon/falcon-transfer:dev
+    container_name: falcon-transfer
+    depends_on:
+      - graph
+    command: "sh ctrl.sh run transfer"
+
+  judge:
+    <<: *falcon
+    build:
+      context: ./
+      args:
+        MODULE: judge
+      dockerfile: Dockerfile.module
+    image: openfalcon/falcon-judge:dev
+    container_name: falcon-judge
+    command: "sh ctrl.sh run judge"
+
+  graph:
+    <<: *falcon
+    build:
+      context: ./
+      args:
+        MODULE: graph
+      dockerfile: Dockerfile.module
+    image: openfalcon/falcon-graph:dev
+    container_name: falcon-graph
+    volumes:
+      - graph-data:/open-falcon/data
+    command: "sh ctrl.sh run graph"
+
+  dashboard:
+    container_name: falcon-dashboard
+    image: openfalcon/falcon-dashboard:v0.2.1
+    entrypoint: ./control startfg
+    environment:
+      API_ADDR: http://falcon-api:8080/api/v1
+      PORTAL_DB_HOST: mysql
+      PORTAL_DB_PORT: 3306
+      PORTAL_DB_USER: root
+      PORTAL_DB_PASS: root
+      PORTAL_DB_NAME: falcon_portal
+      ALARM_DB_HOST: mysql
+      ALARM_DB_PORT: 3306
+      ALARM_DB_USER: root
+      ALARM_DB_PASS: root
+      ALARM_DB_NAME: alarms
+    working_dir: /open-falcon/dashboard
+    ports:
+      - 8081:8081
+
+volumes:
+  mysql-data:
+  graph-data:

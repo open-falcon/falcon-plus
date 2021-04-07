@@ -14,6 +14,7 @@ confs=(
     '%%TRANSFER_RPC%%=0.0.0.0:8433'
     '%%PLUS_API_DEFAULT_TOKEN%%=default-token-used-in-server-side'
     '%%PLUS_API_HTTP%%=0.0.0.0:8080'
+    '%%AGENT_HOSTNAME%%='
  )
 
 configurer() {

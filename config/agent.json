@@ -1,6 +1,6 @@
 {
     "debug": true,
-    "hostname": "",
+    "hostname": "%%AGENT_HOSTNAME%%",
     "ip": "",
     "plugin": {
         "enabled": false,
