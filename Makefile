@@ -21,12 +21,6 @@ misspell:
 	fi
 	misspell -w $(GOFILES)
 
-install:
-	@hash govendor > /dev/null 2>&1; if [ $$? -ne 0 ]; then \
-		go get -u github.com/kardianos/govendor; \
-	fi
-	govendor sync
-
 vet:
 	go vet $(PACKAGES)
 
@@ -45,16 +39,16 @@ fmt-check:
 
 $(CMD):
 	if [ $@ = "gateway" ]; then \
-		go build -ldflags "-X main.BinaryName=gateway -X main.GitCommit=`git rev-parse --short HEAD` -X main.Version=$(VERSION)" \
+		GO111MODULE=on go build -ldflags "-X main.BinaryName=gateway -X main.GitCommit=`git rev-parse --short HEAD` -X main.Version=$(VERSION)" \
 			-o bin/gateway/falcon-gateway ./modules/transfer ; \
 	else \
-		go build -ldflags "-X main.BinaryName=$@ -X main.GitCommit=`git rev-parse --short HEAD` -X main.Version=$(VERSION)" \
+		GO111MODULE=on go build -ldflags "-X main.BinaryName=$@ -X main.GitCommit=`git rev-parse --short HEAD` -X main.Version=$(VERSION)" \
 			-o bin/$@/falcon-$@ ./modules/$@ ; \
 	fi
 
 .PHONY: $(TARGET)
 $(TARGET): $(GOFILES)
-	go build -ldflags "-X main.BinaryName=Open-Falcon -X main.GitCommit=`git rev-parse --short HEAD` -X main.Version=$(VERSION)" -o open-falcon
+	GO111MODULE=on go build -ldflags "-X main.BinaryName=Open-Falcon -X main.GitCommit=`git rev-parse --short HEAD` -X main.Version=$(VERSION)" -o open-falcon
 
 checkbin: bin/ config/ open-falcon
 

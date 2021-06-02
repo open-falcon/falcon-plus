@@ -16,7 +16,6 @@ services:
 
 script:
   - go get -u github.com/go-sql-driver/mysql
-  - make install
   - make fmt
   - make fmt-check
   - make misspell-check
