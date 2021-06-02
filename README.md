@@ -130,14 +130,6 @@ for example:
 
 **NOTE: if you want to use grafana as the dashboard, please check [this](https://github.com/open-falcon/grafana-openfalcon-datasource).**
 
-# Package Management
-
-We use govendor to manage the golang packages. Please install `govendor` before compilation.
-
-    go get -u github.com/kardianos/govendor
-
-Most depended packages are saved under `./vendor` dir. If you want to add or update a package, just run `govendor fetch xxxx@commitID` or `govendor fetch xxxx@v1.x.x`, then you will find the package have been placed in `./vendor` correctly.
-
 # Package Release
 
 ```
