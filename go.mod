@@ -8,8 +8,7 @@ require (
 	github.com/emirpasic/gods v1.9.0
 	github.com/erikstmartin/go-testdb v0.0.0-20160219214506-8d10e4a1bae5 // indirect
 	github.com/garyburd/redigo v1.6.2
-	github.com/gin-gonic/gin v1.7.2
-	github.com/go-playground/validator/v10 v10.6.1 // indirect
+	github.com/gin-gonic/gin v1.4.0
 	github.com/go-resty/resty v0.0.0-00010101000000-000000000000 // indirect
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/golang/protobuf v1.5.2 // indirect
@@ -20,9 +19,7 @@ require (
 	github.com/json-iterator/go v1.1.11 // indirect
 	github.com/juju/errors v0.0.0-20200330140219-3fe23663418f
 	github.com/juju/testing v0.0.0-20210324180055-18c50b0c2098 // indirect
-	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/lib/pq v1.10.2 // indirect
-	github.com/manucorporat/sse v0.0.0-20160126180136-ee05b128a739 // indirect
 	github.com/masato25/resty v0.4.2-0.20161209040832-927c0e7d74a0
 	github.com/masato25/yaag v0.0.0-20170704095552-00862ec4db8e
 	github.com/mattn/go-isatty v0.0.13 // indirect
@@ -32,12 +29,12 @@ require (
 	github.com/niean/goperfcounter v0.0.0-20160108100052-24860a8d3fac
 	github.com/niean/gotools v0.0.0-20151221085310-ff3f51fc5c60 // indirect
 	github.com/open-falcon/rrdlite v0.0.0-20170412122036-7d8646c85cc5
-	github.com/robfig/go-cache v0.0.0-20130306151617-9fc39e0dbf62 // indirect
 	github.com/satori/go.uuid v1.2.1-0.20181028125025-b2ce2384e17b
 	github.com/sirupsen/logrus v1.8.1
 	github.com/smartystreets/goconvey v1.6.4
 	github.com/spf13/cobra v1.1.3
 	github.com/spf13/viper v1.7.0
+	github.com/stretchr/testify v1.6.1 // indirect
 	github.com/toolkits/cache v0.0.0-20190218093630-cfb07b7585e5
 	github.com/toolkits/concurrent v0.0.0-20150624120057-a4371d70e3e3
 	github.com/toolkits/conn_pool v0.0.0-20170512061817-2b758bec1177
@@ -58,8 +55,6 @@ require (
 	golang.org/x/crypto v0.0.0-20210513164829-c07d793c2f9a // indirect
 	golang.org/x/net v0.0.0-20210525063256-abc453219eb5 // indirect
 	golang.org/x/sys v0.0.0-20210525143221-35b2ab0089ea // indirect
-	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
-	gopkg.in/go-playground/validator.v8 v8.18.2 // indirect
 
 )
 
