@@ -29,7 +29,7 @@
 package cron
 
 import (
-	"log"
+	log "github.com/sirupsen/logrus"
 	"strings"
 	"time"
 
@@ -85,7 +85,7 @@ func DeleteInvalidItems() int {
 
 	pfc.Gauge("GraphItemsCacheCnt", int64(currentCnt))
 	pfc.Gauge("GraphItemsCacheInvalidCnt", int64(deleteCnt))
-	log.Printf("GraphItemsCache: Count=>%d, DeleteInvalid=>%d", currentCnt, deleteCnt)
+	log.Infof("GraphItemsCache: Count=>%d, DeleteInvalid=>%d", currentCnt, deleteCnt)
 
 	return deleteCnt
 }
@@ -107,7 +107,7 @@ func DeleteInvalidHistory() int {
 
 	pfc.Gauge("HistoryCacheCnt", int64(currentCnt))
 	pfc.Gauge("HistoryCacheInvalidCnt", int64(deleteCnt))
-	log.Printf("HistoryCache: Count=>%d, DeleteInvalid=>%d", currentCnt, deleteCnt)
+	log.Infof("HistoryCache: Count=>%d, DeleteInvalid=>%d", currentCnt, deleteCnt)
 
 	return deleteCnt
 }

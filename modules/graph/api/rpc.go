@@ -16,7 +16,7 @@ package api
 
 import (
 	"container/list"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"net"
 	"net/rpc"
 	"sync"
@@ -52,7 +52,7 @@ func init() {
 
 func Start() {
 	if !g.Config().Rpc.Enabled {
-		log.Println("rpc.Start warning, not enabled")
+		log.Info("rpc.Start warning, not enabled")
 		return
 	}
 	addr := g.Config().Rpc.Listen
@@ -65,7 +65,7 @@ func Start() {
 	if err != nil {
 		log.Fatalf("rpc.Start error, listen %s failed, %s", addr, err)
 	} else {
-		log.Println("rpc.Start ok, listening on", addr)
+		log.Info("rpc.Start ok, listening on", addr)
 	}
 
 	rpc.Register(new(Graph))
@@ -99,7 +99,7 @@ func Start() {
 
 	select {
 	case <-Close_chan:
-		log.Println("rpc, recv sigout and exiting...")
+		log.Info("rpc, recv sigout and exiting...")
 		listener.Close()
 		Close_done_chan <- 1
 

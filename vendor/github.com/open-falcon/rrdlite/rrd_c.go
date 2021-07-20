@@ -14,14 +14,11 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 	"unsafe"
 )
 
-var mutex sync.Mutex
-
-func makeArgs(args []string) []*C.char {
+func makeCArgs(args []string) []*C.char {
 	ret := make([]*C.char, len(args))
 	for i, s := range args {
 		ret[i] = C.CString(s)
@@ -39,7 +36,7 @@ func freeArgs(cArgs []*C.char) {
 	}
 }
 
-func makeError(e *C.char) error {
+func makeGoError(e *C.char) error {
 	var null *C.char
 	if e == null {
 		return nil
@@ -50,7 +47,7 @@ func makeError(e *C.char) error {
 func (c *Creator) create() error {
 	filename := C.CString(c.filename)
 	defer freeCString(filename)
-	args := makeArgs(c.args)
+	args := makeCArgs(c.args)
 	defer freeArgs(args)
 
 	e := C.rrdCreate(
@@ -60,12 +57,12 @@ func (c *Creator) create() error {
 		C.int(len(args)),
 		&args[0],
 	)
-	return makeError(e)
+	return makeGoError(e)
 }
 
 func (u *Updater) update(_args []string) error {
 
-	args := makeArgs(_args)
+	args := makeCArgs(_args)
 	defer freeArgs(args)
 
 	e := C.rrdUpdate(
@@ -74,7 +71,7 @@ func (u *Updater) update(_args []string) error {
 		C.int(len(args)),
 		&args[0],
 	)
-	return makeError(e)
+	return makeGoError(e)
 }
 
 var (
@@ -245,7 +242,7 @@ func Info(filename string) (map[string]interface{}, error) {
 	fn := C.CString(filename)
 	defer freeCString(fn)
 	var i *C.rrd_info_t
-	err := makeError(C.rrdInfo(&i, fn))
+	err := makeGoError(C.rrdInfo(&i, fn))
 	if err != nil {
 		return nil, err
 	}
@@ -254,6 +251,7 @@ func Info(filename string) (map[string]interface{}, error) {
 
 // Fetch retrieves data from RRD file.
 func Fetch(filename, cf string, start, end time.Time, step time.Duration) (FetchResult, error) {
+
 	fn := C.CString(filename)
 	defer freeCString(fn)
 	cCf := C.CString(cf)
@@ -262,12 +260,13 @@ func Fetch(filename, cf string, start, end time.Time, step time.Duration) (Fetch
 	cEnd := C.time_t(end.Unix())
 	cStep := C.ulong(step.Seconds())
 	var (
-		ret      C.int
+		cRet     C.int
 		cDsCnt   C.ulong
 		cDsNames **C.char
 		cData    *C.double
 	)
-	err := makeError(C.rrdFetch(&ret, fn, cCf, &cStart, &cEnd, &cStep, &cDsCnt, &cDsNames, &cData))
+
+	err := makeGoError(C.rrdFetch(&cRet, fn, cCf, &cStart, &cEnd, &cStep, &cDsCnt, &cDsNames, &cData))
 	if err != nil {
 		return FetchResult{filename, cf, start, end, step, nil, 0, nil}, err
 	}

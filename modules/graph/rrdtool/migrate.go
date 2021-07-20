@@ -17,10 +17,10 @@ package rrdtool
 import (
 	"errors"
 	"fmt"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"net"
 	"net/rpc"
-	"os"
+	"strings"
 	"sync/atomic"
 	"time"
 
@@ -144,7 +144,7 @@ func migrate_start(cfg *g.GlobalConfig) {
 
 			for i = 0; i < cfg.Migrate.Concurrency; i++ {
 				if clients[node][i], err = dial(addr, time.Second); err != nil {
-					log.Fatalf("node:%s addr:%s err:%s\n", node, addr, err)
+					log.Fatalf("node:%s addr:%s err:%s", node, addr, err)
 				}
 				go net_task_worker(i, Net_task_ch[node], &clients[node][i], addr)
 			}
@@ -174,32 +174,25 @@ func net_task_worker(idx int, ch chan *Net_task_t, client **rpc.Client, addr str
 					atomic.AddUint64(&stat_cnt[QUERY_S_SUCCESS], 1)
 				}
 			} else if task.Method == NET_TASK_M_PULL {
-				if atomic.LoadInt32(&flushrrd_timeout) != 0 {
-					// hope this more faster than fetch_rrd
-					if err = send_data(client, task.Key, addr); err != nil {
-						pfc.Meter("migrate.sendbusy.err", 1)
-						atomic.AddUint64(&stat_cnt[SEND_S_ERR], 1)
+				if err = fetch_rrd(client, task.Key, addr); err != nil {
+					if strings.HasSuffix(err.Error(), "no such file or directory") {
+						// which expect that err msg like open xxx.rrd: no such file or directory
+						// TODO:check error in cross different platforms
+						pfc.Meter("migrate.scprrd.null", 1)
+						atomic.AddUint64(&stat_cnt[FETCH_S_ISNOTEXIST], 1)
+						store.GraphItems.SetFlag(task.Key, 0)
+						//when the remote rrd file not exist, flush cache to local rrdfile
+						CommitByKey(task.Key)
 					} else {
-						pfc.Meter("migrate.sendbusy.ok", 1)
-						atomic.AddUint64(&stat_cnt[SEND_S_SUCCESS], 1)
+						pfc.Meter("migrate.scprrd.err", 1)
+						//warning:other errors, cache backlogged
+						atomic.AddUint64(&stat_cnt[FETCH_S_ERR], 1)
 					}
 				} else {
-					if err = fetch_rrd(client, task.Key, addr); err != nil {
-						if os.IsNotExist(err) {
-							pfc.Meter("migrate.scprrd.null", 1)
-							//文件不存在时，直接将缓存数据刷入本地
-							atomic.AddUint64(&stat_cnt[FETCH_S_ISNOTEXIST], 1)
-							store.GraphItems.SetFlag(task.Key, 0)
-							CommitByKey(task.Key)
-						} else {
-							pfc.Meter("migrate.scprrd.err", 1)
-							//warning:其他异常情况，缓存数据会堆积
-							atomic.AddUint64(&stat_cnt[FETCH_S_ERR], 1)
-						}
-					} else {
-						pfc.Meter("migrate.scprrd.ok", 1)
-						atomic.AddUint64(&stat_cnt[FETCH_S_SUCCESS], 1)
-					}
+					pfc.Meter("migrate.scprrd.ok", 1)
+					atomic.AddUint64(&stat_cnt[FETCH_S_SUCCESS], 1)
+					//flush cache to local rrd file after scp rrd success
+					CommitByKey(task.Key)
 				}
 			} else {
 				err = errors.New("error net task method")
@@ -287,9 +280,11 @@ func send_data(client **rpc.Client, key string, addr string) error {
 		if err == rpc.ErrShutdown {
 			reconnection(client, addr)
 		}
+		log.Errorf("transmit rrd %s %s to remote succ, retry[%d]", key, items[0].UUID(), i)
 	}
-	// err
-	store.GraphItems.PushAll(key, items)
+	//send_data only will be called when graph quit,
+	//so then there is a error of transmit, drop the cache instead of restore.
+	//store.GraphItems.PushAll(key, items)
 	//flag |= g.GRAPH_F_ERR
 out:
 	flag &= ^g.GRAPH_F_SENDING
@@ -341,7 +336,7 @@ func fetch_rrd(client **rpc.Client, key string, addr string) error {
 				goto out
 			}
 		} else {
-			log.Println(err)
+			log.Errorf("scp rrd %s from remote err[%s], retry[%d]", key, err, i)
 		}
 		if err == rpc.ErrShutdown {
 			reconnection(client, addr)

@@ -16,10 +16,13 @@ package http
 
 import (
 	"github.com/open-falcon/falcon-plus/modules/graph/g"
+	"github.com/open-falcon/falcon-plus/modules/graph/rrdtool"
 	"github.com/open-falcon/falcon-plus/modules/graph/store"
 	"github.com/toolkits/file"
 
+	"fmt"
 	"github.com/gin-gonic/gin"
+	log "github.com/sirupsen/logrus"
 	"strconv"
 	"time"
 )
@@ -73,4 +76,18 @@ func configCommonRoutes() {
 		}
 		JSONR(c, 200, rt)
 	})
+
+	router.GET("/api/v2/counter/migrate", func(c *gin.Context) {
+		counter := rrdtool.GetCounterV2()
+		log.Debug("migrating counter v2:", fmt.Sprintf("%+v", counter))
+		c.JSON(200, counter)
+	})
+
+	//compatible with open-falcon v0.1
+	router.GET("/counter/migrate", func(c *gin.Context) {
+		cnt := rrdtool.GetCounter()
+		log.Debug("migrating counter:", cnt)
+		c.JSON(200, gin.H{"msg": "ok", "counter": cnt})
+	})
+
 }

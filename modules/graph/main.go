@@ -17,7 +17,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"os"
 	"os/signal"
 	"syscall"
@@ -32,33 +32,34 @@ import (
 
 func start_signal(pid int, cfg *g.GlobalConfig) {
 	sigs := make(chan os.Signal, 1)
-	log.Println(pid, "register signal notify")
+	log.Info(pid, " register signal notify")
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
 
 	for {
 		s := <-sigs
-		log.Println("recv", s)
+		log.Info("recv", s)
 
 		switch s {
 		case syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT:
-			log.Println("graceful shut down")
+			log.Info("graceful shut down")
 			if cfg.Http.Enabled {
 				http.Close_chan <- 1
 				<-http.Close_done_chan
 			}
-			log.Println("http stop ok")
+			log.Info("http stop ok")
 
 			if cfg.Rpc.Enabled {
 				api.Close_chan <- 1
 				<-api.Close_done_chan
 			}
-			log.Println("rpc stop ok")
+			log.Info("rpc stop ok")
 
-			rrdtool.Out_done_chan <- 1
-			rrdtool.FlushAll(true)
-			log.Println("rrdtool stop ok")
+			rrdtool.Main_done_chan <- 1
+			//flush cache to local file or transmit cache to remote graph
+			rrdtool.CommitBeforeQuit()
+			log.Info("rrdtool stop ok")
 
-			log.Println(pid, "exit")
+			log.Info("pid:", pid, " exit")
 			os.Exit(0)
 		}
 	}

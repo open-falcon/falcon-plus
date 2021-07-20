@@ -15,7 +15,6 @@
 package g
 
 import (
-	"log"
 	"runtime"
 )
 
@@ -55,7 +54,6 @@ const (
 	DEFAULT_STEP    = 60      //s
 	MIN_STEP        = 30      //s
 	CLEAN_CACHE     = 86400   //s the step that clean GraphItems/historyCache Cache
-	CACHE_DELAY     = 1800    //s
 	CACHE_TIME      = 1800000 //ms
 	FLUSH_DISK_STEP = 1000    //ms
 	FLUSH_MIN_COUNT = 6       //  flush counter to disk when its number of monitoring data greater than FLUSH_MIN_COUNT
@@ -71,5 +69,4 @@ const (
 
 func init() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
-	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 }
