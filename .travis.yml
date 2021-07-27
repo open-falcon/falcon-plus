@@ -3,8 +3,8 @@ sudo: required
 language: go
 
 arch:
-- amd64
-- arm64
+  - amd64
+  - arm64
 go:
   - "1.15"
 
@@ -14,15 +14,22 @@ env:
 services:
   - docker
 
+before_install:
+  - tmpdaemon=$(mktemp)
+  - sudo jq '."registry-mirrors" += ["https://mirror.gcr.io"]' /etc/docker/daemon.json > $tmpdaemon
+  - sudo mv $tmpdaemon /etc/docker/daemon.json
+  - sudo systemctl daemon-reload
+  - sudo systemctl restart docker
+  - docker system info
+
 script:
   - go get -u github.com/go-sql-driver/mysql
-  - make install
   - make fmt
   - make fmt-check
   - make misspell-check
   - make all
   - bash ./docker_test.sh
- 
+
 after_success:
   - go test -race -coverprofile=coverage.txt -covermode=atomic github.com/open-falcon/falcon-plus/modules/api/test
   - bash <(curl -s https://codecov.io/bash)

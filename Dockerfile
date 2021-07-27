@@ -1,5 +1,5 @@
 # Build container;
-FROM openfalcon/makegcc-golang:1.10-alpine
+FROM openfalcon/makegcc-golang:1.15-alpine
 LABEL maintainer laiwei.ustc@gmail.com
 USER root
 
@@ -17,7 +17,7 @@ RUN make all \
     && rm -rf ${PROJ_PATH}
 
 # Final container;
-FROM alpine:3.7
+FROM alpine:3.13
 LABEL maintainer laiwei.ustc@gmail.com
 USER root
 
