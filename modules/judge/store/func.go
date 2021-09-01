@@ -295,6 +295,93 @@ func (this PDiffFunction) Compute(L *SafeLinkedList) (vs []*model.HistoryData, l
 	return
 }
 
+
+//            3
+//          ____
+//   3    /
+//  ____/
+//
+//
+//kpdiff(#3,3)  告警上面类似的数据模型，解决某个指标长期稳定，当指标变化并且是持续的情况下告警。原来的diff 跟pdiff是只要一个点变化就告警。
+//kpdiff(#3,3)  左边的3是指稳定数据走势的数据点，右边的3是指持续变化的数据点
+
+type KPDiffFunction struct {
+	Function
+	Num		   int
+	Limit      int
+	Operator   string
+	RightValue float64
+}
+
+func (this KPDiffFunction) Compute(L *SafeLinkedList) (vs []*model.HistoryData, leftValue float64, isTriggered bool, isEnough bool) {
+	vs, isEnough = L.HistoryData(this.Limit + this.Num)
+	if !isEnough {
+		return
+	}
+
+	if len(vs) == 0 {
+		isEnough = false
+		return
+	}
+	for i := 0; i < this.Num; i++ {
+		isTriggered = false
+		if vs[i].Value == 0 {
+			break
+		}
+
+		//kpdiff(#3,3) 全部右边的点都对全部左边的点相减，得到3*3个差，再将3*3个差值分别除以对应左边的点，得到3*3个商值，全部商值满足阈值则报警
+		for j := 0; j < this.Limit; j++ {
+			leftValue = (vs[j].Value - vs[this.Limit + this.Num -1 -i].Value) / vs[j].Value * 100.0
+			isTriggered = checkIsTriggered(leftValue, this.Operator, this.RightValue)
+			if isTriggered == false {
+				break
+			}
+		}
+		if isTriggered == false {
+			return
+		}
+	}
+	return
+}
+
+type KDiffFunction struct {
+	Function
+	Num        int
+	Limit      int
+	Operator   string
+	RightValue float64
+}
+
+func (this KDiffFunction) Compute(L *SafeLinkedList) (vs []*model.HistoryData, leftValue float64, isTriggered bool, isEnough bool) {
+	vs, isEnough = L.HistoryData(this.Limit + this.Num)
+	if !isEnough {
+		return
+	}
+
+	if len(vs) == 0 {
+		isEnough = false
+		return
+	}
+	for i := 0; i < this.Num; i++ {
+		isTriggered = false
+		if vs[i].Value == 0 {
+			break
+		}
+
+		for j := 0; j < this.Limit; j++ {
+			leftValue = vs[j].Value - vs[this.Limit + this.Num -1 -i].Value
+			isTriggered = checkIsTriggered(leftValue, this.Operator, this.RightValue)
+			if isTriggered == false {
+				break
+			}
+		}
+		if isTriggered == false {
+			return
+		}
+	}
+	return
+}
+
 func atois(s string) (ret []int, err error) {
 	a := strings.Split(s, ",")
 	ret = make([]int, len(a))
@@ -337,6 +424,10 @@ func ParseFuncFromString(str string, operator string, rightValue float64) (fn Fu
 		fn = &LookupFunction{Num: args[0], Limit: args[1], Operator: operator, RightValue: rightValue}
 	case "stddev":
 		fn = &StdDeviationFunction{Limit: args[0], Operator: operator, RightValue: rightValue}
+	case "kdiff":
+		fn = &KDiffFunction{Num: args[0], Limit: args[1], Operator: operator, RightValue: rightValue}
+	case "kpdiff":
+		fn = &KPDiffFunction{Num: args[0], Limit: args[1], Operator: operator, RightValue: rightValue}
 	default:
 		err = fmt.Errorf("not_supported_method")
 	}
