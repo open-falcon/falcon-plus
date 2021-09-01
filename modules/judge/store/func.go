@@ -307,7 +307,7 @@ func (this PDiffFunction) Compute(L *SafeLinkedList) (vs []*model.HistoryData, l
 
 type KPDiffFunction struct {
 	Function
-	Num		   int
+	Num        int
 	Limit      int
 	Operator   string
 	RightValue float64
