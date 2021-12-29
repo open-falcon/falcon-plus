@@ -16,11 +16,12 @@ package funcs
 
 import (
 	"fmt"
-	"github.com/open-falcon/falcon-plus/common/model"
-	"github.com/toolkits/nux"
 	"log"
 	"strings"
 	"sync"
+
+	"github.com/open-falcon/falcon-plus/common/model"
+	"github.com/toolkits/nux"
 )
 
 var (
@@ -223,7 +224,7 @@ func IOStatsForPage() (L [][]string) {
 }
 
 func ShouldHandleDevice(device string) bool {
-	normal := len(device) == 3 && (strings.HasPrefix(device, "sd") || strings.HasPrefix(device, "vd"))
+	normal := len(device) <= 4 && (strings.HasPrefix(device, "sd") || strings.HasPrefix(device, "vd")) && !strings.ContainsAny(device, "1234")
 	aws := len(device) >= 4 && strings.HasPrefix(device, "xvd")
 	flash := len(device) >= 4 && (strings.HasPrefix(device, "fio") || strings.HasPrefix(device, "nvme"))
 	nbd := len(device) >= 4 && strings.HasPrefix(device, "nbd")
