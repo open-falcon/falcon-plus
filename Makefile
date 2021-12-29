@@ -61,8 +61,8 @@ pack: checkbin
 	@$(foreach var,$(CMD),cp ./config/$(var).json ./out/$(var)/config/cfg.json;)
 	@$(foreach var,$(CMD),cp ./bin/$(var)/falcon-$(var) ./out/$(var)/bin;)
 	@cp -r ./modules/agent/public ./out/agent/
-	@(cd ./out && ln -s ./agent/public/ ./public)
-	@(cd ./out && mkdir -p ./agent/plugin && ln -s ./agent/plugin/ ./plugin)
+	@(cd ./out && ln -s ./agent/public ./public)
+	@(cd ./out && mkdir -p ./agent/plugin && ln -s ./agent/plugin ./plugin)
 	@cp -r ./modules/api/data ./out/api/
 	@mkdir out/graph/data
 	@bash ./config/confgen.sh
@@ -80,8 +80,8 @@ pack4docker: checkbin
 	@$(foreach var,$(CMD),cp ./bin/$(var)/falcon-$(var) ./out/$(var)/bin;)
 	@if expr "$(CMD)" : "agent" > /dev/null; then \
 		(cp -r ./modules/agent/public ./out/agent/); \
-		(cd ./out && ln -s ./agent/public/ ./public); \
-		(cd ./out && mkdir -p ./agent/plugin && ln -s ./agent/plugin/ ./plugin); \
+		(cd ./out && ln -s ./agent/public ./public); \
+		(cd ./out && mkdir -p ./agent/plugin && ln -s ./agent/plugin ./plugin); \
 	fi
 	@if expr "$(CMD)" : "api" > /dev/null; then \
 		cp -r ./modules/api/data ./out/api/; \
