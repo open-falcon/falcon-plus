@@ -3,13 +3,15 @@
 ![Open-Falcon](./logo.png)
 
 [![Build Status](https://travis-ci.org/open-falcon/falcon-plus.svg?branch=plus-dev)](https://travis-ci.org/open-falcon/falcon-plus)
-[![codecov](https://codecov.io/gh/open-falcon/falcon-plus/branch/plus-dev/graph/badge.svg)](https://codecov.io/gh/open-falcon/falcon-plus)
-[![GoDoc](https://godoc.org/github.com/open-falcon/falcon-plus?status.svg)](https://godoc.org/github.com/open-falcon/falcon-plus)
-[![Code Issues](https://www.quantifiedcode.com/api/v1/project/5035c017b02c4a4a807ebc4e9f153e6f/badge.svg)](https://www.quantifiedcode.com/app/project/5035c017b02c4a4a807ebc4e9f153e6f)
-[![Go Report Card](https://goreportcard.com/badge/github.com/open-falcon/falcon-plus)](https://goreportcard.com/report/github.com/open-falcon/falcon-plus)
 [![License](https://img.shields.io/badge/LICENSE-Apache2.0-ff69b4.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
-[![Backers on Open Collective](https://opencollective.com/falcon-plus/backers/badge.svg)](#backers) 
-[![Sponsors on Open Collective](https://opencollective.com/falcon-plus/sponsors/badge.svg)](#sponsors) 
+[![Backers on Open Collective](https://opencollective.com/falcon-plus/backers/badge.svg)](#backers)
+[![Sponsors on Open Collective](https://opencollective.com/falcon-plus/sponsors/badge.svg)](#sponsors)
+
+# Notice
+
+If you are heavily using k8s and adopting microservices architecture, we recommend you to upgrade to use [Nightingale](https://github.com/didi/nightingale) building your modern monitoring system.
+
+[Nightingale](https://github.com/didi/nightingale) is an enterprise-level cloud-native monitoring tool, which can be used as drop-in replacement of Prometheus for alerting and management.
 
 # Documentations
 
