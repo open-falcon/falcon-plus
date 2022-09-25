@@ -46,6 +46,16 @@ func initConnPools() {
 	GraphConnPools = backend.CreateSafeRpcConnPools(cfg.Graph.MaxConns, cfg.Graph.MaxIdle,
 		cfg.Graph.ConnTimeout, cfg.Graph.CallTimeout, graphInstances.ToSlice())
 
+	// Prometheus中继服务
+	if cfg.P8sRelay.Enabled {
+		p8sRelayInstances := nset.NewStringSet()
+		for _, instance := range cfg.P8sRelay.Cluster {
+			p8sRelayInstances.Add(instance)
+		}
+		P8sRelayConnPools = backend.CreateSafeRpcConnPools(cfg.P8sRelay.MaxConns, cfg.P8sRelay.MaxIdle,
+			cfg.P8sRelay.ConnTimeout, cfg.P8sRelay.CallTimeout, p8sRelayInstances.ToSlice())
+	}
+
 	// transfer
 	if cfg.Transfer.Enabled {
 		transferInstances := nset.NewStringSet()

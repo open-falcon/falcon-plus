@@ -71,5 +71,22 @@
         "db": "foo",
         "address": "http://127.0.0.1:8086",
         "timeout": 5000
+    },
+    "p8s_relay": {
+        "enabled": false,
+        "batch": 200,
+        "connTimeout": 1000,
+        "callTimeout": 5000,
+        "maxConns": 32,
+        "maxIdle": 32,
+        "replicas": 500,
+        "notSyncMetrics": [
+            "gpu.",
+            "snmp."
+        ],
+        "cluster": {
+            "p8s-relay-00" : "192.168.1.1:8080", 
+            "p8s-relay-01" : "192.168.1.2:8080"
+        }
     }
 }

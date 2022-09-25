@@ -28,7 +28,9 @@ require (
 	github.com/niean/go-metrics-lite v0.0.0-20151230091537-b5d30971b578 // indirect
 	github.com/niean/goperfcounter v0.0.0-20160108100052-24860a8d3fac
 	github.com/niean/gotools v0.0.0-20151221085310-ff3f51fc5c60 // indirect
+	github.com/oleiade/lane v1.0.1
 	github.com/open-falcon/rrdlite v0.0.0-20170412122036-7d8646c85cc5
+	github.com/prometheus/client_golang v1.5.1
 	github.com/satori/go.uuid v1.2.1-0.20181028125025-b2ce2384e17b
 	github.com/sirupsen/logrus v1.8.1
 	github.com/smartystreets/goconvey v1.6.4

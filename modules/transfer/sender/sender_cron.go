@@ -61,6 +61,9 @@ func refreshSendingCacheSize() {
 	if cfg.Transfer.Enabled {
 		proc.TransferQueuesCnt.SetCnt(int64(TransferQueue.Len()))
 	}
+	if cfg.P8sRelay.Enabled {
+		proc.P8sRelayQueuesCnt.SetCnt(calcSendCacheSize(P8sRelayQueues))
+	}
 }
 
 func calcSendCacheSize(mapList map[string]*list.SafeListLimited) int64 {
@@ -79,5 +82,8 @@ func logConnPoolsProc() {
 	log.Printf("graph connPools proc: \n%v", strings.Join(GraphConnPools.Proc(), "\n"))
 	if cfg.Transfer.Enabled {
 		log.Printf("transfer connPools proc: \n%v", strings.Join(TransferConnPools.Proc(), "\n"))
+	}
+	if cfg.P8sRelay.Enabled {
+		log.Printf("p8s_relay connPools proc: \n%v", strings.Join(GraphConnPools.Proc(), "\n"))
 	}
 }

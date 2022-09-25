@@ -1,0 +1,7 @@
+*.log
+.idea
+.DS_Store
+/var
+/falcon2p8s*
+/cfg.json
+/gitversion

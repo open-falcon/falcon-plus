@@ -44,6 +44,7 @@ func startSendTasks() {
 	tsdbConcurrent := cfg.Tsdb.MaxConns
 	transferConcurrent := cfg.Transfer.MaxConns
 	influxdbConcurrent := cfg.Influxdb.MaxConns
+	p8sRelayConcurrent := cfg.P8sRelay.MaxConns
 
 	if tsdbConcurrent < 1 {
 		tsdbConcurrent = 1
@@ -63,6 +64,10 @@ func startSendTasks() {
 
 	if influxdbConcurrent < 1 {
 		influxdbConcurrent = 1
+	}
+
+	if p8sRelayConcurrent < 1 {
+		p8sRelayConcurrent = 1
 	}
 
 	// init send go-routines
@@ -89,6 +94,15 @@ func startSendTasks() {
 
 	if cfg.Influxdb.Enabled {
 		go forward2InfluxdbTask(influxdbConcurrent)
+	}
+
+	if cfg.P8sRelay.Enabled {
+		for node, nitem := range cfg.P8sRelay.ClusterList {
+			for _, addr := range nitem.Addrs {
+				queue := P8sRelayQueues[node+addr]
+				go forward2P8sRelayTask(queue, node, addr, p8sRelayConcurrent)
+			}
+		}
 	}
 }
 
@@ -136,6 +150,45 @@ func forward2JudgeTask(Q *list.SafeListLimited, node string, concurrent int) {
 				proc.SendToJudgeCnt.IncrBy(int64(count))
 			}
 		}(addr, judgeItems, count)
+	}
+}
+
+func forward2P8sRelayTask(Q *list.SafeListLimited, node string, addr string, concurrent int) {
+	batch := g.Config().P8sRelay.Batch
+	sema := nsema.NewSemaphore(concurrent)
+	for {
+		items := Q.PopBackBy(batch)
+		count := len(items)
+		if count == 0 {
+			time.Sleep(DefaultSendTaskSleepInterval)
+			continue
+		}
+		p8sItems := make([]*cmodel.P8sItem, count)
+		for i := 0; i < count; i++ {
+			p8sItems[i] = items[i].(*cmodel.P8sItem)
+		}
+
+		sema.Acquire()
+		go func(addr string, p8sItems []*cmodel.P8sItem, count int) {
+			defer sema.Release()
+			resp := &cmodel.SimpleRpcResponse{}
+			var err error
+			sendOk := false
+			for i := 0; i < 3; i++ {
+				err = P8sRelayConnPools.Call(addr, "P8sRelay.Send", p8sItems, resp)
+				if err == nil {
+					sendOk = true
+					break
+				}
+				time.Sleep(time.Millisecond * 10)
+			}
+			if !sendOk {
+				log.Printf("send p8s relay %s:%s fail: %v", node, addr, err)
+				proc.SendToP8sRelayFailCnt.IncrBy(int64(count))
+			} else {
+				proc.SendToP8sRelayCnt.IncrBy(int64(count))
+			}
+		}(addr, p8sItems, count)
 	}
 }
 

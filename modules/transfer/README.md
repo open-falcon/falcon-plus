@@ -117,3 +117,14 @@ u want sending items via java jsonrpc client? turn to one java example: [jsonrpc
         - maxIdle: 连接池相关配置，最大空闲连接数，建议保持默认
         - retry: 连接后端的重试次数和发送数据的重试次数
         - address: tsdb地址或者tsdb集群vip地址, 通过tcp连接tsdb. 
+
+    p8s_relay
+        - enable: true/false, 表示是否开启向falcon2p8s exporter发送数据
+        - batch: 数据转发的批量大小，可以加快发送速度，建议保持默认值
+        - connTimeout: 单位是毫秒，与后端建立连接的超时时间，可以根据网络质量微调，建议保持默认
+        - callTimeout: 单位是毫秒，发送数据给后端的超时时间，可以根据网络质量微调，建议保持默认
+        - maxConns: 连接池相关配置，最大连接数，建议保持默认
+        - maxIdle: 连接池相关配置，最大空闲连接数，建议保持默认
+        - replicas: 这是一致性hash算法需要的节点副本数量，建议不要变更，保持默认即可
+        - notSyncMetrics: 不发送到falcon2p8s exporter的metric列表，前缀匹配
+        - cluster: key-value形式的字典，表示后端的falcon2p8s exporter列表，其中key代表后端exporter名字，value代表的是具体的ip:port

@@ -25,4 +25,5 @@ func initNodeRings() {
 
 	JudgeNodeRing = rings.NewConsistentHashNodesRing(int32(cfg.Judge.Replicas), cutils.KeysOfMap(cfg.Judge.Cluster))
 	GraphNodeRing = rings.NewConsistentHashNodesRing(int32(cfg.Graph.Replicas), cutils.KeysOfMap(cfg.Graph.Cluster))
+	P8sRelayNodeRing = rings.NewConsistentHashNodesRing(int32(cfg.P8sRelay.Replicas), cutils.KeysOfMap(cfg.P8sRelay.Cluster))
 }
