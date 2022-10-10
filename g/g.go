@@ -36,6 +36,7 @@ func init() {
 		"gateway":    true,
 		"api":        true,
 		"alarm":      true,
+		"falcon2p8s": true,
 	}
 
 	BinOf = map[string]string{
@@ -49,6 +50,7 @@ func init() {
 		"gateway":    "./gateway/bin/falcon-gateway",
 		"api":        "./api/bin/falcon-api",
 		"alarm":      "./alarm/bin/falcon-alarm",
+		"falcon2p8s": "./falcon2p8s/bin/falcon-falcon2p8s",
 	}
 
 	cfgOf = map[string]string{
@@ -62,6 +64,7 @@ func init() {
 		"gateway":    "./gateway/config/cfg.json",
 		"api":        "./api/config/cfg.json",
 		"alarm":      "./alarm/config/cfg.json",
+		"falcon2p8s": "./falcon2p8s/config/cfg.json",
 	}
 
 	ModuleApps = map[string]string{
@@ -75,6 +78,7 @@ func init() {
 		"gateway":    "falcon-gateway",
 		"api":        "falcon-api",
 		"alarm":      "falcon-alarm",
+		"falcon2p8s": "falcon-falcon2p8s",
 	}
 
 	logpathOf = map[string]string{
@@ -88,6 +92,7 @@ func init() {
 		"gateway":    "./gateway/logs/gateway.log",
 		"api":        "./api/logs/api.log",
 		"alarm":      "./alarm/logs/alarm.log",
+		"falcon2p8s": "./falcon2p8s/logs/falcon2p8s.log",
 	}
 
 	PidOf = map[string]string{
@@ -101,6 +106,7 @@ func init() {
 		"gateway":    "<NOT SET>",
 		"api":        "<NOT SET>",
 		"alarm":      "<NOT SET>",
+		"falcon2p8s": "<NOT SET>",
 	}
 
 	// Modules are deployed in this order
@@ -115,6 +121,7 @@ func init() {
 		"gateway",
 		"api",
 		"alarm",
+		"falcon2p8s",
 	}
 }
 

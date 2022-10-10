@@ -89,6 +89,10 @@ func socketTelnetHandle(conn net.Conn) {
 		sender.Push2TransferSendQueue(items)
 	}
 
+	if cfg.P8sRelay.Enabled {
+		sender.Push2P8sRelaySendQueue(items)
+	}
+
 	return
 
 }

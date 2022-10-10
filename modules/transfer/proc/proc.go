@@ -43,24 +43,28 @@ var (
 	SendToGraphCnt    = nproc.NewSCounterQps("SendToGraphCnt")
 	SendToTransferCnt = nproc.NewSCounterQps("SendToTransferCnt")
 	SendToInfluxdbCnt = nproc.NewSCounterQps("SendToInfluxdbCnt")
+	SendToP8sRelayCnt = nproc.NewSCounterQps("SendToP8sRelayCnt")
 
 	SendToJudgeDropCnt    = nproc.NewSCounterQps("SendToJudgeDropCnt")
 	SendToTsdbDropCnt     = nproc.NewSCounterQps("SendToTsdbDropCnt")
 	SendToGraphDropCnt    = nproc.NewSCounterQps("SendToGraphDropCnt")
 	SendToTransferDropCnt = nproc.NewSCounterQps("SendToTransferDropCnt")
-	SendToInfluxdbDropCnt = nproc.NewSCounterQps("SendToTsdbDropCnt")
+	SendToInfluxdbDropCnt = nproc.NewSCounterQps("SendToInfluxdbDropCnt")
+	SendToP8sRelayDropCnt = nproc.NewSCounterQps("SendToP8sRelayDropCnt")
 
 	SendToJudgeFailCnt    = nproc.NewSCounterQps("SendToJudgeFailCnt")
 	SendToTsdbFailCnt     = nproc.NewSCounterQps("SendToTsdbFailCnt")
 	SendToGraphFailCnt    = nproc.NewSCounterQps("SendToGraphFailCnt")
 	SendToTransferFailCnt = nproc.NewSCounterQps("SendToTransferFailCnt")
 	SendToInfluxdbFailCnt = nproc.NewSCounterQps("SendToInfluxdbFailCnt")
+	SendToP8sRelayFailCnt = nproc.NewSCounterQps("SendToP8sRelayFailCnt")
 
 	// 发送缓存大小
 	JudgeQueuesCnt    = nproc.NewSCounterBase("JudgeSendCacheCnt")
 	TsdbQueuesCnt     = nproc.NewSCounterBase("TsdbSendCacheCnt")
 	GraphQueuesCnt    = nproc.NewSCounterBase("GraphSendCacheCnt")
 	TransferQueuesCnt = nproc.NewSCounterBase("TransferSendCacheCnt")
+	P8sRelayQueuesCnt = nproc.NewSCounterBase("P8sRelaySendCacheCnt")
 
 	// http请求次数
 	HistoryRequestCnt = nproc.NewSCounterQps("HistoryRequestCnt")
@@ -94,6 +98,7 @@ func GetAll() []interface{} {
 	ret = append(ret, SendToInfluxdbCnt.Get())
 	ret = append(ret, SendToGraphCnt.Get())
 	ret = append(ret, SendToTransferCnt.Get())
+	ret = append(ret, SendToP8sRelayCnt.Get())
 
 	// drop cnt
 	ret = append(ret, SendToJudgeDropCnt.Get())
@@ -101,6 +106,7 @@ func GetAll() []interface{} {
 	ret = append(ret, SendToGraphDropCnt.Get())
 	ret = append(ret, SendToTransferDropCnt.Get())
 	ret = append(ret, SendToInfluxdbDropCnt.Get())
+	ret = append(ret, SendToP8sRelayDropCnt.Get())
 
 	// send fail cnt
 	ret = append(ret, SendToJudgeFailCnt.Get())
@@ -108,12 +114,14 @@ func GetAll() []interface{} {
 	ret = append(ret, SendToGraphFailCnt.Get())
 	ret = append(ret, SendToTransferFailCnt.Get())
 	ret = append(ret, SendToInfluxdbFailCnt.Get())
+	ret = append(ret, SendToP8sRelayFailCnt.Get())
 
 	// cache cnt
 	ret = append(ret, JudgeQueuesCnt.Get())
 	ret = append(ret, TsdbQueuesCnt.Get())
 	ret = append(ret, GraphQueuesCnt.Get())
 	ret = append(ret, TransferQueuesCnt.Get())
+	ret = append(ret, P8sRelayQueuesCnt.Get())
 
 	// http request
 	ret = append(ret, HistoryRequestCnt.Get())

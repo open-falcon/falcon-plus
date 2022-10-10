@@ -17,6 +17,10 @@ package sender
 import (
 	"fmt"
 	"log"
+	"strconv"
+	"strings"
+
+	"time"
 
 	"github.com/influxdata/influxdb/client/v2"
 	backend "github.com/open-falcon/falcon-plus/common/backend_pool"
@@ -25,7 +29,6 @@ import (
 	"github.com/open-falcon/falcon-plus/modules/transfer/proc"
 	rings "github.com/toolkits/consistent/rings"
 	nlist "github.com/toolkits/container/list"
-	"time"
 )
 
 const (
@@ -40,18 +43,20 @@ var (
 // 服务节点的一致性哈希环
 // pk -> node
 var (
-	JudgeNodeRing *rings.ConsistentHashNodeRing
-	GraphNodeRing *rings.ConsistentHashNodeRing
+	JudgeNodeRing    *rings.ConsistentHashNodeRing
+	GraphNodeRing    *rings.ConsistentHashNodeRing
+	P8sRelayNodeRing *rings.ConsistentHashNodeRing
 )
 
 // 发送缓存队列
 // node -> queue_of_data
 var (
-	TsdbQueue     *nlist.SafeListLimited
-	JudgeQueues   = make(map[string]*nlist.SafeListLimited)
-	GraphQueues   = make(map[string]*nlist.SafeListLimited)
-	TransferQueue *nlist.SafeListLimited
-	InfluxdbQueue *nlist.SafeListLimited
+	TsdbQueue      *nlist.SafeListLimited
+	JudgeQueues    = make(map[string]*nlist.SafeListLimited)
+	GraphQueues    = make(map[string]*nlist.SafeListLimited)
+	P8sRelayQueues = make(map[string]*nlist.SafeListLimited)
+	TransferQueue  *nlist.SafeListLimited
+	InfluxdbQueue  *nlist.SafeListLimited
 )
 
 // transfer的主机列表，以及主机名和地址的映射关系
@@ -68,6 +73,7 @@ var (
 	TsdbConnPoolHelper *backend.TsdbConnPoolHelper
 	GraphConnPools     *backend.SafeRpcConnPools
 	TransferConnPools  *backend.SafeRpcConnPools
+	P8sRelayConnPools  *backend.SafeRpcConnPools
 )
 
 // infludbConn
@@ -170,6 +176,52 @@ func Push2JudgeSendQueue(items []*cmodel.MetaData) {
 	}
 }
 
+func Push2P8sRelaySendQueue(items []*cmodel.MetaData) {
+	cfg := g.Config().P8sRelay
+	notSyncMetrics := g.Config().P8sRelay.NotSyncMetrics
+	for _, item := range items {
+		// 过滤同步到Prometheus的监控指标
+		sync := true
+		for _, m := range notSyncMetrics {
+			if strings.HasPrefix(item.Metric, m) {
+				sync = false
+				break
+			}
+		}
+		if !sync {
+			continue
+		}
+		p8sItem, err := convert2P8sRelayItem(item)
+		if err != nil {
+			log.Println("E:", err)
+			continue
+		}
+		pk := item.PK()
+		// statistics
+		proc.RecvDataTrace.Trace(pk, item)
+		proc.RecvDataFilter.Filter(pk, item.Value, item)
+
+		node, err := P8sRelayNodeRing.GetNode(pk)
+		if err != nil {
+			log.Println("E:", err)
+			continue
+		}
+		cnode := cfg.ClusterList[node]
+		errCnt := 0
+		for _, addr := range cnode.Addrs {
+			Q := P8sRelayQueues[node+addr]
+			if !Q.PushFront(p8sItem) {
+				errCnt += 1
+			}
+		}
+		// statistics
+		if errCnt > 0 {
+			proc.SendToP8sRelayDropCnt.Incr()
+		}
+
+	}
+}
+
 // 将数据 打入 某个Graph的发送缓存队列, 具体是哪一个Graph 由一致性哈希 决定
 func Push2GraphSendQueue(items []*cmodel.MetaData) {
 	cfg := g.Config().Graph
@@ -206,6 +258,33 @@ func Push2GraphSendQueue(items []*cmodel.MetaData) {
 			proc.SendToGraphDropCnt.Incr()
 		}
 	}
+}
+
+func convert2P8sRelayItem(d *cmodel.MetaData) (*cmodel.P8sItem, error) {
+	item := &cmodel.P8sItem{}
+
+	item.Endpoint = d.Endpoint
+	item.Metric = d.Metric
+	item.Tags = d.Tags
+	item.Timestamp = d.Timestamp
+	item.Value, _ = strconv.ParseFloat(fmt.Sprintf("%.3f", d.Value), 64)
+	item.Step = int(d.Step)
+	if item.Step < MinStep {
+		item.Step = MinStep
+	}
+
+	if d.CounterType == g.GAUGE {
+		item.MetricType = g.GAUGE
+	} else if d.CounterType == g.COUNTER {
+		item.MetricType = g.COUNTER
+	} else {
+		log.Printf("Error not supported counter type: %s", d.CounterType)
+		return item, fmt.Errorf("not_supported_counter_type")
+	}
+
+	item.Timestamp = alignTs(item.Timestamp, int64(item.Step)) //item.Timestamp - item.Timestamp%int64(item.Step)
+
+	return item, nil
 }
 
 // 打到Graph的数据,要根据rrdtool的特定 来限制 step、counterType、timestamp

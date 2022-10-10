@@ -33,6 +33,15 @@ func initSendQueues() {
 		}
 	}
 
+	if cfg.P8sRelay.Enabled {
+		for node, nitem := range cfg.P8sRelay.ClusterList {
+			for _, addr := range nitem.Addrs {
+				Q := nlist.NewSafeListLimited(DefaultSendQueueMaxSize)
+				P8sRelayQueues[node+addr] = Q
+			}
+		}
+	}
+
 	if cfg.Tsdb.Enabled {
 		TsdbQueue = nlist.NewSafeListLimited(DefaultSendQueueMaxSize)
 	}

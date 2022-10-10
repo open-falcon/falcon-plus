@@ -1,0 +1,10 @@
+{
+    "log_level": "debug",
+    "concurrent": 100,
+	"http": {
+		"listen": "0.0.0.0:9090"
+	},
+    "rpc": {
+        "listen": "0.0.0.0:8080"
+    }
+}

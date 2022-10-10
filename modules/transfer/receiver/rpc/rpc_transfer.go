@@ -169,6 +169,10 @@ func RecvMetricValues(args []*cmodel.MetricValue, reply *cmodel.TransferResponse
 		sender.Push2InfluxdbSendQueue(items)
 	}
 
+	if cfg.P8sRelay.Enabled {
+		sender.Push2P8sRelaySendQueue(items)
+	}
+
 	reply.Message = "ok"
 	reply.Total = len(args)
 	reply.Latency = (time.Now().UnixNano() - start.UnixNano()) / 1000000

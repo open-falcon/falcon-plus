@@ -98,6 +98,19 @@ type InfluxdbConfig struct {
 	Precision string `json:"precision"`
 }
 
+type P8sRelayConfig struct {
+	Enabled        bool                    `json:"enabled"`
+	Batch          int                     `json:"batch"`
+	ConnTimeout    int                     `json:"connTimeout"`
+	CallTimeout    int                     `json:"callTimeout"`
+	MaxConns       int                     `json:"maxConns"`
+	MaxIdle        int                     `json:"maxIdle"`
+	Replicas       int                     `json:"replicas"`
+	NotSyncMetrics []string                `json:"notSyncMetrics"`
+	Cluster        map[string]string       `json:"cluster"`
+	ClusterList    map[string]*ClusterNode `json:"clusterList"`
+}
+
 type GlobalConfig struct {
 	Debug    bool            `json:"debug"`
 	MinStep  int             `json:"minStep"` //最小周期,单位sec
@@ -109,6 +122,7 @@ type GlobalConfig struct {
 	Tsdb     *TsdbConfig     `json:"tsdb"`
 	Transfer *TransferConfig `json:"transfer"`
 	Influxdb *InfluxdbConfig `json:"influxdb"`
+	P8sRelay *P8sRelayConfig `json:"p8s_relay"`
 }
 
 var (
@@ -148,6 +162,7 @@ func ParseConfig(cfg string) {
 	// split cluster config
 	c.Judge.ClusterList = formatClusterItems(c.Judge.Cluster)
 	c.Graph.ClusterList = formatClusterItems(c.Graph.Cluster)
+	c.P8sRelay.ClusterList = formatClusterItems(c.P8sRelay.Cluster)
 
 	configLock.Lock()
 	defer configLock.Unlock()
