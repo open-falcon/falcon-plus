@@ -30,6 +30,13 @@ type PluginConfig struct {
 	LogDir  string `json:"logs"`
 }
 
+type ScriptConfig struct {
+	Enabled bool   `json:"enabled"`
+	Dir     string `json:"dir"`
+	ReloadCfgFilesSec int    `json:"reloadCfgFilesSec"`
+	LogDir  string `json:"logs"`
+}
+
 type HeartbeatConfig struct {
 	Enabled  bool   `json:"enabled"`
 	Addr     string `json:"addr"`
@@ -60,6 +67,7 @@ type GlobalConfig struct {
 	Hostname      string            `json:"hostname"`
 	IP            string            `json:"ip"`
 	Plugin        *PluginConfig     `json:"plugin"`
+	Script        *ScriptConfig     `json:"script`
 	Heartbeat     *HeartbeatConfig  `json:"heartbeat"`
 	Transfer      *TransferConfig   `json:"transfer"`
 	Http          *HttpConfig       `json:"http"`

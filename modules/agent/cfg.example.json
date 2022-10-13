@@ -8,6 +8,12 @@
         "git": "https://github.com/open-falcon/plugin.git",
         "logs": "./logs"
     },
+    "script": {
+        "enabled": false,
+        "dir": "./scripts",
+        "reloadCfgFilesSec": 60,
+        "logs": "./logs"
+    },
     "heartbeat": {
         "enabled": true,
         "addr": "127.0.0.1:6030",
