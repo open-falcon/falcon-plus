@@ -3,7 +3,7 @@ module github.com/open-falcon/falcon-plus
 go 1.15
 
 require (
-	github.com/astaxie/beego v1.8.3
+	github.com/astaxie/beego v1.12.2
 	github.com/denisenkom/go-mssqldb v0.10.0 // indirect
 	github.com/emirpasic/gods v1.9.0
 	github.com/erikstmartin/go-testdb v0.0.0-20160219214506-8d10e4a1bae5 // indirect
@@ -23,14 +23,13 @@ require (
 	github.com/masato25/resty v0.4.2-0.20161209040832-927c0e7d74a0
 	github.com/masato25/yaag v0.0.0-20170704095552-00862ec4db8e
 	github.com/mattn/go-isatty v0.0.13 // indirect
-	github.com/mattn/go-sqlite3 v1.14.7 // indirect
 	github.com/mindprince/gonvml v0.0.0-20190828220739-9ebdce4bb989
 	github.com/niean/go-metrics-lite v0.0.0-20151230091537-b5d30971b578 // indirect
 	github.com/niean/goperfcounter v0.0.0-20160108100052-24860a8d3fac
 	github.com/niean/gotools v0.0.0-20151221085310-ff3f51fc5c60 // indirect
 	github.com/oleiade/lane v1.0.1
 	github.com/open-falcon/rrdlite v0.0.0-20170412122036-7d8646c85cc5
-	github.com/prometheus/client_golang v1.5.1
+	github.com/prometheus/client_golang v1.7.0
 	github.com/satori/go.uuid v1.2.1-0.20181028125025-b2ce2384e17b
 	github.com/sirupsen/logrus v1.8.1
 	github.com/smartystreets/goconvey v1.6.4
@@ -57,8 +56,6 @@ require (
 	golang.org/x/crypto v0.0.0-20210513164829-c07d793c2f9a // indirect
 	golang.org/x/net v0.0.0-20210525063256-abc453219eb5 // indirect
 	golang.org/x/sys v0.0.0-20210525143221-35b2ab0089ea // indirect
-	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
-	gopkg.in/go-playground/validator.v8 v8.18.2 // indirect
 
 )
 
