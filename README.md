@@ -9,9 +9,13 @@
 
 # Notice
 
-If you are heavily using k8s and adopting microservices architecture, we recommend you to upgrade to use [Nightingale](https://github.com/didi/nightingale) building your modern monitoring system.
+If you are heavily using k8s and adopting microservices architecture, we recommend you to upgrade to use [Nightingale](https://github.com/ccfos/nightingale) building your modern monitoring system.
 
-[Nightingale](https://github.com/didi/nightingale) is an enterprise-level cloud-native monitoring tool, which can be used as drop-in replacement of Prometheus for alerting and management.
+- [Nightingale](https://github.com/ccfos/nightingale) is an enterprise-level cloud-native monitoring tool, which can be used as drop-in replacement of Prometheus for alerting and management.
+- [Categraf](https://github.com/flashcatcloud/categraf) is one-stop telemetry collector for Nightingale / Prometheus / M3DB / VictoriaMetrics / Thanos / Influxdb / TDengine.
+
+It is recommended that you use [FlashDuty](https://flashcat.cloud/product/flashduty?from=categraf) as the OnCall system to realize alarm aggregation convergence, claiming, upgrading, scheduling, and coordination, so that the alarm can be reached efficiently and ensure that the alarm processing is not missed.
+
 
 # Documentations
 
