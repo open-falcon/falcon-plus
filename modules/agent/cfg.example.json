@@ -1,7 +1,10 @@
 {
+    "agent_mem_limit": 200,
+    "agent_mem_ctrl": false,
     "debug": true,
     "hostname": "",
     "ip": "",
+    "batch": 2000,
     "plugin": {
         "enabled": false,
         "dir": "./plugin",
