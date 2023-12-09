@@ -103,6 +103,18 @@ func CreateStrategy(c *gin.Context) {
 		RunEnd:     inputs.RunEnd,
 		TplId:      inputs.TplId,
 	}
+	//在插入数据前先查一下数据中有没有一样的数据避免插入相同的数据。
+	tx := db.Falcon.Begin()
+	strategy_count := []f.Strategy{}
+	if dt := tx.Where(&strategy).Find(&strategy_count); dt.Error != nil {
+		h.JSONR(c, expecstatus, fmt.Sprintf("select strategy got error: %s !", dt.Error))
+		return
+	} else {
+		if len(strategy_count) > 0 {
+			h.JSONR(c, "This stragtegy is already created")
+			return
+		}
+	}
 	dt := db.Falcon.Save(&strategy)
 	if dt.Error != nil {
 		h.JSONR(c, expecstatus, dt.Error)
