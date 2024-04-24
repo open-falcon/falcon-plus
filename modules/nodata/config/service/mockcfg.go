@@ -45,7 +45,7 @@ func GetMockCfgFromDB() map[string]*cmodel.NodataConfig {
 		return ret
 	}
 
-	q := fmt.Sprintf("SELECT id,name,obj,obj_type,metric,tags,dstype,step,mock FROM mockcfg")
+	q := "SELECT id,name,obj,obj_type,metric,tags,dstype,step,mock FROM mockcfg"
 	rows, err := dbConn.Query(q)
 	if err != nil {
 		log.Println("db.query error, mockcfg", err)
