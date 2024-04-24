@@ -15,10 +15,10 @@
 package http
 
 import (
-	"fmt"
-	"github.com/open-falcon/falcon-plus/modules/transfer/sender"
 	"net/http"
 	"strings"
+
+	"github.com/open-falcon/falcon-plus/modules/transfer/sender"
 )
 
 func configDebugHttpRoutes() {
@@ -29,7 +29,7 @@ func configDebugHttpRoutes() {
 
 		argsLen := len(args)
 		if argsLen < 1 {
-			w.Write([]byte(fmt.Sprintf("bad args\n")))
+			w.Write([]byte("bad args\n"))
 			return
 		}
 
@@ -41,7 +41,7 @@ func configDebugHttpRoutes() {
 		case "graph":
 			result = strings.Join(sender.GraphConnPools.Proc(), "\n")
 		default:
-			result = fmt.Sprintf("bad args, module not exist\n")
+			result = "bad args, module not exist\n"
 		}
 		w.Write([]byte(result))
 	})
